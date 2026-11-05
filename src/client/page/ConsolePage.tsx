@@ -12,6 +12,7 @@ import type {
   ThreadDetail,
   ThreadPage,
 } from '../types'
+import { subscribePending, takePending } from '../store'
 import { applyDetailEvent, threadTitle, upsertThread } from '../utils'
 import { NewThreadDialog, type NewThreadRequest } from './NewThreadDialog'
 import { ProjectList } from './ProjectList'
@@ -46,6 +47,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const [models, setModels] = React.useState<Array<{ id: string, displayName: string }>>([])
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [versionsOpen, setVersionsOpen] = React.useState(false)
+  const [newThreadCwd, setNewThreadCwd] = React.useState('')
 
   const selectedIdRef = React.useRef<string | null>(null)
   selectedIdRef.current = selectedId
@@ -95,6 +97,22 @@ export function ConsolePage(props: ConsolePageProps) {
     }
     await loadThreads(null)
   }, [api, loadThreads])
+
+  // 右侧栏 tab 的导航请求：打开某个线程，或带着 cwd 打开新会话对话框。
+  React.useEffect(() => {
+    const consume = () => {
+      const request = takePending()
+      if (request === null) return
+      if (request.kind === 'thread') {
+        setSelectedId(request.threadId)
+      } else {
+        setNewThreadCwd(request.cwd)
+        setDialogOpen(true)
+      }
+    }
+    consume()
+    return subscribePending(consume)
+  }, [])
 
   React.useEffect(() => {
     void refresh()
@@ -374,6 +392,7 @@ export function ConsolePage(props: ConsolePageProps) {
           </aside>
           <main className="dsh-codex-main">
             <ThreadView
+              api={api}
               detail={detail}
               loading={detailLoading}
               selectedId={selectedId}
@@ -417,10 +436,13 @@ export function ConsolePage(props: ConsolePageProps) {
         <VersionsDialog open={versionsOpen} onClose={() => setVersionsOpen(false)} api={api} />
         <NewThreadDialog
           open={dialogOpen}
-          defaultCwd={defaultCwd}
+          defaultCwd={newThreadCwd === '' ? defaultCwd : newThreadCwd}
           projects={projects}
           models={models}
-          onClose={() => setDialogOpen(false)}
+          onClose={() => {
+            setDialogOpen(false)
+            setNewThreadCwd('')
+          }}
           onCreate={createThread}
         />
       </div>

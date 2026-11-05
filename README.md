@@ -14,7 +14,8 @@
 - **会话管理**：重命名、归档/取消归档、Fork、导出 markdown、永久删除（二次确认）。
 - **版本与健康**：CLI / 守护进程 / 最新版、安装渠道、升级、回滚、守护进程重启/更新/停止、`codex doctor` 体检；长命令在后台跑并实时回显。
 
-尚未实现：markdown 渲染、图片预览、权限/MCP elicitation 的允许分支、右侧栏按当前会话过滤（见 `docs/PLAN.md` 的 M2/M5）。
+- **右侧栏 tab**：打开 DSH 会话的右侧栏，Codex tab 按该会话 cwd 列出项目内的 Codex 会话；点一条就切到主面板并选中。
+- **渲染**：markdown（标题/列表/代码块/表格/链接）、本地图片懒加载预览（8MB 上限）。
 
 ## 安装
 
@@ -82,6 +83,7 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 | `versions/check` `update` `rollback` `job` | 版本探测与升级/回滚（后台 job） |
 | `daemon/action` | 守护进程 start/stop/restart/update |
 | `doctor/run` | `codex doctor --json` |
+| `images/read` | 读本地图片转 data URL（png/jpg/webp/gif，≤8MB） |
 | `models/list` / `config/read` | 选择器数据 |
 
 SSE 事件：`hello`、`connection`、`thread/upsert`、`thread/status`、`turn/started`、`turn/completed`、`item/upsert`、`item/delta`、`item/patch`、`approval/requested`、`approval/resolved`、`mcp/status`、`thread/usage`、`resync`。
@@ -103,3 +105,4 @@ node scripts/smoke-host.mjs auto   # 不经过 DSH，直接连守护进程冒烟
 - 不自动批准任何审批；无人响应时按 `approvalTimeoutMs`（默认 10 分钟）自动拒绝。
 - 只连本机 Unix socket 或自己 spawn 的子进程，不监听网络端口。
 - 历史与实时条目对超长输出/diff/JSON 做截断，避免一次拉回几 MB。
+- `images/read` 只接受常见图片扩展名与 8MB 以内的文件；路径来自 Codex 的 `imageView` 条目，插件不主动遍历目录。

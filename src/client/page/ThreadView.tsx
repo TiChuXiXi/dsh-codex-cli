@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useT } from '../i18n'
+import type { Api } from '../rpc'
 import type { PendingApproval, ThreadDetail } from '../types'
 import { basename, relativeTime, statusKey, threadTitle } from '../utils'
 import { ApprovalStack } from './ApprovalCard'
@@ -9,6 +10,7 @@ import { Composer } from './Composer'
 import { ItemCard } from './ItemCard'
 
 export interface ThreadViewProps {
+  api: Api
   detail: ThreadDetail | null
   loading: boolean
   selectedId: string | null
@@ -22,6 +24,7 @@ export interface ThreadViewProps {
 }
 
 export function ThreadView({
+  api,
   detail,
   loading,
   selectedId,
@@ -105,7 +108,7 @@ export function ThreadView({
         {items.length === 0 ? (
           <div className="dsh-codex-empty">{t('thread.noMessages')}</div>
         ) : (
-          items.map((item) => <ItemCard key={item.id} item={item} />)
+          items.map((item) => <ItemCard key={item.id} item={item} api={api} />)
         )}
       </div>
       <ApprovalStack approvals={pending} onRespond={onRespond} />

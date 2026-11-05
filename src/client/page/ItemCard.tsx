@@ -2,10 +2,12 @@
 
 import * as React from 'react'
 import { useT } from '../i18n'
+import type { Api } from '../rpc'
 import type { CodexItem } from '../types'
+import { Markdown } from '../markdown'
 import { itemText } from '../utils'
 
-export function ItemCard({ item }: { item: CodexItem }) {
+export function ItemCard({ item, api }: { item: CodexItem, api: Api }) {
   const t = useT()
   switch (item.type) {
     case 'userMessage':
@@ -34,7 +36,7 @@ export function ItemCard({ item }: { item: CodexItem }) {
     case 'webSearch':
       return <Disclosure title={t('item.search')} body={<Json value={item} />} />
     case 'imageView':
-      return <Divider label={`${t('item.image')} · ${basenameOf(item.path)}`} />
+      return <ImageView item={item} api={api} />
     case 'contextCompaction':
       return <Divider label={t('item.compaction')} />
     case 'enteredReviewMode':
@@ -56,7 +58,7 @@ function Message({ kind, label, text, muted = false }: { kind: 'user' | 'assista
         <span>{label}</span>
       </div>
       <div className="dsh-codex-bubble" style={muted ? { opacity: 0.82 } : undefined}>
-        <div className="dsh-codex-text">{text}</div>
+        <Markdown text={text} />
       </div>
     </div>
   )
@@ -184,6 +186,74 @@ function Block({ title, meta, body }: { title: string, meta?: React.ReactNode, b
 
 function Divider({ label }: { label: string }) {
   return <div className="dsh-codex-divider">{label}</div>
+}
+
+/** 图片预览：进入视口附近才向宿主读文件，转成 data URL 后显示；同路径只读一次。 */
+const imageCache = new Map<string, string>()
+
+function ImageView({ item, api }: { item: CodexItem, api: Api }) {
+  const t = useT()
+  const path = typeof item.path === 'string' ? item.path : ''
+  const holderRef = React.useRef<HTMLDivElement | null>(null)
+  const [visible, setVisible] = React.useState(false)
+  const [src, setSrc] = React.useState<string | null>(path === '' ? null : imageCache.get(path) ?? null)
+  const [failed, setFailed] = React.useState(false)
+
+  React.useEffect(() => {
+    if (path === '') return undefined
+    const cached = imageCache.get(path)
+    if (cached !== undefined) {
+      setSrc(cached)
+      return undefined
+    }
+    const element = holderRef.current
+    if (element === null || typeof IntersectionObserver === 'undefined') {
+      setVisible(true)
+      return undefined
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisible(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '300px' },
+    )
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [path])
+
+  React.useEffect(() => {
+    if (!visible || path === '' || src !== null) return undefined
+    let alive = true
+    setFailed(false)
+    api<{ dataUrl: string }>('images/read', { path })
+      .then((result) => {
+        imageCache.set(path, result.dataUrl)
+        if (alive) setSrc(result.dataUrl)
+      })
+      .catch(() => {
+        if (alive) setFailed(true)
+      })
+    return () => {
+      alive = false
+    }
+  }, [api, path, visible, src])
+
+  if (path === '') return null
+  return (
+    <figure className="dsh-codex-image" ref={holderRef}>
+      {src !== null ? (
+        <img src={src} alt={basenameOf(path)} loading="lazy" />
+      ) : (
+        <div className="dsh-codex-image-placeholder">
+          {failed ? t('item.imageFailed') : t('item.imageLoading')}
+        </div>
+      )}
+      <figcaption>{basenameOf(path)}</figcaption>
+    </figure>
+  )
 }
 
 function basenameOf(value: unknown): string {

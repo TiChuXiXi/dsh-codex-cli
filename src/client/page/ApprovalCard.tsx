@@ -93,6 +93,22 @@ function ApprovalCard({
         {params.reason ? <div className="dsh-codex-approval-meta">{t('approval.reason')}: {params.reason}</div> : null}
         <pre className="dsh-codex-pre">{JSON.stringify(params.permissions ?? {}, null, 2)}</pre>
         <Actions>
+          <button
+            type="button"
+            className="dsh-codex-button primary"
+            disabled={busy}
+            onClick={() => void respond({ permissions: params.permissions ?? {}, scope: 'turn' })}
+          >
+            {t('approval.allowTurn')}
+          </button>
+          <button
+            type="button"
+            className="dsh-codex-button"
+            disabled={busy}
+            onClick={() => void respond({ permissions: params.permissions ?? {}, scope: 'session' })}
+          >
+            {t('approval.allowSession')}
+          </button>
           <button type="button" className="dsh-codex-button" disabled={busy} onClick={() => void respond({ permissions: {}, scope: 'turn' })}>
             {t('approval.deny')}
           </button>
