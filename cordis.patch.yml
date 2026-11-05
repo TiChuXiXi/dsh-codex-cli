@@ -1,0 +1,25 @@
+# dsh-codex-cli bundle patch —— 把插件行插入 profile 组合。
+#
+# 行按【包名】引用（不是相对路径）：patch 只贡献配置，不改变 loader 的基准目录。
+# 安装：dsh plugin --profile web add /root/project/dsh-codex-cli
+#
+# 行级 inject 必须写：loader 按行激活，模块里 export 的 inject 管不到行这一层。
+#   connection —— 复用 requestRejection() 做信任栅栏（Host/Origin + 会话认证）
+#   webServer  —— 把 /codex-cli 这条 prefix 路由挂上去
+- insert:
+    - id: codex-cli
+      name: dsh-codex-cli
+      inject: [connection, webServer]
+      config:
+        # auto = 守护进程优先，失败回退 stdio；daemon = 只连守护进程；stdio = 私有实例
+        transport: auto
+        # 空 = 从 PATH 解析 codex
+        codexPath: ''
+        # 空 = 用 CODEX_HOME 或 ~/.codex
+        codexHome: ''
+        # 审批无人响应时的自动拒绝时间（毫秒）
+        approvalTimeoutMs: 600000
+        # SSE 环形缓冲保留的事件条数
+        eventBufferSize: 5000
+        # 单次 RPC 请求体上限（字节）
+        maxBodyBytes: 2097152

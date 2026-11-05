@@ -1,0 +1,61 @@
+{
+  "name": "dsh-codex-cli",
+  "version": "0.1.0",
+  "description": "Codex CLI 管理端：在 DeepSeek Harness Web GUI 里管理 Codex 版本、项目会话，并通过 app-server 提供交互式对话。",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "client.js",
+    "cordis.patch.yml",
+    "locale",
+    "README.md"
+  ],
+  "dsh": {
+    "engines": {
+      "dsh": ">=0.2.1-rc.5"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "dependencies": {
+    "ws": "^8.22.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.5"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build-client.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "codex",
+    "codex-cli",
+    "app-server"
+  ],
+  "license": "MIT",
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}
