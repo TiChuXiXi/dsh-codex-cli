@@ -113,6 +113,55 @@ window.__ModuleLoader__.load({
       "approval.cwd": "目录",
       "approval.grantRoot": "授权目录",
       "approval.other": "其他",
+      "actions.rename": "重命名",
+      "actions.archive": "归档",
+      "actions.fork": "Fork",
+      "actions.export": "导出",
+      "actions.delete": "删除",
+      "actions.renameTitle": "重命名会话",
+      "actions.deleteTitle": "删除会话",
+      "actions.deleteBody": "永久删除「{name}」？此操作不可恢复。",
+      "actions.save": "保存",
+      "actions.cancel": "取消",
+      "actions.confirmDelete": "永久删除",
+      "actions.failed": "操作失败",
+      "actions.archived": "已归档",
+      "actions.exported": "已导出",
+      "versions.title": "版本与健康",
+      "versions.open": "版本",
+      "versions.cli": "CLI",
+      "versions.daemon": "守护进程",
+      "versions.latest": "最新版",
+      "versions.channel": "安装方式",
+      "versions.check": "检查更新",
+      "versions.checking": "检查中…",
+      "versions.update": "升级",
+      "versions.upToDate": "已是最新",
+      "versions.updateAvailable": "可升级到 {version}",
+      "versions.rollback": "回滚",
+      "versions.rollbackPlaceholder": "目标版本，例如 0.165.0",
+      "versions.daemonActions": "守护进程",
+      "versions.restart": "重启",
+      "versions.daemonUpdate": "更新守护进程",
+      "versions.stop": "停止",
+      "versions.confirmRestart": "重启守护进程会中断正在运行的回合，确认继续？",
+      "versions.confirmUpdate": "更新守护进程会中断正在运行的回合，确认继续？",
+      "versions.confirmStop": "停止守护进程会中断正在运行的回合，确认继续？",
+      "versions.confirm": "确认",
+      "versions.cancel": "取消",
+      "versions.force": "仍然继续",
+      "versions.activeTurns": "有 {count} 个会话正在运行",
+      "versions.job": "任务输出",
+      "versions.running": "运行中…",
+      "versions.done": "完成",
+      "versions.failed": "失败（退出码 {code}）",
+      "versions.doctor": "体检",
+      "versions.doctorOk": "正常",
+      "versions.doctorWarn": "有警告",
+      "versions.doctorError": "有问题",
+      "versions.close": "关闭",
+      "versions.failedToLoad": "读取版本信息失败",
+      "versions.updatedHint": "升级后请重新检查版本；守护进程可能仍是旧版本。",
       "newThread.title": "新会话",
       "newThread.cwd": "工作目录",
       "newThread.model": "模型",
@@ -213,6 +262,55 @@ window.__ModuleLoader__.load({
       "approval.cwd": "Directory",
       "approval.grantRoot": "Grant root",
       "approval.other": "Other",
+      "actions.rename": "Rename",
+      "actions.archive": "Archive",
+      "actions.fork": "Fork",
+      "actions.export": "Export",
+      "actions.delete": "Delete",
+      "actions.renameTitle": "Rename session",
+      "actions.deleteTitle": "Delete session",
+      "actions.deleteBody": 'Permanently delete "{name}"? This cannot be undone.',
+      "actions.save": "Save",
+      "actions.cancel": "Cancel",
+      "actions.confirmDelete": "Delete permanently",
+      "actions.failed": "Action failed",
+      "actions.archived": "Archived",
+      "actions.exported": "Exported",
+      "versions.title": "Versions & health",
+      "versions.open": "Versions",
+      "versions.cli": "CLI",
+      "versions.daemon": "Daemon",
+      "versions.latest": "Latest",
+      "versions.channel": "Install",
+      "versions.check": "Check for updates",
+      "versions.checking": "Checking…",
+      "versions.update": "Update",
+      "versions.upToDate": "Up to date",
+      "versions.updateAvailable": "Update available: {version}",
+      "versions.rollback": "Roll back",
+      "versions.rollbackPlaceholder": "Target version, e.g. 0.165.0",
+      "versions.daemonActions": "Daemon",
+      "versions.restart": "Restart",
+      "versions.daemonUpdate": "Update daemon",
+      "versions.stop": "Stop",
+      "versions.confirmRestart": "Restarting the daemon interrupts running turns. Continue?",
+      "versions.confirmUpdate": "Updating the daemon interrupts running turns. Continue?",
+      "versions.confirmStop": "Stopping the daemon interrupts running turns. Continue?",
+      "versions.confirm": "Confirm",
+      "versions.cancel": "Cancel",
+      "versions.force": "Continue anyway",
+      "versions.activeTurns": "{count} sessions are running",
+      "versions.job": "Job output",
+      "versions.running": "Running…",
+      "versions.done": "Done",
+      "versions.failed": "Failed (exit {code})",
+      "versions.doctor": "Doctor",
+      "versions.doctorOk": "Healthy",
+      "versions.doctorWarn": "Warnings",
+      "versions.doctorError": "Problems",
+      "versions.close": "Close",
+      "versions.failedToLoad": "Could not read version information",
+      "versions.updatedHint": "Re-check versions after updating; the daemon may still run the old build.",
       "newThread.title": "New session",
       "newThread.cwd": "Working directory",
       "newThread.model": "Model",
@@ -277,7 +375,7 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/ConsolePage.tsx
-    var React11 = __toESM(require("react"), 1);
+    var React13 = __toESM(require("react"), 1);
 
     // src/client/events.ts
     function openEventStream({ onEvent, onState }) {
@@ -528,11 +626,11 @@ window.__ModuleLoader__.load({
 
     // src/client/page/StatusHeader.tsx
     var React5 = __toESM(require("react"), 1);
-    function StatusHeader({ status, streamState, onRefresh, onNew }) {
+    function StatusHeader({ status, streamState, onRefresh, onNew, onVersions }) {
       const t = useT();
       const phase = status?.phase ?? "connecting";
       const phaseClass = phase === "ready" ? "ok" : phase === "error" ? "error" : "warn";
-      return /* @__PURE__ */ React5.createElement("header", { className: "dsh-codex-header" }, /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-title" }, /* @__PURE__ */ React5.createElement("strong", null, t("app.title")), /* @__PURE__ */ React5.createElement("span", null, t("app.subtitle"))), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-spacer" }), /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-badge", title: status?.error ?? void 0 }, /* @__PURE__ */ React5.createElement("i", { className: `dsh-codex-dot ${phaseClass} ${phase === "connecting" ? "pulse" : ""}` }), t(`status.${phase}`)), status?.kind ? /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-badge" }, t(`status.${status.kind}`)) : null, status?.codexVersion ? /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-badge" }, t("status.version", { version: status.codexVersion })) : null, /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-badge" }, /* @__PURE__ */ React5.createElement("i", { className: `dsh-codex-dot ${streamState === "open" ? "ok" : "warn"} ${streamState === "connecting" ? "pulse" : ""}` }), t(`status.events.${streamState}`)), onNew !== void 0 ? /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button primary", onClick: onNew }, t("newThread.open")) : null, /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onRefresh }, t("status.refresh")));
+      return /* @__PURE__ */ React5.createElement("header", { className: "dsh-codex-header" }, /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-title" }, /* @__PURE__ */ React5.createElement("strong", null, t("app.title")), /* @__PURE__ */ React5.createElement("span", null, t("app.subtitle"))), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-spacer" }), /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-badge", title: status?.error ?? void 0 }, /* @__PURE__ */ React5.createElement("i", { className: `dsh-codex-dot ${phaseClass} ${phase === "connecting" ? "pulse" : ""}` }), t(`status.${phase}`)), status?.kind ? /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-badge" }, t(`status.${status.kind}`)) : null, status?.codexVersion ? /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-badge" }, t("status.version", { version: status.codexVersion })) : null, /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-badge" }, /* @__PURE__ */ React5.createElement("i", { className: `dsh-codex-dot ${streamState === "open" ? "ok" : "warn"} ${streamState === "connecting" ? "pulse" : ""}` }), t(`status.events.${streamState}`)), onNew !== void 0 ? /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button primary", onClick: onNew }, t("newThread.open")) : null, onVersions !== void 0 ? /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onVersions }, t("versions.open")) : null, /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onRefresh }, t("status.refresh")));
     }
 
     // src/client/page/ThreadList.tsx
@@ -855,7 +953,8 @@ window.__ModuleLoader__.load({
       onRespond,
       onSend,
       onSteer,
-      onStop
+      onStop,
+      actions
     }) {
       const t = useT();
       const messagesRef = React10.useRef(null);
@@ -874,7 +973,7 @@ window.__ModuleLoader__.load({
       if (detail === null) return null;
       const thread = detail.thread;
       const items = detail.turns.flatMap((turn) => turn.items ?? []);
-      return /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React10.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.messages", { count: items.length })))), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-messages", ref: messagesRef }, items.length === 0 ? /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : items.map((item) => /* @__PURE__ */ React10.createElement(ItemCard, { key: item.id, item }))), /* @__PURE__ */ React10.createElement(ApprovalStack, { approvals: pending, onRespond }), /* @__PURE__ */ React10.createElement(
+      return /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-thread-header-top" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), actions), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React10.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-chip" }, t("thread.messages", { count: items.length })))), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-messages", ref: messagesRef }, items.length === 0 ? /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : items.map((item) => /* @__PURE__ */ React10.createElement(ItemCard, { key: item.id, item }))), /* @__PURE__ */ React10.createElement(ApprovalStack, { approvals: pending, onRespond }), /* @__PURE__ */ React10.createElement(
         Composer,
         {
           disabled: false,
@@ -886,30 +985,304 @@ window.__ModuleLoader__.load({
       ));
     }
 
+    // src/client/page/ThreadActions.tsx
+    var React11 = __toESM(require("react"), 1);
+    function ThreadActions({ api, thread, onRenamed, onArchived, onForked, onDeleted }) {
+      const t = useT();
+      const [dialog, setDialog] = React11.useState(null);
+      const [name, setName] = React11.useState(thread.name ?? "");
+      const [busy, setBusy] = React11.useState(false);
+      const [error, setError] = React11.useState(null);
+      const run = async (action) => {
+        if (busy) return;
+        setBusy(true);
+        setError(null);
+        try {
+          await action();
+        } catch (cause) {
+          setError(cause instanceof Error ? cause.message : String(cause));
+        } finally {
+          setBusy(false);
+        }
+      };
+      const openRename = () => {
+        setName(thread.name ?? "");
+        setError(null);
+        setDialog("rename");
+      };
+      const saveRename = () => run(async () => {
+        const trimmed = name.trim();
+        if (trimmed === "") {
+          setError(t("actions.failed"));
+          return;
+        }
+        await api("threads/rename", { threadId: thread.id, name: trimmed });
+        onRenamed(trimmed);
+        setDialog(null);
+      });
+      const archive = () => run(async () => {
+        await api("threads/archive", { threadId: thread.id });
+        onArchived();
+      });
+      const fork = () => run(async () => {
+        const next = await api("threads/fork", { threadId: thread.id });
+        if (next !== null && next !== void 0) onForked(next);
+      });
+      const exportMarkdown = () => run(async () => {
+        const result = await api("threads/export", { threadId: thread.id });
+        const blob = new Blob([result.content], { type: "text/markdown;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = result.filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2e3);
+      });
+      const remove = () => run(async () => {
+        await api("threads/delete", { threadId: thread.id });
+        onDeleted();
+        setDialog(null);
+      });
+      return /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-actions" }, /* @__PURE__ */ React11.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: openRename }, t("actions.rename")), /* @__PURE__ */ React11.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void archive() }, t("actions.archive")), /* @__PURE__ */ React11.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void fork() }, t("actions.fork")), /* @__PURE__ */ React11.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void exportMarkdown() }, t("actions.export")), /* @__PURE__ */ React11.createElement(
+        "button",
+        {
+          type: "button",
+          className: "dsh-codex-button danger",
+          disabled: busy,
+          onClick: () => {
+            setError(null);
+            setDialog("delete");
+          }
+        },
+        t("actions.delete")
+      ), error !== null && dialog === null ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-action-error" }, error) : null, dialog === "rename" ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
+        if (event.target === event.currentTarget && !busy) setDialog(null);
+      } }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React11.createElement("header", { className: "dsh-codex-dialog-head" }, t("actions.renameTitle")), /* @__PURE__ */ React11.createElement(
+        "input",
+        {
+          className: "dsh-codex-search",
+          autoFocus: true,
+          value: name,
+          onChange: (event) => setName(event.target.value),
+          onKeyDown: (event) => {
+            if (event.key === "Enter") void saveRename();
+          }
+        }
+      ), error !== null ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React11.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null) }, t("actions.cancel")), /* @__PURE__ */ React11.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void saveRename() }, t("actions.save"))))) : null, dialog === "delete" ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
+        if (event.target === event.currentTarget && !busy) setDialog(null);
+      } }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React11.createElement("header", { className: "dsh-codex-dialog-head" }, t("actions.deleteTitle")), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-approval-meta" }, t("actions.deleteBody", { name: threadTitle(thread) })), error !== null ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React11.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null) }, t("actions.cancel")), /* @__PURE__ */ React11.createElement("button", { type: "button", className: "dsh-codex-button danger", disabled: busy, onClick: () => void remove() }, t("actions.confirmDelete"))))) : null);
+    }
+
+    // src/client/page/VersionsDialog.tsx
+    var React12 = __toESM(require("react"), 1);
+    function VersionsDialog({ open, onClose, api }) {
+      const t = useT();
+      const [check, setCheck] = React12.useState(null);
+      const [loading, setLoading] = React12.useState(false);
+      const [error, setError] = React12.useState(null);
+      const [activeTurns, setActiveTurns] = React12.useState([]);
+      const [job, setJob] = React12.useState(null);
+      const [rollbackVersion, setRollbackVersion] = React12.useState("");
+      const [pendingDaemon, setPendingDaemon] = React12.useState(null);
+      const [lastAction, setLastAction] = React12.useState(null);
+      const pollRef = React12.useRef(null);
+      const logRef = React12.useRef(null);
+      const load = React12.useCallback(
+        async (refresh = false) => {
+          setLoading(true);
+          setError(null);
+          try {
+            const value = await api("versions/check", { refresh });
+            setCheck(value);
+          } catch (cause) {
+            setError(messageOf(cause));
+          } finally {
+            setLoading(false);
+          }
+        },
+        [api]
+      );
+      React12.useEffect(() => {
+        if (open) void load(false);
+      }, [open, load]);
+      React12.useEffect(
+        () => () => {
+          if (pollRef.current !== null) window.clearInterval(pollRef.current);
+        },
+        []
+      );
+      const pollJob = React12.useCallback(
+        (jobId) => {
+          if (pollRef.current !== null) window.clearInterval(pollRef.current);
+          pollRef.current = window.setInterval(async () => {
+            try {
+              const state = await api("versions/job", { jobId });
+              setJob(state);
+              if (state.status !== "running") {
+                if (pollRef.current !== null) window.clearInterval(pollRef.current);
+                pollRef.current = null;
+                void load(true);
+              }
+            } catch {
+              if (pollRef.current !== null) window.clearInterval(pollRef.current);
+              pollRef.current = null;
+            }
+          }, 1e3);
+        },
+        [api, load]
+      );
+      const startJob = React12.useCallback(
+        async (endpoint, payload) => {
+          setError(null);
+          setActiveTurns([]);
+          setLastAction({ endpoint, payload });
+          try {
+            const result = await api(endpoint, payload);
+            setJob({ jobId: result.jobId, kind: "", status: "running", command: "", exitCode: null, lines: [] });
+            pollJob(result.jobId);
+          } catch (cause) {
+            const failure = cause;
+            if (failure.code === "codex-cli/active-turns") {
+              setActiveTurns(failure.details?.threads ?? []);
+            }
+            setError(messageOf(cause));
+          }
+        },
+        [api, pollJob]
+      );
+      React12.useEffect(() => {
+        const element = logRef.current;
+        if (element !== null) element.scrollTop = element.scrollHeight;
+      }, [job?.lines.length]);
+      if (!open) return null;
+      const doctor = check?.doctor ?? null;
+      const problems = doctor?.checks.filter((entry) => entry.status !== "ok") ?? [];
+      const daemonVersion = check?.daemon?.appServerVersion ?? check?.daemon?.cliVersion ?? null;
+      return /* @__PURE__ */ React12.createElement(
+        "div",
+        {
+          className: "dsh-codex-dialog-backdrop",
+          onMouseDown: (event) => {
+            if (event.target === event.currentTarget) onClose();
+          }
+        },
+        /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-dialog dsh-codex-versions", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React12.createElement("header", { className: "dsh-codex-dialog-head" }, t("versions.title")), loading && check === null ? /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-loading" }, t("versions.checking")) : null, error !== null ? /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-dialog-error" }, error, activeTurns.length > 0 ? /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-approval-meta" }, t("versions.activeTurns", { count: activeTurns.length }), /* @__PURE__ */ React12.createElement(
+          "button",
+          {
+            type: "button",
+            className: "dsh-codex-button",
+            style: { marginLeft: 8 },
+            onClick: () => {
+              if (lastAction !== null) {
+                void startJob(lastAction.endpoint, { ...lastAction.payload, force: true });
+              }
+            }
+          },
+          t("versions.force")
+        )) : null) : null, check !== null ? /* @__PURE__ */ React12.createElement(React12.Fragment, null, /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-version-grid" }, /* @__PURE__ */ React12.createElement("span", null, t("versions.cli")), /* @__PURE__ */ React12.createElement("strong", null, check.cli.version ?? "—"), /* @__PURE__ */ React12.createElement("span", null, t("versions.daemon")), /* @__PURE__ */ React12.createElement("strong", null, daemonVersion ?? "—"), /* @__PURE__ */ React12.createElement("span", null, t("versions.latest")), /* @__PURE__ */ React12.createElement("strong", null, check.latest?.version ?? "—"), /* @__PURE__ */ React12.createElement("span", null, t("versions.channel")), /* @__PURE__ */ React12.createElement("strong", { title: check.install?.context ?? void 0 }, installLabel(check.install?.context))), /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-version-actions" }, /* @__PURE__ */ React12.createElement("button", { type: "button", className: "dsh-codex-button", disabled: loading, onClick: () => void load(true) }, loading ? t("versions.checking") : t("versions.check")), check.updateAvailable ? /* @__PURE__ */ React12.createElement(
+          "button",
+          {
+            type: "button",
+            className: "dsh-codex-button primary",
+            disabled: job?.status === "running",
+            onClick: () => void startJob("versions/update", {})
+          },
+          t("versions.update"),
+          " → ",
+          check.latest?.version
+        ) : /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-hint" }, t("versions.upToDate"))), /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-version-actions" }, /* @__PURE__ */ React12.createElement(
+          "input",
+          {
+            className: "dsh-codex-search",
+            style: { flex: 1, margin: 0 },
+            value: rollbackVersion,
+            placeholder: t("versions.rollbackPlaceholder"),
+            onChange: (event) => setRollbackVersion(event.target.value)
+          }
+        ), /* @__PURE__ */ React12.createElement(
+          "button",
+          {
+            type: "button",
+            className: "dsh-codex-button",
+            disabled: rollbackVersion.trim() === "" || job?.status === "running",
+            onClick: () => void startJob("versions/rollback", { version: rollbackVersion.trim() })
+          },
+          t("versions.rollback")
+        )), /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-version-daemon" }, /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-section-title", style: { padding: 0 } }, t("versions.daemonActions")), /* @__PURE__ */ React12.createElement(
+          "button",
+          {
+            type: "button",
+            className: "dsh-codex-button",
+            disabled: job?.status === "running",
+            onClick: () => setPendingDaemon("restart")
+          },
+          t("versions.restart")
+        ), /* @__PURE__ */ React12.createElement(
+          "button",
+          {
+            type: "button",
+            className: "dsh-codex-button",
+            disabled: job?.status === "running",
+            onClick: () => setPendingDaemon("update")
+          },
+          t("versions.daemonUpdate")
+        ), /* @__PURE__ */ React12.createElement(
+          "button",
+          {
+            type: "button",
+            className: "dsh-codex-button",
+            disabled: job?.status === "running",
+            onClick: () => setPendingDaemon("stop")
+          },
+          t("versions.stop")
+        )), pendingDaemon !== null ? /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-approval" }, /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-approval-meta" }, pendingDaemon === "restart" ? t("versions.confirmRestart") : pendingDaemon === "update" ? t("versions.confirmUpdate") : t("versions.confirmStop")), /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-approval-actions" }, /* @__PURE__ */ React12.createElement("button", { type: "button", className: "dsh-codex-button", onClick: () => setPendingDaemon(null) }, t("versions.cancel")), /* @__PURE__ */ React12.createElement(
+          "button",
+          {
+            type: "button",
+            className: "dsh-codex-button primary",
+            onClick: () => {
+              const action = pendingDaemon;
+              setPendingDaemon(null);
+              void startJob("daemon/action", { action });
+            }
+          },
+          t("versions.confirm")
+        ))) : null, /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-version-doctor" }, /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-section-title", style: { padding: 0 } }, t("versions.doctor"), doctor !== null ? /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 } }, doctor.overallStatus === "ok" ? t("versions.doctorOk") : doctor.overallStatus === "warning" ? t("versions.doctorWarn") : t("versions.doctorError")) : null), problems.slice(0, 8).map((entry) => /* @__PURE__ */ React12.createElement("div", { key: entry.id, className: "dsh-codex-doctor-row" }, /* @__PURE__ */ React12.createElement("span", { className: `dsh-codex-dot ${entry.status === "error" ? "error" : "warn"}` }), /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-doctor-id" }, entry.id), /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-doctor-summary" }, entry.summary))), doctor !== null && problems.length === 0 ? /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-hint" }, doctor.checks.length, " checks ok") : null), job !== null ? /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-job" }, /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-section-title", style: { padding: 0 } }, t("versions.job"), /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 } }, job.status === "running" ? t("versions.running") : job.status === "done" ? t("versions.done") : t("versions.failed", { code: job.exitCode ?? "?" }))), /* @__PURE__ */ React12.createElement("pre", { className: "dsh-codex-pre dsh-codex-job-log", ref: logRef }, job.lines.join("\n"))) : null) : null, /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React12.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onClose }, t("versions.close"))))
+      );
+    }
+    function installLabel(context) {
+      if (typeof context !== "string" || context === "") return "—";
+      return context.split(" ")[0];
+    }
+    function messageOf(cause) {
+      return cause instanceof Error ? cause.message : String(cause);
+    }
+
     // src/client/page/ConsolePage.tsx
     function ConsolePage(props) {
       const t = props.t ?? fallbackTranslate;
       const api = props.api;
-      const [status, setStatus] = React11.useState(null);
-      const [projects, setProjects] = React11.useState([]);
-      const [threads, setThreads] = React11.useState([]);
-      const [nextCursor, setNextCursor] = React11.useState(null);
-      const [selectedCwd, setSelectedCwd] = React11.useState(null);
-      const [selectedId, setSelectedId] = React11.useState(null);
-      const [detail, setDetail] = React11.useState(null);
-      const [detailLoading, setDetailLoading] = React11.useState(false);
-      const [loadingThreads, setLoadingThreads] = React11.useState(false);
-      const [error, setError] = React11.useState(null);
-      const [streamState, setStreamState] = React11.useState("connecting");
-      const [search, setSearch] = React11.useState("");
-      const [pending, setPending] = React11.useState([]);
-      const [models, setModels] = React11.useState([]);
-      const [dialogOpen, setDialogOpen] = React11.useState(false);
-      const selectedIdRef = React11.useRef(null);
+      const [status, setStatus] = React13.useState(null);
+      const [projects, setProjects] = React13.useState([]);
+      const [threads, setThreads] = React13.useState([]);
+      const [nextCursor, setNextCursor] = React13.useState(null);
+      const [selectedCwd, setSelectedCwd] = React13.useState(null);
+      const [selectedId, setSelectedId] = React13.useState(null);
+      const [detail, setDetail] = React13.useState(null);
+      const [detailLoading, setDetailLoading] = React13.useState(false);
+      const [loadingThreads, setLoadingThreads] = React13.useState(false);
+      const [error, setError] = React13.useState(null);
+      const [streamState, setStreamState] = React13.useState("connecting");
+      const [search, setSearch] = React13.useState("");
+      const [pending, setPending] = React13.useState([]);
+      const [models, setModels] = React13.useState([]);
+      const [dialogOpen, setDialogOpen] = React13.useState(false);
+      const [versionsOpen, setVersionsOpen] = React13.useState(false);
+      const selectedIdRef = React13.useRef(null);
       selectedIdRef.current = selectedId;
-      const threadsRef = React11.useRef([]);
+      const threadsRef = React13.useRef([]);
       threadsRef.current = threads;
-      const loadThreads = React11.useCallback(
+      const loadThreads = React13.useCallback(
         async (cursor) => {
           setLoadingThreads(true);
           try {
@@ -921,21 +1294,21 @@ window.__ModuleLoader__.load({
             });
             setNextCursor(page.nextCursor);
           } catch (cause) {
-            setError(messageOf(cause));
+            setError(messageOf2(cause));
           } finally {
             setLoadingThreads(false);
           }
         },
         [api]
       );
-      const refreshPending = React11.useCallback(async () => {
+      const refreshPending = React13.useCallback(async () => {
         try {
           const result = await api("approvals/pending");
           setPending(result.pending ?? []);
         } catch {
         }
       }, [api]);
-      const refresh = React11.useCallback(async () => {
+      const refresh = React13.useCallback(async () => {
         setError(null);
         try {
           const [nextStatus, nextProjects] = await Promise.all([
@@ -945,17 +1318,17 @@ window.__ModuleLoader__.load({
           setStatus(nextStatus);
           setProjects(nextProjects);
         } catch (cause) {
-          setError(messageOf(cause));
+          setError(messageOf2(cause));
         }
         await loadThreads(null);
       }, [api, loadThreads]);
-      React11.useEffect(() => {
+      React13.useEffect(() => {
         void refresh();
         void refreshPending();
         api("models/list").then((list) => setModels(list)).catch(() => {
         });
       }, [api, refresh, refreshPending]);
-      React11.useEffect(() => {
+      React13.useEffect(() => {
         const close = openEventStream({
           onState: setStreamState,
           onEvent: (event) => {
@@ -1022,7 +1395,7 @@ window.__ModuleLoader__.load({
         });
         return close;
       }, [refresh, refreshPending, loadThreads]);
-      React11.useEffect(() => {
+      React13.useEffect(() => {
         if (selectedId === null) {
           setDetail(null);
           return void 0;
@@ -1034,7 +1407,7 @@ window.__ModuleLoader__.load({
         api("threads/get", { threadId: selectedId, limit: 20 }).then((next) => {
           if (!cancelled) setDetail(next);
         }).catch((cause) => {
-          if (!cancelled) setError(messageOf(cause));
+          if (!cancelled) setError(messageOf2(cause));
         }).finally(() => {
           if (!cancelled) setDetailLoading(false);
         });
@@ -1042,7 +1415,7 @@ window.__ModuleLoader__.load({
           cancelled = true;
         };
       }, [api, selectedId]);
-      React11.useEffect(() => {
+      React13.useEffect(() => {
         if (selectedId === null) return void 0;
         let cancelled = false;
         let opened = false;
@@ -1059,20 +1432,20 @@ window.__ModuleLoader__.load({
         };
       }, [api, selectedId]);
       const detailThreadId = detail?.thread.id ?? null;
-      React11.useEffect(() => {
+      React13.useEffect(() => {
         if (detailThreadId === null || detail === null) return;
         setThreads(
           (previous) => previous.some((thread) => thread.id === detailThreadId) ? previous : upsertThread(previous, detail.thread)
         );
       }, [detailThreadId]);
-      const activeTurnId = React11.useMemo(() => {
+      const activeTurnId = React13.useMemo(() => {
         if (detail === null) return null;
         for (let index = detail.turns.length - 1; index >= 0; index -= 1) {
           if (detail.turns[index].status === "inProgress") return detail.turns[index].id;
         }
         return null;
       }, [detail]);
-      const send = React11.useCallback(
+      const send = React13.useCallback(
         async (text) => {
           if (selectedId === null) return;
           setError(null);
@@ -1082,48 +1455,48 @@ window.__ModuleLoader__.load({
               void loadThreads(null);
             }, 2500);
           } catch (cause) {
-            setError(messageOf(cause));
+            setError(messageOf2(cause));
             throw cause;
           }
         },
         [api, selectedId, loadThreads]
       );
-      const steer = React11.useCallback(
+      const steer = React13.useCallback(
         async (text) => {
           if (selectedId === null || activeTurnId === null) return;
           setError(null);
           try {
             await api("turns/steer", { threadId: selectedId, turnId: activeTurnId, text });
           } catch (cause) {
-            setError(messageOf(cause));
+            setError(messageOf2(cause));
             throw cause;
           }
         },
         [api, selectedId, activeTurnId]
       );
-      const stop = React11.useCallback(async () => {
+      const stop = React13.useCallback(async () => {
         if (selectedId === null || activeTurnId === null) return;
         setError(null);
         try {
           await api("turns/interrupt", { threadId: selectedId, turnId: activeTurnId });
         } catch (cause) {
-          setError(messageOf(cause));
+          setError(messageOf2(cause));
         }
       }, [api, selectedId, activeTurnId]);
-      const respond = React11.useCallback(
+      const respond = React13.useCallback(
         async (requestId, response) => {
           setError(null);
           try {
             await api("approvals/respond", { requestId, response });
             setPending((previous) => previous.filter((entry) => String(entry.requestId) !== String(requestId)));
           } catch (cause) {
-            setError(messageOf(cause));
+            setError(messageOf2(cause));
             throw cause;
           }
         },
         [api]
       );
-      const createThread = React11.useCallback(
+      const createThread = React13.useCallback(
         async (request) => {
           const thread = await api("threads/new", request);
           if (thread !== null && thread !== void 0) {
@@ -1134,7 +1507,7 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      const visibleThreads = React11.useMemo(() => {
+      const visibleThreads = React13.useMemo(() => {
         const query = search.trim().toLowerCase();
         return threads.filter((thread) => selectedCwd === null || thread.cwd === selectedCwd).filter((thread) => {
           if (query === "") return true;
@@ -1142,21 +1515,22 @@ window.__ModuleLoader__.load({
           return haystack.includes(query);
         }).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
       }, [threads, selectedCwd, search]);
-      const visiblePending = React11.useMemo(
+      const visiblePending = React13.useMemo(
         () => selectedId === null ? [] : pending.filter((entry) => entry.params?.threadId === void 0 || entry.params.threadId === selectedId),
         [pending, selectedId]
       );
       const defaultCwd = detail?.thread.cwd ?? selectedCwd ?? projects[0]?.cwd ?? "";
       const totalThreads = projects.reduce((sum, project) => sum + project.threadCount, 0);
-      return /* @__PURE__ */ React11.createElement(I18nContext.Provider, { value: t }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-root" }, /* @__PURE__ */ React11.createElement(
+      return /* @__PURE__ */ React13.createElement(I18nContext.Provider, { value: t }, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-root" }, /* @__PURE__ */ React13.createElement(
         StatusHeader,
         {
           status,
           streamState,
           onRefresh: () => void refresh(),
-          onNew: () => setDialogOpen(true)
+          onNew: () => setDialogOpen(true),
+          onVersions: () => setVersionsOpen(true)
         }
-      ), error !== null ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-error" }, error, /* @__PURE__ */ React11.createElement("button", { type: "button", className: "dsh-codex-button", style: { marginLeft: 8 }, onClick: () => void refresh() }, t("error.retry"))) : null, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-body" }, /* @__PURE__ */ React11.createElement("aside", { className: "dsh-codex-sidebar" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-sidebar-scroll" }, /* @__PURE__ */ React11.createElement(
+      ), error !== null ? /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-error" }, error, /* @__PURE__ */ React13.createElement("button", { type: "button", className: "dsh-codex-button", style: { marginLeft: 8 }, onClick: () => void refresh() }, t("error.retry"))) : null, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-body" }, /* @__PURE__ */ React13.createElement("aside", { className: "dsh-codex-sidebar" }, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-sidebar-scroll" }, /* @__PURE__ */ React13.createElement(
         ProjectList,
         {
           projects,
@@ -1167,7 +1541,7 @@ window.__ModuleLoader__.load({
             setSearch("");
           }
         }
-      ), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-section-title" }, t("threads.title")), /* @__PURE__ */ React11.createElement(
+      ), /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-section-title" }, t("threads.title")), /* @__PURE__ */ React13.createElement(
         ThreadList,
         {
           threads: visibleThreads,
@@ -1180,7 +1554,7 @@ window.__ModuleLoader__.load({
           onSelect: setSelectedId,
           onLoadMore: () => void loadThreads(nextCursor)
         }
-      ))), /* @__PURE__ */ React11.createElement("main", { className: "dsh-codex-main" }, /* @__PURE__ */ React11.createElement(
+      ))), /* @__PURE__ */ React13.createElement("main", { className: "dsh-codex-main" }, /* @__PURE__ */ React13.createElement(
         ThreadView,
         {
           detail,
@@ -1191,9 +1565,36 @@ window.__ModuleLoader__.load({
           onRespond: respond,
           onSend: send,
           onSteer: steer,
-          onStop: stop
+          onStop: stop,
+          actions: detail === null ? void 0 : /* @__PURE__ */ React13.createElement(
+            ThreadActions,
+            {
+              api,
+              thread: detail.thread,
+              onRenamed: (name) => {
+                setThreads(
+                  (previous) => previous.map((thread) => thread.id === detail.thread.id ? { ...thread, name } : thread)
+                );
+                setDetail(
+                  (previous) => previous === null ? previous : { ...previous, thread: { ...previous.thread, name } }
+                );
+              },
+              onArchived: () => {
+                setThreads((previous) => previous.filter((thread) => thread.id !== detail.thread.id));
+                setSelectedId(null);
+              },
+              onForked: (thread) => {
+                setThreads((previous) => upsertThread(previous, thread));
+                setSelectedId(thread.id);
+              },
+              onDeleted: () => {
+                setThreads((previous) => previous.filter((thread) => thread.id !== detail.thread.id));
+                setSelectedId(null);
+              }
+            }
+          )
         }
-      ))), /* @__PURE__ */ React11.createElement(
+      ))), /* @__PURE__ */ React13.createElement(VersionsDialog, { open: versionsOpen, onClose: () => setVersionsOpen(false), api }), /* @__PURE__ */ React13.createElement(
         NewThreadDialog,
         {
           open: dialogOpen,
@@ -1205,7 +1606,7 @@ window.__ModuleLoader__.load({
         }
       )));
     }
-    function messageOf(cause) {
+    function messageOf2(cause) {
       if (cause instanceof Error) return cause.message;
       return String(cause);
     }
@@ -1671,6 +2072,39 @@ window.__ModuleLoader__.load({
     }
     .dsh-codex-dialog-error { color: #a83232; font-size: 12px; }
     .dsh-codex-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+    .dsh-codex-versions { width: min(620px, calc(100vw - 32px)); }
+    .dsh-codex-version-grid {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 6px 10px;
+      font-size: 12px;
+    }
+    .dsh-codex-version-grid span { color: var(--dsw-alias-label-secondary, #6b6b6b); }
+    .dsh-codex-version-actions { display: flex; align-items: center; gap: 8px; }
+    .dsh-codex-version-daemon { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .dsh-codex-version-doctor { display: flex; flex-direction: column; gap: 4px; }
+    .dsh-codex-doctor-row { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+    .dsh-codex-doctor-id {
+      min-width: 150px;
+      font-family: var(--dsh-font-family-code, ui-monospace, monospace);
+      font-size: 11px;
+      color: var(--dsw-alias-label-secondary, #6b6b6b);
+    }
+    .dsh-codex-doctor-summary { color: var(--dsw-alias-label-primary, #1a1a1a); }
+    .dsh-codex-job { display: flex; flex-direction: column; gap: 6px; }
+    .dsh-codex-job-log { max-height: 180px; }
+
+    .dsh-codex-thread-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .dsh-codex-thread-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex: none; }
+    .dsh-codex-button.danger { color: #b23b3b; border-color: rgba(178, 59, 59, 0.35); }
+    .dsh-codex-button.danger:hover { background: rgba(178, 59, 59, 0.08); }
+    .dsh-codex-action-error { font-size: 11px; color: #a83232; }
     `;
     function installStyles() {
       if (typeof document === "undefined") return;

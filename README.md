@@ -11,8 +11,10 @@
 - **审批闭环**：命令审批、文件变更审批、用户提问以卡片形式出现在对话下方；在终端里批准过的请求会自动消失。
 - **实时共享**：默认连接 Codex 守护进程，终端里正在跑的会话也能在网页里实时看到。
 - **新会话**：选择目录、模型、推理强度、审批策略与沙箱后创建。
+- **会话管理**：重命名、归档/取消归档、Fork、导出 markdown、永久删除（二次确认）。
+- **版本与健康**：CLI / 守护进程 / 最新版、安装渠道、升级、回滚、守护进程重启/更新/停止、`codex doctor` 体检；长命令在后台跑并实时回显。
 
-尚未实现：版本升级/回滚、重命名/归档/删除/fork、markdown 渲染、右侧栏按当前会话过滤（见 `docs/PLAN.md` 的 M3–M5）。
+尚未实现：markdown 渲染、图片预览、权限/MCP elicitation 的允许分支、右侧栏按当前会话过滤（见 `docs/PLAN.md` 的 M2/M5）。
 
 ## 安装
 
@@ -76,6 +78,10 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 | `threads/open` / `threads/close` | 订阅 / 释放实时事件 |
 | `turns/start` / `turns/steer` / `turns/interrupt` | 发消息 / 插话 / 停止 |
 | `approvals/pending` / `approvals/respond` | 审批补发 / 响应 |
+| `threads/rename` `archive` `unarchive` `delete` `fork` `export` | 会话管理 |
+| `versions/check` `update` `rollback` `job` | 版本探测与升级/回滚（后台 job） |
+| `daemon/action` | 守护进程 start/stop/restart/update |
+| `doctor/run` | `codex doctor --json` |
 | `models/list` / `config/read` | 选择器数据 |
 
 SSE 事件：`hello`、`connection`、`thread/upsert`、`thread/status`、`turn/started`、`turn/completed`、`item/upsert`、`item/delta`、`item/patch`、`approval/requested`、`approval/resolved`、`mcp/status`、`thread/usage`、`resync`。

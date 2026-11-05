@@ -18,6 +18,8 @@ import { ProjectList } from './ProjectList'
 import { StatusHeader } from './StatusHeader'
 import { ThreadList } from './ThreadList'
 import { ThreadView } from './ThreadView'
+import { ThreadActions } from './ThreadActions'
+import { VersionsDialog } from './VersionsDialog'
 
 export interface ConsolePageProps {
   api: Api
@@ -43,6 +45,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const [pending, setPending] = React.useState<PendingApproval[]>([])
   const [models, setModels] = React.useState<Array<{ id: string, displayName: string }>>([])
   const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [versionsOpen, setVersionsOpen] = React.useState(false)
 
   const selectedIdRef = React.useRef<string | null>(null)
   selectedIdRef.current = selectedId
@@ -333,6 +336,7 @@ export function ConsolePage(props: ConsolePageProps) {
           streamState={streamState}
           onRefresh={() => void refresh()}
           onNew={() => setDialogOpen(true)}
+          onVersions={() => setVersionsOpen(true)}
         />
         {error !== null ? (
           <div className="dsh-codex-error">
@@ -379,9 +383,38 @@ export function ConsolePage(props: ConsolePageProps) {
               onSend={send}
               onSteer={steer}
               onStop={stop}
+              actions={
+                detail === null ? undefined : (
+                  <ThreadActions
+                    api={api}
+                    thread={detail.thread}
+                    onRenamed={(name) => {
+                      setThreads((previous) =>
+                        previous.map((thread) => (thread.id === detail.thread.id ? { ...thread, name } : thread)),
+                      )
+                      setDetail((previous) =>
+                        previous === null ? previous : { ...previous, thread: { ...previous.thread, name } },
+                      )
+                    }}
+                    onArchived={() => {
+                      setThreads((previous) => previous.filter((thread) => thread.id !== detail.thread.id))
+                      setSelectedId(null)
+                    }}
+                    onForked={(thread) => {
+                      setThreads((previous) => upsertThread(previous, thread))
+                      setSelectedId(thread.id)
+                    }}
+                    onDeleted={() => {
+                      setThreads((previous) => previous.filter((thread) => thread.id !== detail.thread.id))
+                      setSelectedId(null)
+                    }}
+                  />
+                )
+              }
             />
           </main>
         </div>
+        <VersionsDialog open={versionsOpen} onClose={() => setVersionsOpen(false)} api={api} />
         <NewThreadDialog
           open={dialogOpen}
           defaultCwd={defaultCwd}

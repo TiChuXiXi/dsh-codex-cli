@@ -442,6 +442,39 @@ export const CSS = `
 }
 .dsh-codex-dialog-error { color: #a83232; font-size: 12px; }
 .dsh-codex-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+.dsh-codex-versions { width: min(620px, calc(100vw - 32px)); }
+.dsh-codex-version-grid {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 6px 10px;
+  font-size: 12px;
+}
+.dsh-codex-version-grid span { color: var(--dsw-alias-label-secondary, #6b6b6b); }
+.dsh-codex-version-actions { display: flex; align-items: center; gap: 8px; }
+.dsh-codex-version-daemon { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dsh-codex-version-doctor { display: flex; flex-direction: column; gap: 4px; }
+.dsh-codex-doctor-row { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.dsh-codex-doctor-id {
+  min-width: 150px;
+  font-family: var(--dsh-font-family-code, ui-monospace, monospace);
+  font-size: 11px;
+  color: var(--dsw-alias-label-secondary, #6b6b6b);
+}
+.dsh-codex-doctor-summary { color: var(--dsw-alias-label-primary, #1a1a1a); }
+.dsh-codex-job { display: flex; flex-direction: column; gap: 6px; }
+.dsh-codex-job-log { max-height: 180px; }
+
+.dsh-codex-thread-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.dsh-codex-thread-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex: none; }
+.dsh-codex-button.danger { color: #b23b3b; border-color: rgba(178, 59, 59, 0.35); }
+.dsh-codex-button.danger:hover { background: rgba(178, 59, 59, 0.08); }
+.dsh-codex-action-error { font-size: 11px; color: #a83232; }
 `
 
 /** 注入一次样式；重复调用无副作用。 */

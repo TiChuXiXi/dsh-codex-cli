@@ -18,6 +18,7 @@ export interface ThreadViewProps {
   onSend: (text: string) => Promise<void>
   onSteer: (text: string) => Promise<void>
   onStop: () => Promise<void>
+  actions?: React.ReactNode
 }
 
 export function ThreadView({
@@ -30,6 +31,7 @@ export function ThreadView({
   onSend,
   onSteer,
   onStop,
+  actions,
 }: ThreadViewProps) {
   const t = useT()
   const messagesRef = React.useRef<HTMLDivElement | null>(null)
@@ -61,8 +63,11 @@ export function ThreadView({
   return (
     <>
       <div className="dsh-codex-thread-header">
-        <div className="dsh-codex-thread-title" title={thread.id}>
-          {threadTitle(thread)}
+        <div className="dsh-codex-thread-header-top">
+          <div className="dsh-codex-thread-title" title={thread.id}>
+            {threadTitle(thread)}
+          </div>
+          {actions}
         </div>
         <div className="dsh-codex-chips">
           <span className="dsh-codex-chip">

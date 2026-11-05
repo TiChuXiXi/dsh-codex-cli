@@ -10,9 +10,10 @@ export interface StatusHeaderProps {
   streamState: StreamState
   onRefresh: () => void
   onNew?: () => void
+  onVersions?: () => void
 }
 
-export function StatusHeader({ status, streamState, onRefresh, onNew }: StatusHeaderProps) {
+export function StatusHeader({ status, streamState, onRefresh, onNew, onVersions }: StatusHeaderProps) {
   const t = useT()
   const phase = status?.phase ?? 'connecting'
   const phaseClass = phase === 'ready' ? 'ok' : phase === 'error' ? 'error' : 'warn'
@@ -38,6 +39,11 @@ export function StatusHeader({ status, streamState, onRefresh, onNew }: StatusHe
       {onNew !== undefined ? (
         <button type="button" className="dsh-codex-button primary" onClick={onNew}>
           {t('newThread.open')}
+        </button>
+      ) : null}
+      {onVersions !== undefined ? (
+        <button type="button" className="dsh-codex-button" onClick={onVersions}>
+          {t('versions.open')}
         </button>
       ) : null}
       <button type="button" className="dsh-codex-button" onClick={onRefresh}>

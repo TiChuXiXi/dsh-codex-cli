@@ -9,6 +9,7 @@ import { EventBus } from './lib/events.js'
 import { CodexHub } from './lib/hub.js'
 import { createRoutes } from './lib/routes.js'
 import { normalizeConfig } from './lib/config.js'
+import { VersionService } from './lib/versions.js'
 
 export const name = 'codex-cli'
 
@@ -26,6 +27,7 @@ export function apply(ctx, rawConfig) {
   const logger = ctx.logger ?? console
   const bus = new EventBus({ capacity: config.eventBufferSize })
   const hub = new CodexHub({ config, logger, bus })
+  const versions = new VersionService({ config, logger, bus, hub })
 
   const connection = ctx.get('connection')
   const webServer = ctx.get('webServer')
@@ -50,7 +52,7 @@ export function apply(ctx, rawConfig) {
       webServer.register({
         kind: 'prefix',
         path: '/codex-cli',
-        handler: createRoutes({ hub, bus, connection, config, logger }),
+        handler: createRoutes({ hub, bus, connection, config, logger, versions }),
       }),
     'codex-cli: routes',
   )
