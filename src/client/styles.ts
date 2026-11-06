@@ -176,7 +176,7 @@ export const CSS = `
 .dsh-codex-row-menu-pop {
   position: fixed;
   z-index: 46;
-  width: 156px;
+  width: 110px;
   padding: 4px;
   border-radius: 10px;
   background: var(--dsw-alias-bg-base, #ffffff);
@@ -187,7 +187,7 @@ export const CSS = `
 .dsh-codex-row-menu-pop button {
   display: block;
   width: 100%;
-  padding: 6px 10px;
+  padding: 6px 8px;
   border: none;
   border-radius: 6px;
   background: transparent;

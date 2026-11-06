@@ -882,6 +882,7 @@ window.__ModuleLoader__.load({
 
     // src/client/page/ThreadRowMenu.tsx
     var React8 = __toESM(require("react"), 1);
+    var MENU_WIDTH = 110;
     function ThreadRowMenu({ api, thread, onRenamed, onChanged, onDeleted }) {
       const t = useT();
       const triggerRef = React8.useRef(null);
@@ -893,19 +894,28 @@ window.__ModuleLoader__.load({
       const [error, setError] = React8.useState(null);
       React8.useEffect(() => {
         if (!open) return void 0;
-        const close = () => setOpen(false);
-        window.addEventListener("scroll", close, true);
-        window.addEventListener("resize", close);
+        const onScroll = (event) => {
+          const target = event.target;
+          if (target instanceof Element && target.closest(".dsh-codex-sidebar") !== null) setOpen(false);
+        };
+        const onResize = () => setOpen(false);
+        const onKey = (event) => {
+          if (event.key === "Escape") setOpen(false);
+        };
+        window.addEventListener("scroll", onScroll, true);
+        window.addEventListener("resize", onResize);
+        window.addEventListener("keydown", onKey);
         return () => {
-          window.removeEventListener("scroll", close, true);
-          window.removeEventListener("resize", close);
+          window.removeEventListener("scroll", onScroll, true);
+          window.removeEventListener("resize", onResize);
+          window.removeEventListener("keydown", onKey);
         };
       }, [open]);
       const openMenu = () => {
         const element = triggerRef.current;
         if (element === null) return;
         const rect = element.getBoundingClientRect();
-        setPosition({ top: rect.bottom + 4, left: Math.max(8, rect.right - 156) });
+        setPosition({ top: rect.bottom + 4, left: Math.max(8, rect.right - MENU_WIDTH) });
         setOpen(true);
       };
       const run = async (action) => {
@@ -2997,7 +3007,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-row-menu-pop {
       position: fixed;
       z-index: 46;
-      width: 156px;
+      width: 110px;
       padding: 4px;
       border-radius: 10px;
       background: var(--dsw-alias-bg-base, #ffffff);
@@ -3008,7 +3018,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-row-menu-pop button {
       display: block;
       width: 100%;
-      padding: 6px 10px;
+      padding: 6px 8px;
       border: none;
       border-radius: 6px;
       background: transparent;

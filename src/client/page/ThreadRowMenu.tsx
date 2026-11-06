@@ -6,6 +6,9 @@ import type { Api } from '../rpc'
 import type { CodexThread } from '../types'
 import { threadTitle } from '../utils'
 
+/** 菜单宽度，与样式保持一致。 */
+const MENU_WIDTH = 110
+
 export interface ThreadRowMenuProps {
   api: Api
   thread: CodexThread
@@ -26,12 +29,22 @@ export function ThreadRowMenu({ api, thread, onRenamed, onChanged, onDeleted }: 
 
   React.useEffect(() => {
     if (!open) return undefined
-    const close = () => setOpen(false)
-    window.addEventListener('scroll', close, true)
-    window.addEventListener('resize', close)
+    // 只跟随侧栏滚动关闭；对话区流式输出时的自动滚动不应把菜单顶掉。
+    const onScroll = (event: Event) => {
+      const target = event.target
+      if (target instanceof Element && target.closest('.dsh-codex-sidebar') !== null) setOpen(false)
+    }
+    const onResize = () => setOpen(false)
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    window.addEventListener('scroll', onScroll, true)
+    window.addEventListener('resize', onResize)
+    window.addEventListener('keydown', onKey)
     return () => {
-      window.removeEventListener('scroll', close, true)
-      window.removeEventListener('resize', close)
+      window.removeEventListener('scroll', onScroll, true)
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('keydown', onKey)
     }
   }, [open])
 
@@ -39,7 +52,7 @@ export function ThreadRowMenu({ api, thread, onRenamed, onChanged, onDeleted }: 
     const element = triggerRef.current
     if (element === null) return
     const rect = element.getBoundingClientRect()
-    setPosition({ top: rect.bottom + 4, left: Math.max(8, rect.right - 156) })
+    setPosition({ top: rect.bottom + 4, left: Math.max(8, rect.right - MENU_WIDTH) })
     setOpen(true)
   }
 
