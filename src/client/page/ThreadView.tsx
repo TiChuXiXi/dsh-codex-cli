@@ -184,8 +184,9 @@ export function ThreadView({
   const orderedTurns = [...detail.turns]
     .map((turn, index) => ({ turn, index }))
     .sort((a, b) => {
-      const at = a.turn.startedAt ?? a.turn.completedAt ?? 0
-      const bt = b.turn.startedAt ?? b.turn.completedAt ?? 0
+      // 运行中的回合可能还没有 startedAt，排到最后而不是最前。
+      const at = a.turn.startedAt ?? a.turn.completedAt ?? Number.MAX_SAFE_INTEGER
+      const bt = b.turn.startedAt ?? b.turn.completedAt ?? Number.MAX_SAFE_INTEGER
       return at === bt ? a.index - b.index : at - bt
     })
     .map((entry) => entry.turn)
