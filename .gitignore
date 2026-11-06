@@ -1,4 +1,5 @@
 node_modules/
-shots/
+shots/*
+!shots/02-console.png
 research/
 *.log
