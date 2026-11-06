@@ -510,3 +510,37 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 按 Codex 实际菜单改为四档：需要审批（on-request + user + workspaceWrite/restricted）、替我审批（on-request + auto_review + workspaceWrite/enabled）、完全访问（never + dangerFullAccess，二次确认）、只读（on-request + user + readOnly/restricted）。
 - `sandboxPolicy.networkAccess` 修正为协议要求的 "restricted"/"enabled"；`approvalsReviewer` 支持 user/auto_review。
 - 验证：权限菜单显示四档中文文案；默认「需要审批」；完全访问确认框仍生效。
+
+### 2026-11-06 · 未完成任务：右侧面板 cwd 参数化（暂停）
+
+**目标**：让 DSH 原生右栏（工作区文件 / 版本管理 / 新建终端）接受显式 `cwd`，不再依赖 DSH 会话 id，从而可直接挂在 Codex 全屏面板里，复用 PDF/DOCX/XLSX/Markdown/图片预览、终端和 `dsh-git-vcs`。
+
+**现状与阻塞点（源码核实，DSH 仓库已克隆到 /tmp/dsh-src）**：
+- `packages/client/ui-sidebar-right/src/client/shell/RightbarRoot.tsx:35`：`visible = usePanelInfo(info => info.activePanelId === null)`，global panel 下右栏内容不渲染，列宽归零。
+- `packages/client/ui-sidebar-right/src/client/index.ts:171`：`show(...)` 同样只在 `activePanelId === null` 时生效。
+- `packages/client/ui-sidebar-files/src/client/FilesBody.tsx:52`、`FileNavigator.tsx:78`、`NavigatorToggle.tsx:45`：`cwd` 来自 `useSessions(...byId[sessionId]?.cwd)`。
+- `packages/client/ui-sidebar-terminal/src/client`：终端 tab 同样按 session 作用域取上下文。
+- `packages/client/ui-sidebar-documentpreview`：预览依赖 `dsh-resource://file/...` 资源地址和 DSH remote。
+- `packages/api/workspace-files`：`WorkspaceFileScope = { sessionId, workspaceRoot }`，内部已带 root，缺 cwd 入口。
+- `dsh-git-vcs`（独立仓库 `github.com/TiChuXiXi/dsh-git-vcs`）：`sessionCwdOf(state, sessionId)` 绑会话。
+
+**两条路线**：
+- A. Fork DSH 源码，改右栏接受 `{ kind:'cwd', cwd }` target：
+  1. `RightbarRoot` 可见性 + `show()` 支持 cwd target；
+  2. 新增 root 作用域 standalone seat（或让 `rightbar.session` 接受 target）；
+  3. files/terminal/documentpreview 的 cwd 改为「注入优先，回退 session」；
+  4. 宿主 `workspaceFiles` 增加 cwd → scope lookup；
+  5. `dsh-git-vcs` 接收 cwd prop；
+  6. Codex 插件发布 `thread.cwd` target、挂载原生右栏、删除自建面板。
+  估时 1–2 周；需 `pnpm run build:lib` 并重启一次 `dsh web`。
+- B. 全量复制源码进 Codex 插件：这些包是 slot/remote/store 耦合的插件，不是独立组件；仍要重写 cwd 注入、remote、持久化，估时 6–8 周且长期与上游分叉。
+
+**结论**：路线 A 成本明显更低；路线 B 仅在绝对不能动 DSH 包时考虑。
+
+**当前决定**：暂停，不改 DSH 源码；插件内保留自建 `RightPanel`（文件/版本/终端），README 已标注该限制。
+
+**恢复任务时的下一步**：
+1. 在 DSH 源码仓库搭好构建（pnpm install / build:lib）；
+2. 先改 `RightbarRoot` + `ui-sidebar-files` 的 cwd 注入，跑通一个 Codex 目录的文件树；
+3. 再接 terminal/documentpreview/git-vcs；
+4. 最后删掉插件自建右栏并回归。
