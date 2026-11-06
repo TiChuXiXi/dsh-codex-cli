@@ -18,6 +18,9 @@ export interface ThreadViewProps {
   activeTurnId: string | null
   models: ModelOption[]
   permissionFromSession?: PermissionMode | null
+  planMode: boolean
+  onEnterPlan: () => void
+  onExitPlan: () => void
   hasOlder: boolean
   loadingOlder: boolean
   onLoadOlder: () => Promise<void> | void
@@ -47,6 +50,9 @@ export function ThreadView({
   activeTurnId,
   models,
   permissionFromSession,
+  planMode,
+  onEnterPlan,
+  onExitPlan,
   hasOlder,
   loadingOlder,
   onLoadOlder,
@@ -297,9 +303,12 @@ export function ThreadView({
         model={model}
         effort={effort}
         permission={permission}
+        planMode={planMode}
         onModelChange={setModel}
         onEffortChange={setEffort}
         onPermissionChange={changePermission}
+        onEnterPlan={onEnterPlan}
+        onExitPlan={onExitPlan}
         onPickProject={onPickProject}
         onNew={onNew}
         onCompact={onCompact}

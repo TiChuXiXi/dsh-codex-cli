@@ -507,9 +507,40 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 
 ### 2026-11-06 · 四档会话权限
 
-- 按 Codex 实际菜单改为四档：需要审批（on-request + user + workspaceWrite/restricted）、替我审批（on-request + auto_review + workspaceWrite/enabled）、完全访问（never + dangerFullAccess，二次确认）、只读（on-request + user + readOnly/restricted）。
-- `sandboxPolicy.networkAccess` 修正为协议要求的 "restricted"/"enabled"；`approvalsReviewer` 支持 user/auto_review。
+- 按 Codex 实际菜单改为四档：需要审批（on-request + user + workspaceWrite，networkAccess=false）、替我审批（on-request + auto_review + workspaceWrite，networkAccess=true）、完全访问（never + dangerFullAccess，二次确认）、只读（on-request + user + readOnly，networkAccess=false）。
+- `sandboxPolicy.networkAccess` 按协议传 boolean（`workspaceWrite` / `readOnly` 是 boolean；只有 `externalSandbox` 用 "restricted"/"enabled"）；`approvalsReviewer` 支持 user/auto_review。
 - 验证：权限菜单显示四档中文文案；默认「需要审批」；完全访问确认框仍生效。
+
+### 2026-11-06 · 新建项目改为目录浏览器
+
+**问题**：新建项目只能手输绝对路径 + 勾信任，容易填错；入口也藏在「新会话」的兜底分支里，有当前项目时根本不会出现。
+
+**改动**：
+- 侧栏搜索框右侧新增「新建项目」图标按钮（文件夹 + 加号，30×30），直接打开目录浏览器；`+` →「选择项目」弹窗底部也有「新建项目…」。
+- 新增 `DirectoryPickerDialog`（仿 DSH `ui-directory-picker-browse` 的 Miller 分栏）：面包屑（可点跳转）、铅笔编辑路径、上一级、两栏（当前层 + 选中目录的子目录）、每行 hover 显示「进入」箭头、双击进入、显示隐藏目录、目录过多提示。
+- 新建文件夹：目标是「选中的目录，否则当前层」；单层名称、不递归；成功后重新列目标目录并把新目录选中；重名等服务端错误显示在表单内。
+- 确认目录后 `threads/new` 建会话；每次打开目录浏览器都从宿主家目录（`~`，由 `fs/list` 不传 path 返回）起步，需要别的目录用面包屑/编辑路径导航。
+- 「选择项目」弹窗改为纯项目切换 + 「新建项目…」，删掉路径输入与信任勾选（信任只是本地记录，实际审批仍由 Codex 的 approvalPolicy/sandbox 决定）。
+- 创建后立刻把项目乐观插入项目树（Codex 在首个回合前不把新线程写进 `thread/list`），并用 `loadThreads(..., keep)` 保证新会话不被列表刷新抹掉；`projects/list` 刷新后若服务端还没有该项目，保留乐观项。
+- 宿主：`fs/list` 无 path 时列家目录，返回 `parent/home/crumbs/entries[].hidden/truncated`（单层 1000 行上限，跟随目录符号链接、跳过断链）；新增 `fs/mkdir`（绝对路径、单层名称、非递归，EEXIST → `codex-cli/directory-exists`）。
+- 新增 `test/fs.test.mjs`（家目录、排序/隐藏项、缺失目录、新建/重名/非法名/相对路径）。
+
+**验证**：Playwright 打开 Codex 面板 → 点「新建项目」→ 编辑路径到 `/root/project` → 新建 `codex-final-*` → 选中 → 「创建并开会话」；会话以该 cwd 打开，项目出现在项目树顶部并展开，会话行选中；删除线程与目录后无残留。另验证选择项目弹窗 7 项、从弹窗进入浏览器、嵌套新建（在选中目录里再建子目录）、重名报错、`/tmp` 与家目录导航。测试 17/17 通过。
+
+### 2026-11-06 · 修复发消息报 networkAccess 类型错误
+
+- 现象：新建项目后发送第一条消息，顶部报 `Invalid request: invalid type: string "restricted", expected a boolean`，回合未开始。
+- 原因：`turn/start` 的 `sandboxPolicy.workspaceWrite/readOnly.networkAccess` 在当前协议（`codex app-server generate-ts` 0.167 生成）里是 boolean；插件沿用了旧结论传 "restricted"/"enabled"。
+- 修复：`需要审批` / `只读` 传 `false`，`替我审批` 传 `true`，`完全访问` 不传该字段；只有 `externalSandbox` 才用字符串枚举。
+- 验证：新建项目里发 `Reply with exactly: PONG`，Codex 回 `PONG`（用时 10 秒），无错误条；随后删除测试线程与目录。
+
+### 2026-11-06 · 计划模式（同 /plan）
+
+- 入口：加号面板「计划模式」与斜杠 `/plan`；`runCommand('plan')` 只置本地待生效状态，不改正在运行的回合。
+- 实现：`turn/start` 带 `collaborationMode: { mode: 'plan' | 'default', settings: { model, reasoning_effort, developer_instructions: null } }`。协议由服务端补全 Plan/Default 的 developer instructions；模式会记到线程上，所以每回合都显式带上，关闭标签后的下一回合自然回到 default。
+- 标签：输入区工具行「运行中」之后显示绿色「计划」+ ×；点 × 仅把 `planMode` 置 false，不发任何请求，因此运行中的回合仍是计划模式，下一回合才切回默认。
+- 还原：`thread/resume` 的 `collaborationMode` 由 `openThread` 缓存，`threads/settings` 返回；打开线程时据此点亮标签。新建线程（无 rollout）由 `startTurn` 成功后把本次 `collaborationMode` 写进缓存。
+- 验证：UI 实测——加号面板 1 项、标签出现、运行中关闭标签后该回合仍为 plan（`threads/settings` + `thread/resume` 均为 plan）、下一回合变 default；`thread/resume` 独立复核 plan → default，reasoning effort 保持用户选择（high）。测试 17/17 通过。
 
 ### 2026-11-06 · 未完成任务：右侧面板 cwd 参数化（暂停）
 

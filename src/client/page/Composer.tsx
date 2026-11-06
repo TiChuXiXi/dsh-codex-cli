@@ -36,9 +36,12 @@ export interface ComposerProps {
   model: string
   effort: string
   permission: PermissionMode
+  planMode: boolean
   onModelChange: (model: string) => void
   onEffortChange: (effort: string) => void
   onPermissionChange: (mode: PermissionMode) => void
+  onEnterPlan: () => void
+  onExitPlan: () => void
   onSend: (text: string, options: {
     model?: string
     effort?: string
@@ -55,12 +58,13 @@ export interface ComposerProps {
 }
 
 type Menu = null | 'root' | 'model' | 'effort' | 'more'
-type CommandId = 'model' | 'effort' | 'permission' | 'attach' | 'project' | 'compact' | 'diff' | 'export' | 'init' | 'review' | 'new'
+type CommandId = 'model' | 'effort' | 'permission' | 'plan' | 'attach' | 'project' | 'compact' | 'diff' | 'export' | 'init' | 'review' | 'new'
 
 const COMMANDS: Array<{ id: CommandId, label: string, desc: string }> = [
   { id: 'model', label: 'cmd.model', desc: 'cmd.modelDesc' },
   { id: 'effort', label: 'cmd.effort', desc: 'cmd.effortDesc' },
   { id: 'permission', label: 'cmd.permission', desc: 'cmd.permissionDesc' },
+  { id: 'plan', label: 'cmd.plan', desc: 'cmd.planDesc' },
   { id: 'attach', label: 'cmd.attach', desc: 'cmd.attachDesc' },
   { id: 'project', label: 'cmd.project', desc: 'cmd.projectDesc' },
   { id: 'compact', label: 'cmd.compact', desc: 'cmd.compactDesc' },
@@ -89,9 +93,12 @@ export function Composer({
   model,
   effort,
   permission,
+  planMode,
   onModelChange,
   onEffortChange,
   onPermissionChange,
+  onEnterPlan,
+  onExitPlan,
   onSend,
   onSteer,
   onStop,
@@ -190,6 +197,7 @@ export function Composer({
     if (id === 'model') setMenu('model')
     else if (id === 'effort') setMenu('effort')
     else if (id === 'permission') setPermissionOpen(true)
+    else if (id === 'plan') onEnterPlan()
     else if (id === 'attach') fileInputRef.current?.click()
     else if (id === 'project') onPickProject()
     else if (id === 'compact') onCompact()
@@ -351,7 +359,13 @@ export function Composer({
           rows={1}
           value={text}
           disabled={disabled}
-          placeholder={activeTurnId === null ? t('composer.placeholder') : t('composer.steerPlaceholder')}
+          placeholder={
+            activeTurnId !== null
+              ? t('composer.steerPlaceholder')
+              : planMode
+                ? t('composer.planPlaceholder')
+                : t('composer.placeholder')
+          }
           onChange={(event) => {
             setText(event.target.value)
             setSlashIndex(0)
@@ -422,6 +436,14 @@ export function Composer({
               <span className="dsh-codex-running">
                 <span className="dsh-codex-dot ok pulse" />
                 {t('composer.running')}
+              </span>
+            ) : null}
+            {planMode ? (
+              <span className="dsh-codex-plan-tag">
+                {t('plan.tag')}
+                <button type="button" aria-label={t('plan.exit')} title={t('plan.exit')} onClick={onExitPlan}>
+                  <CloseGlyph />
+                </button>
               </span>
             ) : null}
           </div>
@@ -710,10 +732,28 @@ function readAsBase64(file: File): Promise<string> {
 
 function CommandGlyph({ id }: { id: CommandId }) {
   if (id === 'permission') return <ShieldGlyph />
+  if (id === 'plan') return <PlanGlyph />
   if (id === 'model' || id === 'effort') return <ModelGlyph />
   if (id === 'compact') return <span aria-hidden="true">⇣</span>
   if (id === 'new') return <span aria-hidden="true">＋</span>
   return <span aria-hidden="true">⌘</span>
+}
+
+function PlanGlyph() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
+      <path d="M5.5 4.5h8M5.5 8h8M5.5 11.5h5" strokeLinecap="round" />
+      <path d="m2 4.2.9.9L4.4 3.5M2 7.7l.9.9L4.4 7M2 11.2l.9.9 1.5-1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function CloseGlyph() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
+    </svg>
+  )
 }
 
 function ShieldGlyph() {

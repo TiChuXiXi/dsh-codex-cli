@@ -32,6 +32,7 @@ export interface FocusSidebarProps {
   onSelectThread: (id: string) => void
   onLoadMore: () => void
   onNew: () => void
+  onNewProject: () => void
   onVersions: () => void
   onRefresh: () => void
   onExit: () => void
@@ -63,6 +64,7 @@ export function FocusSidebar({
   onSelectThread,
   onLoadMore,
   onNew,
+  onNewProject,
   onVersions,
   onRefresh,
   onExit,
@@ -150,13 +152,24 @@ export function FocusSidebar({
         </button>
       </div>
 
-      <input
-        className="dsh-codex-search focus"
-        type="search"
-        value={search}
-        placeholder={t('focus.search')}
-        onChange={(event) => onSearch(event.target.value)}
-      />
+      <div className="dsh-codex-focus-search-row">
+        <input
+          className="dsh-codex-search focus"
+          type="search"
+          value={search}
+          placeholder={t('focus.search')}
+          onChange={(event) => onSearch(event.target.value)}
+        />
+        <button
+          type="button"
+          className="dsh-codex-icon-button focus-new-project"
+          title={t('focus.newProject')}
+          aria-label={t('focus.newProject')}
+          onClick={onNewProject}
+        >
+          <FolderPlusGlyph />
+        </button>
+      </div>
 
       <div className="dsh-codex-focus-tree">
         {searching ? (
@@ -270,6 +283,20 @@ export function FocusSidebar({
         </button>
       </div>
     </aside>
+  )
+}
+
+function FolderPlusGlyph() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M1.9 4.3c0-.66.54-1.2 1.2-1.2h2.9l1.5 1.7h5.4c.66 0 1.2.54 1.2 1.2v6.3c0 .66-.54 1.2-1.2 1.2H3.1c-.66 0-1.2-.54-1.2-1.2V4.3Z"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeLinejoin="round"
+      />
+      <path d="M8 6.6v4.2M5.9 8.7h4.2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
   )
 }
 

@@ -18,6 +18,7 @@ import { subscribePending, takePending } from '../store'
 import { applyDetailEvent, messageOf, threadTitle, upsertThread } from '../utils'
 import { FocusSidebar } from './FocusSidebar'
 import { ProjectPickerDialog } from './ProjectPickerDialog'
+import { DirectoryPickerDialog } from './DirectoryPickerDialog'
 import { RightPanel, type RightTab } from './RightPanel'
 import { ThreadView } from './ThreadView'
 import type { Attachment, ModelOption, PermissionMode } from './Composer'
@@ -28,9 +29,8 @@ import { VersionsDialog } from './VersionsDialog'
 const TURN_PAGE = 2
 /** 侧栏会话列表每页 10 条，搜索由宿主用 searchTerm 在服务端完成。 */
 const THREAD_PAGE = 10
-/** 记住最后一次打开的会话，以及用户已信任的目录。 */
+/** 记住最后一次打开的会话。 */
 const LAST_THREAD_KEY = 'dsh-codex-last-thread'
-const TRUSTED_KEY = 'dsh-codex-trusted-cwds'
 const VIEWED_KEY = 'dsh-codex-viewed-at'
 
 function readStored(key: string): string | null {
@@ -56,14 +56,47 @@ function readViewedAt(): Record<string, number> {
   }
 }
 
-function readTrusted(): string[] {
-  try {
-    const raw = window.localStorage.getItem(TRUSTED_KEY)
-    const parsed = raw === null ? [] : JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed.filter((entry) => typeof entry === 'string') : []
-  } catch {
-    return []
+/** 项目名与宿主一致：取目录名。 */
+function projectNameOf(cwd: string): string {
+  const trimmed = cwd.replace(/\/+$/u, '')
+  const index = trimmed.lastIndexOf('/')
+  return index < 0 ? trimmed : trimmed.slice(index + 1)
+}
+
+/** 新线程还没进 thread/list 前，先把它乐观地挂到项目树上。 */
+function upsertProject(projects: Project[], thread: CodexThread, cwd: string): Project[] {
+  const updatedAt = thread.updatedAt ?? Math.floor(Date.now() / 1000)
+  const latest = {
+    id: thread.id,
+    name: thread.name ?? null,
+    preview: '',
+    status: thread.status?.type ?? null,
   }
+  if (projects.some((project) => project.cwd === cwd)) {
+    return projects.map((project) =>
+      project.cwd === cwd
+        ? {
+            ...project,
+            threadCount: project.threadCount + 1,
+            lastUpdatedAt: Math.max(project.lastUpdatedAt, updatedAt),
+            latest,
+          }
+        : project,
+    )
+  }
+  return [
+    {
+      cwd,
+      name: projectNameOf(cwd),
+      threadCount: 1,
+      activeCount: 0,
+      lastUpdatedAt: updatedAt,
+      models: thread.model === null || thread.model === undefined || thread.model === '' ? [] : [thread.model],
+      git: thread.gitInfo ?? null,
+      latest,
+    },
+    ...projects,
+  ]
 }
 
 export interface ConsolePageProps {
@@ -101,6 +134,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const [models, setModels] = React.useState<ModelOption[]>([])
   const [quota, setQuota] = React.useState<RateLimits | null>(null)
   const [sessionPermission, setSessionPermission] = React.useState<PermissionMode | null>(null)
+  const [planMode, setPlanMode] = React.useState(false)
   const [quotaLoading, setQuotaLoading] = React.useState(true)
   const quotaRef = React.useRef<RateLimits | null>(null)
   quotaRef.current = quota
@@ -113,7 +147,7 @@ export function ConsolePage(props: ConsolePageProps) {
       return false
     }
   })
-  const [trusted, setTrusted] = React.useState<string[]>(readTrusted)
+  const [dirPickerOpen, setDirPickerOpen] = React.useState(false)
   const [versionsOpen, setVersionsOpen] = React.useState(false)
   const restoredRef = React.useRef(selectedId !== null)
   const createThreadRef = React.useRef<(request: { cwd: string }) => Promise<void>>(async () => {})
@@ -128,7 +162,7 @@ export function ConsolePage(props: ConsolePageProps) {
   threadsRef.current = threads
 
   const loadThreads = React.useCallback(
-    async (cursor: string | null, override: { search?: string, cwd?: string | null, limit?: number, silent?: boolean } = {}) => {
+    async (cursor: string | null, override: { search?: string, cwd?: string | null, limit?: number, silent?: boolean, keep?: CodexThread } = {}) => {
       const searchValue = override.search !== undefined ? override.search : queryRef.current.search
       const cwd = override.cwd !== undefined ? override.cwd : queryRef.current.cwd
       const limit = Math.min(200, Math.max(1, override.limit ?? THREAD_PAGE))
@@ -145,7 +179,7 @@ export function ConsolePage(props: ConsolePageProps) {
         // 只应用最后一次请求的结果，避免“加载更多”与搜索并发时把旧结果拼进来。
         if (generation !== listGeneration.current) return
         setThreads((previous) => {
-          if (!cursor) return page.data
+          if (!cursor) return override.keep === undefined ? page.data : upsertThread(page.data, override.keep)
           const known = new Set(previous.map((thread) => thread.id))
           return [...previous, ...page.data.filter((thread) => !known.has(thread.id))]
         })
@@ -417,6 +451,7 @@ export function ConsolePage(props: ConsolePageProps) {
     let cancelled = false
     let opened = false
     setSessionPermission(null)
+    setPlanMode(false)
     api('threads/open', { threadId: selectedId })
       .then(async () => {
         opened = true
@@ -425,8 +460,16 @@ export function ConsolePage(props: ConsolePageProps) {
           return
         }
         try {
-          const settings = await api<{ approvalPolicy: string | null, approvalsReviewer: string | null, sandbox: { type: string } | null } | null>('threads/settings', { threadId: selectedId })
-          if (!cancelled) setSessionPermission(permissionFromSettings(settings))
+          const settings = await api<{
+            approvalPolicy: string | null
+            approvalsReviewer: string | null
+            sandbox: { type: string } | null
+            collaborationMode: { mode?: string | null } | null
+          } | null>('threads/settings', { threadId: selectedId })
+          if (!cancelled) {
+            setSessionPermission(permissionFromSettings(settings))
+            setPlanMode(settings?.collaborationMode?.mode === 'plan')
+          }
         } catch {
           // 读不到时保留本地值。
         }
@@ -489,7 +532,17 @@ export function ConsolePage(props: ConsolePageProps) {
       if (selectedId === null) return
       setError(null)
       const permission = options.permission ?? 'ask'
-      const workspaceWrite = (networkAccess: 'restricted' | 'enabled') => ({
+      const model = options.model || detail?.thread.model || ''
+      const effort = (options.effort || detail?.thread.reasoningEffort) ?? null
+      // 计划模式：turn/start 的 collaborationMode 与 TUI 的 /plan 同源；每回合显式带上，关闭标签后下一回合即回到 default。
+      const collaborationMode = model === ''
+        ? undefined
+        : {
+            mode: planMode ? 'plan' : 'default',
+            settings: { model, reasoning_effort: effort, developer_instructions: null },
+          }
+      // workspaceWrite / readOnly 的 networkAccess 在协议里是 boolean；只有 externalSandbox 用 "restricted"/"enabled"。
+      const workspaceWrite = (networkAccess: boolean) => ({
         type: 'workspaceWrite',
         writableRoots: [],
         networkAccess,
@@ -503,18 +556,18 @@ export function ConsolePage(props: ConsolePageProps) {
             ? {
                 approvalPolicy: 'on-request',
                 approvalsReviewer: 'user',
-                sandboxPolicy: { type: 'readOnly', networkAccess: 'restricted' },
+                sandboxPolicy: { type: 'readOnly', networkAccess: false },
               }
             : permission === 'approve'
               ? {
                   approvalPolicy: 'on-request',
                   approvalsReviewer: 'auto_review',
-                  sandboxPolicy: workspaceWrite('enabled'),
+                  sandboxPolicy: workspaceWrite(true),
                 }
               : {
                   approvalPolicy: 'on-request',
                   approvalsReviewer: 'user',
-                  sandboxPolicy: workspaceWrite('restricted'),
+                  sandboxPolicy: workspaceWrite(false),
                 }
       try {
         await api('turns/start', {
@@ -523,6 +576,7 @@ export function ConsolePage(props: ConsolePageProps) {
           model: options.model,
           effort: options.effort,
           attachments: options.attachments,
+          ...(collaborationMode === undefined ? {} : { collaborationMode }),
           ...permissionPayload,
         })
         // 首条消息落盘后线程才会出现在 thread/list：稍后补一次列表。
@@ -534,7 +588,7 @@ export function ConsolePage(props: ConsolePageProps) {
         throw cause
       }
     },
-    [api, selectedId, loadThreads],
+    [api, selectedId, loadThreads, planMode, detail],
   )
 
   const steer = React.useCallback(
@@ -579,23 +633,23 @@ export function ConsolePage(props: ConsolePageProps) {
     async (request: { cwd: string }) => {
       const thread = await api<CodexThread>('threads/new', request)
       if (thread !== null && thread !== undefined) {
+        const cwd = thread.cwd ?? request.cwd
         setThreads((previous) => upsertThread(previous, thread))
         setSelectedId(thread.id)
-        setSelectedCwd(thread.cwd ?? request.cwd)
+        setSelectedCwd(cwd)
         setPickerOpen(false)
-        setTrusted((previous) => {
-          if (previous.includes(request.cwd)) return previous
-          const next = [...previous, request.cwd]
-          try {
-            window.localStorage.setItem(TRUSTED_KEY, JSON.stringify(next))
-          } catch {
-            // 忽略。
-          }
-          return next
-        })
+        setDirPickerOpen(false)
+        // 新建项目后立刻把它挂进项目树，并展开到该项目。
+        if (searchTimer.current !== null) {
+          clearTimeout(searchTimer.current)
+          searchTimer.current = null
+        }
+        setSearch('')
+        setProjects((previous) => upsertProject(previous, thread, cwd))
+        void loadThreads(null, { cwd, search: '', keep: thread })
       }
     },
-    [api],
+    [api, loadThreads],
   )
   createThreadRef.current = createThread
 
@@ -615,6 +669,12 @@ export function ConsolePage(props: ConsolePageProps) {
     }
     setPickerOpen(true)
   }, [currentCwd, createThread])
+
+  // 「新建项目」：直接打开目录浏览器，默认从宿主家目录（~）起步。
+  const openNewProject = React.useCallback(() => {
+    setPickerOpen(false)
+    setDirPickerOpen(true)
+  }, [])
 
   const exportThread = React.useCallback(async () => {
     if (selectedId === null) return
@@ -646,11 +706,6 @@ export function ConsolePage(props: ConsolePageProps) {
       await createThread({ cwd })
     },
     [createThread],
-  )
-
-  const trustedCwds = React.useMemo(
-    () => Array.from(new Set([...projects.map((project) => project.cwd), ...trusted])),
-    [projects, trusted],
   )
 
   const visibleThreads = React.useMemo(
@@ -743,6 +798,7 @@ export function ConsolePage(props: ConsolePageProps) {
           onSelectThread={setSelectedId}
           onLoadMore={() => void loadThreads(nextCursor)}
           onNew={handleNew}
+          onNewProject={openNewProject}
           onVersions={() => setVersionsOpen(true)}
           onRefresh={() => void refresh()}
           onExit={onExit}
@@ -767,6 +823,9 @@ export function ConsolePage(props: ConsolePageProps) {
             activeTurnId={activeTurnId}
             models={models}
             permissionFromSession={sessionPermission}
+            planMode={planMode}
+            onEnterPlan={() => setPlanMode(true)}
+            onExitPlan={() => setPlanMode(false)}
             hasOlder={olderCursor !== null}
             loadingOlder={loadingOlder}
             onLoadOlder={loadOlder}
@@ -823,11 +882,16 @@ export function ConsolePage(props: ConsolePageProps) {
 
         <ProjectPickerDialog
           open={pickerOpen}
-          api={api}
           projects={projects}
-          trusted={trustedCwds}
           onPick={pickProject}
+          onNewProject={openNewProject}
           onClose={() => setPickerOpen(false)}
+        />
+        <DirectoryPickerDialog
+          open={dirPickerOpen}
+          api={api}
+          onPick={pickProject}
+          onClose={() => setDirPickerOpen(false)}
         />
         <VersionsDialog open={versionsOpen} api={api} onClose={() => setVersionsOpen(false)} />
       </div>
