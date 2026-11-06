@@ -19,6 +19,7 @@ import { ProjectList } from './ProjectList'
 import { StatusHeader } from './StatusHeader'
 import { ThreadList } from './ThreadList'
 import { ThreadView } from './ThreadView'
+import type { ModelOption } from './Composer'
 import { ThreadActions } from './ThreadActions'
 import { VersionsDialog } from './VersionsDialog'
 
@@ -44,7 +45,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const [streamState, setStreamState] = React.useState<StreamState>('connecting')
   const [search, setSearch] = React.useState('')
   const [pending, setPending] = React.useState<PendingApproval[]>([])
-  const [models, setModels] = React.useState<Array<{ id: string, displayName: string, description?: string | null }>>([])
+  const [models, setModels] = React.useState<ModelOption[]>([])
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [versionsOpen, setVersionsOpen] = React.useState(false)
   const [newThreadCwd, setNewThreadCwd] = React.useState('')

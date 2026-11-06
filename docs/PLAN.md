@@ -382,5 +382,6 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 ### 2026-11-06 · 输入区对齐 DSH composer
 
 - 参照 DSH 默认 composer 的实测尺寸重做输入区：卡片 774×102、圆角 28px、无边框输入区、底部工具行、34px 圆形发送键。
-- 模型与推理强度合并进一个菜单：模型列表带描述与勾选，推理强度用分段控件；选择通过 `turns/start` 的 `model` / `effort` 下发。
-- 验证：菜单 9 个模型 + 4 档强度；选中 GPT-6-Astra 后触发器显示「GPT-6-Astra · 高」；API 侧 `gpt-6-luna` + `low` 覆盖后线程元数据同步为 `gpt-6-luna` / `low`。
+- 模型与推理强度合并进一个两级菜单：模型列表带描述与勾选；推理强度按 Codex TUI 的层级——低/中/高/极高 + 「更多推理…」里的 Max/Ultra（共 6 档），描述直接取 `model/list` 的 `supportedReasoningEfforts`，并标出「默认/当前」。
+- 选择通过 `turns/start` 的 `model` / `effort` 下发；`defaultReasoningEffort` 用于「（默认）」标记。
+- 验证：菜单 9 个模型；推理强度 5 个顶层入口（低/中/高/极高/更多推理…），「更多推理…」内 Max/Ultra；选中 GPT-6-Astra 或 Ultra 后触发器同步；API 侧 `gpt-6-luna` + `low` 覆盖后线程元数据同步为 `gpt-6-luna` / `low`。

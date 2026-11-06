@@ -712,6 +712,48 @@ export const CSS = `
   font-size: 12px;
   color: var(--dsw-alias-label-secondary, #6b6b6b);
 }
+.dsh-codex-menu-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 36px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.dsh-codex-menu-cell:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+.dsh-codex-menu-cell-label { color: var(--dsw-alias-label-secondary, #6b6b6b); }
+.dsh-codex-menu-cell-value {
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--dsw-alias-label-primary, #1a1a1a);
+}
+.dsh-codex-menu-back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #6b6b6b);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.dsh-codex-menu-back:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+.dsh-codex-menu-tag { margin-left: 6px; font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
+.dsh-codex-menu-tag.current { color: #4176e6; }
+.dsh-codex-menu-warning { padding: 0 8px 6px; font-size: 11px; color: #b7791f; }
 `
 
 /** 注入一次样式；重复调用无副作用。 */

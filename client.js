@@ -97,6 +97,15 @@ window.__ModuleLoader__.load({
       "composer.defaultEffort": "默认",
       "composer.model": "模型",
       "composer.effort": "推理强度",
+      "composer.effort.xhigh": "极高",
+      "composer.effort.max": "Max",
+      "composer.effort.ultra": "Ultra",
+      "composer.defaultTag": "（默认）",
+      "composer.currentTag": "（当前）",
+      "composer.moreReasoning": "更多推理…",
+      "composer.moreReasoningHint": "Max 与 Ultra 会更快消耗额度",
+      "composer.advancedReasoning": "高级推理",
+      "composer.consumesFaster": "会更快消耗额度",
       "composer.effort.minimal": "极低",
       "composer.effort.low": "低",
       "composer.effort.medium": "中",
@@ -266,6 +275,15 @@ window.__ModuleLoader__.load({
       "composer.defaultEffort": "Default",
       "composer.model": "Model",
       "composer.effort": "Reasoning effort",
+      "composer.effort.xhigh": "Extra high",
+      "composer.effort.max": "Max",
+      "composer.effort.ultra": "Ultra",
+      "composer.defaultTag": " (default)",
+      "composer.currentTag": " (current)",
+      "composer.moreReasoning": "More reasoning…",
+      "composer.moreReasoningHint": "Max and Ultra consume usage limits faster",
+      "composer.advancedReasoning": "Advanced reasoning",
+      "composer.consumesFaster": "Consumes usage limits faster",
       "composer.effort.minimal": "Minimal",
       "composer.effort.low": "Low",
       "composer.effort.medium": "Medium",
@@ -849,7 +867,14 @@ window.__ModuleLoader__.load({
 
     // src/client/page/Composer.tsx
     var React8 = __toESM(require("react"), 1);
-    var EFFORTS2 = ["minimal", "low", "medium", "high"];
+    var FALLBACK_EFFORTS = [
+      { reasoningEffort: "low", description: "Fast responses with lighter reasoning" },
+      { reasoningEffort: "medium", description: "Balances speed and reasoning depth for everyday tasks" },
+      { reasoningEffort: "high", description: "Greater reasoning depth for complex problems" },
+      { reasoningEffort: "xhigh", description: "Extra high reasoning depth for complex problems" },
+      { reasoningEffort: "max", description: "Maximum reasoning depth for the hardest problems" },
+      { reasoningEffort: "ultra", description: "Maximum reasoning with automatic task delegation" }
+    ];
     function Composer({
       disabled,
       activeTurnId,
@@ -875,7 +900,11 @@ window.__ModuleLoader__.load({
       }, [text]);
       const currentModel = models.find((entry) => entry.id === model);
       const modelLabel = currentModel?.displayName ?? (model === "" ? t("composer.defaultModel") : model);
-      const effortLabel = effort === "" ? t("composer.defaultEffort") : t(`composer.effort.${effort}`);
+      const efforts = currentModel?.supportedReasoningEfforts?.length ? currentModel.supportedReasoningEfforts : FALLBACK_EFFORTS;
+      const defaultEffort = currentModel?.defaultReasoningEffort ?? null;
+      const topEfforts = efforts.slice(0, 4);
+      const moreEfforts = efforts.slice(4);
+      const effortLabel = effort === "" ? t("composer.defaultEffort") : labelForEffort(t, effort);
       const submit = async () => {
         const value = text.trim();
         if (value === "" || busy || disabled) return;
@@ -905,6 +934,7 @@ window.__ModuleLoader__.load({
           setBusy(false);
         }
       };
+      const closeMenu = () => setMenu(null);
       return /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-wrap" }, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-card" }, /* @__PURE__ */ React8.createElement(
         "textarea",
         {
@@ -930,7 +960,7 @@ window.__ModuleLoader__.load({
           "aria-haspopup": "menu",
           "aria-expanded": menu !== null,
           title: `${modelLabel} · ${effortLabel}`,
-          onClick: () => setMenu(menu === null ? "model" : null)
+          onClick: () => setMenu(menu === null ? "root" : null)
         },
         /* @__PURE__ */ React8.createElement(ModelGlyph, null),
         /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-model-label" }, modelLabel),
@@ -958,7 +988,7 @@ window.__ModuleLoader__.load({
           onClick: () => void submit()
         },
         /* @__PURE__ */ React8.createElement(SendGlyph, null)
-      ))), menu === "model" ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: () => setMenu(null) }), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu", role: "menu" }, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.model")), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-list" }, models.map((entry) => /* @__PURE__ */ React8.createElement(
+      ))), menu !== null ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeMenu }), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu", role: "menu" }, menu === "root" ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("model") }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-cell-label" }, t("composer.model")), /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-cell-value" }, modelLabel), /* @__PURE__ */ React8.createElement(ChevronRightGlyph, null)), /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("effort") }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-cell-label" }, t("composer.effort")), /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-cell-value" }, effortLabel), /* @__PURE__ */ React8.createElement(ChevronRightGlyph, null))) : null, menu === "model" ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement(MenuBack, { label: t("composer.model"), onClick: () => setMenu("root") }), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-list" }, models.map((entry) => /* @__PURE__ */ React8.createElement(
         "button",
         {
           type: "button",
@@ -968,7 +998,7 @@ window.__ModuleLoader__.load({
           className: `dsh-codex-menu-item ${entry.id === model ? "selected" : ""}`,
           onClick: () => {
             onModelChange(entry.id);
-            setMenu(null);
+            closeMenu();
           }
         },
         /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-check" }, entry.id === model ? /* @__PURE__ */ React8.createElement(CheckGlyph, null) : null),
@@ -982,27 +1012,76 @@ window.__ModuleLoader__.load({
           className: `dsh-codex-menu-item ${model === "" ? "selected" : ""}`,
           onClick: () => {
             onModelChange("");
-            setMenu(null);
+            closeMenu();
           }
         },
         /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-check" }, model === "" ? /* @__PURE__ */ React8.createElement(CheckGlyph, null) : null),
         /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-name" }, t("composer.defaultModel")))
-      )), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.effort")), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-seg" }, EFFORTS2.map((value) => /* @__PURE__ */ React8.createElement(
+      ))) : null, menu === "effort" ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement(MenuBack, { label: t("composer.effort"), onClick: () => setMenu("root") }), topEfforts.map((option) => /* @__PURE__ */ React8.createElement(
+        EffortRow,
+        {
+          key: option.reasoningEffort,
+          option,
+          selected: option.reasoningEffort === effort,
+          isDefault: option.reasoningEffort === defaultEffort,
+          onSelect: () => {
+            onEffortChange(option.reasoningEffort);
+            closeMenu();
+          }
+        }
+      )), moreEfforts.length > 0 ? /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-menu-item", onClick: () => setMenu("more") }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-check" }), /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-name" }, t("composer.moreReasoning")), /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-desc" }, t("composer.moreReasoningHint"))), /* @__PURE__ */ React8.createElement(ChevronRightGlyph, null)) : null) : null, menu === "more" ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement(MenuBack, { label: t("composer.moreReasoning"), onClick: () => setMenu("effort") }), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.advancedReasoning")), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-warning" }, "⚠ ", t("composer.consumesFaster")), moreEfforts.map((option) => /* @__PURE__ */ React8.createElement(
+        EffortRow,
+        {
+          key: option.reasoningEffort,
+          option,
+          selected: option.reasoningEffort === effort,
+          isDefault: option.reasoningEffort === defaultEffort,
+          onSelect: () => {
+            onEffortChange(option.reasoningEffort);
+            closeMenu();
+          }
+        }
+      ))) : null)) : null));
+    }
+    function EffortRow({
+      option,
+      selected,
+      isDefault,
+      onSelect
+    }) {
+      const t = useT();
+      return /* @__PURE__ */ React8.createElement(
         "button",
         {
           type: "button",
-          key: value,
-          className: effort === value ? "active" : "",
-          onClick: () => onEffortChange(value)
+          role: "menuitemradio",
+          "aria-checked": selected,
+          className: `dsh-codex-menu-item ${selected ? "selected" : ""}`,
+          onClick: onSelect
         },
-        t(`composer.effort.${value}`)
-      ))))) : null));
+        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-check" }, selected ? /* @__PURE__ */ React8.createElement(CheckGlyph, null) : null),
+        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-name" }, labelForEffort(t, option.reasoningEffort), isDefault ? /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-tag" }, t("composer.defaultTag")) : null, selected ? /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-tag current" }, t("composer.currentTag")) : null), option.description ? /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-desc" }, option.description) : null)
+      );
+    }
+    function MenuBack({ label, onClick }) {
+      return /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-menu-back", onClick }, /* @__PURE__ */ React8.createElement(ChevronLeftGlyph, null), /* @__PURE__ */ React8.createElement("span", null, label));
+    }
+    function labelForEffort(t, value) {
+      const key = `composer.effort.${value}`;
+      const text = t(key);
+      return text === key ? value : text;
     }
     function ModelGlyph() {
       return /* @__PURE__ */ React8.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M8 1.6 9.6 5.1 13.4 6.6 9.6 8.1 8 11.6 6.4 8.1 2.6 6.6 6.4 5.1 8 1.6Z", strokeLinejoin: "round" }), /* @__PURE__ */ React8.createElement("path", { d: "M12.6 10.4l.7 1.5 1.5.7-1.5.7-.7 1.5-.7-1.5-1.5-.7 1.5-.7.7-1.5Z", strokeLinejoin: "round" }));
     }
     function ChevronGlyph() {
       return /* @__PURE__ */ React8.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M4 6l3.3 3.3a1 1 0 0 0 1.4 0L12 6", strokeLinecap: "round" }));
+    }
+    function ChevronRightGlyph() {
+      return /* @__PURE__ */ React8.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M6 4l3.3 3.3a1 1 0 0 1 0 1.4L6 12", strokeLinecap: "round" }));
+    }
+    function ChevronLeftGlyph() {
+      return /* @__PURE__ */ React8.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M10 4 6.7 7.3a1 1 0 0 0 0 1.4L10 12", strokeLinecap: "round" }));
     }
     function SendGlyph() {
       return /* @__PURE__ */ React8.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.6", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M8 13V3M3.6 7.4 8 3l4.4 4.4", strokeLinecap: "round", strokeLinejoin: "round" }));
@@ -2843,6 +2922,48 @@ window.__ModuleLoader__.load({
       font-size: 12px;
       color: var(--dsw-alias-label-secondary, #6b6b6b);
     }
+    .dsh-codex-menu-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      height: 36px;
+      padding: 0 8px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .dsh-codex-menu-cell:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+    .dsh-codex-menu-cell-label { color: var(--dsw-alias-label-secondary, #6b6b6b); }
+    .dsh-codex-menu-cell-value {
+      margin-left: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--dsw-alias-label-primary, #1a1a1a);
+    }
+    .dsh-codex-menu-back {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+      padding: 6px 8px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--dsw-alias-label-secondary, #6b6b6b);
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .dsh-codex-menu-back:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+    .dsh-codex-menu-tag { margin-left: 6px; font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
+    .dsh-codex-menu-tag.current { color: #4176e6; }
+    .dsh-codex-menu-warning { padding: 0 8px 6px; font-size: 11px; color: #b7791f; }
     `;
     function installStyles() {
       if (typeof document === "undefined") return;
