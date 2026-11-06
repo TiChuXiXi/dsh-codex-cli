@@ -9,6 +9,7 @@ import type {
   HubStatus,
   PendingApproval,
   Project,
+  RateLimits,
   ThreadDetail,
   ThreadPage,
 } from '../types'
@@ -54,6 +55,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const [search, setSearch] = React.useState('')
   const [pending, setPending] = React.useState<PendingApproval[]>([])
   const [models, setModels] = React.useState<ModelOption[]>([])
+  const [quota, setQuota] = React.useState<RateLimits | null>(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [versionsOpen, setVersionsOpen] = React.useState(false)
   const [newThreadCwd, setNewThreadCwd] = React.useState('')
@@ -115,6 +117,14 @@ export function ConsolePage(props: ConsolePageProps) {
     if (searchTimer.current !== null) clearTimeout(searchTimer.current)
   }, [])
 
+  const loadQuota = React.useCallback(async () => {
+    try {
+      setQuota(await api<RateLimits>('account/rateLimits'))
+    } catch {
+      // 未登录或后端不支持时保持空值。
+    }
+  }, [api])
+
   const refreshPending = React.useCallback(async () => {
     try {
       const result = await api<{ pending: PendingApproval[] }>('approvals/pending')
@@ -137,7 +147,8 @@ export function ConsolePage(props: ConsolePageProps) {
       setError(messageOf(cause))
     }
     await loadThreads(null)
-  }, [api, loadThreads])
+    await loadQuota()
+  }, [api, loadThreads, loadQuota])
 
   // 右侧栏 tab 的导航请求：打开某个线程，或带着 cwd 打开新会话对话框。
   React.useEffect(() => {
@@ -161,7 +172,9 @@ export function ConsolePage(props: ConsolePageProps) {
     api<Array<{ id: string, displayName: string }>>('models/list')
       .then((list) => setModels(list))
       .catch(() => {})
-  }, [api, refresh, refreshPending])
+    const quotaTimer = setInterval(() => void loadQuota(), 60000)
+    return () => clearInterval(quotaTimer)
+  }, [api, refresh, refreshPending, loadQuota])
 
   React.useEffect(() => {
     const close = openEventStream({
@@ -214,6 +227,10 @@ export function ConsolePage(props: ConsolePageProps) {
           case 'resync':
             void refresh()
             void refreshPending()
+            void loadQuota()
+            break
+          case 'account/rateLimits':
+            void loadQuota()
             break
           case 'turn/started':
           case 'turn/completed':
@@ -235,7 +252,7 @@ export function ConsolePage(props: ConsolePageProps) {
       },
     })
     return close
-  }, [refresh, refreshPending, loadThreads])
+  }, [refresh, refreshPending, loadThreads, loadQuota])
 
   React.useEffect(() => {
     if (selectedId === null) {
@@ -471,6 +488,7 @@ export function ConsolePage(props: ConsolePageProps) {
           projects={projects}
           totalThreads={totalThreads}
           runningCount={runningCount}
+          quota={quota}
           threads={visibleThreads}
           selectedCwd={selectedCwd}
           selectedId={selectedId}

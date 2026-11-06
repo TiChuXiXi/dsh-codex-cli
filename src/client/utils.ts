@@ -40,6 +40,19 @@ export function formatClock(ms: number | null | undefined): string {
   return new Date(ms).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
 }
 
+/** 今天显示 HH:MM，跨天显示 M月D日 HH:MM。 */
+export function formatDateTime(ms: number | null | undefined): string {
+  if (typeof ms !== 'number' || !Number.isFinite(ms) || ms <= 0) return ''
+  const date = new Date(ms)
+  const now = new Date()
+  const sameDay =
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  if (sameDay) return formatClock(ms)
+  return date.toLocaleString(undefined, { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
 /** 时长：1 小时 2 分 / 1 分 29 秒 / 45 秒。 */
 export function formatDuration(ms: number, t: Translate): string {
   const total = Math.max(0, Math.round(ms / 1000))

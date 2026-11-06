@@ -3,9 +3,10 @@
 import * as React from 'react'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
-import type { CodexThread, HubStatus, Project } from '../types'
+import type { CodexThread, HubStatus, Project, RateLimits, RateLimitWindow } from '../types'
 import type { StreamState } from '../events'
 import { CodexIcon } from '../components/CodexIcon'
+import { formatDateTime } from '../utils'
 import { ThreadRow } from './ThreadRow'
 
 export interface FocusSidebarProps {
@@ -15,6 +16,7 @@ export interface FocusSidebarProps {
   projects: Project[]
   totalThreads: number
   runningCount: number
+  quota: RateLimits | null
   threads: CodexThread[]
   selectedCwd: string | null
   selectedId: string | null
@@ -41,6 +43,7 @@ export function FocusSidebar({
   projects,
   totalThreads,
   runningCount,
+  quota,
   threads,
   selectedCwd,
   selectedId,
@@ -61,7 +64,12 @@ export function FocusSidebar({
 }: FocusSidebarProps) {
   const t = useT()
   const phase = status?.phase ?? 'connecting'
-  const phaseClass = phase === 'ready' ? 'ok' : phase === 'error' ? 'error' : 'warn'
+  const phaseClass = phase === 'ready' ? 'ok' : phase === 'error' ? 'error' : phase === 'connecting' ? 'warn' : ''
+  const streamClass = streamState === 'open' ? 'ok' : streamState === 'closed' ? 'error' : 'warn'
+  const quotaInfo = quotaSummary(quota, t)
+  const envParts = [status?.kind ? t(`status.${status.kind}`) : '', status?.codexVersion ? t('status.version', { version: status.codexVersion }) : '']
+    .filter((part) => part !== '')
+    .join(' · ')
   const query = search.trim().toLowerCase()
   const searching = query !== ''
   const matchingProjects = searching
@@ -96,24 +104,29 @@ export function FocusSidebar({
       </div>
 
       <div className="dsh-codex-focus-status">
-        <span className="dsh-codex-focus-status-item">
+        <span className="dsh-codex-status-pill">
           <i className={`dsh-codex-dot ${phaseClass} ${phase === 'connecting' ? 'pulse' : ''}`} />
           {t(`status.${phase}`)}
         </span>
-        {status?.kind ? <span>{t(`status.${status.kind}`)}</span> : null}
-        {status?.codexVersion ? (
-          <span>{t('status.version', { version: status.codexVersion })}</span>
-        ) : null}
-        <span className="dsh-codex-focus-status-item">
-          <i className={`dsh-codex-dot ${streamState === 'open' ? 'ok' : 'warn'} ${streamState === 'connecting' ? 'pulse' : ''}`} />
+        <span className="dsh-codex-status-pill">
+          <i className={`dsh-codex-dot ${streamClass} ${streamState === 'connecting' ? 'pulse' : ''}`} />
           {t(`status.events.${streamState}`)}
         </span>
       </div>
 
-      <div className="dsh-codex-focus-stats">
-        {t('projects.count', { count: totalThreads })}
-        {runningCount > 0 ? ` · ${t('projects.active', { count: runningCount })}` : ''}
-      </div>
+      <dl className="dsh-codex-focus-info">
+        <dt>{t('info.env')}</dt>
+        <dd>{envParts === '' ? '—' : envParts}</dd>
+        <dt>{t('info.sessions')}</dt>
+        <dd>
+          {t('projects.count', { count: totalThreads })}
+          {runningCount > 0 ? ` · ${t('projects.active', { count: runningCount })}` : ''}
+        </dd>
+        <dt>{t('info.quota')}</dt>
+        <dd className="dsh-codex-quota" title={quotaInfo.title}>
+          {quotaInfo.text}
+        </dd>
+      </dl>
 
       <div className="dsh-codex-focus-actions">
         <button type="button" className="dsh-codex-button primary" onClick={onNew}>
@@ -241,4 +254,32 @@ function FolderGlyph({ open = false }: { open?: boolean }) {
       {open ? <path d="M2.2 7.1h11.6" stroke="currentColor" strokeWidth="1" /> : null}
     </svg>
   )
+}
+
+function quotaSummary(quota: RateLimits | null, t: (key: string, vars?: Record<string, string | number>) => string): { text: string, title?: string } {
+  if (quota === null) return { text: t('quota.unknown') }
+  if (quota.credits?.unlimited === true) return { text: t('quota.unlimited') }
+  const parts: string[] = []
+  const windows: RateLimitWindow[] = []
+  if (quota.primary !== null) windows.push(quota.primary)
+  if (quota.secondary !== null) windows.push(quota.secondary)
+  for (const window of windows) {
+    const percent = Math.max(0, Math.min(100, 100 - Math.round(window.usedPercent)))
+    const label = windowLabel(window.windowDurationMins, t)
+    parts.push(label === '' ? t('quota.remaining', { percent }) : `${label} ${t('quota.remaining', { percent })}`)
+  }
+  if (parts.length === 0 && quota.credits?.balance) parts.push(quota.credits.balance)
+  if (quota.resetCredits > 0) parts.push(t('quota.resetCredits', { count: quota.resetCredits }))
+  const resetsAt = quota.primary?.resetsAt
+  const title = typeof resetsAt === 'number' ? t('quota.resetsAt', { time: formatDateTime(resetsAt * 1000) }) : undefined
+  return { text: parts.length > 0 ? parts.join(' · ') : t('quota.unknown'), title }
+}
+
+function windowLabel(minutes: number | null, t: (key: string, vars?: Record<string, string | number>) => string): string {
+  if (typeof minutes !== 'number' || minutes <= 0) return ''
+  if (minutes >= 10080) return t('quota.window.weekly')
+  if (minutes >= 1440) return t('quota.window.daily')
+  if (minutes >= 300) return t('quota.window.5h')
+  if (minutes >= 60) return t('quota.window.1h')
+  return t('quota.window.minutes', { count: Math.round(minutes) })
 }

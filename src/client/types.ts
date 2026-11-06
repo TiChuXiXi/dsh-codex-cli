@@ -110,3 +110,18 @@ export interface ThreadPage {
   data: CodexThread[]
   nextCursor: string | null
 }
+
+export interface RateLimitWindow {
+  usedPercent: number
+  windowDurationMins: number | null
+  resetsAt: number | null
+}
+
+export interface RateLimits {
+  planType: string | null
+  primary: RateLimitWindow | null
+  secondary: RateLimitWindow | null
+  credits: { hasCredits: boolean, unlimited: boolean, balance: string | null } | null
+  resetCredits: number
+  ordinaryUsageAllowed: boolean | null
+}

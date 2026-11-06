@@ -63,6 +63,19 @@ window.__ModuleLoader__.load({
     var zh = {
       "app.title": "Codex CLI",
       "app.subtitle": "管理端",
+      "info.env": "环境",
+      "info.sessions": "会话",
+      "info.quota": "额度",
+      "quota.remaining": "剩余 {percent}%",
+      "quota.unlimited": "无限",
+      "quota.unknown": "—",
+      "quota.window.weekly": "每周",
+      "quota.window.daily": "每天",
+      "quota.window.5h": "5 小时",
+      "quota.window.1h": "1 小时",
+      "quota.window.minutes": "{count} 分钟",
+      "quota.resetCredits": "{count} 次重置",
+      "quota.resetsAt": "重置于 {time}",
       "focus.search": "搜索项目或会话",
       "status.idle": "未连接",
       "status.connecting": "连接中",
@@ -266,6 +279,19 @@ window.__ModuleLoader__.load({
     var en = {
       "app.title": "Codex CLI",
       "app.subtitle": "Console",
+      "info.env": "Runtime",
+      "info.sessions": "Sessions",
+      "info.quota": "Quota",
+      "quota.remaining": "{percent}% left",
+      "quota.unlimited": "Unlimited",
+      "quota.unknown": "—",
+      "quota.window.weekly": "weekly",
+      "quota.window.daily": "daily",
+      "quota.window.5h": "5h",
+      "quota.window.1h": "1h",
+      "quota.window.minutes": "{count}m",
+      "quota.resetCredits": "{count} resets",
+      "quota.resetsAt": "Resets at {time}",
       "focus.search": "Search projects or sessions",
       "status.idle": "Not connected",
       "status.connecting": "Connecting",
@@ -569,6 +595,14 @@ window.__ModuleLoader__.load({
     function formatClock(ms) {
       if (typeof ms !== "number" || !Number.isFinite(ms) || ms <= 0) return "";
       return new Date(ms).toLocaleTimeString(void 0, { hour: "2-digit", minute: "2-digit" });
+    }
+    function formatDateTime(ms) {
+      if (typeof ms !== "number" || !Number.isFinite(ms) || ms <= 0) return "";
+      const date = new Date(ms);
+      const now = /* @__PURE__ */ new Date();
+      const sameDay = date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate();
+      if (sameDay) return formatClock(ms);
+      return date.toLocaleString(void 0, { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
     }
     function formatDuration(ms, t) {
       const total = Math.max(0, Math.round(ms / 1e3));
@@ -925,6 +959,7 @@ window.__ModuleLoader__.load({
       projects,
       totalThreads,
       runningCount,
+      quota,
       threads,
       selectedCwd,
       selectedId,
@@ -945,7 +980,10 @@ window.__ModuleLoader__.load({
     }) {
       const t = useT();
       const phase = status?.phase ?? "connecting";
-      const phaseClass = phase === "ready" ? "ok" : phase === "error" ? "error" : "warn";
+      const phaseClass = phase === "ready" ? "ok" : phase === "error" ? "error" : phase === "connecting" ? "warn" : "";
+      const streamClass = streamState === "open" ? "ok" : streamState === "closed" ? "error" : "warn";
+      const quotaInfo = quotaSummary(quota, t);
+      const envParts = [status?.kind ? t(`status.${status.kind}`) : "", status?.codexVersion ? t("status.version", { version: status.codexVersion }) : ""].filter((part) => part !== "").join(" · ");
       const query = search.trim().toLowerCase();
       const searching = query !== "";
       const matchingProjects = searching ? projects.filter((project) => `${project.name} ${project.cwd}`.toLowerCase().includes(query)) : projects;
@@ -963,7 +1001,7 @@ window.__ModuleLoader__.load({
           onDeleted: onThreadDeleted
         }
       ));
-      return /* @__PURE__ */ React5.createElement("aside", { className: "dsh-codex-focus-sidebar" }, /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-brand" }, /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-focus-logo" }, /* @__PURE__ */ React5.createElement(CodexIcon, { size: 20 })), /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-focus-brand-text" }, /* @__PURE__ */ React5.createElement("strong", null, "Codex CLI"), /* @__PURE__ */ React5.createElement("small", null, t("app.subtitle")))), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-status" }, /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-focus-status-item" }, /* @__PURE__ */ React5.createElement("i", { className: `dsh-codex-dot ${phaseClass} ${phase === "connecting" ? "pulse" : ""}` }), t(`status.${phase}`)), status?.kind ? /* @__PURE__ */ React5.createElement("span", null, t(`status.${status.kind}`)) : null, status?.codexVersion ? /* @__PURE__ */ React5.createElement("span", null, t("status.version", { version: status.codexVersion })) : null, /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-focus-status-item" }, /* @__PURE__ */ React5.createElement("i", { className: `dsh-codex-dot ${streamState === "open" ? "ok" : "warn"} ${streamState === "connecting" ? "pulse" : ""}` }), t(`status.events.${streamState}`))), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-stats" }, t("projects.count", { count: totalThreads }), runningCount > 0 ? ` · ${t("projects.active", { count: runningCount })}` : ""), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-actions" }, /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button primary", onClick: onNew }, t("newThread.open")), /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onVersions }, t("versions.open")), /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onRefresh }, t("status.refresh"))), /* @__PURE__ */ React5.createElement(
+      return /* @__PURE__ */ React5.createElement("aside", { className: "dsh-codex-focus-sidebar" }, /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-brand" }, /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-focus-logo" }, /* @__PURE__ */ React5.createElement(CodexIcon, { size: 20 })), /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-focus-brand-text" }, /* @__PURE__ */ React5.createElement("strong", null, "Codex CLI"), /* @__PURE__ */ React5.createElement("small", null, t("app.subtitle")))), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-status" }, /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-status-pill" }, /* @__PURE__ */ React5.createElement("i", { className: `dsh-codex-dot ${phaseClass} ${phase === "connecting" ? "pulse" : ""}` }), t(`status.${phase}`)), /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-status-pill" }, /* @__PURE__ */ React5.createElement("i", { className: `dsh-codex-dot ${streamClass} ${streamState === "connecting" ? "pulse" : ""}` }), t(`status.events.${streamState}`))), /* @__PURE__ */ React5.createElement("dl", { className: "dsh-codex-focus-info" }, /* @__PURE__ */ React5.createElement("dt", null, t("info.env")), /* @__PURE__ */ React5.createElement("dd", null, envParts === "" ? "—" : envParts), /* @__PURE__ */ React5.createElement("dt", null, t("info.sessions")), /* @__PURE__ */ React5.createElement("dd", null, t("projects.count", { count: totalThreads }), runningCount > 0 ? ` · ${t("projects.active", { count: runningCount })}` : ""), /* @__PURE__ */ React5.createElement("dt", null, t("info.quota")), /* @__PURE__ */ React5.createElement("dd", { className: "dsh-codex-quota", title: quotaInfo.title }, quotaInfo.text)), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-actions" }, /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button primary", onClick: onNew }, t("newThread.open")), /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onVersions }, t("versions.open")), /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onRefresh }, t("status.refresh"))), /* @__PURE__ */ React5.createElement(
         "input",
         {
           className: "dsh-codex-search focus",
@@ -1016,6 +1054,32 @@ window.__ModuleLoader__.load({
           strokeLinejoin: "round"
         }
       ), open ? /* @__PURE__ */ React5.createElement("path", { d: "M2.2 7.1h11.6", stroke: "currentColor", strokeWidth: "1" }) : null);
+    }
+    function quotaSummary(quota, t) {
+      if (quota === null) return { text: t("quota.unknown") };
+      if (quota.credits?.unlimited === true) return { text: t("quota.unlimited") };
+      const parts = [];
+      const windows = [];
+      if (quota.primary !== null) windows.push(quota.primary);
+      if (quota.secondary !== null) windows.push(quota.secondary);
+      for (const window2 of windows) {
+        const percent = Math.max(0, Math.min(100, 100 - Math.round(window2.usedPercent)));
+        const label = windowLabel(window2.windowDurationMins, t);
+        parts.push(label === "" ? t("quota.remaining", { percent }) : `${label} ${t("quota.remaining", { percent })}`);
+      }
+      if (parts.length === 0 && quota.credits?.balance) parts.push(quota.credits.balance);
+      if (quota.resetCredits > 0) parts.push(t("quota.resetCredits", { count: quota.resetCredits }));
+      const resetsAt = quota.primary?.resetsAt;
+      const title = typeof resetsAt === "number" ? t("quota.resetsAt", { time: formatDateTime(resetsAt * 1e3) }) : void 0;
+      return { text: parts.length > 0 ? parts.join(" · ") : t("quota.unknown"), title };
+    }
+    function windowLabel(minutes, t) {
+      if (typeof minutes !== "number" || minutes <= 0) return "";
+      if (minutes >= 10080) return t("quota.window.weekly");
+      if (minutes >= 1440) return t("quota.window.daily");
+      if (minutes >= 300) return t("quota.window.5h");
+      if (minutes >= 60) return t("quota.window.1h");
+      return t("quota.window.minutes", { count: Math.round(minutes) });
     }
 
     // src/client/page/NewThreadDialog.tsx
@@ -2275,6 +2339,7 @@ window.__ModuleLoader__.load({
       const [search, setSearch] = React15.useState("");
       const [pending2, setPending] = React15.useState([]);
       const [models, setModels] = React15.useState([]);
+      const [quota, setQuota] = React15.useState(null);
       const [dialogOpen, setDialogOpen] = React15.useState(false);
       const [versionsOpen, setVersionsOpen] = React15.useState(false);
       const [newThreadCwd, setNewThreadCwd] = React15.useState("");
@@ -2329,6 +2394,12 @@ window.__ModuleLoader__.load({
       React15.useEffect(() => () => {
         if (searchTimer.current !== null) clearTimeout(searchTimer.current);
       }, []);
+      const loadQuota = React15.useCallback(async () => {
+        try {
+          setQuota(await api("account/rateLimits"));
+        } catch {
+        }
+      }, [api]);
       const refreshPending = React15.useCallback(async () => {
         try {
           const result = await api("approvals/pending");
@@ -2349,7 +2420,8 @@ window.__ModuleLoader__.load({
           setError(messageOf(cause));
         }
         await loadThreads(null);
-      }, [api, loadThreads]);
+        await loadQuota();
+      }, [api, loadThreads, loadQuota]);
       React15.useEffect(() => {
         const consume = () => {
           const request = takePending();
@@ -2369,7 +2441,9 @@ window.__ModuleLoader__.load({
         void refreshPending();
         api("models/list").then((list) => setModels(list)).catch(() => {
         });
-      }, [api, refresh, refreshPending]);
+        const quotaTimer = setInterval(() => void loadQuota(), 6e4);
+        return () => clearInterval(quotaTimer);
+      }, [api, refresh, refreshPending, loadQuota]);
       React15.useEffect(() => {
         const close = openEventStream({
           onState: setStreamState,
@@ -2419,6 +2493,10 @@ window.__ModuleLoader__.load({
               case "resync":
                 void refresh();
                 void refreshPending();
+                void loadQuota();
+                break;
+              case "account/rateLimits":
+                void loadQuota();
                 break;
               case "turn/started":
               case "turn/completed":
@@ -2436,7 +2514,7 @@ window.__ModuleLoader__.load({
           }
         });
         return close;
-      }, [refresh, refreshPending, loadThreads]);
+      }, [refresh, refreshPending, loadThreads, loadQuota]);
       React15.useEffect(() => {
         if (selectedId === null) {
           setDetail(null);
@@ -2639,6 +2717,7 @@ window.__ModuleLoader__.load({
           projects,
           totalThreads,
           runningCount,
+          quota,
           threads: visibleThreads,
           selectedCwd,
           selectedId,
@@ -3706,20 +3785,38 @@ window.__ModuleLoader__.load({
     .dsh-codex-focus-brand-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
     .dsh-codex-focus-brand-text strong { font-size: 15px; font-weight: 600; }
     .dsh-codex-focus-brand-text small { font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
-    .dsh-codex-focus-status {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 3px 10px;
-      padding: 2px 14px 4px;
+    .dsh-codex-focus-status { display: flex; gap: 6px; padding: 2px 14px 6px; }
+    .dsh-codex-status-pill .dsh-codex-dot.ok { background: #2f9e63; }
+    .dsh-codex-status-pill .dsh-codex-dot.warn { background: #d29b2a; }
+    .dsh-codex-status-pill .dsh-codex-dot.error { background: #cf4b4b; }
+    .dsh-codex-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--dsw-alias-bg-layer-1, rgba(0, 0, 0, 0.04));
       font-size: 11px;
       color: var(--dsw-alias-label-secondary, #6b6b6b);
     }
-    .dsh-codex-focus-status-item { display: inline-flex; align-items: center; gap: 5px; }
-    .dsh-codex-focus-stats {
-      padding: 2px 14px 8px;
-      font-size: 12px;
-      color: var(--dsw-alias-label-secondary, #6b6b6b);
+    .dsh-codex-focus-info {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 3px 10px;
+      margin: 0;
+      padding: 2px 14px 10px;
+      font-size: 11px;
     }
+    .dsh-codex-focus-info dt { color: var(--dsw-alias-label-secondary, #6b6b6b); }
+    .dsh-codex-focus-info dd {
+      margin: 0;
+      color: var(--dsw-alias-label-primary, #1a1a1a);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .dsh-codex-quota { font-variant-numeric: tabular-nums; }
     .dsh-codex-focus-actions { display: flex; gap: 6px; padding: 0 14px 8px; }
     .dsh-codex-focus-actions .dsh-codex-button { flex: 1; justify-content: center; padding: 4px 8px; font-size: 12px; }
     .dsh-codex-search.focus { width: auto; height: 30px; margin: 0 14px 8px; }
