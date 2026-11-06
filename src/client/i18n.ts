@@ -86,6 +86,7 @@ export const zh = {
   'projects.loadMore': '加载更多',
 
   'threads.loading': '加载中…',
+  'thread.running': 'Codex 正在处理，用时 {seconds} 秒 …',
   'threads.empty': '这个项目还没有会话',
   'threads.loadMore': '加载更多',
   'threads.archived': '已归档',
@@ -393,6 +394,7 @@ export const en = {
   'projects.loadMore': 'Load more',
 
   'threads.loading': 'Loading…',
+  'thread.running': 'Codex is working · {seconds}s …',
   'threads.empty': 'No sessions in this project',
   'threads.loadMore': 'Load more',
   'threads.archived': 'Archived',

@@ -68,8 +68,17 @@ export function ThreadView({
   const [model, setModel] = React.useState('')
   const [effort, setEffort] = React.useState('')
   const [permission, setPermission] = React.useState<PermissionMode>('ask')
+  const [, setTick] = React.useState(0)
+  const runningSinceRef = React.useRef<number>(Date.now())
 
   // 切换会话时用该会话的模型/推理强度初始化；之后用户的选择保持到再次切换。
+  React.useEffect(() => {
+    if (activeTurnId === null) return undefined
+    runningSinceRef.current = Date.now()
+    const timer = window.setInterval(() => setTick((value) => value + 1), 1000)
+    return () => window.clearInterval(timer)
+  }, [activeTurnId])
+
   React.useEffect(() => {
     if (detail === null) return
     setModel(detail.thread.model ?? '')
@@ -174,6 +183,10 @@ export function ThreadView({
   const thread = detail.thread
   const items = detail.turns.flatMap((turn) => turn.items ?? [])
   const hasItems = items.length > 0
+  const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null
+  const runningSeconds = activeTurn?.startedAt
+    ? Math.max(0, Math.floor(Date.now() / 1000 - activeTurn.startedAt))
+    : Math.max(0, Math.floor((Date.now() - runningSinceRef.current) / 1000))
 
   return (
     <>
@@ -260,6 +273,13 @@ export function ThreadView({
         ) : null}
       </div>
       <ApprovalStack approvals={pending} onRespond={onRespond} />
+      {activeTurnId !== null ? (
+        <div className="dsh-codex-running-bar">
+          <span className="dsh-codex-running-spinner" aria-hidden="true" />
+          <span>{t('thread.running', { seconds: runningSeconds })}</span>
+        </div>
+      ) : null}
+
       <Composer
         api={api}
         cwd={detail.thread.cwd ?? ''}

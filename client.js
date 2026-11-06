@@ -143,6 +143,7 @@ window.__ModuleLoader__.load({
       "projects.noMatch": "没有匹配的项目",
       "projects.loadMore": "加载更多",
       "threads.loading": "加载中…",
+      "thread.running": "Codex 正在处理，用时 {seconds} 秒 …",
       "threads.empty": "这个项目还没有会话",
       "threads.loadMore": "加载更多",
       "threads.archived": "已归档",
@@ -436,6 +437,7 @@ window.__ModuleLoader__.load({
       "projects.noMatch": "No matching projects",
       "projects.loadMore": "Load more",
       "threads.loading": "Loading…",
+      "thread.running": "Codex is working · {seconds}s …",
       "threads.empty": "No sessions in this project",
       "threads.loadMore": "Load more",
       "threads.archived": "Archived",
@@ -2679,6 +2681,14 @@ window.__ModuleLoader__.load({
       const [model, setModel] = React14.useState("");
       const [effort, setEffort] = React14.useState("");
       const [permission, setPermission] = React14.useState("ask");
+      const [, setTick] = React14.useState(0);
+      const runningSinceRef = React14.useRef(Date.now());
+      React14.useEffect(() => {
+        if (activeTurnId === null) return void 0;
+        runningSinceRef.current = Date.now();
+        const timer = window.setInterval(() => setTick((value) => value + 1), 1e3);
+        return () => window.clearInterval(timer);
+      }, [activeTurnId]);
       React14.useEffect(() => {
         if (detail === null) return;
         setModel(detail.thread.model ?? "");
@@ -2762,6 +2772,8 @@ window.__ModuleLoader__.load({
       const thread = detail.thread;
       const items = detail.turns.flatMap((turn) => turn.items ?? []);
       const hasItems = items.length > 0;
+      const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null;
+      const runningSeconds = activeTurn?.startedAt ? Math.max(0, Math.floor(Date.now() / 1e3 - activeTurn.startedAt)) : Math.max(0, Math.floor((Date.now() - runningSinceRef.current) / 1e3));
       return /* @__PURE__ */ React14.createElement(React14.Fragment, null, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-thread-header-top" }, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), actions), /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React14.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-chip" }, hasOlder ? t("thread.messagesPlus", { count: items.length }) : t("thread.messages", { count: items.length })))), /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-messages-wrap" }, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll }, hasOlder && hasItems ? /* @__PURE__ */ React14.createElement(
         "button",
         {
@@ -2783,7 +2795,7 @@ window.__ModuleLoader__.load({
           onClick: jumpToBottom
         },
         /* @__PURE__ */ React14.createElement(ChevronDownGlyph, null)
-      ) : null), /* @__PURE__ */ React14.createElement(ApprovalStack, { approvals: pending2, onRespond }), /* @__PURE__ */ React14.createElement(
+      ) : null), /* @__PURE__ */ React14.createElement(ApprovalStack, { approvals: pending2, onRespond }), activeTurnId !== null ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-running-bar" }, /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-running-spinner", "aria-hidden": "true" }), /* @__PURE__ */ React14.createElement("span", null, t("thread.running", { seconds: runningSeconds }))) : null, /* @__PURE__ */ React14.createElement(
         Composer,
         {
           api,
@@ -4349,6 +4361,9 @@ window.__ModuleLoader__.load({
       background: var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.08));
     }
 
+    .dsh-codex-running-bar { display: flex; align-items: center; gap: 6px; padding: 6px 18px 0; font-size: 12px; color: #4176e6; }
+    .dsh-codex-running-spinner { width: 12px; height: 12px; flex: none; border: 1.6px solid rgba(65, 118, 230, 0.25); border-top-color: #4176e6; border-radius: 50%; animation: dsh-codex-spin 0.8s linear infinite; }
+    @keyframes dsh-codex-spin { to { transform: rotate(360deg); } }
     .dsh-codex-composer-wrap {
       position: relative;
       display: flex;

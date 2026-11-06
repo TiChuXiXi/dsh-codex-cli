@@ -460,6 +460,9 @@ export const CSS = `
   background: var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.08));
 }
 
+.dsh-codex-running-bar { display: flex; align-items: center; gap: 6px; padding: 6px 18px 0; font-size: 12px; color: #4176e6; }
+.dsh-codex-running-spinner { width: 12px; height: 12px; flex: none; border: 1.6px solid rgba(65, 118, 230, 0.25); border-top-color: #4176e6; border-radius: 50%; animation: dsh-codex-spin 0.8s linear infinite; }
+@keyframes dsh-codex-spin { to { transform: rotate(360deg); } }
 .dsh-codex-composer-wrap {
   position: relative;
   display: flex;
