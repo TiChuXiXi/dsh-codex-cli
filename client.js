@@ -2770,7 +2770,12 @@ window.__ModuleLoader__.load({
       }
       if (detail === null) return null;
       const thread = detail.thread;
-      const items = detail.turns.flatMap((turn) => turn.items ?? []);
+      const orderedTurns = [...detail.turns].map((turn, index) => ({ turn, index })).sort((a, b) => {
+        const at = a.turn.startedAt ?? a.turn.completedAt ?? 0;
+        const bt = b.turn.startedAt ?? b.turn.completedAt ?? 0;
+        return at === bt ? a.index - b.index : at - bt;
+      }).map((entry) => entry.turn);
+      const items = orderedTurns.flatMap((turn) => turn.items ?? []);
       const hasItems = items.length > 0;
       const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null;
       const runningSeconds = activeTurn?.startedAt ? Math.max(0, Math.floor(Date.now() / 1e3 - activeTurn.startedAt)) : Math.max(0, Math.floor((Date.now() - runningSinceRef.current) / 1e3));
