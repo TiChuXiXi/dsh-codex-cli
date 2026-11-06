@@ -78,6 +78,7 @@ window.__ModuleLoader__.load({
       "quota.remaining": "剩余 {percent}%",
       "quota.unlimited": "无限",
       "quota.unknown": "—",
+      "quota.loading": "加载中…",
       "quota.window.weekly": "每周",
       "quota.window.daily": "每天",
       "quota.window.5h": "5 小时",
@@ -307,6 +308,7 @@ window.__ModuleLoader__.load({
       "quota.remaining": "{percent}% left",
       "quota.unlimited": "Unlimited",
       "quota.unknown": "—",
+      "quota.loading": "Loading…",
       "quota.window.weekly": "weekly",
       "quota.window.daily": "daily",
       "quota.window.5h": "5h",
@@ -1035,6 +1037,7 @@ window.__ModuleLoader__.load({
       totalThreads,
       runningCount,
       quota,
+      quotaLoading,
       threads,
       threadsOwner,
       selectedCwd,
@@ -1058,7 +1061,7 @@ window.__ModuleLoader__.load({
       const phase = status?.phase ?? "connecting";
       const phaseClass = phase === "ready" ? "ok" : phase === "error" ? "error" : phase === "connecting" ? "warn" : "";
       const streamClass = streamState === "open" ? "ok" : streamState === "closed" ? "error" : "warn";
-      const quotaInfo = quotaSummary(quota, t);
+      const quotaInfo = quota === null && quotaLoading ? { text: t("quota.loading") } : quotaSummary(quota, t);
       const envParts = [status?.kind ? t(`status.${status.kind}`) : "", status?.codexVersion ? t("status.version", { version: status.codexVersion }) : ""].filter((part) => part !== "").join(" · ");
       const query = search.trim().toLowerCase();
       const searchText = search.trim();
@@ -2500,6 +2503,9 @@ window.__ModuleLoader__.load({
       const [pending2, setPending] = React16.useState([]);
       const [models, setModels] = React16.useState([]);
       const [quota, setQuota] = React16.useState(null);
+      const [quotaLoading, setQuotaLoading] = React16.useState(true);
+      const quotaRef = React16.useRef(null);
+      quotaRef.current = quota;
       const [pickerOpen, setPickerOpen] = React16.useState(false);
       const [trusted, setTrusted] = React16.useState(readTrusted);
       const [versionsOpen, setVersionsOpen] = React16.useState(false);
@@ -2559,9 +2565,12 @@ window.__ModuleLoader__.load({
         if (searchTimer.current !== null) clearTimeout(searchTimer.current);
       }, []);
       const loadQuota = React16.useCallback(async () => {
+        if (quotaRef.current === null) setQuotaLoading(true);
         try {
           setQuota(await api("account/rateLimits"));
         } catch {
+        } finally {
+          setQuotaLoading(false);
         }
       }, [api]);
       const refreshPending = React16.useCallback(async () => {
@@ -2926,6 +2935,7 @@ window.__ModuleLoader__.load({
           totalThreads,
           runningCount,
           quota,
+          quotaLoading,
           threads: visibleThreads,
           threadsOwner,
           selectedCwd,

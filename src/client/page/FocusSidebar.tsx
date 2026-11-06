@@ -17,6 +17,7 @@ export interface FocusSidebarProps {
   totalThreads: number
   runningCount: number
   quota: RateLimits | null
+  quotaLoading: boolean
   threads: CodexThread[]
   threadsOwner: { cwd: string | null, search: string } | null
   selectedCwd: string | null
@@ -45,6 +46,7 @@ export function FocusSidebar({
   totalThreads,
   runningCount,
   quota,
+  quotaLoading,
   threads,
   threadsOwner,
   selectedCwd,
@@ -68,7 +70,7 @@ export function FocusSidebar({
   const phase = status?.phase ?? 'connecting'
   const phaseClass = phase === 'ready' ? 'ok' : phase === 'error' ? 'error' : phase === 'connecting' ? 'warn' : ''
   const streamClass = streamState === 'open' ? 'ok' : streamState === 'closed' ? 'error' : 'warn'
-  const quotaInfo = quotaSummary(quota, t)
+  const quotaInfo = quota === null && quotaLoading ? { text: t('quota.loading') } : quotaSummary(quota, t)
   const envParts = [status?.kind ? t(`status.${status.kind}`) : '', status?.codexVersion ? t('status.version', { version: status.codexVersion }) : '']
     .filter((part) => part !== '')
     .join(' · ')

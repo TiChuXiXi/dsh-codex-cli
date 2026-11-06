@@ -80,6 +80,9 @@ export function ConsolePage(props: ConsolePageProps) {
   const [pending, setPending] = React.useState<PendingApproval[]>([])
   const [models, setModels] = React.useState<ModelOption[]>([])
   const [quota, setQuota] = React.useState<RateLimits | null>(null)
+  const [quotaLoading, setQuotaLoading] = React.useState(true)
+  const quotaRef = React.useRef<RateLimits | null>(null)
+  quotaRef.current = quota
   const [pickerOpen, setPickerOpen] = React.useState(false)
   const [trusted, setTrusted] = React.useState<string[]>(readTrusted)
   const [versionsOpen, setVersionsOpen] = React.useState(false)
@@ -145,10 +148,13 @@ export function ConsolePage(props: ConsolePageProps) {
   }, [])
 
   const loadQuota = React.useCallback(async () => {
+    if (quotaRef.current === null) setQuotaLoading(true)
     try {
       setQuota(await api<RateLimits>('account/rateLimits'))
     } catch {
       // 未登录或后端不支持时保持空值。
+    } finally {
+      setQuotaLoading(false)
     }
   }, [api])
 
@@ -567,6 +573,7 @@ export function ConsolePage(props: ConsolePageProps) {
           totalThreads={totalThreads}
           runningCount={runningCount}
           quota={quota}
+          quotaLoading={quotaLoading}
           threads={visibleThreads}
           threadsOwner={threadsOwner}
           selectedCwd={selectedCwd}
