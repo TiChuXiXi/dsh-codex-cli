@@ -354,6 +354,34 @@ export const CSS = `
   color: var(--dsw-alias-label-primary, #1a1a1a);
 }
 .dsh-codex-block-body { padding: 9px 10px; }
+.dsh-codex-code { margin: 10px 0; border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.1)); border-radius: 10px; overflow: hidden; background: rgba(0, 0, 0, 0.025); }
+.dsh-codex-code-head { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-bottom: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.07)); font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
+.dsh-codex-code-lang { font-family: var(--dsh-font-family-code, ui-monospace, monospace); }
+.dsh-codex-code-copy { margin-left: auto; padding: 2px 6px; border: none; border-radius: 5px; background: transparent; color: inherit; font: inherit; font-size: 11px; cursor: pointer; }
+.dsh-codex-code-copy:hover { background: rgba(0, 0, 0, 0.06); }
+.dsh-codex-code .dsh-codex-pre { margin: 0; border: none; border-radius: 0; background: transparent; }
+.dsh-codex-code-line { min-height: 1.5em; }
+.dsh-codex-tok.comment { color: #8a8f95; font-style: italic; }
+.dsh-codex-tok.string { color: #b26a00; }
+.dsh-codex-tok.number { color: #8250df; }
+.dsh-codex-tok.keyword { color: #0550ae; }
+.dsh-codex-diff-line { min-height: 1.5em; padding: 0 4px; }
+.dsh-codex-diff-line.add { background: rgba(46, 160, 67, 0.12); }
+.dsh-codex-diff-line.del { background: rgba(207, 75, 75, 0.12); }
+.dsh-codex-diff-line.hunk { color: #0550ae; background: rgba(5, 80, 174, 0.06); }
+.dsh-codex-markdown h1, .dsh-codex-markdown h2, .dsh-codex-markdown h3 { margin: 14px 0 6px; line-height: 1.35; }
+.dsh-codex-markdown h1 { font-size: 20px; }
+.dsh-codex-markdown h2 { font-size: 17px; }
+.dsh-codex-markdown h3 { font-size: 15px; }
+.dsh-codex-markdown ul, .dsh-codex-markdown ol { margin: 6px 0; padding-left: 22px; }
+.dsh-codex-markdown li { margin: 2px 0; }
+.dsh-codex-markdown blockquote { margin: 8px 0; padding: 2px 0 2px 10px; border-left: 3px solid rgba(0, 0, 0, 0.15); color: var(--dsw-alias-label-secondary, #4a4f55); }
+.dsh-codex-markdown table { margin: 8px 0; border-collapse: collapse; font-size: 12px; }
+.dsh-codex-markdown th, .dsh-codex-markdown td { padding: 4px 10px; border: 1px solid rgba(0, 0, 0, 0.1); text-align: left; }
+.dsh-codex-markdown th { background: rgba(0, 0, 0, 0.03); }
+.dsh-codex-markdown code:not(pre code) { padding: 1px 5px; border-radius: 5px; background: rgba(0, 0, 0, 0.06); font-family: var(--dsh-font-family-code, ui-monospace, monospace); font-size: 0.92em; }
+.dsh-codex-markdown a { color: #0969da; }
+.dsh-codex-markdown hr { margin: 12px 0; border: none; border-top: 1px solid rgba(0, 0, 0, 0.1); }
 .dsh-codex-pre {
   margin: 0;
   max-height: 340px;

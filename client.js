@@ -2192,7 +2192,7 @@ window.__ModuleLoader__.load({
     function renderBlock(block, key) {
       switch (block.kind) {
         case "code":
-          return /* @__PURE__ */ React11.createElement("pre", { key, className: "dsh-codex-pre" }, /* @__PURE__ */ React11.createElement("code", null, block.text));
+          return /* @__PURE__ */ React11.createElement(CodeBlock, { key, lang: block.lang, text: block.text });
         case "heading": {
           const Tag = `h${Math.min(block.level, 4)}`;
           return React11.createElement(Tag, { key }, renderInline(block.text, `h${key}`));
@@ -2350,6 +2350,40 @@ window.__ModuleLoader__.load({
       if (text.startsWith("|")) text = text.slice(1);
       if (text.endsWith("|")) text = text.slice(0, -1);
       return text.split("|").map((cell) => cell.trim());
+    }
+    var TOKEN = /(\/\/[^\n]*|#[^\n]*|--[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)|\b(\d+(?:\.\d+)?)\b|\b(const|let|var|function|return|if|else|for|while|class|new|import|export|from|async|await|try|catch|throw|switch|case|break|continue|def|elif|lambda|pass|raise|with|as|in|is|not|and|or|None|True|False|null|true|false|undefined|interface|type|enum|struct|impl|pub|use|fn|match|mut|package|go|defer|chan|select)\b/g;
+    function CodeBlock({ lang, text }) {
+      const [copied, setCopied] = React11.useState(false);
+      const copy = () => {
+        void navigator.clipboard?.writeText(text).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1200);
+        });
+      };
+      return /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-code" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-code-head" }, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-code-lang" }, lang === "" ? "text" : lang), /* @__PURE__ */ React11.createElement("button", { type: "button", className: "dsh-codex-code-copy", onClick: copy }, copied ? "已复制" : "复制")), /* @__PURE__ */ React11.createElement("pre", { className: "dsh-codex-pre" }, /* @__PURE__ */ React11.createElement("code", null, lang === "diff" ? /* @__PURE__ */ React11.createElement(DiffLines, { text }) : /* @__PURE__ */ React11.createElement(Highlighted, { text }))));
+    }
+    function DiffLines({ text }) {
+      return /* @__PURE__ */ React11.createElement(React11.Fragment, null, text.split("\n").map((line, index) => {
+        const cls = line.startsWith("+") ? "add" : line.startsWith("-") ? "del" : line.startsWith("@@") ? "hunk" : "";
+        return /* @__PURE__ */ React11.createElement("div", { key: index, className: `dsh-codex-diff-line ${cls}` }, line === "" ? " " : line);
+      }));
+    }
+    function Highlighted({ text }) {
+      return /* @__PURE__ */ React11.createElement(React11.Fragment, null, text.split("\n").map((line, index) => /* @__PURE__ */ React11.createElement("div", { key: index, className: "dsh-codex-code-line" }, highlightLine(line))));
+    }
+    function highlightLine(line) {
+      const nodes = [];
+      let last = 0;
+      let match;
+      const regex = new RegExp(TOKEN.source, "g");
+      while ((match = regex.exec(line)) !== null) {
+        if (match.index > last) nodes.push(line.slice(last, match.index));
+        const cls = match[1] !== void 0 ? "comment" : match[2] !== void 0 ? "string" : match[3] !== void 0 ? "number" : "keyword";
+        nodes.push(/* @__PURE__ */ React11.createElement("span", { key: `${match.index}-${cls}`, className: `dsh-codex-tok ${cls}` }, match[0]));
+        last = match.index + match[0].length;
+      }
+      if (last < line.length) nodes.push(line.slice(last));
+      return nodes;
     }
 
     // src/client/page/ItemCard.tsx
@@ -3303,13 +3337,22 @@ window.__ModuleLoader__.load({
                   )
                 );
                 break;
-              case "thread/updated":
+              case "thread/updated": {
+                const name = event.payload?.name ?? null;
                 setThreads(
-                  (previous) => previous.map(
-                    (thread) => thread.id === event.threadId ? { ...thread, name: event.payload?.name ?? thread.name } : thread
-                  )
+                  (previous) => previous.map((thread) => thread.id === event.threadId ? { ...thread, name: name ?? thread.name } : thread)
                 );
+                setDetail(
+                  (previous) => previous !== null && previous.thread.id === event.threadId && name !== null ? { ...previous, thread: { ...previous.thread, name } } : previous
+                );
+                void loadThreads(null, {
+                  cwd: queryRef.current.cwd,
+                  search: queryRef.current.search,
+                  limit: Math.max(THREAD_PAGE, threadsRef.current.length),
+                  silent: true
+                });
                 break;
+              }
               case "thread/archived":
               case "thread/deleted":
                 setThreads((previous) => previous.filter((thread) => thread.id !== event.threadId));
@@ -4200,6 +4243,34 @@ window.__ModuleLoader__.load({
       color: var(--dsw-alias-label-primary, #1a1a1a);
     }
     .dsh-codex-block-body { padding: 9px 10px; }
+    .dsh-codex-code { margin: 10px 0; border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.1)); border-radius: 10px; overflow: hidden; background: rgba(0, 0, 0, 0.025); }
+    .dsh-codex-code-head { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-bottom: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.07)); font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
+    .dsh-codex-code-lang { font-family: var(--dsh-font-family-code, ui-monospace, monospace); }
+    .dsh-codex-code-copy { margin-left: auto; padding: 2px 6px; border: none; border-radius: 5px; background: transparent; color: inherit; font: inherit; font-size: 11px; cursor: pointer; }
+    .dsh-codex-code-copy:hover { background: rgba(0, 0, 0, 0.06); }
+    .dsh-codex-code .dsh-codex-pre { margin: 0; border: none; border-radius: 0; background: transparent; }
+    .dsh-codex-code-line { min-height: 1.5em; }
+    .dsh-codex-tok.comment { color: #8a8f95; font-style: italic; }
+    .dsh-codex-tok.string { color: #b26a00; }
+    .dsh-codex-tok.number { color: #8250df; }
+    .dsh-codex-tok.keyword { color: #0550ae; }
+    .dsh-codex-diff-line { min-height: 1.5em; padding: 0 4px; }
+    .dsh-codex-diff-line.add { background: rgba(46, 160, 67, 0.12); }
+    .dsh-codex-diff-line.del { background: rgba(207, 75, 75, 0.12); }
+    .dsh-codex-diff-line.hunk { color: #0550ae; background: rgba(5, 80, 174, 0.06); }
+    .dsh-codex-markdown h1, .dsh-codex-markdown h2, .dsh-codex-markdown h3 { margin: 14px 0 6px; line-height: 1.35; }
+    .dsh-codex-markdown h1 { font-size: 20px; }
+    .dsh-codex-markdown h2 { font-size: 17px; }
+    .dsh-codex-markdown h3 { font-size: 15px; }
+    .dsh-codex-markdown ul, .dsh-codex-markdown ol { margin: 6px 0; padding-left: 22px; }
+    .dsh-codex-markdown li { margin: 2px 0; }
+    .dsh-codex-markdown blockquote { margin: 8px 0; padding: 2px 0 2px 10px; border-left: 3px solid rgba(0, 0, 0, 0.15); color: var(--dsw-alias-label-secondary, #4a4f55); }
+    .dsh-codex-markdown table { margin: 8px 0; border-collapse: collapse; font-size: 12px; }
+    .dsh-codex-markdown th, .dsh-codex-markdown td { padding: 4px 10px; border: 1px solid rgba(0, 0, 0, 0.1); text-align: left; }
+    .dsh-codex-markdown th { background: rgba(0, 0, 0, 0.03); }
+    .dsh-codex-markdown code:not(pre code) { padding: 1px 5px; border-radius: 5px; background: rgba(0, 0, 0, 0.06); font-family: var(--dsh-font-family-code, ui-monospace, monospace); font-size: 0.92em; }
+    .dsh-codex-markdown a { color: #0969da; }
+    .dsh-codex-markdown hr { margin: 12px 0; border: none; border-top: 1px solid rgba(0, 0, 0, 0.1); }
     .dsh-codex-pre {
       margin: 0;
       max-height: 340px;

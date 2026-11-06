@@ -28,11 +28,7 @@ export function Markdown({ text }: { text: string }) {
 function renderBlock(block: Block, key: number): React.ReactNode {
   switch (block.kind) {
     case 'code':
-      return (
-        <pre key={key} className="dsh-codex-pre">
-          <code>{block.text}</code>
-        </pre>
-      )
+      return <CodeBlock key={key} lang={block.lang} text={block.text} />
     case 'heading': {
       const Tag = `h${Math.min(block.level, 4)}` as any
       return React.createElement(Tag, { key }, renderInline(block.text, `h${key}`))
@@ -239,4 +235,69 @@ function splitRow(line: string): string[] {
   if (text.startsWith('|')) text = text.slice(1)
   if (text.endsWith('|')) text = text.slice(0, -1)
   return text.split('|').map((cell) => cell.trim())
+}
+
+
+const KEYWORDS = /\b(const|let|var|function|return|if|else|for|while|class|new|import|export|from|async|await|try|catch|throw|switch|case|break|continue|def|elif|lambda|pass|raise|with|as|in|is|not|and|or|None|True|False|null|true|false|undefined|interface|type|enum|struct|impl|pub|use|fn|match|mut|package|go|defer|chan|select)\b/g
+const TOKEN = /(\/\/[^\n]*|#[^\n]*|--[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)|\b(\d+(?:\.\d+)?)\b|\b(const|let|var|function|return|if|else|for|while|class|new|import|export|from|async|await|try|catch|throw|switch|case|break|continue|def|elif|lambda|pass|raise|with|as|in|is|not|and|or|None|True|False|null|true|false|undefined|interface|type|enum|struct|impl|pub|use|fn|match|mut|package|go|defer|chan|select)\b/g
+
+function CodeBlock({ lang, text }: { lang: string, text: string }) {
+  const [copied, setCopied] = React.useState(false)
+  const copy = () => {
+    void navigator.clipboard?.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1200)
+    })
+  }
+  return (
+    <div className="dsh-codex-code">
+      <div className="dsh-codex-code-head">
+        <span className="dsh-codex-code-lang">{lang === '' ? 'text' : lang}</span>
+        <button type="button" className="dsh-codex-code-copy" onClick={copy}>
+          {copied ? '已复制' : '复制'}
+        </button>
+      </div>
+      <pre className="dsh-codex-pre">
+        <code>{lang === 'diff' ? <DiffLines text={text} /> : <Highlighted text={text} />}</code>
+      </pre>
+    </div>
+  )
+}
+
+function DiffLines({ text }: { text: string }) {
+  return (
+    <>
+      {text.split('\n').map((line, index) => {
+        const cls = line.startsWith('+') ? 'add' : line.startsWith('-') ? 'del' : line.startsWith('@@') ? 'hunk' : ''
+        return (
+          <div key={index} className={`dsh-codex-diff-line ${cls}`}>{line === '' ? ' ' : line}</div>
+        )
+      })}
+    </>
+  )
+}
+
+function Highlighted({ text }: { text: string }) {
+  return (
+    <>
+      {text.split('\n').map((line, index) => (
+        <div key={index} className="dsh-codex-code-line">{highlightLine(line)}</div>
+      ))}
+    </>
+  )
+}
+
+function highlightLine(line: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = []
+  let last = 0
+  let match: RegExpExecArray | null
+  const regex = new RegExp(TOKEN.source, 'g')
+  while ((match = regex.exec(line)) !== null) {
+    if (match.index > last) nodes.push(line.slice(last, match.index))
+    const cls = match[1] !== undefined ? 'comment' : match[2] !== undefined ? 'string' : match[3] !== undefined ? 'number' : 'keyword'
+    nodes.push(<span key={`${match.index}-${cls}`} className={`dsh-codex-tok ${cls}`}>{match[0]}</span>)
+    last = match.index + match[0].length
+  }
+  if (last < line.length) nodes.push(line.slice(last))
+  return nodes
 }

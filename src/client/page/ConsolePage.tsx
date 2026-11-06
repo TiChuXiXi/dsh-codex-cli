@@ -294,13 +294,25 @@ export function ConsolePage(props: ConsolePageProps) {
               ),
             )
             break
-          case 'thread/updated':
+          case 'thread/updated': {
+            const name = event.payload?.name ?? null
             setThreads((previous) =>
-              previous.map((thread) =>
-                thread.id === event.threadId ? { ...thread, name: event.payload?.name ?? thread.name } : thread,
-              ),
+              previous.map((thread) => (thread.id === event.threadId ? { ...thread, name: name ?? thread.name } : thread)),
             )
+            setDetail((previous) =>
+              previous !== null && previous.thread.id === event.threadId && name !== null
+                ? { ...previous, thread: { ...previous.thread, name } }
+                : previous,
+            )
+            // Codex 自动重命名后，列表按 updatedAt 重排，静默重拉一次避免会话“消失”。
+            void loadThreads(null, {
+              cwd: queryRef.current.cwd,
+              search: queryRef.current.search,
+              limit: Math.max(THREAD_PAGE, threadsRef.current.length),
+              silent: true,
+            })
             break
+          }
           case 'thread/archived':
           case 'thread/deleted':
             setThreads((previous) => previous.filter((thread) => thread.id !== event.threadId))
