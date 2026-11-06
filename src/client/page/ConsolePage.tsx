@@ -120,6 +120,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const [selectedId, setSelectedId] = React.useState<string | null>(() => readStored(LAST_THREAD_KEY))
   const [detail, setDetail] = React.useState<ThreadDetail | null>(null)
   const [detailLoading, setDetailLoading] = React.useState(false)
+  const [detailReload, setDetailReload] = React.useState(0)
   const [olderCursor, setOlderCursor] = React.useState<any>(null)
   const [loadingOlder, setLoadingOlder] = React.useState(false)
   const loadingOlderRef = React.useRef(false)
@@ -444,7 +445,7 @@ export function ConsolePage(props: ConsolePageProps) {
     return () => {
       cancelled = true
     }
-  }, [api, selectedId])
+  }, [api, selectedId, detailReload])
 
   React.useEffect(() => {
     if (selectedId === null) return undefined
@@ -810,7 +811,16 @@ export function ConsolePage(props: ConsolePageProps) {
           {error !== null ? (
             <div className="dsh-codex-error">
               {error}
-              <button type="button" className="dsh-codex-button" style={{ marginLeft: 8 }} onClick={() => void refresh()}>
+              <button
+                type="button"
+                className="dsh-codex-button"
+                style={{ marginLeft: 8 }}
+                onClick={() => {
+                  setError(null)
+                  setDetailReload((previous) => previous + 1)
+                  void refresh()
+                }}
+              >
                 {t('error.retry')}
               </button>
             </div>

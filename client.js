@@ -3632,6 +3632,7 @@ window.__ModuleLoader__.load({
       const [selectedId, setSelectedId] = React18.useState(() => readStored(LAST_THREAD_KEY));
       const [detail, setDetail] = React18.useState(null);
       const [detailLoading, setDetailLoading] = React18.useState(false);
+      const [detailReload, setDetailReload] = React18.useState(0);
       const [olderCursor, setOlderCursor] = React18.useState(null);
       const [loadingOlder, setLoadingOlder] = React18.useState(false);
       const loadingOlderRef = React18.useRef(false);
@@ -3926,7 +3927,7 @@ window.__ModuleLoader__.load({
         return () => {
           cancelled = true;
         };
-      }, [api, selectedId]);
+      }, [api, selectedId, detailReload]);
       React18.useEffect(() => {
         if (selectedId === null) return void 0;
         let cancelled = false;
@@ -4233,7 +4234,20 @@ window.__ModuleLoader__.load({
           onThreadChanged: handleThreadChanged,
           onThreadDeleted: handleThreadDeleted
         }
-      ), /* @__PURE__ */ React18.createElement("main", { className: "dsh-codex-main" }, error !== null ? /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-error" }, error, /* @__PURE__ */ React18.createElement("button", { type: "button", className: "dsh-codex-button", style: { marginLeft: 8 }, onClick: () => void refresh() }, t("error.retry"))) : null, /* @__PURE__ */ React18.createElement(
+      ), /* @__PURE__ */ React18.createElement("main", { className: "dsh-codex-main" }, error !== null ? /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-error" }, error, /* @__PURE__ */ React18.createElement(
+        "button",
+        {
+          type: "button",
+          className: "dsh-codex-button",
+          style: { marginLeft: 8 },
+          onClick: () => {
+            setError(null);
+            setDetailReload((previous) => previous + 1);
+            void refresh();
+          }
+        },
+        t("error.retry")
+      )) : null, /* @__PURE__ */ React18.createElement(
         ThreadView,
         {
           api,

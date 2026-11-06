@@ -548,6 +548,14 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 新逻辑：只有 `read_*` 工具计入「读取」，并从 `arguments.paths` / `path` / `file` 统计**去重后的文件路径**；`list_*`、`search_*`、`get_*`、`index_*` 都计入「工具」。
 - 例子：截图中的组（3 次 `read_multiple_files` 读 3+3+2 个路径、去重 5 个文件；`list_projects` + `list_directory` + 2 次 `index_status`；2 条 `git status`）旧摘要「2 命令 / 5 文件 / 2 工具」→ 新摘要「2 命令 / 5 文件 / 4 工具」。5 原本是巧合（3 次读 + 2 次 list），现在才是真实去重文件数。
 
+### 2026-11-06 · 线程偶发 `thread not found` 自愈
+
+- 现象：Codex 面板打开一个未加载（`status: notLoaded`）的线程时，顶部报 `thread not found: <id>`，但线程内容与 rollout 都在。
+- 触发条件：线程在守护进程里处于未加载状态（例如页面刷新 / 第二个客户端关闭订阅的窗口），此时 `thread/read` 或 `thread/turns/list` 可能瞬时返回 not found。
+- 修复：宿主 `getThread` 遇到 `thread not found` 先 `thread/resume` 把线程载入，再重试一次读取；`openThread` 的 resume 也重试一次。真正的删除仍会抛错。
+- UI：错误条的「重试」现在除了刷新列表/状态，还会重新拉取当前线程详情（`detailReload`），不用手动重开线程。
+- 验证：重新打开 `01a1afed` 不再报错；另一个历史线程正常打开；测试 17/17 通过。
+
 ### 2026-11-06 · 未完成任务：右侧面板 cwd 参数化（暂停）
 
 **目标**：让 DSH 原生右栏（工作区文件 / 版本管理 / 新建终端）接受显式 `cwd`，不再依赖 DSH 会话 id，从而可直接挂在 Codex 全屏面板里，复用 PDF/DOCX/XLSX/Markdown/图片预览、终端和 `dsh-git-vcs`。
