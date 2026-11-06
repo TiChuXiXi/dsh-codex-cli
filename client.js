@@ -39,10 +39,19 @@ window.__ModuleLoader__.load({
       inject: () => inject
     });
     module.exports = __toCommonJS(index_exports);
-    var React17 = __toESM(require("react"), 1);
+    var React18 = __toESM(require("react"), 1);
 
     // src/client/components/CodexIcon.tsx
     var React = __toESM(require("react"), 1);
+
+    // src/client/components/codexLogo.ts
+    var CODEX_LOGO_PATH = "M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z";
+    function codexFavicon(color) {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="${color}" d="${CODEX_LOGO_PATH}"/></svg>`;
+      return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    }
+
+    // src/client/components/CodexIcon.tsx
     function CodexIcon({ size = 16 }) {
       return /* @__PURE__ */ React.createElement(
         "svg",
@@ -53,7 +62,7 @@ window.__ModuleLoader__.load({
           fill: "currentColor",
           "aria-hidden": "true"
         },
-        /* @__PURE__ */ React.createElement("path", { d: "M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z" })
+        /* @__PURE__ */ React.createElement("path", { d: CODEX_LOGO_PATH })
       );
     }
 
@@ -504,7 +513,7 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/ConsolePage.tsx
-    var React15 = __toESM(require("react"), 1);
+    var React16 = __toESM(require("react"), 1);
 
     // src/client/events.ts
     function openEventStream({ onEvent, onState }) {
@@ -534,6 +543,43 @@ window.__ModuleLoader__.load({
         source = null;
         onState("reconnecting");
       };
+    }
+
+    // src/client/hooks.ts
+    var React3 = __toESM(require("react"), 1);
+    function useCodexTab(title = "Codex CLI") {
+      React3.useEffect(() => {
+        if (typeof document === "undefined") return void 0;
+        const previousTitle = document.title;
+        const links = Array.from(document.querySelectorAll('link[rel~="icon"]'));
+        const saved = links.map((link) => ({ link, href: link.getAttribute("href"), type: link.type }));
+        const created = [];
+        document.title = title;
+        const targets = saved.length > 0 ? saved.map((entry) => entry.link) : [];
+        if (targets.length === 0) {
+          const link = document.createElement("link");
+          link.rel = "icon";
+          link.type = "image/svg+xml";
+          document.head.appendChild(link);
+          created.push(link);
+          targets.push(link);
+        }
+        for (const link of targets) {
+          const dark = typeof link.media === "string" && link.media.includes("dark");
+          link.type = "image/svg+xml";
+          link.href = codexFavicon(dark ? "#ffffff" : "#0f1115");
+        }
+        return () => {
+          document.title = previousTitle;
+          for (const { link, href, type } of saved) {
+            if (!link.isConnected) continue;
+            if (href === null) link.removeAttribute("href");
+            else link.setAttribute("href", href);
+            link.type = type;
+          }
+          for (const link of created) link.remove();
+        };
+      }, [title]);
     }
 
     // src/client/store.ts
@@ -724,24 +770,24 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/FocusSidebar.tsx
-    var React5 = __toESM(require("react"), 1);
+    var React6 = __toESM(require("react"), 1);
 
     // src/client/page/ThreadRow.tsx
-    var React4 = __toESM(require("react"), 1);
+    var React5 = __toESM(require("react"), 1);
 
     // src/client/page/ThreadRowMenu.tsx
-    var React3 = __toESM(require("react"), 1);
+    var React4 = __toESM(require("react"), 1);
     var MENU_WIDTH = 110;
     function ThreadRowMenu({ api, thread, onRenamed, onChanged, onDeleted }) {
       const t = useT();
-      const triggerRef = React3.useRef(null);
-      const [open, setOpen] = React3.useState(false);
-      const [position, setPosition] = React3.useState(null);
-      const [dialog, setDialog] = React3.useState(null);
-      const [name, setName] = React3.useState(thread.name ?? "");
-      const [busy, setBusy] = React3.useState(false);
-      const [error, setError] = React3.useState(null);
-      React3.useEffect(() => {
+      const triggerRef = React4.useRef(null);
+      const [open, setOpen] = React4.useState(false);
+      const [position, setPosition] = React4.useState(null);
+      const [dialog, setDialog] = React4.useState(null);
+      const [name, setName] = React4.useState(thread.name ?? "");
+      const [busy, setBusy] = React4.useState(false);
+      const [error, setError] = React4.useState(null);
+      React4.useEffect(() => {
         if (!open) return void 0;
         const onScroll = (event) => {
           const target = event.target;
@@ -817,7 +863,7 @@ window.__ModuleLoader__.load({
         onDeleted();
         setDialog(null);
       });
-      return /* @__PURE__ */ React3.createElement("span", { className: "dsh-codex-row-menu" }, /* @__PURE__ */ React3.createElement(
+      return /* @__PURE__ */ React4.createElement("span", { className: "dsh-codex-row-menu" }, /* @__PURE__ */ React4.createElement(
         "button",
         {
           ref: triggerRef,
@@ -831,8 +877,8 @@ window.__ModuleLoader__.load({
             else openMenu();
           }
         },
-        /* @__PURE__ */ React3.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ React3.createElement("circle", { cx: "3.2", cy: "8", r: "1.3" }), /* @__PURE__ */ React3.createElement("circle", { cx: "8", cy: "8", r: "1.3" }), /* @__PURE__ */ React3.createElement("circle", { cx: "12.8", cy: "8", r: "1.3" }))
-      ), open && position !== null ? /* @__PURE__ */ React3.createElement(React3.Fragment, null, /* @__PURE__ */ React3.createElement("div", { className: "dsh-codex-row-menu-backdrop", onPointerDown: () => setOpen(false) }), /* @__PURE__ */ React3.createElement(
+        /* @__PURE__ */ React4.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ React4.createElement("circle", { cx: "3.2", cy: "8", r: "1.3" }), /* @__PURE__ */ React4.createElement("circle", { cx: "8", cy: "8", r: "1.3" }), /* @__PURE__ */ React4.createElement("circle", { cx: "12.8", cy: "8", r: "1.3" }))
+      ), open && position !== null ? /* @__PURE__ */ React4.createElement(React4.Fragment, null, /* @__PURE__ */ React4.createElement("div", { className: "dsh-codex-row-menu-backdrop", onPointerDown: () => setOpen(false) }), /* @__PURE__ */ React4.createElement(
         "div",
         {
           className: "dsh-codex-row-menu-pop",
@@ -840,23 +886,23 @@ window.__ModuleLoader__.load({
           style: { top: position.top, left: position.left },
           onClick: (event) => event.stopPropagation()
         },
-        /* @__PURE__ */ React3.createElement("button", { type: "button", role: "menuitem", onClick: () => {
+        /* @__PURE__ */ React4.createElement("button", { type: "button", role: "menuitem", onClick: () => {
           setOpen(false);
           openRename();
         } }, t("actions.rename")),
-        /* @__PURE__ */ React3.createElement("button", { type: "button", role: "menuitem", onClick: () => {
+        /* @__PURE__ */ React4.createElement("button", { type: "button", role: "menuitem", onClick: () => {
           setOpen(false);
           void archive();
         } }, t("actions.archive")),
-        /* @__PURE__ */ React3.createElement("button", { type: "button", role: "menuitem", onClick: () => {
+        /* @__PURE__ */ React4.createElement("button", { type: "button", role: "menuitem", onClick: () => {
           setOpen(false);
           void fork();
         } }, t("actions.fork")),
-        /* @__PURE__ */ React3.createElement("button", { type: "button", role: "menuitem", onClick: () => {
+        /* @__PURE__ */ React4.createElement("button", { type: "button", role: "menuitem", onClick: () => {
           setOpen(false);
           void exportMarkdown();
         } }, t("actions.export")),
-        /* @__PURE__ */ React3.createElement(
+        /* @__PURE__ */ React4.createElement(
           "button",
           {
             type: "button",
@@ -870,7 +916,7 @@ window.__ModuleLoader__.load({
           },
           t("actions.delete")
         )
-      )) : null, dialog === "rename" ? /* @__PURE__ */ React3.createElement(
+      )) : null, dialog === "rename" ? /* @__PURE__ */ React4.createElement(
         "div",
         {
           className: "dsh-codex-dialog-backdrop",
@@ -879,7 +925,7 @@ window.__ModuleLoader__.load({
             if (event.target === event.currentTarget && !busy) setDialog(null);
           }
         },
-        /* @__PURE__ */ React3.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React3.createElement("header", { className: "dsh-codex-dialog-head" }, t("actions.renameTitle")), /* @__PURE__ */ React3.createElement(
+        /* @__PURE__ */ React4.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React4.createElement("header", { className: "dsh-codex-dialog-head" }, t("actions.renameTitle")), /* @__PURE__ */ React4.createElement(
           "input",
           {
             className: "dsh-codex-search",
@@ -890,8 +936,8 @@ window.__ModuleLoader__.load({
               if (event.key === "Enter") void saveRename();
             }
           }
-        ), error !== null ? /* @__PURE__ */ React3.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React3.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React3.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null) }, t("actions.cancel")), /* @__PURE__ */ React3.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void saveRename() }, t("actions.save"))))
-      ) : null, dialog === "delete" ? /* @__PURE__ */ React3.createElement(
+        ), error !== null ? /* @__PURE__ */ React4.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React4.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React4.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null) }, t("actions.cancel")), /* @__PURE__ */ React4.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void saveRename() }, t("actions.save"))))
+      ) : null, dialog === "delete" ? /* @__PURE__ */ React4.createElement(
         "div",
         {
           className: "dsh-codex-dialog-backdrop",
@@ -900,7 +946,7 @@ window.__ModuleLoader__.load({
             if (event.target === event.currentTarget && !busy) setDialog(null);
           }
         },
-        /* @__PURE__ */ React3.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React3.createElement("header", { className: "dsh-codex-dialog-head" }, t("actions.deleteTitle")), /* @__PURE__ */ React3.createElement("div", { className: "dsh-codex-approval-meta" }, t("actions.deleteBody", { name: threadTitle(thread) })), error !== null ? /* @__PURE__ */ React3.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React3.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React3.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null) }, t("actions.cancel")), /* @__PURE__ */ React3.createElement("button", { type: "button", className: "dsh-codex-button danger", disabled: busy, onClick: () => void remove() }, t("actions.confirmDelete"))))
+        /* @__PURE__ */ React4.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React4.createElement("header", { className: "dsh-codex-dialog-head" }, t("actions.deleteTitle")), /* @__PURE__ */ React4.createElement("div", { className: "dsh-codex-approval-meta" }, t("actions.deleteBody", { name: threadTitle(thread) })), error !== null ? /* @__PURE__ */ React4.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React4.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React4.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null) }, t("actions.cancel")), /* @__PURE__ */ React4.createElement("button", { type: "button", className: "dsh-codex-button danger", disabled: busy, onClick: () => void remove() }, t("actions.confirmDelete"))))
       ) : null);
     }
 
@@ -920,7 +966,7 @@ window.__ModuleLoader__.load({
       const dotClass = status === "active" ? "ok pulse" : status === "systemError" ? "error" : "";
       const meta = [thread.model, relativeTime(thread.updatedAt, t)];
       if (showCwd && thread.cwd) meta.push(basename(thread.cwd));
-      return /* @__PURE__ */ React4.createElement(
+      return /* @__PURE__ */ React5.createElement(
         "div",
         {
           role: "button",
@@ -936,9 +982,9 @@ window.__ModuleLoader__.load({
             }
           }
         },
-        /* @__PURE__ */ React4.createElement("span", { className: `dsh-codex-dot ${dotClass}` }),
-        /* @__PURE__ */ React4.createElement("span", { className: "dsh-codex-thread-main" }, /* @__PURE__ */ React4.createElement("span", { className: "dsh-codex-thread-name" }, threadTitle(thread)), /* @__PURE__ */ React4.createElement("span", { className: "dsh-codex-thread-meta" }, meta.filter(Boolean).join(" · "))),
-        /* @__PURE__ */ React4.createElement(
+        /* @__PURE__ */ React5.createElement("span", { className: `dsh-codex-dot ${dotClass}` }),
+        /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-thread-main" }, /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-thread-name" }, threadTitle(thread)), /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-thread-meta" }, meta.filter(Boolean).join(" · "))),
+        /* @__PURE__ */ React5.createElement(
           ThreadRowMenu,
           {
             api,
@@ -987,7 +1033,7 @@ window.__ModuleLoader__.load({
       const query = search.trim().toLowerCase();
       const searching = query !== "";
       const matchingProjects = searching ? projects.filter((project) => `${project.name} ${project.cwd}`.toLowerCase().includes(query)) : projects;
-      const rows = (showCwd) => threads.map((thread) => /* @__PURE__ */ React5.createElement(
+      const rows = (showCwd) => threads.map((thread) => /* @__PURE__ */ React6.createElement(
         ThreadRow,
         {
           key: thread.id,
@@ -1001,7 +1047,7 @@ window.__ModuleLoader__.load({
           onDeleted: onThreadDeleted
         }
       ));
-      return /* @__PURE__ */ React5.createElement("aside", { className: "dsh-codex-focus-sidebar" }, /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-brand" }, /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-focus-logo" }, /* @__PURE__ */ React5.createElement(CodexIcon, { size: 20 })), /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-focus-brand-text" }, /* @__PURE__ */ React5.createElement("strong", null, "Codex CLI"), /* @__PURE__ */ React5.createElement("small", null, t("app.subtitle")))), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-status" }, /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-status-pill" }, /* @__PURE__ */ React5.createElement("i", { className: `dsh-codex-dot ${phaseClass} ${phase === "connecting" ? "pulse" : ""}` }), t(`status.${phase}`)), /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-status-pill" }, /* @__PURE__ */ React5.createElement("i", { className: `dsh-codex-dot ${streamClass} ${streamState === "connecting" ? "pulse" : ""}` }), t(`status.events.${streamState}`))), /* @__PURE__ */ React5.createElement("dl", { className: "dsh-codex-focus-info" }, /* @__PURE__ */ React5.createElement("dt", null, t("info.env")), /* @__PURE__ */ React5.createElement("dd", null, envParts === "" ? "—" : envParts), /* @__PURE__ */ React5.createElement("dt", null, t("info.sessions")), /* @__PURE__ */ React5.createElement("dd", null, t("projects.count", { count: totalThreads }), runningCount > 0 ? ` · ${t("projects.active", { count: runningCount })}` : ""), /* @__PURE__ */ React5.createElement("dt", null, t("info.quota")), /* @__PURE__ */ React5.createElement("dd", { className: "dsh-codex-quota", title: quotaInfo.title }, quotaInfo.text)), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-actions" }, /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button primary", onClick: onNew }, t("newThread.open")), /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onVersions }, t("versions.open")), /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onRefresh }, t("status.refresh"))), /* @__PURE__ */ React5.createElement(
+      return /* @__PURE__ */ React6.createElement("aside", { className: "dsh-codex-focus-sidebar" }, /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-brand" }, /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-focus-logo" }, /* @__PURE__ */ React6.createElement(CodexIcon, { size: 20 })), /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-focus-brand-text" }, /* @__PURE__ */ React6.createElement("strong", null, "Codex CLI"), /* @__PURE__ */ React6.createElement("small", null, t("app.subtitle")))), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-status" }, /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-status-pill" }, /* @__PURE__ */ React6.createElement("i", { className: `dsh-codex-dot ${phaseClass} ${phase === "connecting" ? "pulse" : ""}` }), t(`status.${phase}`)), /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-status-pill" }, /* @__PURE__ */ React6.createElement("i", { className: `dsh-codex-dot ${streamClass} ${streamState === "connecting" ? "pulse" : ""}` }), t(`status.events.${streamState}`))), /* @__PURE__ */ React6.createElement("dl", { className: "dsh-codex-focus-info" }, /* @__PURE__ */ React6.createElement("dt", null, t("info.env")), /* @__PURE__ */ React6.createElement("dd", null, envParts === "" ? "—" : envParts), /* @__PURE__ */ React6.createElement("dt", null, t("info.sessions")), /* @__PURE__ */ React6.createElement("dd", null, t("projects.count", { count: totalThreads }), runningCount > 0 ? ` · ${t("projects.active", { count: runningCount })}` : ""), /* @__PURE__ */ React6.createElement("dt", null, t("info.quota")), /* @__PURE__ */ React6.createElement("dd", { className: "dsh-codex-quota", title: quotaInfo.title }, quotaInfo.text)), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-actions" }, /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-button primary", onClick: onNew }, t("newThread.open")), /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onVersions }, t("versions.open")), /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onRefresh }, t("status.refresh"))), /* @__PURE__ */ React6.createElement(
         "input",
         {
           className: "dsh-codex-search focus",
@@ -1010,7 +1056,7 @@ window.__ModuleLoader__.load({
           placeholder: t("focus.search"),
           onChange: (event) => onSearch(event.target.value)
         }
-      ), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-tree" }, searching ? /* @__PURE__ */ React5.createElement(React5.Fragment, null, /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-section" }, t("projects.title")), matchingProjects.length === 0 ? /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-loading" }, t("projects.noMatch")) : matchingProjects.map((project) => /* @__PURE__ */ React5.createElement(
+      ), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-tree" }, searching ? /* @__PURE__ */ React6.createElement(React6.Fragment, null, /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-section" }, t("projects.title")), matchingProjects.length === 0 ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("projects.noMatch")) : matchingProjects.map((project) => /* @__PURE__ */ React6.createElement(
         "button",
         {
           type: "button",
@@ -1018,12 +1064,12 @@ window.__ModuleLoader__.load({
           className: "dsh-codex-tree-project",
           onClick: () => onSelectProject(project.cwd)
         },
-        /* @__PURE__ */ React5.createElement(FolderGlyph, null),
-        /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-tree-project-name" }, project.name === "" ? project.cwd : project.name),
-        /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-tree-project-count" }, project.threadCount)
-      )), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-section" }, t("threads.title")), threads.length === 0 && !loading ? /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-loading" }, t("threads.noMatch")) : rows(true), loading ? /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-loading" }, t("threads.loading")) : null, hasMore ? /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-load-more", disabled: loading, onClick: onLoadMore }, t("threads.loadMore")) : null) : /* @__PURE__ */ React5.createElement(React5.Fragment, null, matchingProjects.map((project) => {
+        /* @__PURE__ */ React6.createElement(FolderGlyph, null),
+        /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-tree-project-name" }, project.name === "" ? project.cwd : project.name),
+        /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-tree-project-count" }, project.threadCount)
+      )), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-section" }, t("threads.title")), threads.length === 0 && !loading ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.noMatch")) : rows(true), loading ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.loading")) : null, hasMore ? /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-load-more", disabled: loading, onClick: onLoadMore }, t("threads.loadMore")) : null) : /* @__PURE__ */ React6.createElement(React6.Fragment, null, matchingProjects.map((project) => {
         const expanded = selectedCwd === project.cwd;
-        return /* @__PURE__ */ React5.createElement(React5.Fragment, { key: project.cwd }, /* @__PURE__ */ React5.createElement(
+        return /* @__PURE__ */ React6.createElement(React6.Fragment, { key: project.cwd }, /* @__PURE__ */ React6.createElement(
           "button",
           {
             type: "button",
@@ -1031,21 +1077,21 @@ window.__ModuleLoader__.load({
             "aria-expanded": expanded,
             onClick: () => onSelectProject(project.cwd)
           },
-          /* @__PURE__ */ React5.createElement(FolderGlyph, { open: expanded }),
-          /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-tree-project-name" }, project.name === "" ? project.cwd : project.name),
-          /* @__PURE__ */ React5.createElement("span", { className: "dsh-codex-tree-project-count" }, project.threadCount)
-        ), expanded ? /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-tree-sessions" }, rows(false), threads.length === 0 && !loading ? /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-loading" }, t("threads.empty")) : null, loading ? /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-loading" }, t("threads.loading")) : null, hasMore ? /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-load-more", disabled: loading, onClick: onLoadMore }, t("threads.loadMore")) : null) : null);
-      }), matchingProjects.length === 0 ? /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-loading" }, t("projects.noMatch")) : null)), /* @__PURE__ */ React5.createElement("div", { className: "dsh-codex-focus-footer" }, /* @__PURE__ */ React5.createElement("button", { type: "button", className: "dsh-codex-exit", onClick: onExit }, /* @__PURE__ */ React5.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.2", "aria-hidden": "true" }, /* @__PURE__ */ React5.createElement("path", { d: "M9.5 4 5.5 8l4 4", strokeLinecap: "round", strokeLinejoin: "round" })), "DeepSeek Harness")));
+          /* @__PURE__ */ React6.createElement(FolderGlyph, { open: expanded }),
+          /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-tree-project-name" }, project.name === "" ? project.cwd : project.name),
+          /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-tree-project-count" }, project.threadCount)
+        ), expanded ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-tree-sessions" }, rows(false), threads.length === 0 && !loading ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.empty")) : null, loading ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.loading")) : null, hasMore ? /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-load-more", disabled: loading, onClick: onLoadMore }, t("threads.loadMore")) : null) : null);
+      }), matchingProjects.length === 0 ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("projects.noMatch")) : null)), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-footer" }, /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-exit", onClick: onExit }, /* @__PURE__ */ React6.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.2", "aria-hidden": "true" }, /* @__PURE__ */ React6.createElement("path", { d: "M9.5 4 5.5 8l4 4", strokeLinecap: "round", strokeLinejoin: "round" })), "DeepSeek Harness")));
     }
     function FolderGlyph({ open = false }) {
-      return /* @__PURE__ */ React5.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ React5.createElement(
+      return /* @__PURE__ */ React6.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-hidden": "true" }, /* @__PURE__ */ React6.createElement(
         "path",
         {
           d: "M1.9 4.3c0-.66.54-1.2 1.2-1.2h2.9l1.5 1.7h5.4c.66 0 1.2.54 1.2 1.2v6.3c0 .66-.54 1.2-1.2 1.2H3.1c-.66 0-1.2-.54-1.2-1.2V4.3Z",
           fill: "currentColor",
           opacity: open ? 0.22 : 0.14
         }
-      ), /* @__PURE__ */ React5.createElement(
+      ), /* @__PURE__ */ React6.createElement(
         "path",
         {
           d: "M1.9 4.3c0-.66.54-1.2 1.2-1.2h2.9l1.5 1.7h5.4c.66 0 1.2.54 1.2 1.2v6.3c0 .66-.54 1.2-1.2 1.2H3.1c-.66 0-1.2-.54-1.2-1.2V4.3Z",
@@ -1053,7 +1099,7 @@ window.__ModuleLoader__.load({
           strokeWidth: "1",
           strokeLinejoin: "round"
         }
-      ), open ? /* @__PURE__ */ React5.createElement("path", { d: "M2.2 7.1h11.6", stroke: "currentColor", strokeWidth: "1" }) : null);
+      ), open ? /* @__PURE__ */ React6.createElement("path", { d: "M2.2 7.1h11.6", stroke: "currentColor", strokeWidth: "1" }) : null);
     }
     function quotaSummary(quota, t) {
       if (quota === null) return { text: t("quota.unknown") };
@@ -1083,20 +1129,20 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/NewThreadDialog.tsx
-    var React6 = __toESM(require("react"), 1);
+    var React7 = __toESM(require("react"), 1);
     var EFFORTS = ["", "minimal", "low", "medium", "high"];
     var APPROVALS = ["on-request", "never", "untrusted"];
     var SANDBOXES = ["workspace-write", "read-only", "danger-full-access"];
     function NewThreadDialog({ open, defaultCwd, projects, models, onClose, onCreate }) {
       const t = useT();
-      const [cwd, setCwd] = React6.useState(defaultCwd);
-      const [model, setModel] = React6.useState("");
-      const [effort, setEffort] = React6.useState("");
-      const [approvalPolicy, setApprovalPolicy] = React6.useState("on-request");
-      const [sandbox, setSandbox] = React6.useState("workspace-write");
-      const [busy, setBusy] = React6.useState(false);
-      const [error, setError] = React6.useState(null);
-      React6.useEffect(() => {
+      const [cwd, setCwd] = React7.useState(defaultCwd);
+      const [model, setModel] = React7.useState("");
+      const [effort, setEffort] = React7.useState("");
+      const [approvalPolicy, setApprovalPolicy] = React7.useState("on-request");
+      const [sandbox, setSandbox] = React7.useState("workspace-write");
+      const [busy, setBusy] = React7.useState(false);
+      const [error, setError] = React7.useState(null);
+      React7.useEffect(() => {
         if (!open) return;
         setCwd(defaultCwd);
         setError(null);
@@ -1124,9 +1170,9 @@ window.__ModuleLoader__.load({
           setBusy(false);
         }
       };
-      return /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
+      return /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
         if (event.target === event.currentTarget && !busy) onClose();
-      } }, /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React6.createElement("header", { className: "dsh-codex-dialog-head" }, t("newThread.title")), /* @__PURE__ */ React6.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React6.createElement("span", null, t("newThread.cwd")), /* @__PURE__ */ React6.createElement(
+      } }, /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React7.createElement("header", { className: "dsh-codex-dialog-head" }, t("newThread.title")), /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("newThread.cwd")), /* @__PURE__ */ React7.createElement(
         "input",
         {
           className: "dsh-codex-search",
@@ -1135,24 +1181,24 @@ window.__ModuleLoader__.load({
           onChange: (event) => setCwd(event.target.value),
           placeholder: "/root/project/..."
         }
-      ), /* @__PURE__ */ React6.createElement("datalist", { id: "dsh-codex-projects" }, projects.map((project) => /* @__PURE__ */ React6.createElement("option", { key: project.cwd, value: project.cwd })))), /* @__PURE__ */ React6.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React6.createElement("span", null, t("newThread.model")), /* @__PURE__ */ React6.createElement("select", { className: "dsh-codex-select", value: model, onChange: (event) => setModel(event.target.value) }, /* @__PURE__ */ React6.createElement("option", { value: "" }, t("newThread.default")), models.map((entry) => /* @__PURE__ */ React6.createElement("option", { key: entry.id, value: entry.id }, entry.displayName)))), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-field-row" }, /* @__PURE__ */ React6.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React6.createElement("span", null, t("newThread.effort")), /* @__PURE__ */ React6.createElement("select", { className: "dsh-codex-select", value: effort, onChange: (event) => setEffort(event.target.value) }, EFFORTS.map((value) => /* @__PURE__ */ React6.createElement("option", { key: value, value }, value === "" ? t("newThread.default") : value)))), /* @__PURE__ */ React6.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React6.createElement("span", null, t("newThread.approval")), /* @__PURE__ */ React6.createElement("select", { className: "dsh-codex-select", value: approvalPolicy, onChange: (event) => setApprovalPolicy(event.target.value) }, APPROVALS.map((value) => /* @__PURE__ */ React6.createElement("option", { key: value, value }, value))))), /* @__PURE__ */ React6.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React6.createElement("span", null, t("newThread.sandbox")), /* @__PURE__ */ React6.createElement("select", { className: "dsh-codex-select", value: sandbox, onChange: (event) => setSandbox(event.target.value) }, SANDBOXES.map((value) => /* @__PURE__ */ React6.createElement("option", { key: value, value }, value)))), error !== null ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: onClose }, t("newThread.cancel")), /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void submit() }, busy ? t("newThread.creating") : t("newThread.create")))));
+      ), /* @__PURE__ */ React7.createElement("datalist", { id: "dsh-codex-projects" }, projects.map((project) => /* @__PURE__ */ React7.createElement("option", { key: project.cwd, value: project.cwd })))), /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("newThread.model")), /* @__PURE__ */ React7.createElement("select", { className: "dsh-codex-select", value: model, onChange: (event) => setModel(event.target.value) }, /* @__PURE__ */ React7.createElement("option", { value: "" }, t("newThread.default")), models.map((entry) => /* @__PURE__ */ React7.createElement("option", { key: entry.id, value: entry.id }, entry.displayName)))), /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-field-row" }, /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("newThread.effort")), /* @__PURE__ */ React7.createElement("select", { className: "dsh-codex-select", value: effort, onChange: (event) => setEffort(event.target.value) }, EFFORTS.map((value) => /* @__PURE__ */ React7.createElement("option", { key: value, value }, value === "" ? t("newThread.default") : value)))), /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("newThread.approval")), /* @__PURE__ */ React7.createElement("select", { className: "dsh-codex-select", value: approvalPolicy, onChange: (event) => setApprovalPolicy(event.target.value) }, APPROVALS.map((value) => /* @__PURE__ */ React7.createElement("option", { key: value, value }, value))))), /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("newThread.sandbox")), /* @__PURE__ */ React7.createElement("select", { className: "dsh-codex-select", value: sandbox, onChange: (event) => setSandbox(event.target.value) }, SANDBOXES.map((value) => /* @__PURE__ */ React7.createElement("option", { key: value, value }, value)))), error !== null ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: onClose }, t("newThread.cancel")), /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void submit() }, busy ? t("newThread.creating") : t("newThread.create")))));
     }
 
     // src/client/page/ThreadView.tsx
-    var React12 = __toESM(require("react"), 1);
+    var React13 = __toESM(require("react"), 1);
 
     // src/client/page/ApprovalCard.tsx
-    var React7 = __toESM(require("react"), 1);
+    var React8 = __toESM(require("react"), 1);
     function ApprovalStack({ approvals, onRespond }) {
       if (approvals.length === 0) return null;
-      return /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-approvals" }, approvals.map((approval) => /* @__PURE__ */ React7.createElement(ApprovalCard, { key: String(approval.requestId), approval, onRespond })));
+      return /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-approvals" }, approvals.map((approval) => /* @__PURE__ */ React8.createElement(ApprovalCard, { key: String(approval.requestId), approval, onRespond })));
     }
     function ApprovalCard({
       approval,
       onRespond
     }) {
       const t = useT();
-      const [busy, setBusy] = React7.useState(false);
+      const [busy, setBusy] = React8.useState(false);
       const params = approval.params ?? {};
       const respond = async (response) => {
         if (busy) return;
@@ -1164,16 +1210,16 @@ window.__ModuleLoader__.load({
         }
       };
       if (approval.method === "item/tool/requestUserInput") {
-        return /* @__PURE__ */ React7.createElement(InputCard, { approval, busy, onRespond: respond });
+        return /* @__PURE__ */ React8.createElement(InputCard, { approval, busy, onRespond: respond });
       }
       if (approval.method === "item/commandExecution/requestApproval") {
-        return /* @__PURE__ */ React7.createElement(Shell, { title: t("approval.command"), busy }, /* @__PURE__ */ React7.createElement("pre", { className: "dsh-codex-command" }, params.command ?? ""), params.cwd ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.cwd"), ": ", params.cwd) : null, params.reason ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.reason"), ": ", params.reason) : null, /* @__PURE__ */ React7.createElement(Actions, null, /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void respond({ decision: "accept" }) }, t("approval.allow")), /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "acceptForSession" }) }, t("approval.allowSession")), /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "decline" }) }, t("approval.deny"))));
+        return /* @__PURE__ */ React8.createElement(Shell, { title: t("approval.command"), busy }, /* @__PURE__ */ React8.createElement("pre", { className: "dsh-codex-command" }, params.command ?? ""), params.cwd ? /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.cwd"), ": ", params.cwd) : null, params.reason ? /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.reason"), ": ", params.reason) : null, /* @__PURE__ */ React8.createElement(Actions, null, /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void respond({ decision: "accept" }) }, t("approval.allow")), /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "acceptForSession" }) }, t("approval.allowSession")), /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "decline" }) }, t("approval.deny"))));
       }
       if (approval.method === "item/fileChange/requestApproval") {
-        return /* @__PURE__ */ React7.createElement(Shell, { title: t("approval.file"), busy }, params.grantRoot ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.grantRoot"), ": ", params.grantRoot) : null, params.reason ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.reason"), ": ", params.reason) : null, /* @__PURE__ */ React7.createElement(Actions, null, /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void respond({ decision: "accept" }) }, t("approval.allow")), /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "acceptForSession" }) }, t("approval.allowSession")), /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "decline" }) }, t("approval.deny"))));
+        return /* @__PURE__ */ React8.createElement(Shell, { title: t("approval.file"), busy }, params.grantRoot ? /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.grantRoot"), ": ", params.grantRoot) : null, params.reason ? /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.reason"), ": ", params.reason) : null, /* @__PURE__ */ React8.createElement(Actions, null, /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void respond({ decision: "accept" }) }, t("approval.allow")), /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "acceptForSession" }) }, t("approval.allowSession")), /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "decline" }) }, t("approval.deny"))));
       }
       if (approval.method === "item/permissions/requestApproval") {
-        return /* @__PURE__ */ React7.createElement(Shell, { title: t("approval.permissions"), busy }, params.cwd ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.cwd"), ": ", params.cwd) : null, params.reason ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.reason"), ": ", params.reason) : null, /* @__PURE__ */ React7.createElement("pre", { className: "dsh-codex-pre" }, JSON.stringify(params.permissions ?? {}, null, 2)), /* @__PURE__ */ React7.createElement(Actions, null, /* @__PURE__ */ React7.createElement(
+        return /* @__PURE__ */ React8.createElement(Shell, { title: t("approval.permissions"), busy }, params.cwd ? /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.cwd"), ": ", params.cwd) : null, params.reason ? /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-approval-meta" }, t("approval.reason"), ": ", params.reason) : null, /* @__PURE__ */ React8.createElement("pre", { className: "dsh-codex-pre" }, JSON.stringify(params.permissions ?? {}, null, 2)), /* @__PURE__ */ React8.createElement(Actions, null, /* @__PURE__ */ React8.createElement(
           "button",
           {
             type: "button",
@@ -1182,7 +1228,7 @@ window.__ModuleLoader__.load({
             onClick: () => void respond({ permissions: params.permissions ?? {}, scope: "turn" })
           },
           t("approval.allowTurn")
-        ), /* @__PURE__ */ React7.createElement(
+        ), /* @__PURE__ */ React8.createElement(
           "button",
           {
             type: "button",
@@ -1191,9 +1237,9 @@ window.__ModuleLoader__.load({
             onClick: () => void respond({ permissions: params.permissions ?? {}, scope: "session" })
           },
           t("approval.allowSession")
-        ), /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ permissions: {}, scope: "turn" }) }, t("approval.deny"))));
+        ), /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ permissions: {}, scope: "turn" }) }, t("approval.deny"))));
       }
-      return /* @__PURE__ */ React7.createElement(Shell, { title: t("approval.elicitation"), busy }, /* @__PURE__ */ React7.createElement("pre", { className: "dsh-codex-pre" }, JSON.stringify(params, null, 2)), /* @__PURE__ */ React7.createElement(Actions, null, /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ action: "decline", content: null, _meta: null }) }, t("approval.deny")), /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ action: "cancel", content: null, _meta: null }) }, t("approval.cancel"))));
+      return /* @__PURE__ */ React8.createElement(Shell, { title: t("approval.elicitation"), busy }, /* @__PURE__ */ React8.createElement("pre", { className: "dsh-codex-pre" }, JSON.stringify(params, null, 2)), /* @__PURE__ */ React8.createElement(Actions, null, /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ action: "decline", content: null, _meta: null }) }, t("approval.deny")), /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ action: "cancel", content: null, _meta: null }) }, t("approval.cancel"))));
     }
     function InputCard({
       approval,
@@ -1202,7 +1248,7 @@ window.__ModuleLoader__.load({
     }) {
       const t = useT();
       const questions = Array.isArray(approval.params?.questions) ? approval.params.questions : [];
-      const [values, setValues] = React7.useState({});
+      const [values, setValues] = React8.useState({});
       const submit = () => {
         const answers = {};
         for (const [key, value] of Object.entries(values)) {
@@ -1210,7 +1256,7 @@ window.__ModuleLoader__.load({
         }
         void onRespond({ answers });
       };
-      return /* @__PURE__ */ React7.createElement(Shell, { title: t("approval.input"), busy }, questions.map((question) => /* @__PURE__ */ React7.createElement("div", { key: question.id, className: "dsh-codex-question" }, /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-question-title" }, question.header || question.question), question.header && question.question !== question.header ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-question-body" }, question.question) : null, /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-options" }, (Array.isArray(question.options) ? question.options : []).map((option) => /* @__PURE__ */ React7.createElement(
+      return /* @__PURE__ */ React8.createElement(Shell, { title: t("approval.input"), busy }, questions.map((question) => /* @__PURE__ */ React8.createElement("div", { key: question.id, className: "dsh-codex-question" }, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-question-title" }, question.header || question.question), question.header && question.question !== question.header ? /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-question-body" }, question.question) : null, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-options" }, (Array.isArray(question.options) ? question.options : []).map((option) => /* @__PURE__ */ React8.createElement(
         "button",
         {
           type: "button",
@@ -1220,7 +1266,7 @@ window.__ModuleLoader__.load({
           onClick: () => setValues((previous) => ({ ...previous, [question.id]: option.label }))
         },
         option.label
-      ))), question.isOther || (question.options ?? []).length === 0 ? /* @__PURE__ */ React7.createElement(
+      ))), question.isOther || (question.options ?? []).length === 0 ? /* @__PURE__ */ React8.createElement(
         "input",
         {
           className: "dsh-codex-search",
@@ -1229,17 +1275,17 @@ window.__ModuleLoader__.load({
           placeholder: t("approval.other"),
           onChange: (event) => setValues((previous) => ({ ...previous, [question.id]: event.target.value }))
         }
-      ) : null)), /* @__PURE__ */ React7.createElement(Actions, null, /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: submit }, t("approval.submit"))));
+      ) : null)), /* @__PURE__ */ React8.createElement(Actions, null, /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: submit }, t("approval.submit"))));
     }
     function Shell({ title, busy, children }) {
-      return /* @__PURE__ */ React7.createElement("section", { className: `dsh-codex-approval ${busy ? "busy" : ""}` }, /* @__PURE__ */ React7.createElement("header", { className: "dsh-codex-approval-head" }, /* @__PURE__ */ React7.createElement("span", { className: "dsh-codex-dot warn pulse" }), /* @__PURE__ */ React7.createElement("strong", null, title)), children);
+      return /* @__PURE__ */ React8.createElement("section", { className: `dsh-codex-approval ${busy ? "busy" : ""}` }, /* @__PURE__ */ React8.createElement("header", { className: "dsh-codex-approval-head" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-dot warn pulse" }), /* @__PURE__ */ React8.createElement("strong", null, title)), children);
     }
     function Actions({ children }) {
-      return /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-approval-actions" }, children);
+      return /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-approval-actions" }, children);
     }
 
     // src/client/page/Composer.tsx
-    var React8 = __toESM(require("react"), 1);
+    var React9 = __toESM(require("react"), 1);
     var FALLBACK_EFFORTS = [
       { reasoningEffort: "low", description: "Fast responses with lighter reasoning" },
       { reasoningEffort: "medium", description: "Balances speed and reasoning depth for everyday tasks" },
@@ -1261,11 +1307,11 @@ window.__ModuleLoader__.load({
       onStop
     }) {
       const t = useT();
-      const [text, setText] = React8.useState("");
-      const [busy, setBusy] = React8.useState(false);
-      const [menu, setMenu] = React8.useState(null);
-      const textareaRef = React8.useRef(null);
-      React8.useEffect(() => {
+      const [text, setText] = React9.useState("");
+      const [busy, setBusy] = React9.useState(false);
+      const [menu, setMenu] = React9.useState(null);
+      const textareaRef = React9.useRef(null);
+      React9.useEffect(() => {
         const element = textareaRef.current;
         if (element === null) return;
         element.style.height = "auto";
@@ -1308,7 +1354,7 @@ window.__ModuleLoader__.load({
         }
       };
       const closeMenu = () => setMenu(null);
-      return /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-wrap" }, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-card" }, /* @__PURE__ */ React8.createElement(
+      return /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-composer-wrap" }, /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-composer-card" }, /* @__PURE__ */ React9.createElement(
         "textarea",
         {
           ref: textareaRef,
@@ -1325,7 +1371,7 @@ window.__ModuleLoader__.load({
             }
           }
         }
-      ), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-row" }, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-tools" }, activeTurnId !== null ? /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-running" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-dot ok pulse" }), t("composer.running")) : null), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-spacer" }), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-trailing" }, /* @__PURE__ */ React8.createElement(
+      ), /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-composer-row" }, /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-composer-tools" }, activeTurnId !== null ? /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-running" }, /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-dot ok pulse" }), t("composer.running")) : null), /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-composer-spacer" }), /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-composer-trailing" }, /* @__PURE__ */ React9.createElement(
         "button",
         {
           type: "button",
@@ -1335,11 +1381,11 @@ window.__ModuleLoader__.load({
           title: `${modelLabel} · ${effortLabel}`,
           onClick: () => setMenu(menu === null ? "root" : null)
         },
-        /* @__PURE__ */ React8.createElement(ModelGlyph, null),
-        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-model-label" }, modelLabel),
-        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-model-effort" }, "· ", effortLabel),
-        /* @__PURE__ */ React8.createElement(ChevronGlyph, null)
-      ), activeTurnId !== null ? /* @__PURE__ */ React8.createElement(
+        /* @__PURE__ */ React9.createElement(ModelGlyph, null),
+        /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-model-label" }, modelLabel),
+        /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-model-effort" }, "· ", effortLabel),
+        /* @__PURE__ */ React9.createElement(ChevronGlyph, null)
+      ), activeTurnId !== null ? /* @__PURE__ */ React9.createElement(
         "button",
         {
           type: "button",
@@ -1349,8 +1395,8 @@ window.__ModuleLoader__.load({
           title: t("composer.stop"),
           onClick: () => void stop()
         },
-        /* @__PURE__ */ React8.createElement(StopGlyph, null)
-      ) : null, /* @__PURE__ */ React8.createElement(
+        /* @__PURE__ */ React9.createElement(StopGlyph, null)
+      ) : null, /* @__PURE__ */ React9.createElement(
         "button",
         {
           type: "button",
@@ -1360,8 +1406,8 @@ window.__ModuleLoader__.load({
           title: activeTurnId === null ? t("composer.send") : t("composer.steer"),
           onClick: () => void submit()
         },
-        /* @__PURE__ */ React8.createElement(SendGlyph, null)
-      ))), menu !== null ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeMenu }), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu", role: "menu" }, menu === "root" ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("model") }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-cell-label" }, t("composer.model")), /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-cell-value" }, modelLabel), /* @__PURE__ */ React8.createElement(ChevronRightGlyph, null)), /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("effort") }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-cell-label" }, t("composer.effort")), /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-cell-value" }, effortLabel), /* @__PURE__ */ React8.createElement(ChevronRightGlyph, null))) : null, menu === "model" ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement(MenuBack, { label: t("composer.model"), onClick: () => setMenu("root") }), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-list" }, models.map((entry) => /* @__PURE__ */ React8.createElement(
+        /* @__PURE__ */ React9.createElement(SendGlyph, null)
+      ))), menu !== null ? /* @__PURE__ */ React9.createElement(React9.Fragment, null, /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeMenu }), /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-menu", role: "menu" }, menu === "root" ? /* @__PURE__ */ React9.createElement(React9.Fragment, null, /* @__PURE__ */ React9.createElement("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("model") }, /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-cell-label" }, t("composer.model")), /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-cell-value" }, modelLabel), /* @__PURE__ */ React9.createElement(ChevronRightGlyph, null)), /* @__PURE__ */ React9.createElement("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("effort") }, /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-cell-label" }, t("composer.effort")), /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-cell-value" }, effortLabel), /* @__PURE__ */ React9.createElement(ChevronRightGlyph, null))) : null, menu === "model" ? /* @__PURE__ */ React9.createElement(React9.Fragment, null, /* @__PURE__ */ React9.createElement(MenuBack, { label: t("composer.model"), onClick: () => setMenu("root") }), /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-menu-list" }, models.map((entry) => /* @__PURE__ */ React9.createElement(
         "button",
         {
           type: "button",
@@ -1374,9 +1420,9 @@ window.__ModuleLoader__.load({
             closeMenu();
           }
         },
-        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-check" }, entry.id === model ? /* @__PURE__ */ React8.createElement(CheckGlyph, null) : null),
-        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-name" }, entry.displayName), entry.description ? /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-desc" }, entry.description) : null)
-      )), /* @__PURE__ */ React8.createElement(
+        /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-check" }, entry.id === model ? /* @__PURE__ */ React9.createElement(CheckGlyph, null) : null),
+        /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-name" }, entry.displayName), entry.description ? /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-desc" }, entry.description) : null)
+      )), /* @__PURE__ */ React9.createElement(
         "button",
         {
           type: "button",
@@ -1388,9 +1434,9 @@ window.__ModuleLoader__.load({
             closeMenu();
           }
         },
-        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-check" }, model === "" ? /* @__PURE__ */ React8.createElement(CheckGlyph, null) : null),
-        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-name" }, t("composer.defaultModel")))
-      ))) : null, menu === "effort" ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement(MenuBack, { label: t("composer.effort"), onClick: () => setMenu("root") }), topEfforts.map((option) => /* @__PURE__ */ React8.createElement(
+        /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-check" }, model === "" ? /* @__PURE__ */ React9.createElement(CheckGlyph, null) : null),
+        /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-name" }, t("composer.defaultModel")))
+      ))) : null, menu === "effort" ? /* @__PURE__ */ React9.createElement(React9.Fragment, null, /* @__PURE__ */ React9.createElement(MenuBack, { label: t("composer.effort"), onClick: () => setMenu("root") }), topEfforts.map((option) => /* @__PURE__ */ React9.createElement(
         EffortRow,
         {
           key: option.reasoningEffort,
@@ -1402,7 +1448,7 @@ window.__ModuleLoader__.load({
             closeMenu();
           }
         }
-      )), moreEfforts.length > 0 ? /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-menu-item", onClick: () => setMenu("more") }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-check" }), /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-name" }, t("composer.moreReasoning")), /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-desc" }, t("composer.moreReasoningHint"))), /* @__PURE__ */ React8.createElement(ChevronRightGlyph, null)) : null) : null, menu === "more" ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement(MenuBack, { label: t("composer.moreReasoning"), onClick: () => setMenu("effort") }), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.advancedReasoning")), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-warning" }, "⚠ ", t("composer.consumesFaster")), moreEfforts.map((option) => /* @__PURE__ */ React8.createElement(
+      )), moreEfforts.length > 0 ? /* @__PURE__ */ React9.createElement("button", { type: "button", className: "dsh-codex-menu-item", onClick: () => setMenu("more") }, /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-check" }), /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-name" }, t("composer.moreReasoning")), /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-desc" }, t("composer.moreReasoningHint"))), /* @__PURE__ */ React9.createElement(ChevronRightGlyph, null)) : null) : null, menu === "more" ? /* @__PURE__ */ React9.createElement(React9.Fragment, null, /* @__PURE__ */ React9.createElement(MenuBack, { label: t("composer.moreReasoning"), onClick: () => setMenu("effort") }), /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.advancedReasoning")), /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-menu-warning" }, "⚠ ", t("composer.consumesFaster")), moreEfforts.map((option) => /* @__PURE__ */ React9.createElement(
         EffortRow,
         {
           key: option.reasoningEffort,
@@ -1423,7 +1469,7 @@ window.__ModuleLoader__.load({
       onSelect
     }) {
       const t = useT();
-      return /* @__PURE__ */ React8.createElement(
+      return /* @__PURE__ */ React9.createElement(
         "button",
         {
           type: "button",
@@ -1432,12 +1478,12 @@ window.__ModuleLoader__.load({
           className: `dsh-codex-menu-item ${selected ? "selected" : ""}`,
           onClick: onSelect
         },
-        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-check" }, selected ? /* @__PURE__ */ React8.createElement(CheckGlyph, null) : null),
-        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-name" }, labelForEffort(t, option.reasoningEffort), isDefault ? /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-tag" }, t("composer.defaultTag")) : null, selected ? /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-tag current" }, t("composer.currentTag")) : null), option.description ? /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-desc" }, option.description) : null)
+        /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-check" }, selected ? /* @__PURE__ */ React9.createElement(CheckGlyph, null) : null),
+        /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-name" }, labelForEffort(t, option.reasoningEffort), isDefault ? /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-tag" }, t("composer.defaultTag")) : null, selected ? /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-tag current" }, t("composer.currentTag")) : null), option.description ? /* @__PURE__ */ React9.createElement("span", { className: "dsh-codex-menu-desc" }, option.description) : null)
       );
     }
     function MenuBack({ label, onClick }) {
-      return /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-menu-back", onClick }, /* @__PURE__ */ React8.createElement(ChevronLeftGlyph, null), /* @__PURE__ */ React8.createElement("span", null, label));
+      return /* @__PURE__ */ React9.createElement("button", { type: "button", className: "dsh-codex-menu-back", onClick }, /* @__PURE__ */ React9.createElement(ChevronLeftGlyph, null), /* @__PURE__ */ React9.createElement("span", null, label));
     }
     function labelForEffort(t, value) {
       const key = `composer.effort.${value}`;
@@ -1445,60 +1491,60 @@ window.__ModuleLoader__.load({
       return text === key ? value : text;
     }
     function ModelGlyph() {
-      return /* @__PURE__ */ React8.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M8 1.6 9.6 5.1 13.4 6.6 9.6 8.1 8 11.6 6.4 8.1 2.6 6.6 6.4 5.1 8 1.6Z", strokeLinejoin: "round" }), /* @__PURE__ */ React8.createElement("path", { d: "M12.6 10.4l.7 1.5 1.5.7-1.5.7-.7 1.5-.7-1.5-1.5-.7 1.5-.7.7-1.5Z", strokeLinejoin: "round" }));
+      return /* @__PURE__ */ React9.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React9.createElement("path", { d: "M8 1.6 9.6 5.1 13.4 6.6 9.6 8.1 8 11.6 6.4 8.1 2.6 6.6 6.4 5.1 8 1.6Z", strokeLinejoin: "round" }), /* @__PURE__ */ React9.createElement("path", { d: "M12.6 10.4l.7 1.5 1.5.7-1.5.7-.7 1.5-.7-1.5-1.5-.7 1.5-.7.7-1.5Z", strokeLinejoin: "round" }));
     }
     function ChevronGlyph() {
-      return /* @__PURE__ */ React8.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M4 6l3.3 3.3a1 1 0 0 0 1.4 0L12 6", strokeLinecap: "round" }));
+      return /* @__PURE__ */ React9.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React9.createElement("path", { d: "M4 6l3.3 3.3a1 1 0 0 0 1.4 0L12 6", strokeLinecap: "round" }));
     }
     function ChevronRightGlyph() {
-      return /* @__PURE__ */ React8.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M6 4l3.3 3.3a1 1 0 0 1 0 1.4L6 12", strokeLinecap: "round" }));
+      return /* @__PURE__ */ React9.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React9.createElement("path", { d: "M6 4l3.3 3.3a1 1 0 0 1 0 1.4L6 12", strokeLinecap: "round" }));
     }
     function ChevronLeftGlyph() {
-      return /* @__PURE__ */ React8.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M10 4 6.7 7.3a1 1 0 0 0 0 1.4L10 12", strokeLinecap: "round" }));
+      return /* @__PURE__ */ React9.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React9.createElement("path", { d: "M10 4 6.7 7.3a1 1 0 0 0 0 1.4L10 12", strokeLinecap: "round" }));
     }
     function SendGlyph() {
-      return /* @__PURE__ */ React8.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.6", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M8 13V3M3.6 7.4 8 3l4.4 4.4", strokeLinecap: "round", strokeLinejoin: "round" }));
+      return /* @__PURE__ */ React9.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.6", "aria-hidden": "true" }, /* @__PURE__ */ React9.createElement("path", { d: "M8 13V3M3.6 7.4 8 3l4.4 4.4", strokeLinecap: "round", strokeLinejoin: "round" }));
     }
     function StopGlyph() {
-      return /* @__PURE__ */ React8.createElement("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("rect", { x: "2.5", y: "2.5", width: "7", height: "7", rx: "1.2" }));
+      return /* @__PURE__ */ React9.createElement("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ React9.createElement("rect", { x: "2.5", y: "2.5", width: "7", height: "7", rx: "1.2" }));
     }
     function CheckGlyph() {
-      return /* @__PURE__ */ React8.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.4", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M3.5 8.5 6.5 11.5 12.5 4.5", strokeLinecap: "round", strokeLinejoin: "round" }));
+      return /* @__PURE__ */ React9.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.4", "aria-hidden": "true" }, /* @__PURE__ */ React9.createElement("path", { d: "M3.5 8.5 6.5 11.5 12.5 4.5", strokeLinecap: "round", strokeLinejoin: "round" }));
     }
 
     // src/client/page/ItemCard.tsx
-    var React10 = __toESM(require("react"), 1);
+    var React11 = __toESM(require("react"), 1);
 
     // src/client/markdown.tsx
-    var React9 = __toESM(require("react"), 1);
+    var React10 = __toESM(require("react"), 1);
     function Markdown({ text }) {
-      const blocks = React9.useMemo(() => parseBlocks(text), [text]);
-      return /* @__PURE__ */ React9.createElement("div", { className: "dsh-codex-markdown" }, blocks.map((block, index) => renderBlock(block, index)));
+      const blocks = React10.useMemo(() => parseBlocks(text), [text]);
+      return /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-markdown" }, blocks.map((block, index) => renderBlock(block, index)));
     }
     function renderBlock(block, key) {
       switch (block.kind) {
         case "code":
-          return /* @__PURE__ */ React9.createElement("pre", { key, className: "dsh-codex-pre" }, /* @__PURE__ */ React9.createElement("code", null, block.text));
+          return /* @__PURE__ */ React10.createElement("pre", { key, className: "dsh-codex-pre" }, /* @__PURE__ */ React10.createElement("code", null, block.text));
         case "heading": {
           const Tag = `h${Math.min(block.level, 4)}`;
-          return React9.createElement(Tag, { key }, renderInline(block.text, `h${key}`));
+          return React10.createElement(Tag, { key }, renderInline(block.text, `h${key}`));
         }
         case "paragraph":
-          return /* @__PURE__ */ React9.createElement("p", { key }, renderLines(block.lines, `p${key}`));
+          return /* @__PURE__ */ React10.createElement("p", { key }, renderLines(block.lines, `p${key}`));
         case "list": {
           const Tag = block.ordered ? "ol" : "ul";
-          return React9.createElement(
+          return React10.createElement(
             Tag,
             { key },
-            block.items.map((item, index) => /* @__PURE__ */ React9.createElement("li", { key: `${key}-${index}` }, renderInline(item, `li${key}-${index}`)))
+            block.items.map((item, index) => /* @__PURE__ */ React10.createElement("li", { key: `${key}-${index}` }, renderInline(item, `li${key}-${index}`)))
           );
         }
         case "quote":
-          return /* @__PURE__ */ React9.createElement("blockquote", { key }, renderLines(block.lines, `q${key}`));
+          return /* @__PURE__ */ React10.createElement("blockquote", { key }, renderLines(block.lines, `q${key}`));
         case "table":
-          return /* @__PURE__ */ React9.createElement("table", { key }, /* @__PURE__ */ React9.createElement("thead", null, /* @__PURE__ */ React9.createElement("tr", null, block.header.map((cell, index) => /* @__PURE__ */ React9.createElement("th", { key: `${key}-h-${index}` }, renderInline(cell, `th${key}-${index}`))))), /* @__PURE__ */ React9.createElement("tbody", null, block.rows.map((row, rowIndex) => /* @__PURE__ */ React9.createElement("tr", { key: `${key}-r-${rowIndex}` }, row.map((cell, cellIndex) => /* @__PURE__ */ React9.createElement("td", { key: `${key}-c-${rowIndex}-${cellIndex}` }, renderInline(cell, `td${key}-${rowIndex}-${cellIndex}`)))))));
+          return /* @__PURE__ */ React10.createElement("table", { key }, /* @__PURE__ */ React10.createElement("thead", null, /* @__PURE__ */ React10.createElement("tr", null, block.header.map((cell, index) => /* @__PURE__ */ React10.createElement("th", { key: `${key}-h-${index}` }, renderInline(cell, `th${key}-${index}`))))), /* @__PURE__ */ React10.createElement("tbody", null, block.rows.map((row, rowIndex) => /* @__PURE__ */ React10.createElement("tr", { key: `${key}-r-${rowIndex}` }, row.map((cell, cellIndex) => /* @__PURE__ */ React10.createElement("td", { key: `${key}-c-${rowIndex}-${cellIndex}` }, renderInline(cell, `td${key}-${rowIndex}-${cellIndex}`)))))));
         case "hr":
-          return /* @__PURE__ */ React9.createElement("hr", { key });
+          return /* @__PURE__ */ React10.createElement("hr", { key });
         default:
           return null;
       }
@@ -1506,7 +1552,7 @@ window.__ModuleLoader__.load({
     function renderLines(lines, keyPrefix) {
       const nodes = [];
       lines.forEach((line, index) => {
-        if (index > 0) nodes.push(/* @__PURE__ */ React9.createElement("br", { key: `${keyPrefix}-br-${index}` }));
+        if (index > 0) nodes.push(/* @__PURE__ */ React10.createElement("br", { key: `${keyPrefix}-br-${index}` }));
         nodes.push(...renderInline(line, `${keyPrefix}-${index}`));
       });
       return nodes;
@@ -1523,11 +1569,11 @@ window.__ModuleLoader__.load({
         const token = match[0];
         const key = `${keyPrefix}-${index}`;
         if (token.startsWith("`")) {
-          nodes.push(/* @__PURE__ */ React9.createElement("code", { key }, token.slice(1, -1)));
+          nodes.push(/* @__PURE__ */ React10.createElement("code", { key }, token.slice(1, -1)));
         } else if (token.startsWith("**")) {
-          nodes.push(/* @__PURE__ */ React9.createElement("strong", { key }, token.slice(2, -2)));
+          nodes.push(/* @__PURE__ */ React10.createElement("strong", { key }, token.slice(2, -2)));
         } else if (token.startsWith("*")) {
-          nodes.push(/* @__PURE__ */ React9.createElement("em", { key }, token.slice(1, -1)));
+          nodes.push(/* @__PURE__ */ React10.createElement("em", { key }, token.slice(1, -1)));
         } else {
           const linkMatch = /^\[([^\]]+)\]\(([^)\s]+)\)$/u.exec(token);
           if (linkMatch === null) {
@@ -1536,7 +1582,7 @@ window.__ModuleLoader__.load({
             const [, label, href] = linkMatch;
             if (/^https?:\/\//iu.test(href) || href.startsWith("/")) {
               nodes.push(
-                /* @__PURE__ */ React9.createElement("a", { key, href, target: "_blank", rel: "noreferrer noopener" }, label)
+                /* @__PURE__ */ React10.createElement("a", { key, href, target: "_blank", rel: "noreferrer noopener" }, label)
               );
             } else {
               nodes.push(label);
@@ -1643,9 +1689,9 @@ window.__ModuleLoader__.load({
       const t = useT();
       switch (item.type) {
         case "userMessage":
-          return /* @__PURE__ */ React10.createElement(Message, { kind: "user", label: t("item.user"), text: itemText(item), time: formatClock(item.startedAtMs) });
+          return /* @__PURE__ */ React11.createElement(Message, { kind: "user", label: t("item.user"), text: itemText(item), time: formatClock(item.startedAtMs) });
         case "agentMessage":
-          return /* @__PURE__ */ React10.createElement(
+          return /* @__PURE__ */ React11.createElement(
             Message,
             {
               kind: "assistant",
@@ -1656,31 +1702,31 @@ window.__ModuleLoader__.load({
             }
           );
         case "reasoning":
-          return /* @__PURE__ */ React10.createElement(Reasoning, { item });
+          return /* @__PURE__ */ React11.createElement(Reasoning, { item });
         case "commandExecution":
-          return /* @__PURE__ */ React10.createElement(CommandCard, { item });
+          return /* @__PURE__ */ React11.createElement(CommandCard, { item });
         case "fileChange":
-          return /* @__PURE__ */ React10.createElement(FileCard, { item });
+          return /* @__PURE__ */ React11.createElement(FileCard, { item });
         case "mcpToolCall":
         case "dynamicToolCall":
         case "functionCallOutput":
-          return /* @__PURE__ */ React10.createElement(ToolCard, { item });
+          return /* @__PURE__ */ React11.createElement(ToolCard, { item });
         case "plan":
-          return /* @__PURE__ */ React10.createElement(Block, { title: t("item.plan"), body: /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-text" }, item.text ?? "") });
+          return /* @__PURE__ */ React11.createElement(Block, { title: t("item.plan"), body: /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-text" }, item.text ?? "") });
         case "webSearch":
-          return /* @__PURE__ */ React10.createElement(Disclosure, { title: t("item.search"), body: /* @__PURE__ */ React10.createElement(Json, { value: item }) });
+          return /* @__PURE__ */ React11.createElement(Disclosure, { title: t("item.search"), body: /* @__PURE__ */ React11.createElement(Json, { value: item }) });
         case "imageView":
-          return /* @__PURE__ */ React10.createElement(ImageView, { item, api });
+          return /* @__PURE__ */ React11.createElement(ImageView, { item, api });
         case "contextCompaction":
-          return /* @__PURE__ */ React10.createElement(Divider, { label: t("item.compaction") });
+          return /* @__PURE__ */ React11.createElement(Divider, { label: t("item.compaction") });
         case "enteredReviewMode":
         case "exitedReviewMode":
-          return /* @__PURE__ */ React10.createElement(Divider, { label: t("item.review") });
+          return /* @__PURE__ */ React11.createElement(Divider, { label: t("item.review") });
         case "sleep":
         case "hookPrompt":
           return null;
         default:
-          return /* @__PURE__ */ React10.createElement(Disclosure, { title: t("item.other", { type: item.type }), body: null });
+          return /* @__PURE__ */ React11.createElement(Disclosure, { title: t("item.other", { type: item.type }), body: null });
       }
     }
     function Message({
@@ -1691,50 +1737,50 @@ window.__ModuleLoader__.load({
       time = ""
     }) {
       if (text.trim() === "") return null;
-      return /* @__PURE__ */ React10.createElement("div", { className: `dsh-codex-message ${kind}` }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-message-head" }, kind === "user" && time !== "" ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-message-time" }, time) : null, /* @__PURE__ */ React10.createElement("span", null, label), kind === "assistant" && time !== "" ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-message-time" }, time) : null), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-bubble", style: muted ? { opacity: 0.82 } : void 0 }, /* @__PURE__ */ React10.createElement(Markdown, { text })));
+      return /* @__PURE__ */ React11.createElement("div", { className: `dsh-codex-message ${kind}` }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-message-head" }, kind === "user" && time !== "" ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-message-time" }, time) : null, /* @__PURE__ */ React11.createElement("span", null, label), kind === "assistant" && time !== "" ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-message-time" }, time) : null), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-bubble", style: muted ? { opacity: 0.82 } : void 0 }, /* @__PURE__ */ React11.createElement(Markdown, { text })));
     }
     function Reasoning({ item }) {
       const t = useT();
       const summary = Array.isArray(item.summary) ? item.summary.filter((part) => part.trim() !== "") : [];
       const body = summary.length > 0 ? summary.join("\n\n") : "";
       if (body === "") return null;
-      return /* @__PURE__ */ React10.createElement("details", { className: "dsh-codex-reasoning" }, /* @__PURE__ */ React10.createElement("summary", null, t("item.reasoning")), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-reasoning-body" }, body));
+      return /* @__PURE__ */ React11.createElement("details", { className: "dsh-codex-reasoning" }, /* @__PURE__ */ React11.createElement("summary", null, t("item.reasoning")), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-reasoning-body" }, body));
     }
     function CommandCard({ item }) {
       const t = useT();
       const output = typeof item.aggregatedOutput === "string" ? item.aggregatedOutput : "";
       const status = typeof item.status === "string" ? item.status : "";
       const command = item.command ?? "";
-      return /* @__PURE__ */ React10.createElement(
+      return /* @__PURE__ */ React11.createElement(
         Disclosure,
         {
           title: t("item.command"),
-          meta: /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-block-title" }, shorten(command, 120)), status !== "" ? /* @__PURE__ */ React10.createElement("span", null, status) : null, typeof item.exitCode === "number" ? /* @__PURE__ */ React10.createElement("span", null, t("item.exitCode", { code: item.exitCode })) : null),
-          body: /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-command" }, command), output !== "" ? /* @__PURE__ */ React10.createElement("pre", { className: "dsh-codex-pre" }, output) : null)
+          meta: /* @__PURE__ */ React11.createElement(React11.Fragment, null, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-block-title" }, shorten(command, 120)), status !== "" ? /* @__PURE__ */ React11.createElement("span", null, status) : null, typeof item.exitCode === "number" ? /* @__PURE__ */ React11.createElement("span", null, t("item.exitCode", { code: item.exitCode })) : null),
+          body: /* @__PURE__ */ React11.createElement(React11.Fragment, null, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-command" }, command), output !== "" ? /* @__PURE__ */ React11.createElement("pre", { className: "dsh-codex-pre" }, output) : null)
         }
       );
     }
     function FileCard({ item }) {
       const t = useT();
       const changes = Array.isArray(item.changes) ? item.changes : [];
-      return /* @__PURE__ */ React10.createElement(
+      return /* @__PURE__ */ React11.createElement(
         Disclosure,
         {
           title: t("item.files"),
-          meta: /* @__PURE__ */ React10.createElement("span", null, t("item.files.changed", { count: changes.length })),
-          body: /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-files" }, changes.map((change, index) => /* @__PURE__ */ React10.createElement("details", { key: `${change.path}-${index}` }, /* @__PURE__ */ React10.createElement("summary", { className: "dsh-codex-file-path" }, change.path), /* @__PURE__ */ React10.createElement("pre", { className: "dsh-codex-pre" }, change.diff))))
+          meta: /* @__PURE__ */ React11.createElement("span", null, t("item.files.changed", { count: changes.length })),
+          body: /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-files" }, changes.map((change, index) => /* @__PURE__ */ React11.createElement("details", { key: `${change.path}-${index}` }, /* @__PURE__ */ React11.createElement("summary", { className: "dsh-codex-file-path" }, change.path), /* @__PURE__ */ React11.createElement("pre", { className: "dsh-codex-pre" }, change.diff))))
         }
       );
     }
     function ToolCard({ item }) {
       const t = useT();
       const title = item.type === "mcpToolCall" ? `${item.server ?? "mcp"} / ${item.tool ?? ""}` : item.type === "dynamicToolCall" ? `tool / ${item.tool ?? ""}` : item.type;
-      return /* @__PURE__ */ React10.createElement(
+      return /* @__PURE__ */ React11.createElement(
         Disclosure,
         {
           title: t("item.tool"),
-          meta: /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-block-title" }, title), typeof item.status === "string" ? /* @__PURE__ */ React10.createElement("span", null, item.status) : null),
-          body: /* @__PURE__ */ React10.createElement(Json, { value: { arguments: item.arguments, result: item.result, error: item.error } })
+          meta: /* @__PURE__ */ React11.createElement(React11.Fragment, null, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-block-title" }, title), typeof item.status === "string" ? /* @__PURE__ */ React11.createElement("span", null, item.status) : null),
+          body: /* @__PURE__ */ React11.createElement(Json, { value: { arguments: item.arguments, result: item.result, error: item.error } })
         }
       );
     }
@@ -1748,26 +1794,26 @@ window.__ModuleLoader__.load({
       if (text.trim() === "" || text === "{}") return null;
       if (text.length > 4e3) text = `${text.slice(0, 4e3)}
     …`;
-      return /* @__PURE__ */ React10.createElement("pre", { className: "dsh-codex-pre" }, text);
+      return /* @__PURE__ */ React11.createElement("pre", { className: "dsh-codex-pre" }, text);
     }
     function Disclosure({ title, meta, body }) {
-      return /* @__PURE__ */ React10.createElement("details", { className: "dsh-codex-block" }, /* @__PURE__ */ React10.createElement("summary", { className: "dsh-codex-block-head" }, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-caret" }), /* @__PURE__ */ React10.createElement("span", null, title), meta), body !== null ? /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-block-body" }, body) : null);
+      return /* @__PURE__ */ React11.createElement("details", { className: "dsh-codex-block" }, /* @__PURE__ */ React11.createElement("summary", { className: "dsh-codex-block-head" }, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-caret" }), /* @__PURE__ */ React11.createElement("span", null, title), meta), body !== null ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-block-body" }, body) : null);
     }
     function Block({ title, meta, body }) {
-      return /* @__PURE__ */ React10.createElement("section", { className: "dsh-codex-block" }, /* @__PURE__ */ React10.createElement("header", { className: "dsh-codex-block-head" }, /* @__PURE__ */ React10.createElement("span", null, title), meta), body !== null ? /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-block-body" }, body) : null);
+      return /* @__PURE__ */ React11.createElement("section", { className: "dsh-codex-block" }, /* @__PURE__ */ React11.createElement("header", { className: "dsh-codex-block-head" }, /* @__PURE__ */ React11.createElement("span", null, title), meta), body !== null ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-block-body" }, body) : null);
     }
     function Divider({ label }) {
-      return /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-divider" }, label);
+      return /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-divider" }, label);
     }
     var imageCache = /* @__PURE__ */ new Map();
     function ImageView({ item, api }) {
       const t = useT();
       const path = typeof item.path === "string" ? item.path : "";
-      const holderRef = React10.useRef(null);
-      const [visible, setVisible] = React10.useState(false);
-      const [src, setSrc] = React10.useState(path === "" ? null : imageCache.get(path) ?? null);
-      const [failed, setFailed] = React10.useState(false);
-      React10.useEffect(() => {
+      const holderRef = React11.useRef(null);
+      const [visible, setVisible] = React11.useState(false);
+      const [src, setSrc] = React11.useState(path === "" ? null : imageCache.get(path) ?? null);
+      const [failed, setFailed] = React11.useState(false);
+      React11.useEffect(() => {
         if (path === "") return void 0;
         const cached = imageCache.get(path);
         if (cached !== void 0) {
@@ -1791,7 +1837,7 @@ window.__ModuleLoader__.load({
         observer.observe(element);
         return () => observer.disconnect();
       }, [path]);
-      React10.useEffect(() => {
+      React11.useEffect(() => {
         if (!visible || path === "" || src !== null) return void 0;
         let alive = true;
         setFailed(false);
@@ -1806,7 +1852,7 @@ window.__ModuleLoader__.load({
         };
       }, [api, path, visible, src]);
       if (path === "") return null;
-      return /* @__PURE__ */ React10.createElement("figure", { className: "dsh-codex-image", ref: holderRef }, src !== null ? /* @__PURE__ */ React10.createElement("img", { src, alt: basenameOf(path), loading: "lazy" }) : /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-image-placeholder" }, failed ? t("item.imageFailed") : t("item.imageLoading")), /* @__PURE__ */ React10.createElement("figcaption", null, basenameOf(path)));
+      return /* @__PURE__ */ React11.createElement("figure", { className: "dsh-codex-image", ref: holderRef }, src !== null ? /* @__PURE__ */ React11.createElement("img", { src, alt: basenameOf(path), loading: "lazy" }) : /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-image-placeholder" }, failed ? t("item.imageFailed") : t("item.imageLoading")), /* @__PURE__ */ React11.createElement("figcaption", null, basenameOf(path)));
     }
     function basenameOf(value) {
       const text = typeof value === "string" ? value : "";
@@ -1819,7 +1865,7 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/ToolGroup.tsx
-    var React11 = __toESM(require("react"), 1);
+    var React12 = __toESM(require("react"), 1);
     var ACTIVITY_TYPES = /* @__PURE__ */ new Set(["commandExecution", "fileChange", "mcpToolCall", "dynamicToolCall", "webSearch"]);
     function isActivity(item) {
       return ACTIVITY_TYPES.has(item.type);
@@ -1859,9 +1905,9 @@ window.__ModuleLoader__.load({
     }
     function ToolGroup({ items, api }) {
       const t = useT();
-      const [open, setOpen] = React11.useState(false);
+      const [open, setOpen] = React12.useState(false);
       const summary = summarize(items, t);
-      return /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-tool-group" }, /* @__PURE__ */ React11.createElement(
+      return /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-tool-group" }, /* @__PURE__ */ React12.createElement(
         "button",
         {
           type: "button",
@@ -1869,9 +1915,9 @@ window.__ModuleLoader__.load({
           "aria-expanded": open,
           onClick: () => setOpen(!open)
         },
-        /* @__PURE__ */ React11.createElement("span", { className: `dsh-codex-tool-group-chevron ${open ? "open" : ""}` }, /* @__PURE__ */ React11.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.2", "aria-hidden": "true" }, /* @__PURE__ */ React11.createElement("path", { d: "M4 6l3.3 3.3a1 1 0 0 0 1.4 0L12 6", strokeLinecap: "round" }))),
-        /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-tool-group-title" }, summary)
-      ), open ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-tool-group-body" }, items.map((item) => /* @__PURE__ */ React11.createElement(ItemCard, { key: item.id, item, api }))) : null);
+        /* @__PURE__ */ React12.createElement("span", { className: `dsh-codex-tool-group-chevron ${open ? "open" : ""}` }, /* @__PURE__ */ React12.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.2", "aria-hidden": "true" }, /* @__PURE__ */ React12.createElement("path", { d: "M4 6l3.3 3.3a1 1 0 0 0 1.4 0L12 6", strokeLinecap: "round" }))),
+        /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-tool-group-title" }, summary)
+      ), open ? /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-tool-group-body" }, items.map((item) => /* @__PURE__ */ React12.createElement(ItemCard, { key: item.id, item, api }))) : null);
     }
     function summarize(items, t) {
       let commands = 0;
@@ -1920,27 +1966,27 @@ window.__ModuleLoader__.load({
       actions
     }) {
       const t = useT();
-      const messagesRef = React12.useRef(null);
+      const messagesRef = React13.useRef(null);
       const threadId = detail?.thread.id ?? null;
-      const [model, setModel] = React12.useState("");
-      const [effort, setEffort] = React12.useState("");
-      React12.useEffect(() => {
+      const [model, setModel] = React13.useState("");
+      const [effort, setEffort] = React13.useState("");
+      React13.useEffect(() => {
         if (detail === null) return;
         setModel(detail.thread.model ?? "");
         setEffort(detail.thread.reasoningEffort ?? "");
       }, [threadId]);
-      const atBottomRef = React12.useRef(true);
-      const [showJump, setShowJump] = React12.useState(false);
-      const pendingPrependRef = React12.useRef(null);
+      const atBottomRef = React13.useRef(true);
+      const [showJump, setShowJump] = React13.useState(false);
+      const pendingPrependRef = React13.useRef(null);
       const BOTTOM_THRESHOLD = 32;
-      React12.useLayoutEffect(() => {
+      React13.useLayoutEffect(() => {
         const element = messagesRef.current;
         if (element === null) return;
         atBottomRef.current = true;
         setShowJump(false);
         element.scrollTop = element.scrollHeight;
       }, [threadId, loading]);
-      React12.useLayoutEffect(() => {
+      React13.useLayoutEffect(() => {
         const element = messagesRef.current;
         if (element === null) return;
         const pending3 = pendingPrependRef.current;
@@ -1952,16 +1998,16 @@ window.__ModuleLoader__.load({
         if (!atBottomRef.current) return;
         element.scrollTop = element.scrollHeight;
       }, [detail]);
-      React12.useEffect(() => {
+      React13.useEffect(() => {
         if (!loadingOlder) pendingPrependRef.current = null;
       }, [loadingOlder]);
-      const triggerOlder = React12.useCallback(() => {
+      const triggerOlder = React13.useCallback(() => {
         const element = messagesRef.current;
         if (element === null || !hasOlder || loadingOlder) return;
         pendingPrependRef.current = { height: element.scrollHeight, top: element.scrollTop };
         void onLoadOlder();
       }, [hasOlder, loadingOlder, onLoadOlder]);
-      const onMessagesScroll = React12.useCallback(() => {
+      const onMessagesScroll = React13.useCallback(() => {
         const element = messagesRef.current;
         if (element === null) return;
         const atBottom = element.scrollHeight - element.scrollTop - element.clientHeight <= BOTTOM_THRESHOLD;
@@ -1969,7 +2015,7 @@ window.__ModuleLoader__.load({
         setShowJump((previous) => previous === !atBottom ? previous : !atBottom);
         if (element.scrollTop < 240) triggerOlder();
       }, [triggerOlder]);
-      const jumpToBottom = React12.useCallback(() => {
+      const jumpToBottom = React13.useCallback(() => {
         const element = messagesRef.current;
         if (element === null) return;
         atBottomRef.current = true;
@@ -1977,16 +2023,16 @@ window.__ModuleLoader__.load({
         element.scrollTo({ top: element.scrollHeight, behavior: "smooth" });
       }, []);
       if (selectedId === null) {
-        return /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-empty" }, /* @__PURE__ */ React12.createElement("strong", null, t("thread.select")), /* @__PURE__ */ React12.createElement("small", null, t("thread.selectHint")));
+        return /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-empty" }, /* @__PURE__ */ React13.createElement("strong", null, t("thread.select")), /* @__PURE__ */ React13.createElement("small", null, t("thread.selectHint")));
       }
       if (loading && detail === null) {
-        return /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-empty" }, t("thread.loading"));
+        return /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-empty" }, t("thread.loading"));
       }
       if (detail === null) return null;
       const thread = detail.thread;
       const items = detail.turns.flatMap((turn) => turn.items ?? []);
       const hasItems = items.length > 0;
-      return /* @__PURE__ */ React12.createElement(React12.Fragment, null, /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-thread-header-top" }, /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), actions), /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React12.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React12.createElement("span", { className: "dsh-codex-chip" }, hasOlder ? t("thread.messagesPlus", { count: items.length }) : t("thread.messages", { count: items.length })))), /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-messages-wrap" }, /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll }, hasOlder && hasItems ? /* @__PURE__ */ React12.createElement(
+      return /* @__PURE__ */ React13.createElement(React13.Fragment, null, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-thread-header-top" }, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), actions), /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React13.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React13.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React13.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React13.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React13.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React13.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React13.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React13.createElement("span", { className: "dsh-codex-chip" }, hasOlder ? t("thread.messagesPlus", { count: items.length }) : t("thread.messages", { count: items.length })))), /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-messages-wrap" }, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll }, hasOlder && hasItems ? /* @__PURE__ */ React13.createElement(
         "button",
         {
           type: "button",
@@ -1995,9 +2041,9 @@ window.__ModuleLoader__.load({
           onClick: triggerOlder
         },
         loadingOlder ? t("thread.loadingOlder") : t("thread.loadOlder")
-      ) : null, !hasItems ? /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : detail.turns.map((turn) => /* @__PURE__ */ React12.createElement(React12.Fragment, { key: turn.id }, groupActivity(turn.items ?? []).map(
-        (entry) => entry.kind === "group" ? /* @__PURE__ */ React12.createElement(ToolGroup, { key: entry.key, items: entry.items, api }) : /* @__PURE__ */ React12.createElement(ItemCard, { key: entry.item.id, item: entry.item, api })
-      ), /* @__PURE__ */ React12.createElement(TurnFooter, { turn })))), showJump ? /* @__PURE__ */ React12.createElement(
+      ) : null, !hasItems ? /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : detail.turns.map((turn) => /* @__PURE__ */ React13.createElement(React13.Fragment, { key: turn.id }, groupActivity(turn.items ?? []).map(
+        (entry) => entry.kind === "group" ? /* @__PURE__ */ React13.createElement(ToolGroup, { key: entry.key, items: entry.items, api }) : /* @__PURE__ */ React13.createElement(ItemCard, { key: entry.item.id, item: entry.item, api })
+      ), /* @__PURE__ */ React13.createElement(TurnFooter, { turn })))), showJump ? /* @__PURE__ */ React13.createElement(
         "button",
         {
           type: "button",
@@ -2006,8 +2052,8 @@ window.__ModuleLoader__.load({
           title: t("thread.jumpToBottom"),
           onClick: jumpToBottom
         },
-        /* @__PURE__ */ React12.createElement(ChevronDownGlyph, null)
-      ) : null), /* @__PURE__ */ React12.createElement(ApprovalStack, { approvals: pending2, onRespond }), /* @__PURE__ */ React12.createElement(
+        /* @__PURE__ */ React13.createElement(ChevronDownGlyph, null)
+      ) : null), /* @__PURE__ */ React13.createElement(ApprovalStack, { approvals: pending2, onRespond }), /* @__PURE__ */ React13.createElement(
         Composer,
         {
           disabled: false,
@@ -2035,20 +2081,20 @@ window.__ModuleLoader__.load({
       if (duration === "" && clock === "") return null;
       const label = duration === "" ? "" : turn.status === "interrupted" ? t("turn.interrupted", { duration }) : turn.status === "failed" ? t("turn.failed", { duration }) : t("turn.workedFor", { duration });
       const text = label === "" ? clock : clock === "" ? label : `${label} · ${clock}`;
-      return /* @__PURE__ */ React12.createElement("div", { className: "dsh-codex-turn-footer" }, text);
+      return /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-turn-footer" }, text);
     }
     function ChevronDownGlyph() {
-      return /* @__PURE__ */ React12.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.4", "aria-hidden": "true" }, /* @__PURE__ */ React12.createElement("path", { d: "M4 6.2l3.3 3.3a1 1 0 0 0 1.4 0L12 6.2", strokeLinecap: "round" }));
+      return /* @__PURE__ */ React13.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.4", "aria-hidden": "true" }, /* @__PURE__ */ React13.createElement("path", { d: "M4 6.2l3.3 3.3a1 1 0 0 0 1.4 0L12 6.2", strokeLinecap: "round" }));
     }
 
     // src/client/page/ThreadActions.tsx
-    var React13 = __toESM(require("react"), 1);
+    var React14 = __toESM(require("react"), 1);
     function ThreadActions({ api, thread, onRenamed, onArchived, onForked, onDeleted }) {
       const t = useT();
-      const [dialog, setDialog] = React13.useState(null);
-      const [name, setName] = React13.useState(thread.name ?? "");
-      const [busy, setBusy] = React13.useState(false);
-      const [error, setError] = React13.useState(null);
+      const [dialog, setDialog] = React14.useState(null);
+      const [name, setName] = React14.useState(thread.name ?? "");
+      const [busy, setBusy] = React14.useState(false);
+      const [error, setError] = React14.useState(null);
       const run = async (action) => {
         if (busy) return;
         setBusy(true);
@@ -2099,7 +2145,7 @@ window.__ModuleLoader__.load({
         onDeleted();
         setDialog(null);
       });
-      return /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-thread-actions" }, /* @__PURE__ */ React13.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: openRename }, t("actions.rename")), /* @__PURE__ */ React13.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void archive() }, t("actions.archive")), /* @__PURE__ */ React13.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void fork() }, t("actions.fork")), /* @__PURE__ */ React13.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void exportMarkdown() }, t("actions.export")), /* @__PURE__ */ React13.createElement(
+      return /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-thread-actions" }, /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: openRename }, t("actions.rename")), /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void archive() }, t("actions.archive")), /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void fork() }, t("actions.fork")), /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void exportMarkdown() }, t("actions.export")), /* @__PURE__ */ React14.createElement(
         "button",
         {
           type: "button",
@@ -2111,9 +2157,9 @@ window.__ModuleLoader__.load({
           }
         },
         t("actions.delete")
-      ), error !== null && dialog === null ? /* @__PURE__ */ React13.createElement("span", { className: "dsh-codex-action-error" }, error) : null, dialog === "rename" ? /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
+      ), error !== null && dialog === null ? /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-action-error" }, error) : null, dialog === "rename" ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
         if (event.target === event.currentTarget && !busy) setDialog(null);
-      } }, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React13.createElement("header", { className: "dsh-codex-dialog-head" }, t("actions.renameTitle")), /* @__PURE__ */ React13.createElement(
+      } }, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React14.createElement("header", { className: "dsh-codex-dialog-head" }, t("actions.renameTitle")), /* @__PURE__ */ React14.createElement(
         "input",
         {
           className: "dsh-codex-search",
@@ -2124,26 +2170,26 @@ window.__ModuleLoader__.load({
             if (event.key === "Enter") void saveRename();
           }
         }
-      ), error !== null ? /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React13.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null) }, t("actions.cancel")), /* @__PURE__ */ React13.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void saveRename() }, t("actions.save"))))) : null, dialog === "delete" ? /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
+      ), error !== null ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null) }, t("actions.cancel")), /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void saveRename() }, t("actions.save"))))) : null, dialog === "delete" ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
         if (event.target === event.currentTarget && !busy) setDialog(null);
-      } }, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React13.createElement("header", { className: "dsh-codex-dialog-head" }, t("actions.deleteTitle")), /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-approval-meta" }, t("actions.deleteBody", { name: threadTitle(thread) })), error !== null ? /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React13.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React13.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null) }, t("actions.cancel")), /* @__PURE__ */ React13.createElement("button", { type: "button", className: "dsh-codex-button danger", disabled: busy, onClick: () => void remove() }, t("actions.confirmDelete"))))) : null);
+      } }, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React14.createElement("header", { className: "dsh-codex-dialog-head" }, t("actions.deleteTitle")), /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-approval-meta" }, t("actions.deleteBody", { name: threadTitle(thread) })), error !== null ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null) }, t("actions.cancel")), /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button danger", disabled: busy, onClick: () => void remove() }, t("actions.confirmDelete"))))) : null);
     }
 
     // src/client/page/VersionsDialog.tsx
-    var React14 = __toESM(require("react"), 1);
+    var React15 = __toESM(require("react"), 1);
     function VersionsDialog({ open, onClose, api }) {
       const t = useT();
-      const [check, setCheck] = React14.useState(null);
-      const [loading, setLoading] = React14.useState(false);
-      const [error, setError] = React14.useState(null);
-      const [activeTurns, setActiveTurns] = React14.useState([]);
-      const [job, setJob] = React14.useState(null);
-      const [rollbackVersion, setRollbackVersion] = React14.useState("");
-      const [pendingDaemon, setPendingDaemon] = React14.useState(null);
-      const [lastAction, setLastAction] = React14.useState(null);
-      const pollRef = React14.useRef(null);
-      const logRef = React14.useRef(null);
-      const load = React14.useCallback(
+      const [check, setCheck] = React15.useState(null);
+      const [loading, setLoading] = React15.useState(false);
+      const [error, setError] = React15.useState(null);
+      const [activeTurns, setActiveTurns] = React15.useState([]);
+      const [job, setJob] = React15.useState(null);
+      const [rollbackVersion, setRollbackVersion] = React15.useState("");
+      const [pendingDaemon, setPendingDaemon] = React15.useState(null);
+      const [lastAction, setLastAction] = React15.useState(null);
+      const pollRef = React15.useRef(null);
+      const logRef = React15.useRef(null);
+      const load = React15.useCallback(
         async (refresh = false) => {
           setLoading(true);
           setError(null);
@@ -2158,16 +2204,16 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      React14.useEffect(() => {
+      React15.useEffect(() => {
         if (open) void load(false);
       }, [open, load]);
-      React14.useEffect(
+      React15.useEffect(
         () => () => {
           if (pollRef.current !== null) window.clearInterval(pollRef.current);
         },
         []
       );
-      const pollJob = React14.useCallback(
+      const pollJob = React15.useCallback(
         (jobId) => {
           if (pollRef.current !== null) window.clearInterval(pollRef.current);
           pollRef.current = window.setInterval(async () => {
@@ -2187,7 +2233,7 @@ window.__ModuleLoader__.load({
         },
         [api, load]
       );
-      const startJob = React14.useCallback(
+      const startJob = React15.useCallback(
         async (endpoint, payload) => {
           setError(null);
           setActiveTurns([]);
@@ -2206,7 +2252,7 @@ window.__ModuleLoader__.load({
         },
         [api, pollJob]
       );
-      React14.useEffect(() => {
+      React15.useEffect(() => {
         const element = logRef.current;
         if (element !== null) element.scrollTop = element.scrollHeight;
       }, [job?.lines.length]);
@@ -2214,7 +2260,7 @@ window.__ModuleLoader__.load({
       const doctor = check?.doctor ?? null;
       const problems = doctor?.checks.filter((entry) => entry.status !== "ok") ?? [];
       const daemonVersion = check?.daemon?.appServerVersion ?? check?.daemon?.cliVersion ?? null;
-      return /* @__PURE__ */ React14.createElement(
+      return /* @__PURE__ */ React15.createElement(
         "div",
         {
           className: "dsh-codex-dialog-backdrop",
@@ -2222,7 +2268,7 @@ window.__ModuleLoader__.load({
             if (event.target === event.currentTarget) onClose();
           }
         },
-        /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog dsh-codex-versions", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React14.createElement("header", { className: "dsh-codex-dialog-head" }, t("versions.title")), loading && check === null ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-loading" }, t("versions.checking")) : null, error !== null ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog-error" }, error, activeTurns.length > 0 ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-approval-meta" }, t("versions.activeTurns", { count: activeTurns.length }), /* @__PURE__ */ React14.createElement(
+        /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-dialog dsh-codex-versions", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React15.createElement("header", { className: "dsh-codex-dialog-head" }, t("versions.title")), loading && check === null ? /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-loading" }, t("versions.checking")) : null, error !== null ? /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-dialog-error" }, error, activeTurns.length > 0 ? /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-approval-meta" }, t("versions.activeTurns", { count: activeTurns.length }), /* @__PURE__ */ React15.createElement(
           "button",
           {
             type: "button",
@@ -2235,7 +2281,7 @@ window.__ModuleLoader__.load({
             }
           },
           t("versions.force")
-        )) : null) : null, check !== null ? /* @__PURE__ */ React14.createElement(React14.Fragment, null, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-version-grid" }, /* @__PURE__ */ React14.createElement("span", null, t("versions.cli")), /* @__PURE__ */ React14.createElement("strong", null, check.cli.version ?? "—"), /* @__PURE__ */ React14.createElement("span", null, t("versions.daemon")), /* @__PURE__ */ React14.createElement("strong", null, daemonVersion ?? "—"), /* @__PURE__ */ React14.createElement("span", null, t("versions.latest")), /* @__PURE__ */ React14.createElement("strong", null, check.latest?.version ?? "—"), /* @__PURE__ */ React14.createElement("span", null, t("versions.channel")), /* @__PURE__ */ React14.createElement("strong", { title: check.install?.context ?? void 0 }, installLabel(check.install?.context))), /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-version-actions" }, /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button", disabled: loading, onClick: () => void load(true) }, loading ? t("versions.checking") : t("versions.check")), check.updateAvailable ? /* @__PURE__ */ React14.createElement(
+        )) : null) : null, check !== null ? /* @__PURE__ */ React15.createElement(React15.Fragment, null, /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-version-grid" }, /* @__PURE__ */ React15.createElement("span", null, t("versions.cli")), /* @__PURE__ */ React15.createElement("strong", null, check.cli.version ?? "—"), /* @__PURE__ */ React15.createElement("span", null, t("versions.daemon")), /* @__PURE__ */ React15.createElement("strong", null, daemonVersion ?? "—"), /* @__PURE__ */ React15.createElement("span", null, t("versions.latest")), /* @__PURE__ */ React15.createElement("strong", null, check.latest?.version ?? "—"), /* @__PURE__ */ React15.createElement("span", null, t("versions.channel")), /* @__PURE__ */ React15.createElement("strong", { title: check.install?.context ?? void 0 }, installLabel(check.install?.context))), /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-version-actions" }, /* @__PURE__ */ React15.createElement("button", { type: "button", className: "dsh-codex-button", disabled: loading, onClick: () => void load(true) }, loading ? t("versions.checking") : t("versions.check")), check.updateAvailable ? /* @__PURE__ */ React15.createElement(
           "button",
           {
             type: "button",
@@ -2246,7 +2292,7 @@ window.__ModuleLoader__.load({
           t("versions.update"),
           " → ",
           check.latest?.version
-        ) : /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-hint" }, t("versions.upToDate"))), /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-version-actions" }, /* @__PURE__ */ React14.createElement(
+        ) : /* @__PURE__ */ React15.createElement("span", { className: "dsh-codex-hint" }, t("versions.upToDate"))), /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-version-actions" }, /* @__PURE__ */ React15.createElement(
           "input",
           {
             className: "dsh-codex-search",
@@ -2255,7 +2301,7 @@ window.__ModuleLoader__.load({
             placeholder: t("versions.rollbackPlaceholder"),
             onChange: (event) => setRollbackVersion(event.target.value)
           }
-        ), /* @__PURE__ */ React14.createElement(
+        ), /* @__PURE__ */ React15.createElement(
           "button",
           {
             type: "button",
@@ -2264,7 +2310,7 @@ window.__ModuleLoader__.load({
             onClick: () => void startJob("versions/rollback", { version: rollbackVersion.trim() })
           },
           t("versions.rollback")
-        )), /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-version-daemon" }, /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-section-title", style: { padding: 0 } }, t("versions.daemonActions")), /* @__PURE__ */ React14.createElement(
+        )), /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-version-daemon" }, /* @__PURE__ */ React15.createElement("span", { className: "dsh-codex-section-title", style: { padding: 0 } }, t("versions.daemonActions")), /* @__PURE__ */ React15.createElement(
           "button",
           {
             type: "button",
@@ -2273,7 +2319,7 @@ window.__ModuleLoader__.load({
             onClick: () => setPendingDaemon("restart")
           },
           t("versions.restart")
-        ), /* @__PURE__ */ React14.createElement(
+        ), /* @__PURE__ */ React15.createElement(
           "button",
           {
             type: "button",
@@ -2282,7 +2328,7 @@ window.__ModuleLoader__.load({
             onClick: () => setPendingDaemon("update")
           },
           t("versions.daemonUpdate")
-        ), /* @__PURE__ */ React14.createElement(
+        ), /* @__PURE__ */ React15.createElement(
           "button",
           {
             type: "button",
@@ -2291,7 +2337,7 @@ window.__ModuleLoader__.load({
             onClick: () => setPendingDaemon("stop")
           },
           t("versions.stop")
-        )), pendingDaemon !== null ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-approval" }, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-approval-meta" }, pendingDaemon === "restart" ? t("versions.confirmRestart") : pendingDaemon === "update" ? t("versions.confirmUpdate") : t("versions.confirmStop")), /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-approval-actions" }, /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button", onClick: () => setPendingDaemon(null) }, t("versions.cancel")), /* @__PURE__ */ React14.createElement(
+        )), pendingDaemon !== null ? /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-approval" }, /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-approval-meta" }, pendingDaemon === "restart" ? t("versions.confirmRestart") : pendingDaemon === "update" ? t("versions.confirmUpdate") : t("versions.confirmStop")), /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-approval-actions" }, /* @__PURE__ */ React15.createElement("button", { type: "button", className: "dsh-codex-button", onClick: () => setPendingDaemon(null) }, t("versions.cancel")), /* @__PURE__ */ React15.createElement(
           "button",
           {
             type: "button",
@@ -2303,7 +2349,7 @@ window.__ModuleLoader__.load({
             }
           },
           t("versions.confirm")
-        ))) : null, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-version-doctor" }, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-section-title", style: { padding: 0 } }, t("versions.doctor"), doctor !== null ? /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 } }, doctor.overallStatus === "ok" ? t("versions.doctorOk") : doctor.overallStatus === "warning" ? t("versions.doctorWarn") : t("versions.doctorError")) : null), problems.slice(0, 8).map((entry) => /* @__PURE__ */ React14.createElement("div", { key: entry.id, className: "dsh-codex-doctor-row" }, /* @__PURE__ */ React14.createElement("span", { className: `dsh-codex-dot ${entry.status === "error" ? "error" : "warn"}` }), /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-doctor-id" }, entry.id), /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-doctor-summary" }, entry.summary))), doctor !== null && problems.length === 0 ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-hint" }, doctor.checks.length, " checks ok") : null), job !== null ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-job" }, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-section-title", style: { padding: 0 } }, t("versions.job"), /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 } }, job.status === "running" ? t("versions.running") : job.status === "done" ? t("versions.done") : t("versions.failed", { code: job.exitCode ?? "?" }))), /* @__PURE__ */ React14.createElement("pre", { className: "dsh-codex-pre dsh-codex-job-log", ref: logRef }, job.lines.join("\n"))) : null) : null, /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React14.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onClose }, t("versions.close"))))
+        ))) : null, /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-version-doctor" }, /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-section-title", style: { padding: 0 } }, t("versions.doctor"), doctor !== null ? /* @__PURE__ */ React15.createElement("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 } }, doctor.overallStatus === "ok" ? t("versions.doctorOk") : doctor.overallStatus === "warning" ? t("versions.doctorWarn") : t("versions.doctorError")) : null), problems.slice(0, 8).map((entry) => /* @__PURE__ */ React15.createElement("div", { key: entry.id, className: "dsh-codex-doctor-row" }, /* @__PURE__ */ React15.createElement("span", { className: `dsh-codex-dot ${entry.status === "error" ? "error" : "warn"}` }), /* @__PURE__ */ React15.createElement("span", { className: "dsh-codex-doctor-id" }, entry.id), /* @__PURE__ */ React15.createElement("span", { className: "dsh-codex-doctor-summary" }, entry.summary))), doctor !== null && problems.length === 0 ? /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-hint" }, doctor.checks.length, " checks ok") : null), job !== null ? /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-job" }, /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-section-title", style: { padding: 0 } }, t("versions.job"), /* @__PURE__ */ React15.createElement("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 } }, job.status === "running" ? t("versions.running") : job.status === "done" ? t("versions.done") : t("versions.failed", { code: job.exitCode ?? "?" }))), /* @__PURE__ */ React15.createElement("pre", { className: "dsh-codex-pre dsh-codex-job-log", ref: logRef }, job.lines.join("\n"))) : null) : null, /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React15.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onClose }, t("versions.close"))))
       );
     }
     function installLabel(context) {
@@ -2322,36 +2368,37 @@ window.__ModuleLoader__.load({
       const api = props.api;
       const onExit = props.onExit ?? (() => {
       });
-      const [status, setStatus] = React15.useState(null);
-      const [projects, setProjects] = React15.useState([]);
-      const [threads, setThreads] = React15.useState([]);
-      const [nextCursor, setNextCursor] = React15.useState(null);
-      const [selectedCwd, setSelectedCwd] = React15.useState(null);
-      const [selectedId, setSelectedId] = React15.useState(null);
-      const [detail, setDetail] = React15.useState(null);
-      const [detailLoading, setDetailLoading] = React15.useState(false);
-      const [olderCursor, setOlderCursor] = React15.useState(null);
-      const [loadingOlder, setLoadingOlder] = React15.useState(false);
-      const loadingOlderRef = React15.useRef(false);
-      const [loadingThreads, setLoadingThreads] = React15.useState(false);
-      const [error, setError] = React15.useState(null);
-      const [streamState, setStreamState] = React15.useState("connecting");
-      const [search, setSearch] = React15.useState("");
-      const [pending2, setPending] = React15.useState([]);
-      const [models, setModels] = React15.useState([]);
-      const [quota, setQuota] = React15.useState(null);
-      const [dialogOpen, setDialogOpen] = React15.useState(false);
-      const [versionsOpen, setVersionsOpen] = React15.useState(false);
-      const [newThreadCwd, setNewThreadCwd] = React15.useState("");
-      const searchTimer = React15.useRef(null);
-      const listGeneration = React15.useRef(0);
-      const queryRef = React15.useRef({ search: "", cwd: null });
+      useCodexTab();
+      const [status, setStatus] = React16.useState(null);
+      const [projects, setProjects] = React16.useState([]);
+      const [threads, setThreads] = React16.useState([]);
+      const [nextCursor, setNextCursor] = React16.useState(null);
+      const [selectedCwd, setSelectedCwd] = React16.useState(null);
+      const [selectedId, setSelectedId] = React16.useState(null);
+      const [detail, setDetail] = React16.useState(null);
+      const [detailLoading, setDetailLoading] = React16.useState(false);
+      const [olderCursor, setOlderCursor] = React16.useState(null);
+      const [loadingOlder, setLoadingOlder] = React16.useState(false);
+      const loadingOlderRef = React16.useRef(false);
+      const [loadingThreads, setLoadingThreads] = React16.useState(false);
+      const [error, setError] = React16.useState(null);
+      const [streamState, setStreamState] = React16.useState("connecting");
+      const [search, setSearch] = React16.useState("");
+      const [pending2, setPending] = React16.useState([]);
+      const [models, setModels] = React16.useState([]);
+      const [quota, setQuota] = React16.useState(null);
+      const [dialogOpen, setDialogOpen] = React16.useState(false);
+      const [versionsOpen, setVersionsOpen] = React16.useState(false);
+      const [newThreadCwd, setNewThreadCwd] = React16.useState("");
+      const searchTimer = React16.useRef(null);
+      const listGeneration = React16.useRef(0);
+      const queryRef = React16.useRef({ search: "", cwd: null });
       queryRef.current = { search: search.trim(), cwd: selectedCwd };
-      const selectedIdRef = React15.useRef(null);
+      const selectedIdRef = React16.useRef(null);
       selectedIdRef.current = selectedId;
-      const threadsRef = React15.useRef([]);
+      const threadsRef = React16.useRef([]);
       threadsRef.current = threads;
-      const loadThreads = React15.useCallback(
+      const loadThreads = React16.useCallback(
         async (cursor, override = {}) => {
           const searchValue = override.search !== void 0 ? override.search : queryRef.current.search;
           const cwd = override.cwd !== void 0 ? override.cwd : queryRef.current.cwd;
@@ -2379,7 +2426,7 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      const handleSearch = React15.useCallback(
+      const handleSearch = React16.useCallback(
         (value) => {
           setSearch(value);
           if (searchTimer.current !== null) clearTimeout(searchTimer.current);
@@ -2391,23 +2438,23 @@ window.__ModuleLoader__.load({
         },
         [loadThreads]
       );
-      React15.useEffect(() => () => {
+      React16.useEffect(() => () => {
         if (searchTimer.current !== null) clearTimeout(searchTimer.current);
       }, []);
-      const loadQuota = React15.useCallback(async () => {
+      const loadQuota = React16.useCallback(async () => {
         try {
           setQuota(await api("account/rateLimits"));
         } catch {
         }
       }, [api]);
-      const refreshPending = React15.useCallback(async () => {
+      const refreshPending = React16.useCallback(async () => {
         try {
           const result = await api("approvals/pending");
           setPending(result.pending ?? []);
         } catch {
         }
       }, [api]);
-      const refresh = React15.useCallback(async () => {
+      const refresh = React16.useCallback(async () => {
         setError(null);
         try {
           const [nextStatus, nextProjects] = await Promise.all([
@@ -2422,7 +2469,7 @@ window.__ModuleLoader__.load({
         await loadThreads(null);
         await loadQuota();
       }, [api, loadThreads, loadQuota]);
-      React15.useEffect(() => {
+      React16.useEffect(() => {
         const consume = () => {
           const request = takePending();
           if (request === null) return;
@@ -2436,7 +2483,7 @@ window.__ModuleLoader__.load({
         consume();
         return subscribePending(consume);
       }, []);
-      React15.useEffect(() => {
+      React16.useEffect(() => {
         void refresh();
         void refreshPending();
         api("models/list").then((list) => setModels(list)).catch(() => {
@@ -2444,7 +2491,7 @@ window.__ModuleLoader__.load({
         const quotaTimer = setInterval(() => void loadQuota(), 6e4);
         return () => clearInterval(quotaTimer);
       }, [api, refresh, refreshPending, loadQuota]);
-      React15.useEffect(() => {
+      React16.useEffect(() => {
         const close = openEventStream({
           onState: setStreamState,
           onEvent: (event) => {
@@ -2515,7 +2562,7 @@ window.__ModuleLoader__.load({
         });
         return close;
       }, [refresh, refreshPending, loadThreads, loadQuota]);
-      React15.useEffect(() => {
+      React16.useEffect(() => {
         if (selectedId === null) {
           setDetail(null);
           return void 0;
@@ -2540,7 +2587,7 @@ window.__ModuleLoader__.load({
           cancelled = true;
         };
       }, [api, selectedId]);
-      React15.useEffect(() => {
+      React16.useEffect(() => {
         if (selectedId === null) return void 0;
         let cancelled = false;
         let opened = false;
@@ -2557,20 +2604,20 @@ window.__ModuleLoader__.load({
         };
       }, [api, selectedId]);
       const detailThreadId = detail?.thread.id ?? null;
-      React15.useEffect(() => {
+      React16.useEffect(() => {
         if (detailThreadId === null || detail === null) return;
         setThreads(
           (previous) => previous.some((thread) => thread.id === detailThreadId) ? previous : upsertThread(previous, detail.thread)
         );
       }, [detailThreadId]);
-      const activeTurnId = React15.useMemo(() => {
+      const activeTurnId = React16.useMemo(() => {
         if (detail === null) return null;
         for (let index = detail.turns.length - 1; index >= 0; index -= 1) {
           if (detail.turns[index].status === "inProgress") return detail.turns[index].id;
         }
         return null;
       }, [detail]);
-      const loadOlder = React15.useCallback(async () => {
+      const loadOlder = React16.useCallback(async () => {
         if (selectedId === null || olderCursor === null || loadingOlderRef.current) return;
         loadingOlderRef.current = true;
         setLoadingOlder(true);
@@ -2596,7 +2643,7 @@ window.__ModuleLoader__.load({
           setLoadingOlder(false);
         }
       }, [api, selectedId, olderCursor]);
-      const send = React15.useCallback(
+      const send = React16.useCallback(
         async (text, options = {}) => {
           if (selectedId === null) return;
           setError(null);
@@ -2612,7 +2659,7 @@ window.__ModuleLoader__.load({
         },
         [api, selectedId, loadThreads]
       );
-      const steer = React15.useCallback(
+      const steer = React16.useCallback(
         async (text) => {
           if (selectedId === null || activeTurnId === null) return;
           setError(null);
@@ -2625,7 +2672,7 @@ window.__ModuleLoader__.load({
         },
         [api, selectedId, activeTurnId]
       );
-      const stop = React15.useCallback(async () => {
+      const stop = React16.useCallback(async () => {
         if (selectedId === null || activeTurnId === null) return;
         setError(null);
         try {
@@ -2634,7 +2681,7 @@ window.__ModuleLoader__.load({
           setError(messageOf(cause));
         }
       }, [api, selectedId, activeTurnId]);
-      const respond = React15.useCallback(
+      const respond = React16.useCallback(
         async (requestId, response) => {
           setError(null);
           try {
@@ -2647,7 +2694,7 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      const createThread = React15.useCallback(
+      const createThread = React16.useCallback(
         async (request) => {
           const thread = await api("threads/new", request);
           if (thread !== null && thread !== void 0) {
@@ -2658,11 +2705,11 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      const visibleThreads = React15.useMemo(
+      const visibleThreads = React16.useMemo(
         () => [...threads].sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
         [threads]
       );
-      const handleProjectToggle = React15.useCallback(
+      const handleProjectToggle = React16.useCallback(
         (cwd) => {
           if (selectedCwd === cwd) {
             setSelectedCwd(null);
@@ -2679,36 +2726,36 @@ window.__ModuleLoader__.load({
         [selectedCwd, loadThreads]
       );
       const detailCwd = detail?.thread.cwd ?? null;
-      React15.useEffect(() => {
+      React16.useEffect(() => {
         if (detailCwd === null || detailCwd === "" || search.trim() !== "") return;
         if (selectedCwd === detailCwd) return;
         setSelectedCwd(detailCwd);
         void loadThreads(null, { cwd: detailCwd, search: "" });
       }, [detailCwd, search]);
-      const handleThreadRenamed = React15.useCallback((id, name) => {
+      const handleThreadRenamed = React16.useCallback((id, name) => {
         setThreads((previous) => previous.map((thread) => thread.id === id ? { ...thread, name } : thread));
         setDetail(
           (previous) => previous !== null && previous.thread.id === id ? { ...previous, thread: { ...previous.thread, name } } : previous
         );
       }, []);
-      const handleThreadChanged = React15.useCallback(() => {
+      const handleThreadChanged = React16.useCallback(() => {
         void loadThreads(null);
       }, [loadThreads]);
-      const handleThreadDeleted = React15.useCallback((id) => {
+      const handleThreadDeleted = React16.useCallback((id) => {
         setThreads((previous) => previous.filter((thread) => thread.id !== id));
         if (selectedIdRef.current === id) {
           setSelectedId(null);
           setDetail(null);
         }
       }, []);
-      const visiblePending = React15.useMemo(
+      const visiblePending = React16.useMemo(
         () => selectedId === null ? [] : pending2.filter((entry) => entry.params?.threadId === void 0 || entry.params.threadId === selectedId),
         [pending2, selectedId]
       );
       const defaultCwd = detail?.thread.cwd ?? selectedCwd ?? projects[0]?.cwd ?? "";
       const totalThreads = projects.reduce((sum, project) => sum + project.threadCount, 0);
       const runningCount = projects.reduce((sum, project) => sum + project.activeCount, 0);
-      return /* @__PURE__ */ React15.createElement(I18nContext.Provider, { value: t }, /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-root" }, /* @__PURE__ */ React15.createElement(
+      return /* @__PURE__ */ React16.createElement(I18nContext.Provider, { value: t }, /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-root" }, /* @__PURE__ */ React16.createElement(
         FocusSidebar,
         {
           api,
@@ -2736,7 +2783,7 @@ window.__ModuleLoader__.load({
           onThreadChanged: handleThreadChanged,
           onThreadDeleted: handleThreadDeleted
         }
-      ), /* @__PURE__ */ React15.createElement("main", { className: "dsh-codex-main" }, error !== null ? /* @__PURE__ */ React15.createElement("div", { className: "dsh-codex-error" }, error, /* @__PURE__ */ React15.createElement("button", { type: "button", className: "dsh-codex-button", style: { marginLeft: 8 }, onClick: () => void refresh() }, t("error.retry"))) : null, /* @__PURE__ */ React15.createElement(
+      ), /* @__PURE__ */ React16.createElement("main", { className: "dsh-codex-main" }, error !== null ? /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-error" }, error, /* @__PURE__ */ React16.createElement("button", { type: "button", className: "dsh-codex-button", style: { marginLeft: 8 }, onClick: () => void refresh() }, t("error.retry"))) : null, /* @__PURE__ */ React16.createElement(
         ThreadView,
         {
           api,
@@ -2753,7 +2800,7 @@ window.__ModuleLoader__.load({
           onSend: send,
           onSteer: steer,
           onStop: stop,
-          actions: detail !== null ? /* @__PURE__ */ React15.createElement(
+          actions: detail !== null ? /* @__PURE__ */ React16.createElement(
             ThreadActions,
             {
               api,
@@ -2770,7 +2817,7 @@ window.__ModuleLoader__.load({
             }
           ) : null
         }
-      ))), /* @__PURE__ */ React15.createElement(
+      ))), /* @__PURE__ */ React16.createElement(
         NewThreadDialog,
         {
           open: dialogOpen,
@@ -2779,21 +2826,21 @@ window.__ModuleLoader__.load({
           onClose: () => setDialogOpen(false),
           onSubmit: createThread
         }
-      ), /* @__PURE__ */ React15.createElement(VersionsDialog, { open: versionsOpen, api, onClose: () => setVersionsOpen(false) }));
+      ), /* @__PURE__ */ React16.createElement(VersionsDialog, { open: versionsOpen, api, onClose: () => setVersionsOpen(false) }));
     }
 
     // src/client/page/SessionTab.tsx
-    var React16 = __toESM(require("react"), 1);
+    var React17 = __toESM(require("react"), 1);
     function SessionTab({ api, sessionId, useSessions, onOpenThread, onOpenPage, onNewThread }) {
       const t = useT();
       const cwd = typeof useSessions === "function" ? useSessions((state) => {
         const id = sessionId ?? state?.current;
         return id === void 0 ? void 0 : state?.byId?.[id]?.cwd;
       }) : void 0;
-      const [threads, setThreads] = React16.useState([]);
-      const [loading, setLoading] = React16.useState(false);
-      const [error, setError] = React16.useState(null);
-      const load = React16.useCallback(async () => {
+      const [threads, setThreads] = React17.useState([]);
+      const [loading, setLoading] = React17.useState(false);
+      const [error, setError] = React17.useState(null);
+      const load = React17.useCallback(async () => {
         if (typeof cwd !== "string" || cwd === "") {
           setThreads([]);
           return;
@@ -2809,16 +2856,16 @@ window.__ModuleLoader__.load({
           setLoading(false);
         }
       }, [api, cwd]);
-      React16.useEffect(() => {
+      React17.useEffect(() => {
         void load();
       }, [load]);
       if (typeof cwd !== "string" || cwd === "") {
-        return /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-tab" }, /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-empty" }, t("tab.hint")));
+        return /* @__PURE__ */ React17.createElement("div", { className: "dsh-codex-tab" }, /* @__PURE__ */ React17.createElement("div", { className: "dsh-codex-empty" }, t("tab.hint")));
       }
-      return /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-tab" }, /* @__PURE__ */ React16.createElement("header", { className: "dsh-codex-tab-head" }, /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-tab-title", title: cwd }, /* @__PURE__ */ React16.createElement("strong", null, basename(cwd)), /* @__PURE__ */ React16.createElement("span", null, t("tab.count", { count: threads.length }))), /* @__PURE__ */ React16.createElement("button", { type: "button", className: "dsh-codex-button", disabled: loading, onClick: () => void load() }, t("tab.refresh"))), /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-tab-actions" }, /* @__PURE__ */ React16.createElement("button", { type: "button", className: "dsh-codex-button primary", onClick: () => onNewThread(cwd) }, t("tab.newThread")), /* @__PURE__ */ React16.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onOpenPage }, t("tab.openPage"))), error !== null ? /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-error" }, error) : null, loading && threads.length === 0 ? /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-loading" }, t("tab.loading")) : null, /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-tab-list" }, threads.map((thread) => {
+      return /* @__PURE__ */ React17.createElement("div", { className: "dsh-codex-tab" }, /* @__PURE__ */ React17.createElement("header", { className: "dsh-codex-tab-head" }, /* @__PURE__ */ React17.createElement("div", { className: "dsh-codex-tab-title", title: cwd }, /* @__PURE__ */ React17.createElement("strong", null, basename(cwd)), /* @__PURE__ */ React17.createElement("span", null, t("tab.count", { count: threads.length }))), /* @__PURE__ */ React17.createElement("button", { type: "button", className: "dsh-codex-button", disabled: loading, onClick: () => void load() }, t("tab.refresh"))), /* @__PURE__ */ React17.createElement("div", { className: "dsh-codex-tab-actions" }, /* @__PURE__ */ React17.createElement("button", { type: "button", className: "dsh-codex-button primary", onClick: () => onNewThread(cwd) }, t("tab.newThread")), /* @__PURE__ */ React17.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onOpenPage }, t("tab.openPage"))), error !== null ? /* @__PURE__ */ React17.createElement("div", { className: "dsh-codex-error" }, error) : null, loading && threads.length === 0 ? /* @__PURE__ */ React17.createElement("div", { className: "dsh-codex-loading" }, t("tab.loading")) : null, /* @__PURE__ */ React17.createElement("div", { className: "dsh-codex-tab-list" }, threads.map((thread) => {
         const status = thread.status?.type ?? "idle";
         const dotClass = status === "active" ? "ok pulse" : status === "systemError" ? "error" : "";
-        return /* @__PURE__ */ React16.createElement(
+        return /* @__PURE__ */ React17.createElement(
           "button",
           {
             type: "button",
@@ -2827,10 +2874,10 @@ window.__ModuleLoader__.load({
             title: threadTitle(thread),
             onClick: () => onOpenThread(thread.id)
           },
-          /* @__PURE__ */ React16.createElement("span", { className: `dsh-codex-dot ${dotClass}` }),
-          /* @__PURE__ */ React16.createElement("span", { className: "dsh-codex-thread-main" }, /* @__PURE__ */ React16.createElement("span", { className: "dsh-codex-thread-name" }, threadTitle(thread)), /* @__PURE__ */ React16.createElement("span", { className: "dsh-codex-thread-meta" }, [thread.model, relativeTime(thread.updatedAt, t)].filter(Boolean).join(" · ")))
+          /* @__PURE__ */ React17.createElement("span", { className: `dsh-codex-dot ${dotClass}` }),
+          /* @__PURE__ */ React17.createElement("span", { className: "dsh-codex-thread-main" }, /* @__PURE__ */ React17.createElement("span", { className: "dsh-codex-thread-name" }, threadTitle(thread)), /* @__PURE__ */ React17.createElement("span", { className: "dsh-codex-thread-meta" }, [thread.model, relativeTime(thread.updatedAt, t)].filter(Boolean).join(" · ")))
         );
-      }), !loading && threads.length === 0 && error === null ? /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-loading" }, t("tab.empty")) : null));
+      }), !loading && threads.length === 0 && error === null ? /* @__PURE__ */ React17.createElement("div", { className: "dsh-codex-loading" }, t("tab.empty")) : null));
     }
 
     // src/client/rpc.ts
@@ -3981,7 +4028,7 @@ window.__ModuleLoader__.load({
       );
     }
     function SessionTabTitle() {
-      return /* @__PURE__ */ React17.createElement("span", null, "Codex CLI");
+      return /* @__PURE__ */ React18.createElement("span", null, "Codex CLI");
     }
 
     return module.exports

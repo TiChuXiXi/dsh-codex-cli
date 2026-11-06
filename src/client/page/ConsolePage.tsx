@@ -13,6 +13,7 @@ import type {
   ThreadDetail,
   ThreadPage,
 } from '../types'
+import { useCodexTab } from '../hooks'
 import { subscribePending, takePending } from '../store'
 import { applyDetailEvent, threadTitle, upsertThread } from '../utils'
 import { FocusSidebar } from './FocusSidebar'
@@ -37,6 +38,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const t = props.t ?? fallbackTranslate
   const api = props.api
   const onExit = props.onExit ?? (() => {})
+  useCodexTab()
 
   const [status, setStatus] = React.useState<HubStatus | null>(null)
   const [projects, setProjects] = React.useState<Project[]>([])

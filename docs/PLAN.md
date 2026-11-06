@@ -456,3 +456,9 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 信息改为两列定义列表：环境（守护进程 · Codex 版本）、会话（总数 · 运行中）、额度（窗口剩余百分比 · 可用重置次数）；信息项不带圆点。
 - 宿主新增 `account/rateLimits`（`account/rateLimits/read` 的紧凑映射）；客户端挂载时读取、监听 SSE `account/rateLimits`、每 60 秒兜底刷新；悬停显示「重置于 M/D HH:MM」。
 - 验证：额度接口返回 weekly 21% used / 2 次重置；侧栏显示「每周 剩余 79% · 2 次重置」，状态 2 个圆点（绿），信息区无圆点；页面无报错。
+
+### 2026-11-06 · 标签页标题与图标
+
+- 进入 Codex 面板时把 `document.title` 改为 `Codex CLI`，并把两个 favicon（dark/light media）替换为 ChatGPT 标志的 data URL（暗色白、亮色黑）；退出时恢复原 href/type 与标题。
+- 复用 `codexLogo.ts` 的路径与 `codexFavicon(color)`，CodexIcon 同步改为引用同一路径。
+- 验证：进入后 title=Codex CLI、两个 icon 均为 data URL（dark=#ffffff、light=#0f1115）；退出后 title 与 favicon 恢复为 DeepSeek Harness / favicon-dark.svg、favicon.svg。
