@@ -44,7 +44,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const [streamState, setStreamState] = React.useState<StreamState>('connecting')
   const [search, setSearch] = React.useState('')
   const [pending, setPending] = React.useState<PendingApproval[]>([])
-  const [models, setModels] = React.useState<Array<{ id: string, displayName: string }>>([])
+  const [models, setModels] = React.useState<Array<{ id: string, displayName: string, description?: string | null }>>([])
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [versionsOpen, setVersionsOpen] = React.useState(false)
   const [newThreadCwd, setNewThreadCwd] = React.useState('')
@@ -256,11 +256,11 @@ export function ConsolePage(props: ConsolePageProps) {
   }, [detail])
 
   const send = React.useCallback(
-    async (text: string) => {
+    async (text: string, options: { model?: string, effort?: string } = {}) => {
       if (selectedId === null) return
       setError(null)
       try {
-        await api('turns/start', { threadId: selectedId, text })
+        await api('turns/start', { threadId: selectedId, text, model: options.model, effort: options.effort })
         // 首条消息落盘后线程才会出现在 thread/list：稍后补一次列表。
         window.setTimeout(() => {
           void loadThreads(null)
@@ -397,6 +397,7 @@ export function ConsolePage(props: ConsolePageProps) {
               loading={detailLoading}
               selectedId={selectedId}
               activeTurnId={activeTurnId}
+              models={models}
               pending={visiblePending}
               onRespond={respond}
               onSend={send}

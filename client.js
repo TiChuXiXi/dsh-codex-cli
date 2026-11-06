@@ -93,6 +93,15 @@ window.__ModuleLoader__.load({
       "threads.archived": "已归档",
       "threads.search": "搜索会话",
       "threads.title": "会话",
+      "composer.defaultModel": "默认模型",
+      "composer.defaultEffort": "默认",
+      "composer.model": "模型",
+      "composer.effort": "推理强度",
+      "composer.effort.minimal": "极低",
+      "composer.effort.low": "低",
+      "composer.effort.medium": "中",
+      "composer.effort.high": "高",
+      "composer.running": "运行中",
       "composer.placeholder": "给 Codex 发消息…",
       "composer.steerPlaceholder": "插话到正在运行的回合…",
       "composer.send": "发送",
@@ -253,6 +262,15 @@ window.__ModuleLoader__.load({
       "threads.archived": "Archived",
       "threads.search": "Search sessions",
       "threads.title": "Sessions",
+      "composer.defaultModel": "Default model",
+      "composer.defaultEffort": "Default",
+      "composer.model": "Model",
+      "composer.effort": "Reasoning effort",
+      "composer.effort.minimal": "Minimal",
+      "composer.effort.low": "Low",
+      "composer.effort.medium": "Medium",
+      "composer.effort.high": "High",
+      "composer.running": "Running",
       "composer.placeholder": "Message Codex…",
       "composer.steerPlaceholder": "Steer the running turn…",
       "composer.send": "Send",
@@ -831,18 +849,46 @@ window.__ModuleLoader__.load({
 
     // src/client/page/Composer.tsx
     var React8 = __toESM(require("react"), 1);
-    function Composer({ disabled, activeTurnId, onSend, onSteer, onStop }) {
+    var EFFORTS2 = ["minimal", "low", "medium", "high"];
+    function Composer({
+      disabled,
+      activeTurnId,
+      models,
+      model,
+      effort,
+      onModelChange,
+      onEffortChange,
+      onSend,
+      onSteer,
+      onStop
+    }) {
       const t = useT();
       const [text, setText] = React8.useState("");
       const [busy, setBusy] = React8.useState(false);
+      const [menu, setMenu] = React8.useState(null);
       const textareaRef = React8.useRef(null);
+      React8.useEffect(() => {
+        const element = textareaRef.current;
+        if (element === null) return;
+        element.style.height = "auto";
+        element.style.height = `${Math.min(element.scrollHeight, 200)}px`;
+      }, [text]);
+      const currentModel = models.find((entry) => entry.id === model);
+      const modelLabel = currentModel?.displayName ?? (model === "" ? t("composer.defaultModel") : model);
+      const effortLabel = effort === "" ? t("composer.defaultEffort") : t(`composer.effort.${effort}`);
       const submit = async () => {
         const value = text.trim();
         if (value === "" || busy || disabled) return;
         setBusy(true);
         try {
-          if (activeTurnId !== null) await onSteer(value);
-          else await onSend(value);
+          if (activeTurnId !== null) {
+            await onSteer(value);
+          } else {
+            await onSend(value, {
+              model: model === "" ? void 0 : model,
+              effort: effort === "" ? void 0 : effort
+            });
+          }
           setText("");
           textareaRef.current?.focus();
         } catch {
@@ -859,12 +905,12 @@ window.__ModuleLoader__.load({
           setBusy(false);
         }
       };
-      return /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer" }, /* @__PURE__ */ React8.createElement(
+      return /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-wrap" }, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-card" }, /* @__PURE__ */ React8.createElement(
         "textarea",
         {
           ref: textareaRef,
-          className: "dsh-codex-textarea",
-          rows: 3,
+          className: "dsh-codex-composer-input",
+          rows: 1,
           value: text,
           disabled,
           placeholder: activeTurnId === null ? t("composer.placeholder") : t("composer.steerPlaceholder"),
@@ -876,16 +922,96 @@ window.__ModuleLoader__.load({
             }
           }
         }
-      ), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-actions" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-hint" }, activeTurnId === null ? t("composer.sendHint") : t("composer.steerHint")), activeTurnId !== null ? /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void stop() }, t("composer.stop")) : null, /* @__PURE__ */ React8.createElement(
+      ), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-row" }, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-tools" }, activeTurnId !== null ? /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-running" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-dot ok pulse" }), t("composer.running")) : null), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-spacer" }), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-composer-trailing" }, /* @__PURE__ */ React8.createElement(
         "button",
         {
           type: "button",
-          className: "dsh-codex-button primary",
+          className: "dsh-codex-model-trigger",
+          "aria-haspopup": "menu",
+          "aria-expanded": menu !== null,
+          title: `${modelLabel} · ${effortLabel}`,
+          onClick: () => setMenu(menu === null ? "model" : null)
+        },
+        /* @__PURE__ */ React8.createElement(ModelGlyph, null),
+        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-model-label" }, modelLabel),
+        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-model-effort" }, "· ", effortLabel),
+        /* @__PURE__ */ React8.createElement(ChevronGlyph, null)
+      ), activeTurnId !== null ? /* @__PURE__ */ React8.createElement(
+        "button",
+        {
+          type: "button",
+          className: "dsh-codex-stop",
+          disabled: busy,
+          "aria-label": t("composer.stop"),
+          title: t("composer.stop"),
+          onClick: () => void stop()
+        },
+        /* @__PURE__ */ React8.createElement(StopGlyph, null)
+      ) : null, /* @__PURE__ */ React8.createElement(
+        "button",
+        {
+          type: "button",
+          className: "dsh-codex-send",
           disabled: disabled || busy || text.trim() === "",
+          "aria-label": activeTurnId === null ? t("composer.send") : t("composer.steer"),
+          title: activeTurnId === null ? t("composer.send") : t("composer.steer"),
           onClick: () => void submit()
         },
-        activeTurnId === null ? t("composer.send") : t("composer.steer")
-      )));
+        /* @__PURE__ */ React8.createElement(SendGlyph, null)
+      ))), menu === "model" ? /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: () => setMenu(null) }), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu", role: "menu" }, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.model")), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-list" }, models.map((entry) => /* @__PURE__ */ React8.createElement(
+        "button",
+        {
+          type: "button",
+          key: entry.id,
+          role: "menuitemradio",
+          "aria-checked": entry.id === model,
+          className: `dsh-codex-menu-item ${entry.id === model ? "selected" : ""}`,
+          onClick: () => {
+            onModelChange(entry.id);
+            setMenu(null);
+          }
+        },
+        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-check" }, entry.id === model ? /* @__PURE__ */ React8.createElement(CheckGlyph, null) : null),
+        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-name" }, entry.displayName), entry.description ? /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-desc" }, entry.description) : null)
+      )), /* @__PURE__ */ React8.createElement(
+        "button",
+        {
+          type: "button",
+          role: "menuitemradio",
+          "aria-checked": model === "",
+          className: `dsh-codex-menu-item ${model === "" ? "selected" : ""}`,
+          onClick: () => {
+            onModelChange("");
+            setMenu(null);
+          }
+        },
+        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-check" }, model === "" ? /* @__PURE__ */ React8.createElement(CheckGlyph, null) : null),
+        /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-meta" }, /* @__PURE__ */ React8.createElement("span", { className: "dsh-codex-menu-name" }, t("composer.defaultModel")))
+      )), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.effort")), /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-menu-seg" }, EFFORTS2.map((value) => /* @__PURE__ */ React8.createElement(
+        "button",
+        {
+          type: "button",
+          key: value,
+          className: effort === value ? "active" : "",
+          onClick: () => onEffortChange(value)
+        },
+        t(`composer.effort.${value}`)
+      ))))) : null));
+    }
+    function ModelGlyph() {
+      return /* @__PURE__ */ React8.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M8 1.6 9.6 5.1 13.4 6.6 9.6 8.1 8 11.6 6.4 8.1 2.6 6.6 6.4 5.1 8 1.6Z", strokeLinejoin: "round" }), /* @__PURE__ */ React8.createElement("path", { d: "M12.6 10.4l.7 1.5 1.5.7-1.5.7-.7 1.5-.7-1.5-1.5-.7 1.5-.7.7-1.5Z", strokeLinejoin: "round" }));
+    }
+    function ChevronGlyph() {
+      return /* @__PURE__ */ React8.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.1", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M4 6l3.3 3.3a1 1 0 0 0 1.4 0L12 6", strokeLinecap: "round" }));
+    }
+    function SendGlyph() {
+      return /* @__PURE__ */ React8.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.6", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M8 13V3M3.6 7.4 8 3l4.4 4.4", strokeLinecap: "round", strokeLinejoin: "round" }));
+    }
+    function StopGlyph() {
+      return /* @__PURE__ */ React8.createElement("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("rect", { x: "2.5", y: "2.5", width: "7", height: "7", rx: "1.2" }));
+    }
+    function CheckGlyph() {
+      return /* @__PURE__ */ React8.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.4", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M3.5 8.5 6.5 11.5 12.5 4.5", strokeLinecap: "round", strokeLinejoin: "round" }));
     }
 
     // src/client/page/ItemCard.tsx
@@ -1240,6 +1366,7 @@ window.__ModuleLoader__.load({
       loading,
       selectedId,
       activeTurnId,
+      models,
       pending: pending2,
       onRespond,
       onSend,
@@ -1250,6 +1377,13 @@ window.__ModuleLoader__.load({
       const t = useT();
       const messagesRef = React11.useRef(null);
       const threadId = detail?.thread.id ?? null;
+      const [model, setModel] = React11.useState("");
+      const [effort, setEffort] = React11.useState("");
+      React11.useEffect(() => {
+        if (detail === null) return;
+        setModel(detail.thread.model ?? "");
+        setEffort(detail.thread.reasoningEffort ?? "");
+      }, [threadId]);
       React11.useEffect(() => {
         const element = messagesRef.current;
         if (element === null) return;
@@ -1269,6 +1403,11 @@ window.__ModuleLoader__.load({
         {
           disabled: false,
           activeTurnId,
+          models,
+          model,
+          effort,
+          onModelChange: setModel,
+          onEffortChange: setEffort,
           onSend,
           onSteer,
           onStop
@@ -1752,11 +1891,11 @@ window.__ModuleLoader__.load({
         return null;
       }, [detail]);
       const send = React14.useCallback(
-        async (text) => {
+        async (text, options = {}) => {
           if (selectedId === null) return;
           setError(null);
           try {
-            await api("turns/start", { threadId: selectedId, text });
+            await api("turns/start", { threadId: selectedId, text, model: options.model, effort: options.effort });
             window.setTimeout(() => {
               void loadThreads(null);
             }, 2500);
@@ -1868,6 +2007,7 @@ window.__ModuleLoader__.load({
           loading: detailLoading,
           selectedId,
           activeTurnId,
+          models,
           pending: visiblePending,
           onRespond: respond,
           onSend: send,
@@ -2324,30 +2464,173 @@ window.__ModuleLoader__.load({
       background: var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.08));
     }
 
-    .dsh-codex-composer {
+    .dsh-codex-composer-wrap {
+      display: flex;
+      justify-content: center;
+      flex: none;
+      padding: 8px 18px 16px;
+    }
+    .dsh-codex-composer-card {
+      position: relative;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      flex: none;
-      padding: 10px 18px 14px;
-      border-top: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.08));
+      width: min(774px, 100%);
+      padding: 8px 0 0;
+      border-radius: 28px;
+      background: var(--dsw-alias-bg-base, #ffffff);
+      box-shadow:
+        0 0 0 0.5px var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.1)),
+        0 4px 16px rgba(0, 0, 0, 0.03),
+        0 0 24px rgba(0, 0, 0, 0.03);
     }
-    .dsh-codex-textarea {
+    .dsh-codex-composer-input {
       width: 100%;
-      min-height: 64px;
-      max-height: 220px;
-      resize: vertical;
-      padding: 9px 11px;
-      border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.14));
-      border-radius: 9px;
+      min-height: 52px;
+      max-height: 200px;
+      padding: 4px 16px 0;
+      border: none;
       background: transparent;
       color: inherit;
       font: inherit;
-      line-height: 1.5;
+      font-size: 14px;
+      line-height: 1.55;
+      resize: none;
       outline: none;
+      overflow-y: auto;
     }
-    .dsh-codex-textarea:focus { border-color: var(--dsw-alias-state-business-primary, #2f8f5b); }
-    .dsh-codex-composer-actions { display: flex; align-items: center; gap: 8px; }
+    .dsh-codex-composer-input::placeholder { color: var(--dsw-alias-label-secondary, #adb2b8); }
+    .dsh-codex-composer-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 2px 8px 6px;
+    }
+    .dsh-codex-composer-tools { display: flex; align-items: center; gap: 8px; min-height: 28px; }
+    .dsh-codex-composer-spacer { flex: 1; }
+    .dsh-codex-composer-trailing { display: flex; align-items: center; gap: 8px; }
+    .dsh-codex-running {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 8px;
+      font-size: 12px;
+      color: var(--dsw-alias-label-secondary, #61666b);
+    }
+    .dsh-codex-model-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      max-width: 280px;
+      height: 28px;
+      padding: 0 4px 0 8px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--dsw-alias-label-secondary, #61666b);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .dsh-codex-model-trigger:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+    .dsh-codex-model-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dsh-codex-model-effort { color: var(--dsw-alias-label-secondary, #8a8f95); white-space: nowrap; }
+    .dsh-codex-stop,
+    .dsh-codex-send {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      flex: none;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .dsh-codex-stop {
+      border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.14));
+      background: transparent;
+      color: var(--dsw-alias-label-secondary, #61666b);
+    }
+    .dsh-codex-stop:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+    .dsh-codex-send { background: #4176e6; color: #ffffff; }
+    .dsh-codex-send:hover { background: #3a6bd4; }
+    .dsh-codex-send:disabled {
+      background: rgba(65, 118, 230, 0.35);
+      color: #ffffff;
+      cursor: default;
+    }
+    .dsh-codex-menu-backdrop { position: fixed; inset: 0; z-index: 28; }
+    .dsh-codex-menu {
+      position: absolute;
+      right: 8px;
+      bottom: 46px;
+      z-index: 29;
+      width: min(340px, calc(100vw - 48px));
+      max-height: 380px;
+      overflow: auto;
+      padding: 4px;
+      border-radius: 16px;
+      background: var(--dsw-alias-bg-base, #ffffff);
+      box-shadow:
+        0 0 0 0.5px var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.1)),
+        0 3px 8px rgba(0, 0, 0, 0.06),
+        0 0 20px rgba(0, 0, 0, 0.06);
+    }
+    .dsh-codex-menu-list { max-height: 252px; overflow: auto; }
+    .dsh-codex-menu-title {
+      padding: 6px 8px 2px;
+      font-size: 11px;
+      color: var(--dsw-alias-label-secondary, #6b6b6b);
+    }
+    .dsh-codex-menu-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      width: 100%;
+      padding: 7px 8px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .dsh-codex-menu-item:hover,
+    .dsh-codex-menu-item.selected { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+    .dsh-codex-menu-check {
+      display: inline-flex;
+      width: 16px;
+      padding-top: 2px;
+      color: var(--dsw-alias-state-business-primary, #4176e6);
+    }
+    .dsh-codex-menu-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .dsh-codex-menu-name { font-size: 13px; }
+    .dsh-codex-menu-desc {
+      font-size: 11px;
+      color: var(--dsw-alias-label-secondary, #6b6b6b);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .dsh-codex-menu-seg { display: flex; gap: 4px; padding: 4px 8px 8px; }
+    .dsh-codex-menu-seg button {
+      flex: 1;
+      height: 28px;
+      border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.14));
+      border-radius: 7px;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .dsh-codex-menu-seg button.active {
+      border-color: #4176e6;
+      background: rgba(65, 118, 230, 0.1);
+      color: #4176e6;
+    }
     .dsh-codex-hint { margin-right: auto; font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
     .dsh-codex-button.primary {
       border-color: transparent;

@@ -376,3 +376,11 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - **临时线程（ephemeral）** 没有 rollout，`thread/resume` 报 `no rollout found`。处理：本连接 `thread/start` 创建的线程跳过 resume。
 - **flex 布局塌陷**：对话容器是 column flex，`.dsh-codex-block` 的 `overflow: hidden` 让 `min-height:auto` 变 0，整块被压成 2px。处理：`flex: none`。
 - **单次详情过大**：3 个回合 249 条 item 有 2.6 MB。处理：输出/diff/JSON 截断后降到约 0.7 MB；后续再做条目分页。
+
+## 12. 迭代记录
+
+### 2026-11-06 · 输入区对齐 DSH composer
+
+- 参照 DSH 默认 composer 的实测尺寸重做输入区：卡片 774×102、圆角 28px、无边框输入区、底部工具行、34px 圆形发送键。
+- 模型与推理强度合并进一个菜单：模型列表带描述与勾选，推理强度用分段控件；选择通过 `turns/start` 的 `model` / `effort` 下发。
+- 验证：菜单 9 个模型 + 4 档强度；选中 GPT-6-Astra 后触发器显示「GPT-6-Astra · 高」；API 侧 `gpt-6-luna` + `low` 覆盖后线程元数据同步为 `gpt-6-luna` / `low`。

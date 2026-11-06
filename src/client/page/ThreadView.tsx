@@ -6,7 +6,7 @@ import type { Api } from '../rpc'
 import type { PendingApproval, ThreadDetail } from '../types'
 import { basename, relativeTime, statusKey, threadTitle } from '../utils'
 import { ApprovalStack } from './ApprovalCard'
-import { Composer } from './Composer'
+import { Composer, type ModelOption } from './Composer'
 import { ItemCard } from './ItemCard'
 
 export interface ThreadViewProps {
@@ -15,9 +15,10 @@ export interface ThreadViewProps {
   loading: boolean
   selectedId: string | null
   activeTurnId: string | null
+  models: ModelOption[]
   pending: PendingApproval[]
   onRespond: (requestId: string | number, response: any) => Promise<void>
-  onSend: (text: string) => Promise<void>
+  onSend: (text: string, options: { model?: string, effort?: string }) => Promise<void>
   onSteer: (text: string) => Promise<void>
   onStop: () => Promise<void>
   actions?: React.ReactNode
@@ -29,6 +30,7 @@ export function ThreadView({
   loading,
   selectedId,
   activeTurnId,
+  models,
   pending,
   onRespond,
   onSend,
@@ -39,6 +41,15 @@ export function ThreadView({
   const t = useT()
   const messagesRef = React.useRef<HTMLDivElement | null>(null)
   const threadId = detail?.thread.id ?? null
+  const [model, setModel] = React.useState('')
+  const [effort, setEffort] = React.useState('')
+
+  // 切换会话时用该会话的模型/推理强度初始化；之后用户的选择保持到再次切换。
+  React.useEffect(() => {
+    if (detail === null) return
+    setModel(detail.thread.model ?? '')
+    setEffort(detail.thread.reasoningEffort ?? '')
+  }, [threadId])
 
   // 打开会话或首次加载完成时滚到底部；后续新增条目暂不强制跳转（M1 再做“贴近底部才跟随”）。
   React.useEffect(() => {
@@ -115,6 +126,11 @@ export function ThreadView({
       <Composer
         disabled={false}
         activeTurnId={activeTurnId}
+        models={models}
+        model={model}
+        effort={effort}
+        onModelChange={setModel}
+        onEffortChange={setEffort}
         onSend={onSend}
         onSteer={onSteer}
         onStop={onStop}
