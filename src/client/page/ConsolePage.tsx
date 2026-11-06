@@ -23,6 +23,9 @@ import type { ModelOption } from './Composer'
 import { ThreadActions } from './ThreadActions'
 import { VersionsDialog } from './VersionsDialog'
 
+/** 长会话按回合分页：初始与每页都只取最近/更早的 2 个回合。 */
+const TURN_PAGE = 2
+
 export interface ConsolePageProps {
   api: Api
   t?: (key: string, vars?: Record<string, string | number>) => string
@@ -40,6 +43,9 @@ export function ConsolePage(props: ConsolePageProps) {
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
   const [detail, setDetail] = React.useState<ThreadDetail | null>(null)
   const [detailLoading, setDetailLoading] = React.useState(false)
+  const [olderCursor, setOlderCursor] = React.useState<any>(null)
+  const [loadingOlder, setLoadingOlder] = React.useState(false)
+  const loadingOlderRef = React.useRef(false)
   const [loadingThreads, setLoadingThreads] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [streamState, setStreamState] = React.useState<StreamState>('connecting')
@@ -206,9 +212,14 @@ export function ConsolePage(props: ConsolePageProps) {
     setError(null)
     setDetailLoading(true)
     setDetail(null)
-    api<ThreadDetail>('threads/get', { threadId: selectedId, limit: 20 })
+    setOlderCursor(null)
+    setLoadingOlder(false)
+    loadingOlderRef.current = false
+    api<ThreadDetail>('threads/get', { threadId: selectedId, limit: TURN_PAGE })
       .then((next) => {
-        if (!cancelled) setDetail(next)
+        if (cancelled) return
+        setDetail(next)
+        setOlderCursor(next.nextCursor ?? null)
       })
       .catch((cause) => {
         if (!cancelled) setError(messageOf(cause))
@@ -255,6 +266,33 @@ export function ConsolePage(props: ConsolePageProps) {
     }
     return null
   }, [detail])
+
+  const loadOlder = React.useCallback(async () => {
+    if (selectedId === null || olderCursor === null || loadingOlderRef.current) return
+    loadingOlderRef.current = true
+    setLoadingOlder(true)
+    const requestedFor = selectedId
+    try {
+      const page = await api<ThreadDetail>('threads/get', {
+        threadId: selectedId,
+        cursor: olderCursor,
+        limit: TURN_PAGE,
+      })
+      setDetail((previous) => {
+        if (previous === null || previous.thread.id !== requestedFor) return previous
+        const known = new Set(previous.turns.map((turn) => turn.id))
+        const older = page.turns.filter((turn) => !known.has(turn.id))
+        if (older.length === 0) return previous
+        return { ...previous, turns: [...older, ...previous.turns] }
+      })
+      setOlderCursor(page.nextCursor ?? null)
+    } catch (cause) {
+      setError(messageOf(cause))
+    } finally {
+      loadingOlderRef.current = false
+      setLoadingOlder(false)
+    }
+  }, [api, selectedId, olderCursor])
 
   const send = React.useCallback(
     async (text: string, options: { model?: string, effort?: string } = {}) => {
@@ -399,6 +437,9 @@ export function ConsolePage(props: ConsolePageProps) {
               selectedId={selectedId}
               activeTurnId={activeTurnId}
               models={models}
+              hasOlder={olderCursor !== null}
+              loadingOlder={loadingOlder}
+              onLoadOlder={loadOlder}
               pending={visiblePending}
               onRespond={respond}
               onSend={send}

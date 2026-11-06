@@ -398,3 +398,11 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 贴着底部时，`detail` 每次更新（含 40ms 合并后的流式增量）用 `useLayoutEffect` 把 `scrollTop` 钉到底部；否则保持用户位置。
 - 离开底部时右下角出现圆形按钮，点击 `scrollTo({ behavior: 'smooth' })` 回到底部并恢复跟随；切换会话时重置为跟随。
 - 验证：打开长会话初始在底部；运行中上滚 500px 后 4.5 秒内位置保持 3520 不变；按钮出现；点击后回到底部，继续流式 3.5 秒仍贴着底部。
+
+### 2026-11-06 · 长会话历史分页
+
+- 宿主 `threads/get` 支持 `cursor`：透传 `thread/turns/list` 的游标，翻页时跳过 `thread/read`，`thread` 返回 `null`。
+- 前端初始只取 2 个回合（`TURN_PAGE = 2`），`nextCursor` 存入 `olderCursor`；`loadOlder` 取上一页并前插，按 turn id 去重。
+- 触发：滚动到 `scrollTop < 240` 自动加载，或点顶部「加载更早的消息」；加载中按钮显示「正在加载更早的消息…」并禁用。
+- 位置保持：触发前记录 `scrollHeight/scrollTop`，前插后的 `useLayoutEffect` 把 `scrollTop` 调整为 `top + (newHeight - oldHeight)`；失败时清空待恢复状态。
+- 验证：certbase 线程初始 58 个条目块 / 2 个 footer；滚到顶部后加载到 297 块 / 4 个 footer；高度 3835 → 19550，`scrollTop` 0 → 15715（视觉位置不变）；第二页无元数据、与第一页无重叠。

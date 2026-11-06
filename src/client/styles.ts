@@ -784,6 +784,19 @@ export const CSS = `
   cursor: pointer;
 }
 .dsh-codex-jump:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+.dsh-codex-load-older {
+  flex: none;
+  align-self: center;
+  padding: 4px 12px;
+  border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.12));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #6b6b6b);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.dsh-codex-load-older:disabled { opacity: 0.6; cursor: default; }
 `
 
 /** 注入一次样式；重复调用无副作用。 */

@@ -16,6 +16,9 @@ export interface ThreadViewProps {
   selectedId: string | null
   activeTurnId: string | null
   models: ModelOption[]
+  hasOlder: boolean
+  loadingOlder: boolean
+  onLoadOlder: () => Promise<void> | void
   pending: PendingApproval[]
   onRespond: (requestId: string | number, response: any) => Promise<void>
   onSend: (text: string, options: { model?: string, effort?: string }) => Promise<void>
@@ -31,6 +34,9 @@ export function ThreadView({
   selectedId,
   activeTurnId,
   models,
+  hasOlder,
+  loadingOlder,
+  onLoadOlder,
   pending,
   onRespond,
   onSend,
@@ -54,6 +60,7 @@ export function ThreadView({
   // 是否贴着底部：决定新内容到来时要不要跟随；用户上滚后停止跟随。
   const atBottomRef = React.useRef(true)
   const [showJump, setShowJump] = React.useState(false)
+  const pendingPrependRef = React.useRef<{ height: number, top: number } | null>(null)
   const BOTTOM_THRESHOLD = 32
 
   // 切换会话或首次加载完成：回到最底部并恢复跟随。
@@ -65,12 +72,31 @@ export function ThreadView({
     element.scrollTop = element.scrollHeight
   }, [threadId, loading])
 
-  // 内容更新（含流式增量）：只有仍贴着底部时才跟随。
+  // 内容更新（含流式增量）：前插更早回合时保持视觉位置，否则只有贴着底部才跟随。
   React.useLayoutEffect(() => {
     const element = messagesRef.current
-    if (element === null || !atBottomRef.current) return
+    if (element === null) return
+    const pending = pendingPrependRef.current
+    if (pending !== null) {
+      pendingPrependRef.current = null
+      element.scrollTop = pending.top + (element.scrollHeight - pending.height)
+      return
+    }
+    if (!atBottomRef.current) return
     element.scrollTop = element.scrollHeight
   }, [detail])
+
+  // 加载失败时清掉待恢复的位置，避免下一次流式更新误判。
+  React.useEffect(() => {
+    if (!loadingOlder) pendingPrependRef.current = null
+  }, [loadingOlder])
+
+  const triggerOlder = React.useCallback(() => {
+    const element = messagesRef.current
+    if (element === null || !hasOlder || loadingOlder) return
+    pendingPrependRef.current = { height: element.scrollHeight, top: element.scrollTop }
+    void onLoadOlder()
+  }, [hasOlder, loadingOlder, onLoadOlder])
 
   const onMessagesScroll = React.useCallback(() => {
     const element = messagesRef.current
@@ -79,7 +105,8 @@ export function ThreadView({
       element.scrollHeight - element.scrollTop - element.clientHeight <= BOTTOM_THRESHOLD
     atBottomRef.current = atBottom
     setShowJump((previous) => (previous === !atBottom ? previous : !atBottom))
-  }, [])
+    if (element.scrollTop < 240) triggerOlder()
+  }, [triggerOlder])
 
   const jumpToBottom = React.useCallback(() => {
     const element = messagesRef.current
@@ -144,11 +171,23 @@ export function ThreadView({
               {t('thread.updated')}: {relativeTime(thread.updatedAt, t)}
             </span>
           ) : null}
-          <span className="dsh-codex-chip">{t('thread.messages', { count: items.length })}</span>
+          <span className="dsh-codex-chip">
+            {hasOlder ? t('thread.messagesPlus', { count: items.length }) : t('thread.messages', { count: items.length })}
+          </span>
         </div>
       </div>
       <div className="dsh-codex-messages-wrap">
         <div className="dsh-codex-messages" ref={messagesRef} onScroll={onMessagesScroll}>
+          {hasOlder && hasItems ? (
+            <button
+              type="button"
+              className="dsh-codex-load-older"
+              disabled={loadingOlder}
+              onClick={triggerOlder}
+            >
+              {loadingOlder ? t('thread.loadingOlder') : t('thread.loadOlder')}
+            </button>
+          ) : null}
           {!hasItems ? (
             <div className="dsh-codex-empty">{t('thread.noMessages')}</div>
           ) : (

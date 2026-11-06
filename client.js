@@ -203,9 +203,12 @@ window.__ModuleLoader__.load({
       "newThread.open": "新会话",
       "newThread.failed": "创建会话失败",
       "thread.jumpToBottom": "回到最新",
+      "thread.loadOlder": "加载更早的消息",
+      "thread.loadingOlder": "正在加载更早的消息…",
       "thread.select": "从左侧选择一个会话",
       "thread.selectHint": "也可以从项目列表里挑一个项目，再打开其中的会话。",
       "thread.messages": "{count} 条消息",
+      "thread.messagesPlus": "{count}+ 条消息",
       "thread.noMessages": "这个会话还没有消息",
       "thread.loading": "读取会话…",
       "thread.cwd": "工作目录",
@@ -388,9 +391,12 @@ window.__ModuleLoader__.load({
       "newThread.open": "New session",
       "newThread.failed": "Could not create the session",
       "thread.jumpToBottom": "Jump to latest",
+      "thread.loadOlder": "Load earlier messages",
+      "thread.loadingOlder": "Loading earlier messages…",
       "thread.select": "Pick a session on the left",
       "thread.selectHint": "Or choose a project, then open one of its sessions.",
       "thread.messages": "{count} messages",
+      "thread.messagesPlus": "{count}+ messages",
       "thread.noMessages": "No messages in this session yet",
       "thread.loading": "Loading session…",
       "thread.cwd": "Working directory",
@@ -1484,6 +1490,9 @@ window.__ModuleLoader__.load({
       selectedId,
       activeTurnId,
       models,
+      hasOlder,
+      loadingOlder,
+      onLoadOlder,
       pending: pending2,
       onRespond,
       onSend,
@@ -1503,6 +1512,7 @@ window.__ModuleLoader__.load({
       }, [threadId]);
       const atBottomRef = React11.useRef(true);
       const [showJump, setShowJump] = React11.useState(false);
+      const pendingPrependRef = React11.useRef(null);
       const BOTTOM_THRESHOLD = 32;
       React11.useLayoutEffect(() => {
         const element = messagesRef.current;
@@ -1513,16 +1523,33 @@ window.__ModuleLoader__.load({
       }, [threadId, loading]);
       React11.useLayoutEffect(() => {
         const element = messagesRef.current;
-        if (element === null || !atBottomRef.current) return;
+        if (element === null) return;
+        const pending3 = pendingPrependRef.current;
+        if (pending3 !== null) {
+          pendingPrependRef.current = null;
+          element.scrollTop = pending3.top + (element.scrollHeight - pending3.height);
+          return;
+        }
+        if (!atBottomRef.current) return;
         element.scrollTop = element.scrollHeight;
       }, [detail]);
+      React11.useEffect(() => {
+        if (!loadingOlder) pendingPrependRef.current = null;
+      }, [loadingOlder]);
+      const triggerOlder = React11.useCallback(() => {
+        const element = messagesRef.current;
+        if (element === null || !hasOlder || loadingOlder) return;
+        pendingPrependRef.current = { height: element.scrollHeight, top: element.scrollTop };
+        void onLoadOlder();
+      }, [hasOlder, loadingOlder, onLoadOlder]);
       const onMessagesScroll = React11.useCallback(() => {
         const element = messagesRef.current;
         if (element === null) return;
         const atBottom = element.scrollHeight - element.scrollTop - element.clientHeight <= BOTTOM_THRESHOLD;
         atBottomRef.current = atBottom;
         setShowJump((previous) => previous === !atBottom ? previous : !atBottom);
-      }, []);
+        if (element.scrollTop < 240) triggerOlder();
+      }, [triggerOlder]);
       const jumpToBottom = React11.useCallback(() => {
         const element = messagesRef.current;
         if (element === null) return;
@@ -1540,7 +1567,16 @@ window.__ModuleLoader__.load({
       const thread = detail.thread;
       const items = detail.turns.flatMap((turn) => turn.items ?? []);
       const hasItems = items.length > 0;
-      return /* @__PURE__ */ React11.createElement(React11.Fragment, null, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header-top" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), actions), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React11.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.messages", { count: items.length })))), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-messages-wrap" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll }, !hasItems ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : detail.turns.map((turn) => /* @__PURE__ */ React11.createElement(React11.Fragment, { key: turn.id }, (turn.items ?? []).map((item) => /* @__PURE__ */ React11.createElement(ItemCard, { key: item.id, item, api })), /* @__PURE__ */ React11.createElement(TurnFooter, { turn })))), showJump ? /* @__PURE__ */ React11.createElement(
+      return /* @__PURE__ */ React11.createElement(React11.Fragment, null, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header-top" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), actions), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React11.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, hasOlder ? t("thread.messagesPlus", { count: items.length }) : t("thread.messages", { count: items.length })))), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-messages-wrap" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll }, hasOlder && hasItems ? /* @__PURE__ */ React11.createElement(
+        "button",
+        {
+          type: "button",
+          className: "dsh-codex-load-older",
+          disabled: loadingOlder,
+          onClick: triggerOlder
+        },
+        loadingOlder ? t("thread.loadingOlder") : t("thread.loadOlder")
+      ) : null, !hasItems ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : detail.turns.map((turn) => /* @__PURE__ */ React11.createElement(React11.Fragment, { key: turn.id }, (turn.items ?? []).map((item) => /* @__PURE__ */ React11.createElement(ItemCard, { key: item.id, item, api })), /* @__PURE__ */ React11.createElement(TurnFooter, { turn })))), showJump ? /* @__PURE__ */ React11.createElement(
         "button",
         {
           type: "button",
@@ -1858,6 +1894,7 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/ConsolePage.tsx
+    var TURN_PAGE = 2;
     function ConsolePage(props) {
       const t = props.t ?? fallbackTranslate;
       const api = props.api;
@@ -1869,6 +1906,9 @@ window.__ModuleLoader__.load({
       const [selectedId, setSelectedId] = React14.useState(null);
       const [detail, setDetail] = React14.useState(null);
       const [detailLoading, setDetailLoading] = React14.useState(false);
+      const [olderCursor, setOlderCursor] = React14.useState(null);
+      const [loadingOlder, setLoadingOlder] = React14.useState(false);
+      const loadingOlderRef = React14.useRef(false);
       const [loadingThreads, setLoadingThreads] = React14.useState(false);
       const [error, setError] = React14.useState(null);
       const [streamState, setStreamState] = React14.useState("connecting");
@@ -2018,8 +2058,13 @@ window.__ModuleLoader__.load({
         setError(null);
         setDetailLoading(true);
         setDetail(null);
-        api("threads/get", { threadId: selectedId, limit: 20 }).then((next) => {
-          if (!cancelled) setDetail(next);
+        setOlderCursor(null);
+        setLoadingOlder(false);
+        loadingOlderRef.current = false;
+        api("threads/get", { threadId: selectedId, limit: TURN_PAGE }).then((next) => {
+          if (cancelled) return;
+          setDetail(next);
+          setOlderCursor(next.nextCursor ?? null);
         }).catch((cause) => {
           if (!cancelled) setError(messageOf2(cause));
         }).finally(() => {
@@ -2059,6 +2104,32 @@ window.__ModuleLoader__.load({
         }
         return null;
       }, [detail]);
+      const loadOlder = React14.useCallback(async () => {
+        if (selectedId === null || olderCursor === null || loadingOlderRef.current) return;
+        loadingOlderRef.current = true;
+        setLoadingOlder(true);
+        const requestedFor = selectedId;
+        try {
+          const page = await api("threads/get", {
+            threadId: selectedId,
+            cursor: olderCursor,
+            limit: TURN_PAGE
+          });
+          setDetail((previous) => {
+            if (previous === null || previous.thread.id !== requestedFor) return previous;
+            const known = new Set(previous.turns.map((turn) => turn.id));
+            const older = page.turns.filter((turn) => !known.has(turn.id));
+            if (older.length === 0) return previous;
+            return { ...previous, turns: [...older, ...previous.turns] };
+          });
+          setOlderCursor(page.nextCursor ?? null);
+        } catch (cause) {
+          setError(messageOf2(cause));
+        } finally {
+          loadingOlderRef.current = false;
+          setLoadingOlder(false);
+        }
+      }, [api, selectedId, olderCursor]);
       const send = React14.useCallback(
         async (text, options = {}) => {
           if (selectedId === null) return;
@@ -2177,6 +2248,9 @@ window.__ModuleLoader__.load({
           selectedId,
           activeTurnId,
           models,
+          hasOlder: olderCursor !== null,
+          loadingOlder,
+          onLoadOlder: loadOlder,
           pending: visiblePending,
           onRespond: respond,
           onSend: send,
@@ -3084,6 +3158,19 @@ window.__ModuleLoader__.load({
       cursor: pointer;
     }
     .dsh-codex-jump:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+    .dsh-codex-load-older {
+      flex: none;
+      align-self: center;
+      padding: 4px 12px;
+      border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.12));
+      border-radius: 999px;
+      background: transparent;
+      color: var(--dsw-alias-label-secondary, #6b6b6b);
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .dsh-codex-load-older:disabled { opacity: 0.6; cursor: default; }
     `;
     function installStyles() {
       if (typeof document === "undefined") return;
