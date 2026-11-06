@@ -74,7 +74,8 @@ export interface ConsolePageProps {
 
 export function ConsolePage(props: ConsolePageProps) {
   const t = props.t ?? fallbackTranslate
-  const api = props.api
+  // 父级重渲染可能传入新的函数身份，固定住以免刷新 effect 反复触发。
+  const api = React.useMemo(() => props.api, [])
   const onExit = props.onExit ?? (() => {})
   useCodexTab()
 

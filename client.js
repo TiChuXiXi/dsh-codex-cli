@@ -3137,7 +3137,7 @@ window.__ModuleLoader__.load({
     }
     function ConsolePage(props) {
       const t = props.t ?? fallbackTranslate;
-      const api = props.api;
+      const api = React17.useMemo(() => props.api, []);
       const onExit = props.onExit ?? (() => {
       });
       useCodexTab();
