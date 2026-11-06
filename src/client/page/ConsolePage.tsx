@@ -18,8 +18,9 @@ import { subscribePending, takePending } from '../store'
 import { applyDetailEvent, messageOf, threadTitle, upsertThread } from '../utils'
 import { FocusSidebar } from './FocusSidebar'
 import { ProjectPickerDialog } from './ProjectPickerDialog'
+import { RightPanel } from './RightPanel'
 import { ThreadView } from './ThreadView'
-import type { ModelOption } from './Composer'
+import type { Attachment, ModelOption, PermissionMode } from './Composer'
 import { ThreadActions } from './ThreadActions'
 import { VersionsDialog } from './VersionsDialog'
 
@@ -102,6 +103,13 @@ export function ConsolePage(props: ConsolePageProps) {
   const quotaRef = React.useRef<RateLimits | null>(null)
   quotaRef.current = quota
   const [pickerOpen, setPickerOpen] = React.useState(false)
+  const [rightOpen, setRightOpen] = React.useState(() => {
+    try {
+      return window.localStorage.getItem('dsh-codex-right-open') === '1'
+    } catch {
+      return false
+    }
+  })
   const [trusted, setTrusted] = React.useState<string[]>(readTrusted)
   const [versionsOpen, setVersionsOpen] = React.useState(false)
   const restoredRef = React.useRef(selectedId !== null)
@@ -452,11 +460,34 @@ export function ConsolePage(props: ConsolePageProps) {
   }, [api, selectedId, olderCursor])
 
   const send = React.useCallback(
-    async (text: string, options: { model?: string, effort?: string } = {}) => {
+    async (text: string, options: { model?: string, effort?: string, attachments?: Attachment[], permission?: PermissionMode } = {}) => {
       if (selectedId === null) return
       setError(null)
+      const permission = options.permission ?? 'auto'
+      const permissionPayload =
+        permission === 'full'
+          ? { approvalPolicy: 'never', sandboxPolicy: { type: 'dangerFullAccess' } }
+          : permission === 'read'
+            ? { approvalPolicy: 'on-request', sandboxPolicy: { type: 'readOnly', networkAccess: false } }
+            : {
+                approvalPolicy: 'on-request',
+                sandboxPolicy: {
+                  type: 'workspaceWrite',
+                  writableRoots: [],
+                  networkAccess: true,
+                  excludeTmpdirEnvVar: false,
+                  excludeSlashTmp: false,
+                },
+              }
       try {
-        await api('turns/start', { threadId: selectedId, text, model: options.model, effort: options.effort })
+        await api('turns/start', {
+          threadId: selectedId,
+          text,
+          model: options.model,
+          effort: options.effort,
+          attachments: options.attachments,
+          ...permissionPayload,
+        })
         // 首条消息落盘后线程才会出现在 thread/list：稍后补一次列表。
         window.setTimeout(() => {
           void loadThreads(null)
@@ -532,6 +563,14 @@ export function ConsolePage(props: ConsolePageProps) {
   createThreadRef.current = createThread
 
   const currentCwd = detail?.thread.cwd ?? selectedCwd
+
+  React.useEffect(() => {
+    try {
+      window.localStorage.setItem('dsh-codex-right-open', rightOpen ? '1' : '0')
+    } catch {
+      // 忽略。
+    }
+  }, [rightOpen])
   const handleNew = React.useCallback(() => {
     if (currentCwd !== null && currentCwd !== '') {
       void createThread({ cwd: currentCwd }).catch((cause) => setError(messageOf(cause)))
@@ -539,6 +578,15 @@ export function ConsolePage(props: ConsolePageProps) {
     }
     setPickerOpen(true)
   }, [currentCwd, createThread])
+
+  const compactThread = React.useCallback(async () => {
+    if (selectedId === null) return
+    try {
+      await api('threads/compact', { threadId: selectedId })
+    } catch (cause) {
+      setError(messageOf(cause))
+    }
+  }, [api, selectedId])
 
   const pickProject = React.useCallback(
     async (cwd: string) => {
@@ -673,9 +721,20 @@ export function ConsolePage(props: ConsolePageProps) {
             onSend={send}
             onSteer={steer}
             onStop={stop}
+            onPickProject={() => setPickerOpen(true)}
+            onNew={handleNew}
+            onCompact={compactThread}
             actions={
               detail !== null ? (
-                <ThreadActions
+                <div className="dsh-codex-thread-actions">
+                  <button
+                    type="button"
+                    className="dsh-codex-button"
+                    onClick={() => setRightOpen((previous) => !previous)}
+                  >
+                    {rightOpen ? t('right.hide') : t('right.show')}
+                  </button>
+                  <ThreadActions
                   api={api}
                   thread={detail.thread}
                   onRenamed={(name) => handleThreadRenamed(detail.thread.id, name)}
@@ -688,10 +747,18 @@ export function ConsolePage(props: ConsolePageProps) {
                   }}
                   onDeleted={() => handleThreadDeleted(detail.thread.id)}
                 />
+                </div>
               ) : null
             }
           />
         </main>
+
+        <RightPanel
+          api={api}
+          cwd={detail?.thread.cwd ?? selectedCwd ?? ''}
+          open={rightOpen}
+          onClose={() => setRightOpen(false)}
+        />
 
         <ProjectPickerDialog
           open={pickerOpen}

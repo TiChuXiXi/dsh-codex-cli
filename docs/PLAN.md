@@ -496,3 +496,11 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 
 - `loadThreads` 增加 `silent` 选项：后台轮询不设置 `loadingThreads`，也不渲染「加载中…」；用户操作（展开项目、搜索、加载更多）仍显示加载态。
 - 验证：展开 certbase 后连续观察 26 秒（覆盖一次 20 秒轮询），会话区「加载中…」出现 0 次，10 条会话保持显示。
+
+### 2026-11-06 · 右侧面板、加号面板、上传、斜杠命令与会话权限
+
+- 右侧面板：`fs/list`、`fs/read`、`git/status`、`git/diff`、`exec/run`；文件浏览/预览、Git 状态与 diff、在 cwd 跑命令（30s 超时、输出截断）。
+- 上传：`upload/save` 写入 `<cwd>/.dsh-uploads/codex-cli/`（25MB 上限）；`turn/start` 的 input 追加 `mention`/`localImage`。
+- 加号面板与斜杠命令共用一组命令；斜杠支持上下键选择、Enter 执行、Esc 取消。
+- 会话权限三档（只读/自动/完全访问），完全访问二次确认；发送时映射 approvalPolicy/sandboxPolicy（readOnly/workspaceWrite/dangerFullAccess）。
+- 验证：加号面板 7 项；权限确认框文案正确，取消后仍为自动、切只读生效；上传文件落盘并显示 chip；斜杠面板 7 条；带附件发送成功；无页面报错。

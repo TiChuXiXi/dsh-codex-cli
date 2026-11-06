@@ -6,7 +6,7 @@ import type { Api } from '../rpc'
 import type { CodexTurn, PendingApproval, ThreadDetail } from '../types'
 import { basename, formatClock, formatDuration, relativeTime, statusKey, threadTitle } from '../utils'
 import { ApprovalStack } from './ApprovalCard'
-import { Composer, type ModelOption } from './Composer'
+import { Composer, type Attachment, type ModelOption, type PermissionMode } from './Composer'
 import { ItemCard } from './ItemCard'
 import { ToolGroup, groupActivity } from './ToolGroup'
 
@@ -22,9 +22,17 @@ export interface ThreadViewProps {
   onLoadOlder: () => Promise<void> | void
   pending: PendingApproval[]
   onRespond: (requestId: string | number, response: any) => Promise<void>
-  onSend: (text: string, options: { model?: string, effort?: string }) => Promise<void>
+  onSend: (text: string, options: {
+    model?: string
+    effort?: string
+    attachments?: Attachment[]
+    permission?: PermissionMode
+  }) => Promise<void>
   onSteer: (text: string) => Promise<void>
   onStop: () => Promise<void>
+  onPickProject: () => void
+  onNew: () => void
+  onCompact: () => void
   actions?: React.ReactNode
 }
 
@@ -43,6 +51,9 @@ export function ThreadView({
   onSend,
   onSteer,
   onStop,
+  onPickProject,
+  onNew,
+  onCompact,
   actions,
 }: ThreadViewProps) {
   const t = useT()
@@ -50,13 +61,33 @@ export function ThreadView({
   const threadId = detail?.thread.id ?? null
   const [model, setModel] = React.useState('')
   const [effort, setEffort] = React.useState('')
+  const [permission, setPermission] = React.useState<PermissionMode>('auto')
 
   // 切换会话时用该会话的模型/推理强度初始化；之后用户的选择保持到再次切换。
   React.useEffect(() => {
     if (detail === null) return
     setModel(detail.thread.model ?? '')
     setEffort(detail.thread.reasoningEffort ?? '')
+    try {
+      const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`)
+      setPermission(saved === 'read' || saved === 'full' ? saved : 'auto')
+    } catch {
+      setPermission('auto')
+    }
   }, [threadId])
+
+  const changePermission = React.useCallback(
+    (mode: PermissionMode) => {
+      setPermission(mode)
+      if (threadId === null) return
+      try {
+        window.localStorage.setItem(`dsh-codex-permission-${threadId}`, mode)
+      } catch {
+        // 忽略。
+      }
+    },
+    [threadId],
+  )
 
   // 是否贴着底部：决定新内容到来时要不要跟随；用户上滚后停止跟随。
   const atBottomRef = React.useRef(true)
@@ -220,13 +251,20 @@ export function ThreadView({
       </div>
       <ApprovalStack approvals={pending} onRespond={onRespond} />
       <Composer
+        api={api}
+        cwd={detail.thread.cwd ?? ''}
         disabled={false}
         activeTurnId={activeTurnId}
         models={models}
         model={model}
         effort={effort}
+        permission={permission}
         onModelChange={setModel}
         onEffortChange={setEffort}
+        onPermissionChange={changePermission}
+        onPickProject={onPickProject}
+        onNew={onNew}
+        onCompact={onCompact}
         onSend={onSend}
         onSteer={onSteer}
         onStop={onStop}

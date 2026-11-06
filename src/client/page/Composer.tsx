@@ -1,10 +1,10 @@
 /**
- * 输入区：对齐 DSH 默认 composer 的形态 —— 圆角卡片、无边框输入区、底部工具行、
- * 圆形发送键；模型与推理强度走两级菜单（与 Codex TUI 的 4 档 + More reasoning 一致）。
+ * 输入区：DSH 风格卡片 + 加号面板、附件上传、会话权限、模型/推理强度与斜杠命令。
  */
 
 import * as React from 'react'
 import { useT } from '../i18n'
+import type { Api } from '../rpc'
 
 export interface EffortOption {
   reasoningEffort: string
@@ -19,22 +19,52 @@ export interface ModelOption {
   supportedReasoningEfforts?: EffortOption[]
 }
 
+export interface Attachment {
+  name: string
+  path: string
+  kind: 'file' | 'image'
+}
+
+export type PermissionMode = 'read' | 'auto' | 'full'
+
 export interface ComposerProps {
+  api: Api
+  cwd: string
   disabled: boolean
   activeTurnId: string | null
   models: ModelOption[]
   model: string
   effort: string
+  permission: PermissionMode
   onModelChange: (model: string) => void
   onEffortChange: (effort: string) => void
-  onSend: (text: string, options: { model?: string, effort?: string }) => Promise<void>
+  onPermissionChange: (mode: PermissionMode) => void
+  onSend: (text: string, options: {
+    model?: string
+    effort?: string
+    attachments?: Attachment[]
+    permission?: PermissionMode
+  }) => Promise<void>
   onSteer: (text: string) => Promise<void>
   onStop: () => Promise<void>
+  onPickProject: () => void
+  onNew: () => void
+  onCompact: () => void
 }
 
 type Menu = null | 'root' | 'model' | 'effort' | 'more'
+type CommandId = 'model' | 'effort' | 'permission' | 'attach' | 'project' | 'compact' | 'new'
 
-/** 模型没有返回 supportedReasoningEfforts 时的兜底，描述与 Codex 一致。 */
+const COMMANDS: Array<{ id: CommandId, label: string, desc: string }> = [
+  { id: 'model', label: 'cmd.model', desc: 'cmd.modelDesc' },
+  { id: 'effort', label: 'cmd.effort', desc: 'cmd.effortDesc' },
+  { id: 'permission', label: 'cmd.permission', desc: 'cmd.permissionDesc' },
+  { id: 'attach', label: 'cmd.attach', desc: 'cmd.attachDesc' },
+  { id: 'project', label: 'cmd.project', desc: 'cmd.projectDesc' },
+  { id: 'compact', label: 'cmd.compact', desc: 'cmd.compactDesc' },
+  { id: 'new', label: 'cmd.new', desc: 'cmd.newDesc' },
+]
+
 const FALLBACK_EFFORTS: EffortOption[] = [
   { reasoningEffort: 'low', description: 'Fast responses with lighter reasoning' },
   { reasoningEffort: 'medium', description: 'Balances speed and reasoning depth for everyday tasks' },
@@ -45,30 +75,57 @@ const FALLBACK_EFFORTS: EffortOption[] = [
 ]
 
 export function Composer({
+  api,
+  cwd,
   disabled,
   activeTurnId,
   models,
   model,
   effort,
+  permission,
   onModelChange,
   onEffortChange,
+  onPermissionChange,
   onSend,
   onSteer,
   onStop,
+  onPickProject,
+  onNew,
+  onCompact,
 }: ComposerProps) {
   const t = useT()
   const [text, setText] = React.useState('')
   const [busy, setBusy] = React.useState(false)
   const [menu, setMenu] = React.useState<Menu>(null)
+  const [plusOpen, setPlusOpen] = React.useState(false)
+  const [permissionOpen, setPermissionOpen] = React.useState(false)
+  const [confirmFull, setConfirmFull] = React.useState(false)
+  const [attachments, setAttachments] = React.useState<Attachment[]>([])
+  const [uploading, setUploading] = React.useState(false)
+  const [uploadError, setUploadError] = React.useState<string | null>(null)
+  const [slashIndex, setSlashIndex] = React.useState(0)
   const textareaRef = React.useRef<HTMLTextAreaElement | null>(null)
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null)
 
-  // 输入框随内容增高，最多 200px。
   React.useEffect(() => {
     const element = textareaRef.current
     if (element === null) return
     element.style.height = 'auto'
     element.style.height = `${Math.min(element.scrollHeight, 200)}px`
   }, [text])
+
+  React.useEffect(() => {
+    if (!plusOpen && !permissionOpen && !confirmFull && menu === null) return undefined
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      setPlusOpen(false)
+      setPermissionOpen(false)
+      setConfirmFull(false)
+      setMenu(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [plusOpen, permissionOpen, confirmFull, menu])
 
   const currentModel = models.find((entry) => entry.id === model)
   const modelLabel = currentModel?.displayName ?? (model === '' ? t('composer.defaultModel') : model)
@@ -80,9 +137,79 @@ export function Composer({
   const moreEfforts = efforts.slice(4)
   const effortLabel = effort === '' ? t('composer.defaultEffort') : labelForEffort(t, effort)
 
+  const slashMatch = text.match(/^\/(\w*)$/)
+  const slashQuery = slashMatch?.[1]?.toLowerCase() ?? null
+  const slashCommands = slashQuery === null
+    ? []
+    : COMMANDS.filter((command) => {
+        const label = t(command.label).toLowerCase()
+        return command.id.includes(slashQuery) || label.includes(slashQuery)
+      })
+  const slashOpen = slashQuery !== null && slashCommands.length > 0
+
+  const closeAll = () => {
+    setPlusOpen(false)
+    setPermissionOpen(false)
+    setMenu(null)
+  }
+
+  const runCommand = (id: CommandId) => {
+    closeAll()
+    setText('')
+    if (id === 'model') setMenu('model')
+    else if (id === 'effort') setMenu('effort')
+    else if (id === 'permission') setPermissionOpen(true)
+    else if (id === 'attach') fileInputRef.current?.click()
+    else if (id === 'project') onPickProject()
+    else if (id === 'compact') onCompact()
+    else if (id === 'new') onNew()
+  }
+
+  const choosePermission = (mode: PermissionMode) => {
+    setPermissionOpen(false)
+    if (mode === 'full') {
+      setConfirmFull(true)
+      return
+    }
+    onPermissionChange(mode)
+  }
+
+  const uploadFiles = async (files: FileList | null) => {
+    if (files === null || files.length === 0) return
+    if (cwd === '') {
+      setUploadError(t('composer.noCwd'))
+      return
+    }
+    setUploading(true)
+    setUploadError(null)
+    try {
+      for (const file of Array.from(files)) {
+        const dataBase64 = await readAsBase64(file)
+        const saved = await api<{ path: string, name: string }>('upload/save', {
+          cwd,
+          name: file.name,
+          dataBase64,
+        })
+        setAttachments((previous) => [
+          ...previous,
+          {
+            name: saved.name,
+            path: saved.path,
+            kind: file.type.startsWith('image/') ? 'image' : 'file',
+          },
+        ])
+      }
+    } catch (cause) {
+      setUploadError(cause instanceof Error ? cause.message : String(cause))
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current !== null) fileInputRef.current.value = ''
+    }
+  }
+
   const submit = async () => {
     const value = text.trim()
-    if (value === '' || busy || disabled) return
+    if ((value === '' && attachments.length === 0) || busy || disabled) return
     setBusy(true)
     try {
       if (activeTurnId !== null) {
@@ -91,12 +218,15 @@ export function Composer({
         await onSend(value, {
           model: model === '' ? undefined : model,
           effort: effort === '' ? undefined : effort,
+          attachments,
+          permission,
         })
       }
       setText('')
+      setAttachments([])
       textareaRef.current?.focus()
     } catch {
-      // 失败时保留草稿；错误由页面顶部错误条呈现。
+      // 失败保留草稿。
     } finally {
       setBusy(false)
     }
@@ -112,11 +242,30 @@ export function Composer({
     }
   }
 
-  const closeMenu = () => setMenu(null)
-
   return (
     <div className="dsh-codex-composer-wrap">
       <div className="dsh-codex-composer-card">
+        <input ref={fileInputRef} type="file" multiple hidden onChange={(event) => void uploadFiles(event.target.files)} />
+
+        {attachments.length > 0 || uploading || uploadError !== null ? (
+          <div className="dsh-codex-attachments">
+            {attachments.map((attachment) => (
+              <span key={attachment.path} className="dsh-codex-attachment" title={attachment.path}>
+                <span className="dsh-codex-attachment-name">{attachment.name}</span>
+                <button
+                  type="button"
+                  aria-label={t('composer.removeAttachment')}
+                  onClick={() => setAttachments((previous) => previous.filter((item) => item.path !== attachment.path))}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+            {uploading ? <span className="dsh-codex-attachment uploading">{t('composer.uploading')}</span> : null}
+            {uploadError !== null ? <span className="dsh-codex-attachment error">{uploadError}</span> : null}
+          </div>
+        ) : null}
+
         <textarea
           ref={textareaRef}
           className="dsh-codex-composer-input"
@@ -124,16 +273,91 @@ export function Composer({
           value={text}
           disabled={disabled}
           placeholder={activeTurnId === null ? t('composer.placeholder') : t('composer.steerPlaceholder')}
-          onChange={(event) => setText(event.target.value)}
+          onChange={(event) => {
+            setText(event.target.value)
+            setSlashIndex(0)
+          }}
           onKeyDown={(event) => {
+            if (slashOpen) {
+              if (event.key === 'ArrowDown') {
+                event.preventDefault()
+                setSlashIndex((index) => (index + 1) % slashCommands.length)
+                return
+              }
+              if (event.key === 'ArrowUp') {
+                event.preventDefault()
+                setSlashIndex((index) => (index - 1 + slashCommands.length) % slashCommands.length)
+                return
+              }
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault()
+                const command = slashCommands[slashIndex]
+                if (command !== undefined) runCommand(command.id)
+                return
+              }
+              if (event.key === 'Escape') {
+                event.preventDefault()
+                setText('')
+                return
+              }
+            }
             if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
               event.preventDefault()
               void submit()
             }
           }}
         />
+
+        {slashOpen ? (
+          <div className="dsh-codex-slash" role="listbox">
+            {slashCommands.map((command, index) => (
+              <button
+                type="button"
+                key={command.id}
+                role="option"
+                aria-selected={index === slashIndex}
+                className={`dsh-codex-slash-item ${index === slashIndex ? 'active' : ''}`}
+                onMouseEnter={() => setSlashIndex(index)}
+                onClick={() => runCommand(command.id)}
+              >
+                <span className="dsh-codex-slash-name">/{command.id}</span>
+                <span className="dsh-codex-slash-label">{t(command.label)}</span>
+                <span className="dsh-codex-slash-desc">{t(command.desc)}</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
+
         <div className="dsh-codex-composer-row">
           <div className="dsh-codex-composer-tools">
+            <button
+              type="button"
+              className="dsh-codex-plus"
+              aria-label={t('composer.add')}
+              aria-expanded={plusOpen}
+              onClick={() => {
+                setPlusOpen((previous) => !previous)
+                setPermissionOpen(false)
+                setMenu(null)
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+                <path d="M8 2.5v11M2.5 8h11" strokeLinecap="round" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="dsh-codex-permission-trigger"
+              aria-expanded={permissionOpen}
+              onClick={() => {
+                setPermissionOpen((previous) => !previous)
+                setPlusOpen(false)
+                setMenu(null)
+              }}
+            >
+              <ShieldGlyph />
+              <span>{t(`permission.${permission}`)}</span>
+            </button>
             {activeTurnId !== null ? (
               <span className="dsh-codex-running">
                 <span className="dsh-codex-dot ok pulse" />
@@ -149,7 +373,11 @@ export function Composer({
               aria-haspopup="menu"
               aria-expanded={menu !== null}
               title={`${modelLabel} · ${effortLabel}`}
-              onClick={() => setMenu(menu === null ? 'root' : null)}
+              onClick={() => {
+                setMenu(menu === null ? 'root' : null)
+                setPlusOpen(false)
+                setPermissionOpen(false)
+              }}
             >
               <ModelGlyph />
               <span className="dsh-codex-model-label">{modelLabel}</span>
@@ -171,7 +399,7 @@ export function Composer({
             <button
               type="button"
               className="dsh-codex-send"
-              disabled={disabled || busy || text.trim() === ''}
+              disabled={disabled || busy || (text.trim() === '' && attachments.length === 0)}
               aria-label={activeTurnId === null ? t('composer.send') : t('composer.steer')}
               title={activeTurnId === null ? t('composer.send') : t('composer.steer')}
               onClick={() => void submit()}
@@ -181,9 +409,53 @@ export function Composer({
           </div>
         </div>
 
+        {plusOpen ? (
+          <>
+            <div className="dsh-codex-menu-backdrop" onPointerDown={closeAll} />
+            <div className="dsh-codex-plus-panel" role="menu">
+              <div className="dsh-codex-menu-title">{t('composer.add')}</div>
+              <PlusItem icon={<PaperclipGlyph />} label={t('cmd.attach')} hint={t('cmd.attachDesc')} onClick={() => runCommand('attach')} />
+              <PlusItem icon={<FolderGlyph />} label={t('cmd.project')} hint={t('cmd.projectDesc')} onClick={() => runCommand('project')} />
+              <div className="dsh-codex-menu-title">{t('composer.commands')}</div>
+              {COMMANDS.filter((command) => command.id !== 'attach' && command.id !== 'project').map((command) => (
+                <PlusItem
+                  key={command.id}
+                  icon={<CommandGlyph id={command.id} />}
+                  label={t(command.label)}
+                  hint={t(command.desc)}
+                  onClick={() => runCommand(command.id)}
+                />
+              ))}
+            </div>
+          </>
+        ) : null}
+
+        {permissionOpen ? (
+          <>
+            <div className="dsh-codex-menu-backdrop" onPointerDown={closeAll} />
+            <div className="dsh-codex-permission-menu" role="menu">
+              <div className="dsh-codex-menu-title">{t('permission.title')}</div>
+              {(['read', 'auto', 'full'] as PermissionMode[]).map((mode) => (
+                <button
+                  type="button"
+                  key={mode}
+                  className={`dsh-codex-permission-option ${permission === mode ? 'selected' : ''}`}
+                  onClick={() => choosePermission(mode)}
+                >
+                  <span className="dsh-codex-menu-check">{permission === mode ? <CheckGlyph /> : null}</span>
+                  <span className="dsh-codex-permission-meta">
+                    <span className="dsh-codex-menu-name">{t(`permission.${mode}`)}</span>
+                    <span className="dsh-codex-menu-desc">{t(`permission.${mode}Desc`)}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
+        ) : null}
+
         {menu !== null ? (
           <>
-            <div className="dsh-codex-menu-backdrop" onPointerDown={closeMenu} />
+            <div className="dsh-codex-menu-backdrop" onPointerDown={closeAll} />
             <div className="dsh-codex-menu" role="menu">
               {menu === 'root' ? (
                 <>
@@ -213,7 +485,7 @@ export function Composer({
                         className={`dsh-codex-menu-item ${entry.id === model ? 'selected' : ''}`}
                         onClick={() => {
                           onModelChange(entry.id)
-                          closeMenu()
+                          setMenu(null)
                         }}
                       >
                         <span className="dsh-codex-menu-check">{entry.id === model ? <CheckGlyph /> : null}</span>
@@ -230,7 +502,7 @@ export function Composer({
                       className={`dsh-codex-menu-item ${model === '' ? 'selected' : ''}`}
                       onClick={() => {
                         onModelChange('')
-                        closeMenu()
+                        setMenu(null)
                       }}
                     >
                       <span className="dsh-codex-menu-check">{model === '' ? <CheckGlyph /> : null}</span>
@@ -253,7 +525,7 @@ export function Composer({
                       isDefault={option.reasoningEffort === defaultEffort}
                       onSelect={() => {
                         onEffortChange(option.reasoningEffort)
-                        closeMenu()
+                        setMenu(null)
                       }}
                     />
                   ))}
@@ -283,7 +555,7 @@ export function Composer({
                       isDefault={option.reasoningEffort === defaultEffort}
                       onSelect={() => {
                         onEffortChange(option.reasoningEffort)
-                        closeMenu()
+                        setMenu(null)
                       }}
                     />
                   ))}
@@ -292,8 +564,49 @@ export function Composer({
             </div>
           </>
         ) : null}
+
+        {confirmFull ? (
+          <div
+            className="dsh-codex-dialog-backdrop"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setConfirmFull(false)
+            }}
+          >
+            <div className="dsh-codex-dialog" role="dialog" aria-modal="true">
+              <header className="dsh-codex-dialog-head">{t('permission.fullTitle')}</header>
+              <div className="dsh-codex-approval-meta">{t('permission.fullBody')}</div>
+              <div className="dsh-codex-dialog-actions">
+                <button type="button" className="dsh-codex-button" onClick={() => setConfirmFull(false)}>
+                  {t('permission.cancel')}
+                </button>
+                <button
+                  type="button"
+                  className="dsh-codex-button danger"
+                  onClick={() => {
+                    onPermissionChange('full')
+                    setConfirmFull(false)
+                  }}
+                >
+                  {t('permission.confirm')}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
+  )
+}
+
+function PlusItem({ icon, label, hint, onClick }: { icon: React.ReactNode, label: string, hint: string, onClick: () => void }) {
+  return (
+    <button type="button" role="menuitem" className="dsh-codex-plus-item" onClick={onClick}>
+      <span className="dsh-codex-plus-icon">{icon}</span>
+      <span className="dsh-codex-plus-meta">
+        <span className="dsh-codex-plus-label">{label}</span>
+        <span className="dsh-codex-plus-hint">{hint}</span>
+      </span>
+    </button>
   )
 }
 
@@ -343,6 +656,51 @@ function labelForEffort(t: (key: string) => string, value: string): string {
   const key = `composer.effort.${value}`
   const text = t(key)
   return text === key ? value : text
+}
+
+function readAsBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = String(reader.result ?? '')
+      const comma = result.indexOf(',')
+      resolve(comma >= 0 ? result.slice(comma + 1) : result)
+    }
+    reader.onerror = () => reject(reader.error ?? new Error('读取文件失败'))
+    reader.readAsDataURL(file)
+  })
+}
+
+function CommandGlyph({ id }: { id: CommandId }) {
+  if (id === 'permission') return <ShieldGlyph />
+  if (id === 'model' || id === 'effort') return <ModelGlyph />
+  if (id === 'compact') return <span aria-hidden="true">⇣</span>
+  if (id === 'new') return <span aria-hidden="true">＋</span>
+  return <span aria-hidden="true">⌘</span>
+}
+
+function ShieldGlyph() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
+      <path d="M8 1.8 13 3.6v3.6c0 3.1-2.1 5.3-5 6.9-2.9-1.6-5-3.8-5-6.9V3.6L8 1.8Z" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function PaperclipGlyph() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
+      <path d="M10.8 5.2 6.4 9.6a1.6 1.6 0 0 0 2.3 2.3l4.7-4.7a3 3 0 0 0-4.2-4.2L4.1 8.1a4.2 4.2 0 0 0 5.9 5.9l3.4-3.4" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function FolderGlyph() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
+      <path d="M1.9 4.3c0-.66.54-1.2 1.2-1.2h2.9l1.5 1.7h5.4c.66 0 1.2.54 1.2 1.2v6.3c0 .66-.54 1.2-1.2 1.2H3.1c-.66 0-1.2-.54-1.2-1.2V4.3Z" strokeLinejoin="round" />
+    </svg>
+  )
 }
 
 function ModelGlyph() {
