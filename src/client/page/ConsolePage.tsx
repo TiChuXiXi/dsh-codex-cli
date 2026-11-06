@@ -99,6 +99,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const [pending, setPending] = React.useState<PendingApproval[]>([])
   const [models, setModels] = React.useState<ModelOption[]>([])
   const [quota, setQuota] = React.useState<RateLimits | null>(null)
+  const [sessionPermission, setSessionPermission] = React.useState<PermissionMode | null>(null)
   const [quotaLoading, setQuotaLoading] = React.useState(true)
   const quotaRef = React.useRef<RateLimits | null>(null)
   quotaRef.current = quota
@@ -401,10 +402,20 @@ export function ConsolePage(props: ConsolePageProps) {
     if (selectedId === null) return undefined
     let cancelled = false
     let opened = false
+    setSessionPermission(null)
     api('threads/open', { threadId: selectedId })
-      .then(() => {
+      .then(async () => {
         opened = true
-        if (cancelled) void api('threads/close', { threadId: selectedId }).catch(() => {})
+        if (cancelled) {
+          void api('threads/close', { threadId: selectedId }).catch(() => {})
+          return
+        }
+        try {
+          const settings = await api<{ approvalPolicy: string | null, approvalsReviewer: string | null, sandbox: { type: string } | null } | null>('threads/settings', { threadId: selectedId })
+          if (!cancelled) setSessionPermission(permissionFromSettings(settings))
+        } catch {
+          // 读不到时保留本地值。
+        }
       })
       .catch(() => {
         // 私有实例看不到终端活动线程时 resume 会失败；历史仍可查看。
@@ -725,6 +736,7 @@ export function ConsolePage(props: ConsolePageProps) {
             selectedId={selectedId}
             activeTurnId={activeTurnId}
             models={models}
+            permissionFromSession={sessionPermission}
             hasOlder={olderCursor !== null}
             loadingOlder={loadingOlder}
             onLoadOlder={loadOlder}
@@ -784,4 +796,13 @@ export function ConsolePage(props: ConsolePageProps) {
       </div>
     </I18nContext.Provider>
   )
+}
+
+function permissionFromSettings(settings: { approvalPolicy: string | null, approvalsReviewer: string | null, sandbox: { type: string } | null } | null): PermissionMode | null {
+  if (settings === null) return null
+  if (settings.sandbox?.type === 'dangerFullAccess') return 'full'
+  if (settings.sandbox?.type === 'readOnly') return 'read'
+  if (settings.approvalsReviewer === 'auto_review') return 'approve'
+  if (settings.approvalPolicy === 'never') return 'full'
+  return 'ask'
 }

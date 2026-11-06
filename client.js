@@ -2569,6 +2569,7 @@ window.__ModuleLoader__.load({
       selectedId,
       activeTurnId,
       models,
+      permissionFromSession,
       hasOlder,
       loadingOlder,
       onLoadOlder,
@@ -2592,13 +2593,17 @@ window.__ModuleLoader__.load({
         if (detail === null) return;
         setModel(detail.thread.model ?? "");
         setEffort(detail.thread.reasoningEffort ?? "");
+        if (permissionFromSession !== void 0 && permissionFromSession !== null) {
+          setPermission(permissionFromSession);
+          return;
+        }
         try {
           const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`);
           setPermission(saved === "read" || saved === "full" || saved === "approve" ? saved : "ask");
         } catch {
           setPermission("ask");
         }
-      }, [threadId]);
+      }, [threadId, permissionFromSession]);
       const changePermission = React14.useCallback(
         (mode) => {
           setPermission(mode);
@@ -3065,6 +3070,7 @@ window.__ModuleLoader__.load({
       const [pending2, setPending] = React17.useState([]);
       const [models, setModels] = React17.useState([]);
       const [quota, setQuota] = React17.useState(null);
+      const [sessionPermission, setSessionPermission] = React17.useState(null);
       const [quotaLoading, setQuotaLoading] = React17.useState(true);
       const quotaRef = React17.useRef(null);
       quotaRef.current = quota;
@@ -3339,10 +3345,19 @@ window.__ModuleLoader__.load({
         if (selectedId === null) return void 0;
         let cancelled = false;
         let opened = false;
-        api("threads/open", { threadId: selectedId }).then(() => {
+        setSessionPermission(null);
+        api("threads/open", { threadId: selectedId }).then(async () => {
           opened = true;
-          if (cancelled) void api("threads/close", { threadId: selectedId }).catch(() => {
-          });
+          if (cancelled) {
+            void api("threads/close", { threadId: selectedId }).catch(() => {
+            });
+            return;
+          }
+          try {
+            const settings = await api("threads/settings", { threadId: selectedId });
+            if (!cancelled) setSessionPermission(permissionFromSettings(settings));
+          } catch {
+          }
         }).catch(() => {
         });
         return () => {
@@ -3614,6 +3629,7 @@ window.__ModuleLoader__.load({
           selectedId,
           activeTurnId,
           models,
+          permissionFromSession: sessionPermission,
           hasOlder: olderCursor !== null,
           loadingOlder,
           onLoadOlder: loadOlder,
@@ -3669,6 +3685,14 @@ window.__ModuleLoader__.load({
           onClose: () => setPickerOpen(false)
         }
       ), /* @__PURE__ */ React17.createElement(VersionsDialog, { open: versionsOpen, api, onClose: () => setVersionsOpen(false) })));
+    }
+    function permissionFromSettings(settings) {
+      if (settings === null) return null;
+      if (settings.sandbox?.type === "dangerFullAccess") return "full";
+      if (settings.sandbox?.type === "readOnly") return "read";
+      if (settings.approvalsReviewer === "auto_review") return "approve";
+      if (settings.approvalPolicy === "never") return "full";
+      return "ask";
     }
 
     // src/client/page/SessionTab.tsx

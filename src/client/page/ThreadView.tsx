@@ -17,6 +17,7 @@ export interface ThreadViewProps {
   selectedId: string | null
   activeTurnId: string | null
   models: ModelOption[]
+  permissionFromSession?: PermissionMode | null
   hasOlder: boolean
   loadingOlder: boolean
   onLoadOlder: () => Promise<void> | void
@@ -43,6 +44,7 @@ export function ThreadView({
   selectedId,
   activeTurnId,
   models,
+  permissionFromSession,
   hasOlder,
   loadingOlder,
   onLoadOlder,
@@ -68,13 +70,17 @@ export function ThreadView({
     if (detail === null) return
     setModel(detail.thread.model ?? '')
     setEffort(detail.thread.reasoningEffort ?? '')
+    if (permissionFromSession !== undefined && permissionFromSession !== null) {
+      setPermission(permissionFromSession)
+      return
+    }
     try {
       const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`)
       setPermission(saved === 'read' || saved === 'full' || saved === 'approve' ? saved : 'ask')
     } catch {
       setPermission('ask')
     }
-  }, [threadId])
+  }, [threadId, permissionFromSession])
 
   const changePermission = React.useCallback(
     (mode: PermissionMode) => {
