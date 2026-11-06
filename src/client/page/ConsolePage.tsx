@@ -415,7 +415,6 @@ export function ConsolePage(props: ConsolePageProps) {
                   setSearch('')
                 }}
               />
-              <div className="dsh-codex-section-title">{t('threads.title')}</div>
               <ThreadList
                 threads={visibleThreads}
                 selectedId={selectedId}

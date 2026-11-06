@@ -411,3 +411,10 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 
 - 用户消息改为右对齐气泡：`rgba(65,118,230,.08)` 底色、`rgba(65,118,230,.14)` 内描边、`16px 16px 6px 16px` 圆角、`10px 14px` 内边距、最大宽度 `min(720px, 82%)`。
 - 助手回复去掉底色与内边距，保持纯文本；时间与「你/Codex」标签仍在气泡上方。
+
+### 2026-11-06 · 侧栏搜索与折叠
+
+- 项目、会话两个分区统一为「标题 + 搜索框 + 收起/展开按钮」一行；折叠状态写入 localStorage（`dsh-codex-projects-collapsed` / `dsh-codex-threads-collapsed`）。
+- 项目搜索匹配名称与 cwd；会话搜索沿用标题/预览过滤；无匹配时分别显示「没有匹配的项目/会话」。
+- 折叠时隐藏列表但保留搜索框；在折叠状态输入搜索会自动展开。
+- 验证：项目搜索 `cert` 得到 certbase / certbase-offline；会话搜索「核查」得到 3 条；项目折叠后 0 行、展开 7 行；会话折叠后刷新仍保持折叠，展开 79 行。

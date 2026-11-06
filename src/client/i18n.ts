@@ -32,6 +32,8 @@ export const zh = {
   'projects.count': '{count} 个会话',
   'projects.active': '{count} 个运行中',
   'projects.empty': '还没有任何会话',
+  'projects.search': '搜索项目',
+  'projects.noMatch': '没有匹配的项目',
 
   'threads.loading': '加载中…',
   'threads.empty': '这个项目还没有会话',
@@ -39,6 +41,9 @@ export const zh = {
   'threads.archived': '已归档',
   'threads.search': '搜索会话',
   'threads.title': '会话',
+  'threads.noMatch': '没有匹配的会话',
+  'common.expand': '展开',
+  'common.collapse': '收起',
 
   'composer.defaultModel': '默认模型',
   'composer.defaultEffort': '默认',
@@ -234,6 +239,8 @@ export const en = {
   'projects.count': '{count} sessions',
   'projects.active': '{count} running',
   'projects.empty': 'No sessions yet',
+  'projects.search': 'Search projects',
+  'projects.noMatch': 'No matching projects',
 
   'threads.loading': 'Loading…',
   'threads.empty': 'No sessions in this project',
@@ -241,6 +248,9 @@ export const en = {
   'threads.archived': 'Archived',
   'threads.search': 'Search sessions',
   'threads.title': 'Sessions',
+  'threads.noMatch': 'No matching sessions',
+  'common.expand': 'Expand',
+  'common.collapse': 'Collapse',
 
   'composer.defaultModel': 'Default model',
   'composer.defaultEffort': 'Default',

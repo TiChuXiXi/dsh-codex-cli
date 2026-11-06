@@ -103,6 +103,29 @@ export const CSS = `
   text-transform: uppercase;
   color: var(--dsw-alias-label-secondary, #6b6b6b);
 }
+.dsh-codex-section-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px 6px;
+}
+.dsh-codex-section-head .dsh-codex-section-title { flex: none; padding: 0; }
+.dsh-codex-collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #6b6b6b);
+  cursor: pointer;
+}
+.dsh-codex-collapse:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+.dsh-codex-collapse svg { transition: transform 0.15s ease; }
+.dsh-codex-collapse.collapsed svg { transform: rotate(-90deg); }
 
 .dsh-codex-project,
 .dsh-codex-thread {
@@ -149,6 +172,14 @@ export const CSS = `
   outline: none;
 }
 .dsh-codex-search:focus { border-color: var(--dsw-alias-state-business-primary, #2f8f5b); }
+.dsh-codex-search.compact {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  height: 26px;
+  margin: 0;
+  padding: 0 8px;
+}
 
 .dsh-codex-main { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; }
 
