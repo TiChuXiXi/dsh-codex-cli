@@ -5,22 +5,18 @@
  * 槽位：
  *   sidebar.panellist            —— 左侧栏入口
  *   main                         —— 管理页正文（key = codex-cli）
- *   sidebar.right.pane.tab(.title) —— 右侧栏 Codex 页（按当前 DSH 会话 cwd）
  */
 
 import * as React from 'react'
 import { CodexIcon } from './components/CodexIcon'
 import { dictionaries, NS } from './i18n'
 import { ConsolePage } from './page/ConsolePage'
-import { SessionTab } from './page/SessionTab'
 import { createApi } from './rpc'
-import { requestNewThread, requestThread } from './store'
 import { installStyles } from './styles'
 
-export const inject = ['slots', 'connection', 'locale', 'sidebarRightTabs', 'layout']
+export const inject = ['slots', 'connection', 'locale', 'layout']
 
 const PANEL_ID = 'codex-cli'
-const TAB_ID = 'codex-cli'
 
 export function apply(ctx: any): void {
   installStyles()
@@ -72,64 +68,4 @@ export function apply(ctx: any): void {
       ConsolePage,
     ),
   )
-
-  // 右侧栏：按当前会话 cwd 列出该项目的 Codex 会话
-  ctx.effect(
-    () =>
-      ctx.sidebarRightTabs.register({
-        id: TAB_ID,
-        kind: TAB_ID,
-        title: () => 'Codex CLI',
-        guide: [
-          {
-            id: TAB_ID,
-            order: 30,
-            title: () => 'Codex CLI',
-            description: () => '当前项目的 Codex 会话',
-            icon: CodexIcon,
-          },
-        ],
-      }),
-    'codex-cli: right tab type',
-  )
-
-  const face = () => ({
-    api,
-    onOpenThread: (threadId: string) => {
-      requestThread(threadId)
-      selectPanel()
-    },
-    onOpenPage: () => selectPanel(),
-    onNewThread: (cwd: string) => {
-      requestNewThread(cwd)
-      selectPanel()
-    },
-  })
-
-  ctx.slots.inject('sidebar.right.pane.tab', () =>
-    ctx.slots.register(
-      {
-        name: 'sidebar.right.pane.tab',
-        key: TAB_ID,
-        locale: NS,
-        inject: face,
-      },
-      SessionTab,
-    ),
-  )
-
-  ctx.slots.inject('sidebar.right.pane.tab.title', () =>
-    ctx.slots.register(
-      {
-        name: 'sidebar.right.pane.tab.title',
-        key: TAB_ID,
-        locale: NS,
-      },
-      SessionTabTitle,
-    ),
-  )
-}
-
-function SessionTabTitle() {
-  return <span>Codex CLI</span>
 }

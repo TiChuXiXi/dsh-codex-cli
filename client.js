@@ -39,7 +39,6 @@ window.__ModuleLoader__.load({
       inject: () => inject
     });
     module.exports = __toCommonJS(index_exports);
-    var React19 = __toESM(require("react"), 1);
 
     // src/client/components/CodexIcon.tsx
     var React = __toESM(require("react"), 1);
@@ -741,22 +740,6 @@ window.__ModuleLoader__.load({
     // src/client/store.ts
     var pending = null;
     var listeners = /* @__PURE__ */ new Set();
-    function notify() {
-      for (const listener of listeners) {
-        try {
-          listener();
-        } catch {
-        }
-      }
-    }
-    function requestThread(threadId) {
-      pending = { kind: "thread", threadId };
-      notify();
-    }
-    function requestNewThread(cwd) {
-      pending = { kind: "new-thread", cwd };
-      notify();
-    }
     function takePending() {
       const value = pending;
       pending = null;
@@ -3836,57 +3819,6 @@ window.__ModuleLoader__.load({
       return "ask";
     }
 
-    // src/client/page/SessionTab.tsx
-    var React18 = __toESM(require("react"), 1);
-    function SessionTab({ api, sessionId, useSessions, onOpenThread, onOpenPage, onNewThread }) {
-      const t = useT();
-      const cwd = typeof useSessions === "function" ? useSessions((state) => {
-        const id = sessionId ?? state?.current;
-        return id === void 0 ? void 0 : state?.byId?.[id]?.cwd;
-      }) : void 0;
-      const [threads, setThreads] = React18.useState([]);
-      const [loading, setLoading] = React18.useState(false);
-      const [error, setError] = React18.useState(null);
-      const load = React18.useCallback(async () => {
-        if (typeof cwd !== "string" || cwd === "") {
-          setThreads([]);
-          return;
-        }
-        setLoading(true);
-        setError(null);
-        try {
-          const page = await api("threads/list", { cwd, limit: 50 });
-          setThreads(page.data);
-        } catch (cause) {
-          setError(cause instanceof Error ? cause.message : String(cause));
-        } finally {
-          setLoading(false);
-        }
-      }, [api, cwd]);
-      React18.useEffect(() => {
-        void load();
-      }, [load]);
-      if (typeof cwd !== "string" || cwd === "") {
-        return /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-tab" }, /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-empty" }, t("tab.hint")));
-      }
-      return /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-tab" }, /* @__PURE__ */ React18.createElement("header", { className: "dsh-codex-tab-head" }, /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-tab-title", title: cwd }, /* @__PURE__ */ React18.createElement("strong", null, basename(cwd)), /* @__PURE__ */ React18.createElement("span", null, t("tab.count", { count: threads.length }))), /* @__PURE__ */ React18.createElement("button", { type: "button", className: "dsh-codex-button", disabled: loading, onClick: () => void load() }, t("tab.refresh"))), /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-tab-actions" }, /* @__PURE__ */ React18.createElement("button", { type: "button", className: "dsh-codex-button primary", onClick: () => onNewThread(cwd) }, t("tab.newThread")), /* @__PURE__ */ React18.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onOpenPage }, t("tab.openPage"))), error !== null ? /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-error" }, error) : null, loading && threads.length === 0 ? /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-loading" }, t("tab.loading")) : null, /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-tab-list" }, threads.map((thread) => {
-        const status = thread.status?.type ?? "idle";
-        const dotClass = status === "active" ? "ok pulse" : status === "systemError" ? "error" : "";
-        return /* @__PURE__ */ React18.createElement(
-          "button",
-          {
-            type: "button",
-            key: thread.id,
-            className: "dsh-codex-thread",
-            title: threadTitle(thread),
-            onClick: () => onOpenThread(thread.id)
-          },
-          /* @__PURE__ */ React18.createElement("span", { className: `dsh-codex-dot ${dotClass}` }),
-          /* @__PURE__ */ React18.createElement("span", { className: "dsh-codex-thread-main" }, /* @__PURE__ */ React18.createElement("span", { className: "dsh-codex-thread-name" }, threadTitle(thread)), /* @__PURE__ */ React18.createElement("span", { className: "dsh-codex-thread-meta" }, [thread.model, relativeTime(thread.updatedAt, t)].filter(Boolean).join(" · ")))
-        );
-      }), !loading && threads.length === 0 && error === null ? /* @__PURE__ */ React18.createElement("div", { className: "dsh-codex-loading" }, t("tab.empty")) : null));
-    }
-
     // src/client/rpc.ts
     var CHANNEL = "/codex-cli";
     function createApi(call) {
@@ -5200,9 +5132,8 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/index.tsx
-    var inject = ["slots", "connection", "locale", "sidebarRightTabs", "layout"];
+    var inject = ["slots", "connection", "locale", "layout"];
     var PANEL_ID = "codex-cli";
-    var TAB_ID = "codex-cli";
     function apply(ctx) {
       installStyles();
       ctx.effect(() => ctx.locale.register(NS, dictionaries), "codex-cli: dictionaries");
@@ -5248,61 +5179,6 @@ window.__ModuleLoader__.load({
           ConsolePage
         )
       );
-      ctx.effect(
-        () => ctx.sidebarRightTabs.register({
-          id: TAB_ID,
-          kind: TAB_ID,
-          title: () => "Codex CLI",
-          guide: [
-            {
-              id: TAB_ID,
-              order: 30,
-              title: () => "Codex CLI",
-              description: () => "当前项目的 Codex 会话",
-              icon: CodexIcon
-            }
-          ]
-        }),
-        "codex-cli: right tab type"
-      );
-      const face = () => ({
-        api,
-        onOpenThread: (threadId) => {
-          requestThread(threadId);
-          selectPanel();
-        },
-        onOpenPage: () => selectPanel(),
-        onNewThread: (cwd) => {
-          requestNewThread(cwd);
-          selectPanel();
-        }
-      });
-      ctx.slots.inject(
-        "sidebar.right.pane.tab",
-        () => ctx.slots.register(
-          {
-            name: "sidebar.right.pane.tab",
-            key: TAB_ID,
-            locale: NS,
-            inject: face
-          },
-          SessionTab
-        )
-      );
-      ctx.slots.inject(
-        "sidebar.right.pane.tab.title",
-        () => ctx.slots.register(
-          {
-            name: "sidebar.right.pane.tab.title",
-            key: TAB_ID,
-            locale: NS
-          },
-          SessionTabTitle
-        )
-      );
-    }
-    function SessionTabTitle() {
-      return /* @__PURE__ */ React19.createElement("span", null, "Codex CLI");
     }
 
     return module.exports
