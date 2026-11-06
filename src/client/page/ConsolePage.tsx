@@ -18,7 +18,7 @@ import { subscribePending, takePending } from '../store'
 import { applyDetailEvent, messageOf, threadTitle, upsertThread } from '../utils'
 import { FocusSidebar } from './FocusSidebar'
 import { ProjectPickerDialog } from './ProjectPickerDialog'
-import { RightPanel } from './RightPanel'
+import { RightPanel, type RightTab } from './RightPanel'
 import { ThreadView } from './ThreadView'
 import type { Attachment, ModelOption, PermissionMode } from './Composer'
 import { ThreadActions } from './ThreadActions'
@@ -104,6 +104,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const quotaRef = React.useRef<RateLimits | null>(null)
   quotaRef.current = quota
   const [pickerOpen, setPickerOpen] = React.useState(false)
+  const [rightTab, setRightTab] = React.useState<RightTab>('files')
   const [rightOpen, setRightOpen] = React.useState(() => {
     try {
       return window.localStorage.getItem('dsh-codex-right-open') === '1'
@@ -602,6 +603,22 @@ export function ConsolePage(props: ConsolePageProps) {
     setPickerOpen(true)
   }, [currentCwd, createThread])
 
+  const exportThread = React.useCallback(async () => {
+    if (selectedId === null) return
+    try {
+      const result = await api<{ filename: string, content: string }>('threads/export', { threadId: selectedId })
+      const blob = new Blob([result.content], { type: 'text/markdown;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = result.filename
+      link.click()
+      setTimeout(() => URL.revokeObjectURL(url), 2000)
+    } catch (cause) {
+      setError(messageOf(cause))
+    }
+  }, [api, selectedId])
+
   const compactThread = React.useCallback(async () => {
     if (selectedId === null) return
     try {
@@ -748,6 +765,11 @@ export function ConsolePage(props: ConsolePageProps) {
             onPickProject={() => setPickerOpen(true)}
             onNew={handleNew}
             onCompact={compactThread}
+            onDiff={() => {
+              setRightOpen(true)
+              setRightTab('git')
+            }}
+            onExport={() => void exportThread()}
             actions={
               detail !== null ? (
                 <div className="dsh-codex-thread-actions">
@@ -781,6 +803,8 @@ export function ConsolePage(props: ConsolePageProps) {
           api={api}
           cwd={detail?.thread.cwd ?? selectedCwd ?? ''}
           open={rightOpen}
+          tab={rightTab}
+          onTabChange={setRightTab}
           onClose={() => setRightOpen(false)}
         />
 

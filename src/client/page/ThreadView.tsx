@@ -34,6 +34,8 @@ export interface ThreadViewProps {
   onPickProject: () => void
   onNew: () => void
   onCompact: () => void
+  onDiff: () => void
+  onExport: () => void
   actions?: React.ReactNode
 }
 
@@ -56,6 +58,8 @@ export function ThreadView({
   onPickProject,
   onNew,
   onCompact,
+  onDiff,
+  onExport,
   actions,
 }: ThreadViewProps) {
   const t = useT()
@@ -271,6 +275,8 @@ export function ThreadView({
         onPickProject={onPickProject}
         onNew={onNew}
         onCompact={onCompact}
+        onDiff={onDiff}
+        onExport={onExport}
         onSend={onSend}
         onSteer={onSteer}
         onStop={onStop}

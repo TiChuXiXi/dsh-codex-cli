@@ -50,10 +50,12 @@ export interface ComposerProps {
   onPickProject: () => void
   onNew: () => void
   onCompact: () => void
+  onDiff: () => void
+  onExport: () => void
 }
 
 type Menu = null | 'root' | 'model' | 'effort' | 'more'
-type CommandId = 'model' | 'effort' | 'permission' | 'attach' | 'project' | 'compact' | 'new'
+type CommandId = 'model' | 'effort' | 'permission' | 'attach' | 'project' | 'compact' | 'diff' | 'export' | 'init' | 'review' | 'new'
 
 const COMMANDS: Array<{ id: CommandId, label: string, desc: string }> = [
   { id: 'model', label: 'cmd.model', desc: 'cmd.modelDesc' },
@@ -62,6 +64,10 @@ const COMMANDS: Array<{ id: CommandId, label: string, desc: string }> = [
   { id: 'attach', label: 'cmd.attach', desc: 'cmd.attachDesc' },
   { id: 'project', label: 'cmd.project', desc: 'cmd.projectDesc' },
   { id: 'compact', label: 'cmd.compact', desc: 'cmd.compactDesc' },
+  { id: 'diff', label: 'cmd.diff', desc: 'cmd.diffDesc' },
+  { id: 'export', label: 'cmd.export', desc: 'cmd.exportDesc' },
+  { id: 'init', label: 'cmd.init', desc: 'cmd.initDesc' },
+  { id: 'review', label: 'cmd.review', desc: 'cmd.reviewDesc' },
   { id: 'new', label: 'cmd.new', desc: 'cmd.newDesc' },
 ]
 
@@ -92,6 +98,8 @@ export function Composer({
   onPickProject,
   onNew,
   onCompact,
+  onDiff,
+  onExport,
 }: ComposerProps) {
   const t = useT()
   const [text, setText] = React.useState('')
@@ -162,7 +170,15 @@ export function Composer({
     else if (id === 'attach') fileInputRef.current?.click()
     else if (id === 'project') onPickProject()
     else if (id === 'compact') onCompact()
-    else if (id === 'new') onNew()
+    else if (id === 'diff') onDiff()
+    else if (id === 'export') onExport()
+    else if (id === 'init') {
+      setText(t('cmd.initPrompt'))
+      textareaRef.current?.focus()
+    } else if (id === 'review') {
+      setText(t('cmd.reviewPrompt'))
+      textareaRef.current?.focus()
+    } else if (id === 'new') onNew()
   }
 
   const choosePermission = (mode: PermissionMode) => {
@@ -244,6 +260,26 @@ export function Composer({
 
   return (
     <div className="dsh-codex-composer-wrap">
+      {plusOpen ? (
+        <>
+          <div className="dsh-codex-menu-backdrop" onPointerDown={closeAll} />
+          <div className="dsh-codex-plus-panel" role="menu">
+            <div className="dsh-codex-menu-title">{t('composer.add')}</div>
+            <PlusItem icon={<PaperclipGlyph />} label={t('cmd.attach')} hint={t('cmd.attachDesc')} onClick={() => runCommand('attach')} />
+            <PlusItem icon={<FolderGlyph />} label={t('cmd.project')} hint={t('cmd.projectDesc')} onClick={() => runCommand('project')} />
+            <div className="dsh-codex-menu-title">{t('composer.commands')}</div>
+            {COMMANDS.filter((command) => command.id !== 'attach' && command.id !== 'project').map((command) => (
+              <PlusItem
+                key={command.id}
+                icon={<CommandGlyph id={command.id} />}
+                label={t(command.label)}
+                hint={t(command.desc)}
+                onClick={() => runCommand(command.id)}
+              />
+            ))}
+          </div>
+        </>
+      ) : null}
       <div className="dsh-codex-composer-card">
         <input ref={fileInputRef} type="file" multiple hidden onChange={(event) => void uploadFiles(event.target.files)} />
 
@@ -408,27 +444,6 @@ export function Composer({
             </button>
           </div>
         </div>
-
-        {plusOpen ? (
-          <>
-            <div className="dsh-codex-menu-backdrop" onPointerDown={closeAll} />
-            <div className="dsh-codex-plus-panel" role="menu">
-              <div className="dsh-codex-menu-title">{t('composer.add')}</div>
-              <PlusItem icon={<PaperclipGlyph />} label={t('cmd.attach')} hint={t('cmd.attachDesc')} onClick={() => runCommand('attach')} />
-              <PlusItem icon={<FolderGlyph />} label={t('cmd.project')} hint={t('cmd.projectDesc')} onClick={() => runCommand('project')} />
-              <div className="dsh-codex-menu-title">{t('composer.commands')}</div>
-              {COMMANDS.filter((command) => command.id !== 'attach' && command.id !== 'project').map((command) => (
-                <PlusItem
-                  key={command.id}
-                  icon={<CommandGlyph id={command.id} />}
-                  label={t(command.label)}
-                  hint={t(command.desc)}
-                  onClick={() => runCommand(command.id)}
-                />
-              ))}
-            </div>
-          </>
-        ) : null}
 
         {permissionOpen ? (
           <>
@@ -602,10 +617,8 @@ function PlusItem({ icon, label, hint, onClick }: { icon: React.ReactNode, label
   return (
     <button type="button" role="menuitem" className="dsh-codex-plus-item" onClick={onClick}>
       <span className="dsh-codex-plus-icon">{icon}</span>
-      <span className="dsh-codex-plus-meta">
-        <span className="dsh-codex-plus-label">{label}</span>
-        <span className="dsh-codex-plus-hint">{hint}</span>
-      </span>
+      <span className="dsh-codex-plus-label">{label}</span>
+      <span className="dsh-codex-plus-hint">{hint}</span>
     </button>
   )
 }

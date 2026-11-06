@@ -4,7 +4,7 @@ import * as React from 'react'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 
-type Tab = 'files' | 'git' | 'terminal'
+export type RightTab = 'files' | 'git' | 'terminal'
 
 interface Entry {
   name: string
@@ -31,23 +31,24 @@ export interface RightPanelProps {
   api: Api
   cwd: string
   open: boolean
+  tab: RightTab
+  onTabChange: (tab: RightTab) => void
   onClose: () => void
 }
 
-export function RightPanel({ api, cwd, open, onClose }: RightPanelProps) {
+export function RightPanel({ api, cwd, open, tab, onTabChange, onClose }: RightPanelProps) {
   const t = useT()
-  const [tab, setTab] = React.useState<Tab>('files')
   if (!open) return null
   return (
     <aside className="dsh-codex-right">
       <div className="dsh-codex-right-head">
         <div className="dsh-codex-right-tabs">
-          {(['files', 'git', 'terminal'] as Tab[]).map((value) => (
+          {(['files', 'git', 'terminal'] as RightTab[]).map((value) => (
             <button
               key={value}
               type="button"
               className={`dsh-codex-right-tab ${tab === value ? 'active' : ''}`}
-              onClick={() => setTab(value)}
+              onClick={() => onTabChange(value)}
             >
               {t(`right.${value}`)}
             </button>

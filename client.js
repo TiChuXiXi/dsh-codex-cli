@@ -161,13 +161,23 @@ window.__ModuleLoader__.load({
       "cmd.effort": "推理强度",
       "cmd.effortDesc": "调整推理强度",
       "cmd.permission": "会话权限",
-      "cmd.permissionDesc": "只读 / 自动 / 完全访问",
+      "cmd.permissionDesc": "需要审批 / 替我审批 / 完全访问 / 只读",
       "cmd.attach": "文件和文件夹",
       "cmd.attachDesc": "上传文件并附加到消息",
       "cmd.project": "选择项目",
       "cmd.projectDesc": "切换当前项目",
       "cmd.compact": "压缩上下文",
       "cmd.compactDesc": "压缩当前会话的上下文",
+      "cmd.diff": "查看差异",
+      "cmd.diffDesc": "在右侧面板查看 Git 变更",
+      "cmd.export": "导出会话",
+      "cmd.exportDesc": "将会话导出为 Markdown",
+      "cmd.init": "初始化 AGENTS.md",
+      "cmd.initDesc": "插入生成 AGENTS.md 的指令",
+      "cmd.review": "审阅改动",
+      "cmd.reviewDesc": "插入审阅当前改动的指令",
+      "cmd.initPrompt": "请阅读仓库结构并生成 AGENTS.md，说明构建、测试与代码约定。",
+      "cmd.reviewPrompt": "请审阅当前未提交的改动，列出问题与风险。",
       "cmd.new": "新会话",
       "cmd.newDesc": "在当前项目新建会话",
       "permission.title": "会话权限",
@@ -451,6 +461,16 @@ window.__ModuleLoader__.load({
       "cmd.projectDesc": "Switch the current project",
       "cmd.compact": "Compact context",
       "cmd.compactDesc": "Compact the current session context",
+      "cmd.diff": "View diff",
+      "cmd.diffDesc": "Show Git changes in the right panel",
+      "cmd.export": "Export session",
+      "cmd.exportDesc": "Export the session as Markdown",
+      "cmd.init": "Initialize AGENTS.md",
+      "cmd.initDesc": "Insert a prompt to generate AGENTS.md",
+      "cmd.review": "Review changes",
+      "cmd.reviewDesc": "Insert a prompt to review current changes",
+      "cmd.initPrompt": "Read the repository and generate AGENTS.md describing build, test, and code conventions.",
+      "cmd.reviewPrompt": "Review the current uncommitted changes and list issues and risks.",
       "cmd.new": "New session",
       "cmd.newDesc": "Create a session in the current project",
       "permission.title": "Session permission",
@@ -1400,9 +1420,8 @@ window.__ModuleLoader__.load({
 
     // src/client/page/RightPanel.tsx
     var React8 = __toESM(require("react"), 1);
-    function RightPanel({ api, cwd, open, onClose }) {
+    function RightPanel({ api, cwd, open, tab, onTabChange, onClose }) {
       const t = useT();
-      const [tab, setTab] = React8.useState("files");
       if (!open) return null;
       return /* @__PURE__ */ React8.createElement("aside", { className: "dsh-codex-right" }, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-right-head" }, /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-right-tabs" }, ["files", "git", "terminal"].map((value) => /* @__PURE__ */ React8.createElement(
         "button",
@@ -1410,7 +1429,7 @@ window.__ModuleLoader__.load({
           key: value,
           type: "button",
           className: `dsh-codex-right-tab ${tab === value ? "active" : ""}`,
-          onClick: () => setTab(value)
+          onClick: () => onTabChange(value)
         },
         t(`right.${value}`)
       ))), /* @__PURE__ */ React8.createElement("button", { type: "button", className: "dsh-codex-right-close", "aria-label": t("right.close"), onClick: onClose }, /* @__PURE__ */ React8.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.3", "aria-hidden": "true" }, /* @__PURE__ */ React8.createElement("path", { d: "M4 4l8 8M12 4l-8 8", strokeLinecap: "round" })))), cwd === "" ? /* @__PURE__ */ React8.createElement("div", { className: "dsh-codex-loading" }, t("right.noCwd")) : tab === "files" ? /* @__PURE__ */ React8.createElement(FilesTab, { api, cwd }) : tab === "git" ? /* @__PURE__ */ React8.createElement(GitTab, { api, cwd }) : /* @__PURE__ */ React8.createElement(TerminalTab, { api, cwd }));
@@ -1656,6 +1675,10 @@ window.__ModuleLoader__.load({
       { id: "attach", label: "cmd.attach", desc: "cmd.attachDesc" },
       { id: "project", label: "cmd.project", desc: "cmd.projectDesc" },
       { id: "compact", label: "cmd.compact", desc: "cmd.compactDesc" },
+      { id: "diff", label: "cmd.diff", desc: "cmd.diffDesc" },
+      { id: "export", label: "cmd.export", desc: "cmd.exportDesc" },
+      { id: "init", label: "cmd.init", desc: "cmd.initDesc" },
+      { id: "review", label: "cmd.review", desc: "cmd.reviewDesc" },
       { id: "new", label: "cmd.new", desc: "cmd.newDesc" }
     ];
     var FALLBACK_EFFORTS = [
@@ -1683,7 +1706,9 @@ window.__ModuleLoader__.load({
       onStop,
       onPickProject,
       onNew,
-      onCompact
+      onCompact,
+      onDiff,
+      onExport
     }) {
       const t = useT();
       const [text, setText] = React10.useState("");
@@ -1744,7 +1769,15 @@ window.__ModuleLoader__.load({
         else if (id === "attach") fileInputRef.current?.click();
         else if (id === "project") onPickProject();
         else if (id === "compact") onCompact();
-        else if (id === "new") onNew();
+        else if (id === "diff") onDiff();
+        else if (id === "export") onExport();
+        else if (id === "init") {
+          setText(t("cmd.initPrompt"));
+          textareaRef.current?.focus();
+        } else if (id === "review") {
+          setText(t("cmd.reviewPrompt"));
+          textareaRef.current?.focus();
+        } else if (id === "new") onNew();
       };
       const choosePermission = (mode) => {
         setPermissionOpen(false);
@@ -1818,7 +1851,16 @@ window.__ModuleLoader__.load({
           setBusy(false);
         }
       };
-      return /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-composer-wrap" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-composer-card" }, /* @__PURE__ */ React10.createElement("input", { ref: fileInputRef, type: "file", multiple: true, hidden: true, onChange: (event) => void uploadFiles(event.target.files) }), attachments.length > 0 || uploading || uploadError !== null ? /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-attachments" }, attachments.map((attachment) => /* @__PURE__ */ React10.createElement("span", { key: attachment.path, className: "dsh-codex-attachment", title: attachment.path }, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-attachment-name" }, attachment.name), /* @__PURE__ */ React10.createElement(
+      return /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-composer-wrap" }, plusOpen ? /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-plus-panel", role: "menu" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.add")), /* @__PURE__ */ React10.createElement(PlusItem, { icon: /* @__PURE__ */ React10.createElement(PaperclipGlyph, null), label: t("cmd.attach"), hint: t("cmd.attachDesc"), onClick: () => runCommand("attach") }), /* @__PURE__ */ React10.createElement(PlusItem, { icon: /* @__PURE__ */ React10.createElement(FolderGlyph2, null), label: t("cmd.project"), hint: t("cmd.projectDesc"), onClick: () => runCommand("project") }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.commands")), COMMANDS.filter((command) => command.id !== "attach" && command.id !== "project").map((command) => /* @__PURE__ */ React10.createElement(
+        PlusItem,
+        {
+          key: command.id,
+          icon: /* @__PURE__ */ React10.createElement(CommandGlyph, { id: command.id }),
+          label: t(command.label),
+          hint: t(command.desc),
+          onClick: () => runCommand(command.id)
+        }
+      )))) : null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-composer-card" }, /* @__PURE__ */ React10.createElement("input", { ref: fileInputRef, type: "file", multiple: true, hidden: true, onChange: (event) => void uploadFiles(event.target.files) }), attachments.length > 0 || uploading || uploadError !== null ? /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-attachments" }, attachments.map((attachment) => /* @__PURE__ */ React10.createElement("span", { key: attachment.path, className: "dsh-codex-attachment", title: attachment.path }, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-attachment-name" }, attachment.name), /* @__PURE__ */ React10.createElement(
         "button",
         {
           type: "button",
@@ -1951,16 +1993,7 @@ window.__ModuleLoader__.load({
           onClick: () => void submit()
         },
         /* @__PURE__ */ React10.createElement(SendGlyph, null)
-      ))), plusOpen ? /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-plus-panel", role: "menu" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.add")), /* @__PURE__ */ React10.createElement(PlusItem, { icon: /* @__PURE__ */ React10.createElement(PaperclipGlyph, null), label: t("cmd.attach"), hint: t("cmd.attachDesc"), onClick: () => runCommand("attach") }), /* @__PURE__ */ React10.createElement(PlusItem, { icon: /* @__PURE__ */ React10.createElement(FolderGlyph2, null), label: t("cmd.project"), hint: t("cmd.projectDesc"), onClick: () => runCommand("project") }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.commands")), COMMANDS.filter((command) => command.id !== "attach" && command.id !== "project").map((command) => /* @__PURE__ */ React10.createElement(
-        PlusItem,
-        {
-          key: command.id,
-          icon: /* @__PURE__ */ React10.createElement(CommandGlyph, { id: command.id }),
-          label: t(command.label),
-          hint: t(command.desc),
-          onClick: () => runCommand(command.id)
-        }
-      )))) : null, permissionOpen ? /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-permission-menu", role: "menu" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("permission.title")), ["ask", "approve", "full", "read"].map((mode) => /* @__PURE__ */ React10.createElement(
+      ))), permissionOpen ? /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-permission-menu", role: "menu" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("permission.title")), ["ask", "approve", "full", "read"].map((mode) => /* @__PURE__ */ React10.createElement(
         "button",
         {
           type: "button",
@@ -2046,7 +2079,7 @@ window.__ModuleLoader__.load({
       ) : null));
     }
     function PlusItem({ icon, label, hint, onClick }) {
-      return /* @__PURE__ */ React10.createElement("button", { type: "button", role: "menuitem", className: "dsh-codex-plus-item", onClick }, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-plus-icon" }, icon), /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-plus-meta" }, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-plus-label" }, label), /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-plus-hint" }, hint)));
+      return /* @__PURE__ */ React10.createElement("button", { type: "button", role: "menuitem", className: "dsh-codex-plus-item", onClick }, /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-plus-icon" }, icon), /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-plus-label" }, label), /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-plus-hint" }, hint));
     }
     function EffortRow({
       option,
@@ -2581,6 +2614,8 @@ window.__ModuleLoader__.load({
       onPickProject,
       onNew,
       onCompact,
+      onDiff,
+      onExport,
       actions
     }) {
       const t = useT();
@@ -2710,6 +2745,8 @@ window.__ModuleLoader__.load({
           onPickProject,
           onNew,
           onCompact,
+          onDiff,
+          onExport,
           onSend,
           onSteer,
           onStop
@@ -3075,6 +3112,7 @@ window.__ModuleLoader__.load({
       const quotaRef = React17.useRef(null);
       quotaRef.current = quota;
       const [pickerOpen, setPickerOpen] = React17.useState(false);
+      const [rightTab, setRightTab] = React17.useState("files");
       const [rightOpen, setRightOpen] = React17.useState(() => {
         try {
           return window.localStorage.getItem("dsh-codex-right-open") === "1";
@@ -3521,6 +3559,21 @@ window.__ModuleLoader__.load({
         }
         setPickerOpen(true);
       }, [currentCwd, createThread]);
+      const exportThread = React17.useCallback(async () => {
+        if (selectedId === null) return;
+        try {
+          const result = await api("threads/export", { threadId: selectedId });
+          const blob = new Blob([result.content], { type: "text/markdown;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = result.filename;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 2e3);
+        } catch (cause) {
+          setError(messageOf(cause));
+        }
+      }, [api, selectedId]);
       const compactThread = React17.useCallback(async () => {
         if (selectedId === null) return;
         try {
@@ -3641,6 +3694,11 @@ window.__ModuleLoader__.load({
           onPickProject: () => setPickerOpen(true),
           onNew: handleNew,
           onCompact: compactThread,
+          onDiff: () => {
+            setRightOpen(true);
+            setRightTab("git");
+          },
+          onExport: () => void exportThread(),
           actions: detail !== null ? /* @__PURE__ */ React17.createElement("div", { className: "dsh-codex-thread-actions" }, /* @__PURE__ */ React17.createElement(
             "button",
             {
@@ -3672,6 +3730,8 @@ window.__ModuleLoader__.load({
           api,
           cwd: detail?.thread.cwd ?? selectedCwd ?? "",
           open: rightOpen,
+          tab: rightTab,
+          onTabChange: setRightTab,
           onClose: () => setRightOpen(false)
         }
       ), /* @__PURE__ */ React17.createElement(
@@ -4198,6 +4258,7 @@ window.__ModuleLoader__.load({
     }
 
     .dsh-codex-composer-wrap {
+      position: relative;
       display: flex;
       justify-content: center;
       flex: none;
@@ -4912,12 +4973,11 @@ window.__ModuleLoader__.load({
     .dsh-codex-permission-trigger:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
     .dsh-codex-plus-panel {
       position: absolute;
-      left: 8px;
-      bottom: 46px;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(100% + 6px);
       z-index: 29;
-      width: min(320px, calc(100vw - 48px));
-      max-height: 420px;
-      overflow: auto;
+      width: min(774px, calc(100% - 36px));
       padding: 4px;
       border-radius: 16px;
       background: var(--dsw-alias-bg-base, #ffffff);
@@ -4928,10 +4988,11 @@ window.__ModuleLoader__.load({
     }
     .dsh-codex-plus-item {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 8px;
       width: 100%;
-      padding: 7px 8px;
+      height: 34px;
+      padding: 0 8px;
       border: none;
       border-radius: 8px;
       background: transparent;
@@ -4942,9 +5003,8 @@ window.__ModuleLoader__.load({
     }
     .dsh-codex-plus-item:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
     .dsh-codex-plus-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; flex: none; color: var(--dsw-alias-label-secondary, #6b6b6b); }
-    .dsh-codex-plus-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-    .dsh-codex-plus-label { font-size: 13px; }
-    .dsh-codex-plus-hint { font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dsh-codex-plus-label { font-size: 13px; flex: none; }
+    .dsh-codex-plus-hint { margin-left: auto; font-size: 11px; color: var(--dsw-alias-label-secondary, #8a8f95); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .dsh-codex-permission-menu {
       position: absolute;
       left: 8px;

@@ -433,6 +433,7 @@ export const CSS = `
 }
 
 .dsh-codex-composer-wrap {
+  position: relative;
   display: flex;
   justify-content: center;
   flex: none;
@@ -1147,12 +1148,11 @@ export const CSS = `
 .dsh-codex-permission-trigger:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
 .dsh-codex-plus-panel {
   position: absolute;
-  left: 8px;
-  bottom: 46px;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 6px);
   z-index: 29;
-  width: min(320px, calc(100vw - 48px));
-  max-height: 420px;
-  overflow: auto;
+  width: min(774px, calc(100% - 36px));
   padding: 4px;
   border-radius: 16px;
   background: var(--dsw-alias-bg-base, #ffffff);
@@ -1163,10 +1163,11 @@ export const CSS = `
 }
 .dsh-codex-plus-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 7px 8px;
+  height: 34px;
+  padding: 0 8px;
   border: none;
   border-radius: 8px;
   background: transparent;
@@ -1177,9 +1178,8 @@ export const CSS = `
 }
 .dsh-codex-plus-item:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
 .dsh-codex-plus-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; flex: none; color: var(--dsw-alias-label-secondary, #6b6b6b); }
-.dsh-codex-plus-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.dsh-codex-plus-label { font-size: 13px; }
-.dsh-codex-plus-hint { font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dsh-codex-plus-label { font-size: 13px; flex: none; }
+.dsh-codex-plus-hint { margin-left: auto; font-size: 11px; color: var(--dsw-alias-label-secondary, #8a8f95); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dsh-codex-permission-menu {
   position: absolute;
   left: 8px;
