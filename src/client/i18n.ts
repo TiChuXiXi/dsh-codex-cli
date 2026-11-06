@@ -153,6 +153,7 @@ export const zh = {
   'newThread.open': '新会话',
   'newThread.failed': '创建会话失败',
 
+  'thread.jumpToBottom': '回到最新',
   'thread.select': '从左侧选择一个会话',
   'thread.selectHint': '也可以从项目列表里挑一个项目，再打开其中的会话。',
   'thread.messages': '{count} 条消息',
@@ -351,6 +352,7 @@ export const en = {
   'newThread.open': 'New session',
   'newThread.failed': 'Could not create the session',
 
+  'thread.jumpToBottom': 'Jump to latest',
   'thread.select': 'Pick a session on the left',
   'thread.selectHint': 'Or choose a project, then open one of its sessions.',
   'thread.messages': '{count} messages',

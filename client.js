@@ -202,6 +202,7 @@ window.__ModuleLoader__.load({
       "newThread.default": "默认",
       "newThread.open": "新会话",
       "newThread.failed": "创建会话失败",
+      "thread.jumpToBottom": "回到最新",
       "thread.select": "从左侧选择一个会话",
       "thread.selectHint": "也可以从项目列表里挑一个项目，再打开其中的会话。",
       "thread.messages": "{count} 条消息",
@@ -386,6 +387,7 @@ window.__ModuleLoader__.load({
       "newThread.default": "Default",
       "newThread.open": "New session",
       "newThread.failed": "Could not create the session",
+      "thread.jumpToBottom": "Jump to latest",
       "thread.select": "Pick a session on the left",
       "thread.selectHint": "Or choose a project, then open one of its sessions.",
       "thread.messages": "{count} messages",
@@ -1499,11 +1501,35 @@ window.__ModuleLoader__.load({
         setModel(detail.thread.model ?? "");
         setEffort(detail.thread.reasoningEffort ?? "");
       }, [threadId]);
-      React11.useEffect(() => {
+      const atBottomRef = React11.useRef(true);
+      const [showJump, setShowJump] = React11.useState(false);
+      const BOTTOM_THRESHOLD = 32;
+      React11.useLayoutEffect(() => {
         const element = messagesRef.current;
         if (element === null) return;
+        atBottomRef.current = true;
+        setShowJump(false);
         element.scrollTop = element.scrollHeight;
       }, [threadId, loading]);
+      React11.useLayoutEffect(() => {
+        const element = messagesRef.current;
+        if (element === null || !atBottomRef.current) return;
+        element.scrollTop = element.scrollHeight;
+      }, [detail]);
+      const onMessagesScroll = React11.useCallback(() => {
+        const element = messagesRef.current;
+        if (element === null) return;
+        const atBottom = element.scrollHeight - element.scrollTop - element.clientHeight <= BOTTOM_THRESHOLD;
+        atBottomRef.current = atBottom;
+        setShowJump((previous) => previous === !atBottom ? previous : !atBottom);
+      }, []);
+      const jumpToBottom = React11.useCallback(() => {
+        const element = messagesRef.current;
+        if (element === null) return;
+        atBottomRef.current = true;
+        setShowJump(false);
+        element.scrollTo({ top: element.scrollHeight, behavior: "smooth" });
+      }, []);
       if (selectedId === null) {
         return /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-empty" }, /* @__PURE__ */ React11.createElement("strong", null, t("thread.select")), /* @__PURE__ */ React11.createElement("small", null, t("thread.selectHint")));
       }
@@ -1514,7 +1540,17 @@ window.__ModuleLoader__.load({
       const thread = detail.thread;
       const items = detail.turns.flatMap((turn) => turn.items ?? []);
       const hasItems = items.length > 0;
-      return /* @__PURE__ */ React11.createElement(React11.Fragment, null, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header-top" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), actions), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React11.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.messages", { count: items.length })))), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-messages", ref: messagesRef }, !hasItems ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : detail.turns.map((turn) => /* @__PURE__ */ React11.createElement(React11.Fragment, { key: turn.id }, (turn.items ?? []).map((item) => /* @__PURE__ */ React11.createElement(ItemCard, { key: item.id, item, api })), /* @__PURE__ */ React11.createElement(TurnFooter, { turn })))), /* @__PURE__ */ React11.createElement(ApprovalStack, { approvals: pending2, onRespond }), /* @__PURE__ */ React11.createElement(
+      return /* @__PURE__ */ React11.createElement(React11.Fragment, null, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header-top" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), actions), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React11.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.messages", { count: items.length })))), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-messages-wrap" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll }, !hasItems ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : detail.turns.map((turn) => /* @__PURE__ */ React11.createElement(React11.Fragment, { key: turn.id }, (turn.items ?? []).map((item) => /* @__PURE__ */ React11.createElement(ItemCard, { key: item.id, item, api })), /* @__PURE__ */ React11.createElement(TurnFooter, { turn })))), showJump ? /* @__PURE__ */ React11.createElement(
+        "button",
+        {
+          type: "button",
+          className: "dsh-codex-jump",
+          "aria-label": t("thread.jumpToBottom"),
+          title: t("thread.jumpToBottom"),
+          onClick: jumpToBottom
+        },
+        /* @__PURE__ */ React11.createElement(ChevronDownGlyph, null)
+      ) : null), /* @__PURE__ */ React11.createElement(ApprovalStack, { approvals: pending2, onRespond }), /* @__PURE__ */ React11.createElement(
         Composer,
         {
           disabled: false,
@@ -1543,6 +1579,9 @@ window.__ModuleLoader__.load({
       const label = duration === "" ? "" : turn.status === "interrupted" ? t("turn.interrupted", { duration }) : turn.status === "failed" ? t("turn.failed", { duration }) : t("turn.workedFor", { duration });
       const text = label === "" ? clock : clock === "" ? label : `${label} · ${clock}`;
       return /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-turn-footer" }, text);
+    }
+    function ChevronDownGlyph() {
+      return /* @__PURE__ */ React11.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.4", "aria-hidden": "true" }, /* @__PURE__ */ React11.createElement("path", { d: "M4 6.2l3.3 3.3a1 1 0 0 0 1.4 0L12 6.2", strokeLinecap: "round" }));
     }
 
     // src/client/page/ThreadActions.tsx
@@ -3026,6 +3065,25 @@ window.__ModuleLoader__.load({
       font-size: 11px;
       color: var(--dsw-alias-label-secondary, #8a8f95);
     }
+    .dsh-codex-messages-wrap { position: relative; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .dsh-codex-jump {
+      position: absolute;
+      right: 18px;
+      bottom: 14px;
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.1));
+      border-radius: 999px;
+      background: var(--dsw-alias-bg-base, #ffffff);
+      color: var(--dsw-alias-label-secondary, #61666b);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+      cursor: pointer;
+    }
+    .dsh-codex-jump:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
     `;
     function installStyles() {
       if (typeof document === "undefined") return;

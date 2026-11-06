@@ -765,6 +765,25 @@ export const CSS = `
   font-size: 11px;
   color: var(--dsw-alias-label-secondary, #8a8f95);
 }
+.dsh-codex-messages-wrap { position: relative; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.dsh-codex-jump {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.1));
+  border-radius: 999px;
+  background: var(--dsw-alias-bg-base, #ffffff);
+  color: var(--dsw-alias-label-secondary, #61666b);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+.dsh-codex-jump:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
 `
 
 /** 注入一次样式；重复调用无副作用。 */

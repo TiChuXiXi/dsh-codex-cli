@@ -391,3 +391,10 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 消息头显示本地时间：用户消息为「时间 你」，Codex 为「Codex 时间」，取自 item 的 `startedAtMs`。
 - 每个已结束回合追加一行「用时 X 分 Y 秒 · HH:MM」：优先用 turn 的 `durationMs`，缺失时用 `completedAt - startedAt` 或最后一条 item 的 `completedAtMs`；中断/失败显示对应前缀。
 - 验证：长会话中 8 个回合 footer 全部渲染，时长如「5 分 23 秒」「34 秒」「1 分 29 秒」，时间与消息头一致。
+
+### 2026-11-06 · 滚动跟随与回到底部
+
+- 判据：`scrollHeight - scrollTop - clientHeight <= 32px` 视为“贴着底部”。
+- 贴着底部时，`detail` 每次更新（含 40ms 合并后的流式增量）用 `useLayoutEffect` 把 `scrollTop` 钉到底部；否则保持用户位置。
+- 离开底部时右下角出现圆形按钮，点击 `scrollTo({ behavior: 'smooth' })` 回到底部并恢复跟随；切换会话时重置为跟随。
+- 验证：打开长会话初始在底部；运行中上滚 500px 后 4.5 秒内位置保持 3520 不变；按钮出现；点击后回到底部，继续流式 3.5 秒仍贴着底部。
