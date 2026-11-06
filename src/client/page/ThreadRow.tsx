@@ -11,6 +11,7 @@ export interface ThreadRowProps {
   api: Api
   thread: CodexThread
   selected: boolean
+  unread: boolean
   showCwd: boolean
   onSelect: (id: string) => void
   onRenamed: (id: string, name: string) => void
@@ -22,6 +23,7 @@ export function ThreadRow({
   api,
   thread,
   selected,
+  unread,
   showCwd,
   onSelect,
   onRenamed,
@@ -30,7 +32,14 @@ export function ThreadRow({
 }: ThreadRowProps) {
   const t = useT()
   const status = thread.status?.type ?? 'idle'
-  const dotClass = status === 'active' ? 'ok pulse' : status === 'systemError' ? 'error' : ''
+  const dotClass =
+    status === 'active'
+      ? 'ok pulse'
+      : status === 'systemError'
+        ? 'error'
+        : unread
+          ? 'done'
+          : ''
   const meta = [thread.model, relativeTime(thread.updatedAt, t)]
   if (showCwd && thread.cwd) meta.push(basename(thread.cwd))
   return (

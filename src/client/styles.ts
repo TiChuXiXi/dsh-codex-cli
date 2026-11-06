@@ -59,6 +59,7 @@ export const CSS = `
   flex: none;
 }
 .dsh-codex-dot.ok { background: var(--dsw-alias-state-business-primary, #2f8f5b); }
+.dsh-codex-dot.done { background: #2f9e63; }
 .dsh-codex-dot.warn { background: #d29b2a; }
 .dsh-codex-dot.error { background: #cf4b4b; }
 .dsh-codex-dot.pulse { animation: dsh-codex-pulse 1.6s ease-in-out infinite; }

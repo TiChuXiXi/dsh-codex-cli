@@ -20,6 +20,8 @@ export interface FocusSidebarProps {
   quotaLoading: boolean
   threads: CodexThread[]
   threadsOwner: { cwd: string | null, search: string } | null
+  unread: Set<string>
+  viewedAt: Record<string, number>
   selectedCwd: string | null
   selectedId: string | null
   loading: boolean
@@ -49,6 +51,8 @@ export function FocusSidebar({
   quotaLoading,
   threads,
   threadsOwner,
+  unread,
+  viewedAt,
   selectedCwd,
   selectedId,
   loading,
@@ -74,6 +78,16 @@ export function FocusSidebar({
   const envParts = [status?.kind ? t(`status.${status.kind}`) : '', status?.codexVersion ? t('status.version', { version: status.codexVersion }) : '']
     .filter((part) => part !== '')
     .join(' · ')
+  const isUnread = (thread: CodexThread): boolean => {
+    if (thread.status?.type === 'active') return false
+    if (unread.has(thread.id)) return true
+    const seen = viewedAt[thread.id]
+    return (
+      typeof seen === 'number' &&
+      typeof thread.updatedAt === 'number' &&
+      thread.updatedAt > seen
+    )
+  }
   const query = search.trim().toLowerCase()
   const searchText = search.trim()
   const searching = query !== ''
@@ -176,6 +190,7 @@ export function FocusSidebar({
                   api={api}
                   thread={thread}
                   selected={selectedId === thread.id}
+                  unread={isUnread(thread)}
                   showCwd
                   onSelect={onSelectThread}
                   onRenamed={onThreadRenamed}
@@ -217,6 +232,7 @@ export function FocusSidebar({
                           api={api}
                           thread={thread}
                           selected={selectedId === thread.id}
+                          unread={isUnread(thread)}
                           showCwd={false}
                           onSelect={onSelectThread}
                           onRenamed={onThreadRenamed}

@@ -986,6 +986,7 @@ window.__ModuleLoader__.load({
       api,
       thread,
       selected,
+      unread,
       showCwd,
       onSelect,
       onRenamed,
@@ -994,7 +995,7 @@ window.__ModuleLoader__.load({
     }) {
       const t = useT();
       const status = thread.status?.type ?? "idle";
-      const dotClass = status === "active" ? "ok pulse" : status === "systemError" ? "error" : "";
+      const dotClass = status === "active" ? "ok pulse" : status === "systemError" ? "error" : unread ? "done" : "";
       const meta = [thread.model, relativeTime(thread.updatedAt, t)];
       if (showCwd && thread.cwd) meta.push(basename(thread.cwd));
       return /* @__PURE__ */ React5.createElement(
@@ -1040,6 +1041,8 @@ window.__ModuleLoader__.load({
       quotaLoading,
       threads,
       threadsOwner,
+      unread,
+      viewedAt,
       selectedCwd,
       selectedId,
       loading,
@@ -1063,6 +1066,12 @@ window.__ModuleLoader__.load({
       const streamClass = streamState === "open" ? "ok" : streamState === "closed" ? "error" : "warn";
       const quotaInfo = quota === null && quotaLoading ? { text: t("quota.loading") } : quotaSummary(quota, t);
       const envParts = [status?.kind ? t(`status.${status.kind}`) : "", status?.codexVersion ? t("status.version", { version: status.codexVersion }) : ""].filter((part) => part !== "").join(" · ");
+      const isUnread = (thread) => {
+        if (thread.status?.type === "active") return false;
+        if (unread.has(thread.id)) return true;
+        const seen = viewedAt[thread.id];
+        return typeof seen === "number" && typeof thread.updatedAt === "number" && thread.updatedAt > seen;
+      };
       const query = search.trim().toLowerCase();
       const searchText = search.trim();
       const searching = query !== "";
@@ -1100,6 +1109,7 @@ window.__ModuleLoader__.load({
           api,
           thread,
           selected: selectedId === thread.id,
+          unread: isUnread(thread),
           showCwd: true,
           onSelect: onSelectThread,
           onRenamed: onThreadRenamed,
@@ -1126,6 +1136,7 @@ window.__ModuleLoader__.load({
             api,
             thread,
             selected: selectedId === thread.id,
+            unread: isUnread(thread),
             showCwd: false,
             onSelect: onSelectThread,
             onRenamed: onThreadRenamed,
@@ -2462,11 +2473,26 @@ window.__ModuleLoader__.load({
     var THREAD_PAGE = 10;
     var LAST_THREAD_KEY = "dsh-codex-last-thread";
     var TRUSTED_KEY = "dsh-codex-trusted-cwds";
+    var VIEWED_KEY = "dsh-codex-viewed-at";
     function readStored(key) {
       try {
         return window.localStorage.getItem(key);
       } catch {
         return null;
+      }
+    }
+    function readViewedAt() {
+      try {
+        const raw = window.localStorage.getItem(VIEWED_KEY);
+        const parsed = raw === null ? null : JSON.parse(raw);
+        if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+        const result = {};
+        for (const [key, value] of Object.entries(parsed)) {
+          if (typeof value === "number") result[key] = value;
+        }
+        return result;
+      } catch {
+        return {};
       }
     }
     function readTrusted() {
@@ -2497,6 +2523,8 @@ window.__ModuleLoader__.load({
       const loadingOlderRef = React16.useRef(false);
       const [loadingThreads, setLoadingThreads] = React16.useState(false);
       const [threadsOwner, setThreadsOwner] = React16.useState(null);
+      const [unread, setUnread] = React16.useState(() => /* @__PURE__ */ new Set());
+      const [viewedAt, setViewedAt] = React16.useState(readViewedAt);
       const [error, setError] = React16.useState(null);
       const [streamState, setStreamState] = React16.useState("connecting");
       const [search, setSearch] = React16.useState("");
@@ -2524,11 +2552,12 @@ window.__ModuleLoader__.load({
         async (cursor, override = {}) => {
           const searchValue = override.search !== void 0 ? override.search : queryRef.current.search;
           const cwd = override.cwd !== void 0 ? override.cwd : queryRef.current.cwd;
+          const limit = Math.min(200, Math.max(1, override.limit ?? THREAD_PAGE));
           const generation = ++listGeneration.current;
           setLoadingThreads(true);
           try {
             const page = await api("threads/list", {
-              limit: THREAD_PAGE,
+              limit,
               ...cursor ? { cursor } : {},
               ...searchValue !== "" ? { search: searchValue } : {},
               ...cwd !== null ? { cwd } : {}
@@ -2608,8 +2637,25 @@ window.__ModuleLoader__.load({
         consume();
         return subscribePending(consume);
       }, []);
+      const markViewed = React16.useCallback((id) => {
+        setUnread((previous) => {
+          if (!previous.has(id)) return previous;
+          const next = new Set(previous);
+          next.delete(id);
+          return next;
+        });
+        setViewedAt((previous) => {
+          const next = { ...previous, [id]: Math.floor(Date.now() / 1e3) };
+          try {
+            window.localStorage.setItem(VIEWED_KEY, JSON.stringify(next));
+          } catch {
+          }
+          return next;
+        });
+      }, []);
       React16.useEffect(() => {
         if (selectedId === null) return;
+        markViewed(selectedId);
         try {
           window.localStorage.setItem(LAST_THREAD_KEY, selectedId);
         } catch {
@@ -2623,6 +2669,12 @@ window.__ModuleLoader__.load({
         const quotaTimer = setInterval(() => void loadQuota(), 6e4);
         return () => clearInterval(quotaTimer);
       }, [api, refresh, refreshPending, loadQuota]);
+      React16.useEffect(() => {
+        const timer = setInterval(() => {
+          void loadThreads(null, { limit: Math.max(THREAD_PAGE, threadsRef.current.length) });
+        }, 2e4);
+        return () => clearInterval(timer);
+      }, [loadThreads]);
       React16.useEffect(() => {
         const close = openEventStream({
           onState: setStreamState,
@@ -2683,8 +2735,20 @@ window.__ModuleLoader__.load({
               case "item/delta":
               case "item/patch":
                 setDetail((previous) => applyDetailEvent(previous, event));
-                if (event.type === "turn/completed" && event.threadId !== void 0 && !threadsRef.current.some((thread) => thread.id === event.threadId)) {
-                  void loadThreads(null);
+                if (event.type === "turn/completed" && event.threadId !== void 0) {
+                  if (event.threadId === selectedIdRef.current) {
+                    markViewed(event.threadId);
+                  } else {
+                    setUnread((previous) => {
+                      if (previous.has(event.threadId)) return previous;
+                      const next = new Set(previous);
+                      next.add(event.threadId);
+                      return next;
+                    });
+                  }
+                  if (!threadsRef.current.some((thread) => thread.id === event.threadId)) {
+                    void loadThreads(null);
+                  }
                 }
                 break;
               default:
@@ -2693,7 +2757,7 @@ window.__ModuleLoader__.load({
           }
         });
         return close;
-      }, [refresh, refreshPending, loadThreads, loadQuota]);
+      }, [refresh, refreshPending, loadThreads, loadQuota, markViewed]);
       React16.useEffect(() => {
         if (selectedId === null) {
           setDetail(null);
@@ -2938,6 +3002,8 @@ window.__ModuleLoader__.load({
           quotaLoading,
           threads: visibleThreads,
           threadsOwner,
+          unread,
+          viewedAt,
           selectedCwd,
           selectedId,
           loading: loadingThreads,
@@ -3131,6 +3197,7 @@ window.__ModuleLoader__.load({
       flex: none;
     }
     .dsh-codex-dot.ok { background: var(--dsw-alias-state-business-primary, #2f8f5b); }
+    .dsh-codex-dot.done { background: #2f9e63; }
     .dsh-codex-dot.warn { background: #d29b2a; }
     .dsh-codex-dot.error { background: #cf4b4b; }
     .dsh-codex-dot.pulse { animation: dsh-codex-pulse 1.6s ease-in-out infinite; }

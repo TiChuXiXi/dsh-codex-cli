@@ -30,12 +30,28 @@ const THREAD_PAGE = 10
 /** 记住最后一次打开的会话，以及用户已信任的目录。 */
 const LAST_THREAD_KEY = 'dsh-codex-last-thread'
 const TRUSTED_KEY = 'dsh-codex-trusted-cwds'
+const VIEWED_KEY = 'dsh-codex-viewed-at'
 
 function readStored(key: string): string | null {
   try {
     return window.localStorage.getItem(key)
   } catch {
     return null
+  }
+}
+
+function readViewedAt(): Record<string, number> {
+  try {
+    const raw = window.localStorage.getItem(VIEWED_KEY)
+    const parsed = raw === null ? null : JSON.parse(raw)
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
+    const result: Record<string, number> = {}
+    for (const [key, value] of Object.entries(parsed)) {
+      if (typeof value === 'number') result[key] = value
+    }
+    return result
+  } catch {
+    return {}
   }
 }
 
@@ -74,6 +90,8 @@ export function ConsolePage(props: ConsolePageProps) {
   const loadingOlderRef = React.useRef(false)
   const [loadingThreads, setLoadingThreads] = React.useState(false)
   const [threadsOwner, setThreadsOwner] = React.useState<{ cwd: string | null, search: string } | null>(null)
+  const [unread, setUnread] = React.useState<Set<string>>(() => new Set())
+  const [viewedAt, setViewedAt] = React.useState<Record<string, number>>(readViewedAt)
   const [error, setError] = React.useState<string | null>(null)
   const [streamState, setStreamState] = React.useState<StreamState>('connecting')
   const [search, setSearch] = React.useState('')
@@ -99,14 +117,15 @@ export function ConsolePage(props: ConsolePageProps) {
   threadsRef.current = threads
 
   const loadThreads = React.useCallback(
-    async (cursor: string | null, override: { search?: string, cwd?: string | null } = {}) => {
+    async (cursor: string | null, override: { search?: string, cwd?: string | null, limit?: number } = {}) => {
       const searchValue = override.search !== undefined ? override.search : queryRef.current.search
       const cwd = override.cwd !== undefined ? override.cwd : queryRef.current.cwd
+      const limit = Math.min(200, Math.max(1, override.limit ?? THREAD_PAGE))
       const generation = ++listGeneration.current
       setLoadingThreads(true)
       try {
         const page = await api<ThreadPage>('threads/list', {
-          limit: THREAD_PAGE,
+          limit,
           ...(cursor ? { cursor } : {}),
           ...(searchValue !== '' ? { search: searchValue } : {}),
           ...(cwd !== null ? { cwd } : {}),
@@ -198,8 +217,27 @@ export function ConsolePage(props: ConsolePageProps) {
     return subscribePending(consume)
   }, [])
 
+  const markViewed = React.useCallback((id: string) => {
+    setUnread((previous) => {
+      if (!previous.has(id)) return previous
+      const next = new Set(previous)
+      next.delete(id)
+      return next
+    })
+    setViewedAt((previous) => {
+      const next = { ...previous, [id]: Math.floor(Date.now() / 1000) }
+      try {
+        window.localStorage.setItem(VIEWED_KEY, JSON.stringify(next))
+      } catch {
+        // 忽略。
+      }
+      return next
+    })
+  }, [])
+
   React.useEffect(() => {
     if (selectedId === null) return
+    markViewed(selectedId)
     try {
       window.localStorage.setItem(LAST_THREAD_KEY, selectedId)
     } catch {
@@ -216,6 +254,13 @@ export function ConsolePage(props: ConsolePageProps) {
     const quotaTimer = setInterval(() => void loadQuota(), 60000)
     return () => clearInterval(quotaTimer)
   }, [api, refresh, refreshPending, loadQuota])
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      void loadThreads(null, { limit: Math.max(THREAD_PAGE, threadsRef.current.length) })
+    }, 20000)
+    return () => clearInterval(timer)
+  }, [loadThreads])
 
   React.useEffect(() => {
     const close = openEventStream({
@@ -279,12 +324,20 @@ export function ConsolePage(props: ConsolePageProps) {
           case 'item/delta':
           case 'item/patch':
             setDetail((previous) => applyDetailEvent(previous, event))
-            if (
-              event.type === 'turn/completed' &&
-              event.threadId !== undefined &&
-              !threadsRef.current.some((thread) => thread.id === event.threadId)
-            ) {
-              void loadThreads(null)
+            if (event.type === 'turn/completed' && event.threadId !== undefined) {
+              if (event.threadId === selectedIdRef.current) {
+                markViewed(event.threadId)
+              } else {
+                setUnread((previous) => {
+                  if (previous.has(event.threadId!)) return previous
+                  const next = new Set(previous)
+                  next.add(event.threadId!)
+                  return next
+                })
+              }
+              if (!threadsRef.current.some((thread) => thread.id === event.threadId)) {
+                void loadThreads(null)
+              }
             }
             break
           default:
@@ -293,7 +346,7 @@ export function ConsolePage(props: ConsolePageProps) {
       },
     })
     return close
-  }, [refresh, refreshPending, loadThreads, loadQuota])
+  }, [refresh, refreshPending, loadThreads, loadQuota, markViewed])
 
   React.useEffect(() => {
     if (selectedId === null) {
@@ -576,6 +629,8 @@ export function ConsolePage(props: ConsolePageProps) {
           quotaLoading={quotaLoading}
           threads={visibleThreads}
           threadsOwner={threadsOwner}
+          unread={unread}
+          viewedAt={viewedAt}
           selectedCwd={selectedCwd}
           selectedId={selectedId}
           loading={loadingThreads}
