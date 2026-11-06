@@ -8,6 +8,7 @@ import { basename, formatClock, formatDuration, relativeTime, statusKey, threadT
 import { ApprovalStack } from './ApprovalCard'
 import { Composer, type ModelOption } from './Composer'
 import { ItemCard } from './ItemCard'
+import { ToolGroup, groupActivity } from './ToolGroup'
 
 export interface ThreadViewProps {
   api: Api
@@ -193,9 +194,13 @@ export function ThreadView({
           ) : (
             detail.turns.map((turn) => (
               <React.Fragment key={turn.id}>
-                {(turn.items ?? []).map((item) => (
-                  <ItemCard key={item.id} item={item} api={api} />
-                ))}
+                {groupActivity(turn.items ?? []).map((entry) =>
+                  entry.kind === 'group' ? (
+                    <ToolGroup key={entry.key} items={entry.items} api={api} />
+                  ) : (
+                    <ItemCard key={entry.item.id} item={entry.item} api={api} />
+                  ),
+                )}
                 <TurnFooter turn={turn} />
               </React.Fragment>
             ))

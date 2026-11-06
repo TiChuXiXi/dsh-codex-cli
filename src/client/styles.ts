@@ -894,6 +894,31 @@ export const CSS = `
   cursor: pointer;
 }
 .dsh-codex-load-older:disabled { opacity: 0.6; cursor: default; }
+.dsh-codex-tool-group { display: flex; flex-direction: column; gap: 6px; }
+.dsh-codex-tool-group-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px;
+  border: none;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #6b6b6b);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.dsh-codex-tool-group-head:hover .dsh-codex-tool-group-title { color: var(--dsw-alias-label-primary, #1a1a1a); }
+.dsh-codex-tool-group-chevron { display: inline-flex; transition: transform 0.15s ease; }
+.dsh-codex-tool-group-chevron.open { transform: rotate(180deg); }
+.dsh-codex-tool-group-count { margin-left: auto; font-size: 11px; color: var(--dsw-alias-label-secondary, #8a8f95); }
+.dsh-codex-tool-group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 10px;
+  border-left: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.08));
+}
 `
 
 /** 注入一次样式；重复调用无副作用。 */
