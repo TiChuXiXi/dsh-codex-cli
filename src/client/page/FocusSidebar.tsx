@@ -18,6 +18,7 @@ export interface FocusSidebarProps {
   runningCount: number
   quota: RateLimits | null
   threads: CodexThread[]
+  threadsOwner: { cwd: string | null, search: string } | null
   selectedCwd: string | null
   selectedId: string | null
   loading: boolean
@@ -45,6 +46,7 @@ export function FocusSidebar({
   runningCount,
   quota,
   threads,
+  threadsOwner,
   selectedCwd,
   selectedId,
   loading,
@@ -71,25 +73,17 @@ export function FocusSidebar({
     .filter((part) => part !== '')
     .join(' · ')
   const query = search.trim().toLowerCase()
+  const searchText = search.trim()
   const searching = query !== ''
+  const ownerMatchesTree = threadsOwner !== null && threadsOwner.search === '' && threadsOwner.cwd === selectedCwd
+  const ownerMatchesSearch = threadsOwner !== null && threadsOwner.search === searchText
+  const treeThreads = ownerMatchesTree ? threads : []
+  const searchThreads = ownerMatchesSearch ? threads : []
+  const treePending = loading || !ownerMatchesTree
+  const searchPending = loading || !ownerMatchesSearch
   const matchingProjects = searching
     ? projects.filter((project) => `${project.name} ${project.cwd}`.toLowerCase().includes(query))
     : projects
-
-  const rows = (showCwd: boolean) =>
-    threads.map((thread) => (
-      <ThreadRow
-        key={thread.id}
-        api={api}
-        thread={thread}
-        selected={selectedId === thread.id}
-        showCwd={showCwd}
-        onSelect={onSelectThread}
-        onRenamed={onThreadRenamed}
-        onChanged={onThreadChanged}
-        onDeleted={onThreadDeleted}
-      />
-    ))
 
   return (
     <aside className="dsh-codex-focus-sidebar">
@@ -171,13 +165,25 @@ export function FocusSidebar({
               ))
             )}
             <div className="dsh-codex-focus-section">{t('threads.title')}</div>
-            {threads.length === 0 && !loading ? (
+            {searchThreads.length === 0 && !searchPending ? (
               <div className="dsh-codex-loading">{t('threads.noMatch')}</div>
             ) : (
-              rows(true)
+              searchThreads.map((thread) => (
+                <ThreadRow
+                  key={thread.id}
+                  api={api}
+                  thread={thread}
+                  selected={selectedId === thread.id}
+                  showCwd
+                  onSelect={onSelectThread}
+                  onRenamed={onThreadRenamed}
+                  onChanged={onThreadChanged}
+                  onDeleted={onThreadDeleted}
+                />
+              ))
             )}
-            {loading ? <div className="dsh-codex-loading">{t('threads.loading')}</div> : null}
-            {hasMore ? (
+            {searchPending ? <div className="dsh-codex-loading">{t('threads.loading')}</div> : null}
+            {ownerMatchesSearch && hasMore ? (
               <button type="button" className="dsh-codex-load-more" disabled={loading} onClick={onLoadMore}>
                 {t('threads.loadMore')}
               </button>
@@ -203,12 +209,24 @@ export function FocusSidebar({
                   </button>
                   {expanded ? (
                     <div className="dsh-codex-tree-sessions">
-                      {rows(false)}
-                      {threads.length === 0 && !loading ? (
+                      {treeThreads.map((thread) => (
+                        <ThreadRow
+                          key={thread.id}
+                          api={api}
+                          thread={thread}
+                          selected={selectedId === thread.id}
+                          showCwd={false}
+                          onSelect={onSelectThread}
+                          onRenamed={onThreadRenamed}
+                          onChanged={onThreadChanged}
+                          onDeleted={onThreadDeleted}
+                        />
+                      ))}
+                      {treeThreads.length === 0 && !treePending ? (
                         <div className="dsh-codex-loading">{t('threads.empty')}</div>
                       ) : null}
-                      {loading ? <div className="dsh-codex-loading">{t('threads.loading')}</div> : null}
-                      {hasMore ? (
+                      {treePending ? <div className="dsh-codex-loading">{t('threads.loading')}</div> : null}
+                      {ownerMatchesTree && hasMore ? (
                         <button type="button" className="dsh-codex-load-more" disabled={loading} onClick={onLoadMore}>
                           {t('threads.loadMore')}
                         </button>

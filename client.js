@@ -1036,6 +1036,7 @@ window.__ModuleLoader__.load({
       runningCount,
       quota,
       threads,
+      threadsOwner,
       selectedCwd,
       selectedId,
       loading,
@@ -1060,22 +1061,15 @@ window.__ModuleLoader__.load({
       const quotaInfo = quotaSummary(quota, t);
       const envParts = [status?.kind ? t(`status.${status.kind}`) : "", status?.codexVersion ? t("status.version", { version: status.codexVersion }) : ""].filter((part) => part !== "").join(" · ");
       const query = search.trim().toLowerCase();
+      const searchText = search.trim();
       const searching = query !== "";
+      const ownerMatchesTree = threadsOwner !== null && threadsOwner.search === "" && threadsOwner.cwd === selectedCwd;
+      const ownerMatchesSearch = threadsOwner !== null && threadsOwner.search === searchText;
+      const treeThreads = ownerMatchesTree ? threads : [];
+      const searchThreads = ownerMatchesSearch ? threads : [];
+      const treePending = loading || !ownerMatchesTree;
+      const searchPending = loading || !ownerMatchesSearch;
       const matchingProjects = searching ? projects.filter((project) => `${project.name} ${project.cwd}`.toLowerCase().includes(query)) : projects;
-      const rows = (showCwd) => threads.map((thread) => /* @__PURE__ */ React6.createElement(
-        ThreadRow,
-        {
-          key: thread.id,
-          api,
-          thread,
-          selected: selectedId === thread.id,
-          showCwd,
-          onSelect: onSelectThread,
-          onRenamed: onThreadRenamed,
-          onChanged: onThreadChanged,
-          onDeleted: onThreadDeleted
-        }
-      ));
       return /* @__PURE__ */ React6.createElement("aside", { className: "dsh-codex-focus-sidebar" }, /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-brand" }, /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-focus-logo" }, /* @__PURE__ */ React6.createElement(CodexIcon, { size: 20 })), /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-focus-brand-text" }, /* @__PURE__ */ React6.createElement("strong", null, "Codex CLI"), /* @__PURE__ */ React6.createElement("small", null, t("app.subtitle")))), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-status" }, /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-status-pill" }, /* @__PURE__ */ React6.createElement("i", { className: `dsh-codex-dot ${phaseClass} ${phase === "connecting" ? "pulse" : ""}` }), t(`status.${phase}`)), /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-status-pill" }, /* @__PURE__ */ React6.createElement("i", { className: `dsh-codex-dot ${streamClass} ${streamState === "connecting" ? "pulse" : ""}` }), t(`status.events.${streamState}`))), /* @__PURE__ */ React6.createElement("dl", { className: "dsh-codex-focus-info" }, /* @__PURE__ */ React6.createElement("dt", null, t("info.env")), /* @__PURE__ */ React6.createElement("dd", null, envParts === "" ? "—" : envParts), /* @__PURE__ */ React6.createElement("dt", null, t("info.sessions")), /* @__PURE__ */ React6.createElement("dd", null, t("projects.count", { count: totalThreads }), runningCount > 0 ? ` · ${t("projects.active", { count: runningCount })}` : ""), /* @__PURE__ */ React6.createElement("dt", null, t("info.quota")), /* @__PURE__ */ React6.createElement("dd", { className: "dsh-codex-quota", title: quotaInfo.title }, quotaInfo.text)), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-actions" }, /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-button primary", onClick: onNew }, t("newThread.open")), /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onVersions }, t("versions.open")), /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-button", onClick: onRefresh }, t("status.refresh"))), /* @__PURE__ */ React6.createElement(
         "input",
         {
@@ -1096,7 +1090,20 @@ window.__ModuleLoader__.load({
         /* @__PURE__ */ React6.createElement(FolderGlyph, null),
         /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-tree-project-name" }, project.name === "" ? project.cwd : project.name),
         /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-tree-project-count" }, project.threadCount)
-      )), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-section" }, t("threads.title")), threads.length === 0 && !loading ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.noMatch")) : rows(true), loading ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.loading")) : null, hasMore ? /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-load-more", disabled: loading, onClick: onLoadMore }, t("threads.loadMore")) : null) : /* @__PURE__ */ React6.createElement(React6.Fragment, null, matchingProjects.map((project) => {
+      )), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-section" }, t("threads.title")), searchThreads.length === 0 && !searchPending ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.noMatch")) : searchThreads.map((thread) => /* @__PURE__ */ React6.createElement(
+        ThreadRow,
+        {
+          key: thread.id,
+          api,
+          thread,
+          selected: selectedId === thread.id,
+          showCwd: true,
+          onSelect: onSelectThread,
+          onRenamed: onThreadRenamed,
+          onChanged: onThreadChanged,
+          onDeleted: onThreadDeleted
+        }
+      )), searchPending ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.loading")) : null, ownerMatchesSearch && hasMore ? /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-load-more", disabled: loading, onClick: onLoadMore }, t("threads.loadMore")) : null) : /* @__PURE__ */ React6.createElement(React6.Fragment, null, matchingProjects.map((project) => {
         const expanded = selectedCwd === project.cwd;
         return /* @__PURE__ */ React6.createElement(React6.Fragment, { key: project.cwd }, /* @__PURE__ */ React6.createElement(
           "button",
@@ -1109,7 +1116,20 @@ window.__ModuleLoader__.load({
           /* @__PURE__ */ React6.createElement(FolderGlyph, { open: expanded }),
           /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-tree-project-name" }, project.name === "" ? project.cwd : project.name),
           /* @__PURE__ */ React6.createElement("span", { className: "dsh-codex-tree-project-count" }, project.threadCount)
-        ), expanded ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-tree-sessions" }, rows(false), threads.length === 0 && !loading ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.empty")) : null, loading ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.loading")) : null, hasMore ? /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-load-more", disabled: loading, onClick: onLoadMore }, t("threads.loadMore")) : null) : null);
+        ), expanded ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-tree-sessions" }, treeThreads.map((thread) => /* @__PURE__ */ React6.createElement(
+          ThreadRow,
+          {
+            key: thread.id,
+            api,
+            thread,
+            selected: selectedId === thread.id,
+            showCwd: false,
+            onSelect: onSelectThread,
+            onRenamed: onThreadRenamed,
+            onChanged: onThreadChanged,
+            onDeleted: onThreadDeleted
+          }
+        )), treeThreads.length === 0 && !treePending ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.empty")) : null, treePending ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("threads.loading")) : null, ownerMatchesTree && hasMore ? /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-load-more", disabled: loading, onClick: onLoadMore }, t("threads.loadMore")) : null) : null);
       }), matchingProjects.length === 0 ? /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-loading" }, t("projects.noMatch")) : null)), /* @__PURE__ */ React6.createElement("div", { className: "dsh-codex-focus-footer" }, /* @__PURE__ */ React6.createElement("button", { type: "button", className: "dsh-codex-exit", onClick: onExit }, /* @__PURE__ */ React6.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.2", "aria-hidden": "true" }, /* @__PURE__ */ React6.createElement("path", { d: "M9.5 4 5.5 8l4 4", strokeLinecap: "round", strokeLinejoin: "round" })), "DeepSeek Harness")));
     }
     function FolderGlyph({ open = false }) {
@@ -2473,6 +2493,7 @@ window.__ModuleLoader__.load({
       const [loadingOlder, setLoadingOlder] = React16.useState(false);
       const loadingOlderRef = React16.useRef(false);
       const [loadingThreads, setLoadingThreads] = React16.useState(false);
+      const [threadsOwner, setThreadsOwner] = React16.useState(null);
       const [error, setError] = React16.useState(null);
       const [streamState, setStreamState] = React16.useState("connecting");
       const [search, setSearch] = React16.useState("");
@@ -2513,6 +2534,7 @@ window.__ModuleLoader__.load({
               return [...previous, ...page.data.filter((thread) => !known.has(thread.id))];
             });
             setNextCursor(page.nextCursor);
+            setThreadsOwner({ cwd, search: searchValue });
           } catch (cause) {
             if (generation === listGeneration.current) setError(messageOf(cause));
           } finally {
@@ -2905,6 +2927,7 @@ window.__ModuleLoader__.load({
           runningCount,
           quota,
           threads: visibleThreads,
+          threadsOwner,
           selectedCwd,
           selectedId,
           loading: loadingThreads,

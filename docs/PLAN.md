@@ -472,3 +472,9 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 对话框移到 `.dsh-codex-root` 内，避免被全屏层的 stacking context 盖住。
 - 删除不再使用的 NewThreadDialog。
 - 验证：选择框 6 个项目；不存在的目录提示；新目录创建会话成功；再点新会话直接在同一 cwd 建会话且不弹框；退出再进入自动打开最后会话；无报错。
+
+### 2026-11-06 · 修复切换项目时的会话闪显
+
+- 列表增加 `threadsOwner: { cwd, search }`，只有归属与当前展开项目/搜索词一致时才渲染 `threads`；否则显示「加载中…」。
+- 切项目时不再短暂显示上一个目录的会话；搜索输入变化时同理，避免旧结果冒充新结果。
+- 验证：certbase 展开 10 条 → 收起 → 展开 version-hub，40ms 后会话名为空且显示「加载中…」，1.5s 后只剩 version-hub 的 1 条会话。

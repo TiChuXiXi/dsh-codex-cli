@@ -73,6 +73,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const [loadingOlder, setLoadingOlder] = React.useState(false)
   const loadingOlderRef = React.useRef(false)
   const [loadingThreads, setLoadingThreads] = React.useState(false)
+  const [threadsOwner, setThreadsOwner] = React.useState<{ cwd: string | null, search: string } | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [streamState, setStreamState] = React.useState<StreamState>('connecting')
   const [search, setSearch] = React.useState('')
@@ -115,6 +116,7 @@ export function ConsolePage(props: ConsolePageProps) {
           return [...previous, ...page.data.filter((thread) => !known.has(thread.id))]
         })
         setNextCursor(page.nextCursor)
+        setThreadsOwner({ cwd, search: searchValue })
       } catch (cause) {
         if (generation === listGeneration.current) setError(messageOf(cause))
       } finally {
@@ -566,6 +568,7 @@ export function ConsolePage(props: ConsolePageProps) {
           runningCount={runningCount}
           quota={quota}
           threads={visibleThreads}
+          threadsOwner={threadsOwner}
           selectedCwd={selectedCwd}
           selectedId={selectedId}
           loading={loadingThreads}
