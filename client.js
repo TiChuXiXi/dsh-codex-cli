@@ -2771,7 +2771,7 @@ window.__ModuleLoader__.load({
           onClick: triggerOlder
         },
         loadingOlder ? t("thread.loadingOlder") : t("thread.loadOlder")
-      ) : null, !hasItems ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : detail.turns.map((turn) => /* @__PURE__ */ React14.createElement(React14.Fragment, { key: turn.id }, groupActivity(turn.items ?? []).map(
+      ) : null, !hasItems ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : orderedTurns.map((turn) => /* @__PURE__ */ React14.createElement(React14.Fragment, { key: turn.id }, groupActivity(turn.items ?? []).map(
         (entry) => entry.kind === "group" ? /* @__PURE__ */ React14.createElement(ToolGroup, { key: entry.key, items: entry.items, api }) : /* @__PURE__ */ React14.createElement(ItemCard, { key: entry.item.id, item: entry.item, api })
       ), /* @__PURE__ */ React14.createElement(TurnFooter, { turn })))), showJump ? /* @__PURE__ */ React14.createElement(
         "button",

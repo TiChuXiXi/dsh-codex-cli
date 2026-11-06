@@ -254,7 +254,7 @@ export function ThreadView({
           {!hasItems ? (
             <div className="dsh-codex-empty">{t('thread.noMessages')}</div>
           ) : (
-            detail.turns.map((turn) => (
+            orderedTurns.map((turn) => (
               <React.Fragment key={turn.id}>
                 {groupActivity(turn.items ?? []).map((entry) =>
                   entry.kind === 'group' ? (
