@@ -2921,8 +2921,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-thread:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
     .dsh-codex-project.active,
     .dsh-codex-thread.active {
-      background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.06));
-      box-shadow: inset 2px 0 0 var(--dsw-alias-state-business-primary, #2f8f5b);
+      background: var(--dsw-alias-interactive-bg-active, rgba(0, 0, 0, 0.08));
     }
 
     .dsh-codex-project-main { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
