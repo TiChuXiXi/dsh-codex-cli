@@ -238,10 +238,10 @@ window.__ModuleLoader__.load({
       "item.tool": "工具调用",
       "item.plan": "计划",
       "item.search": "网页搜索",
-      "group.commands": "执行了命令",
-      "group.reads": "读取了文件",
-      "group.writes": "修改了文件",
-      "group.tools": "调用了工具",
+      "group.commands": "执行了 {count} 条命令",
+      "group.reads": "读取了 {count} 个文件",
+      "group.writes": "修改了 {count} 个文件",
+      "group.tools": "调用了 {count} 个工具",
       "group.activity": "工具调用",
       "group.sepAnd": "并",
       "group.sepList": "、",
@@ -440,10 +440,10 @@ window.__ModuleLoader__.load({
       "item.tool": "Tool call",
       "item.plan": "Plan",
       "item.search": "Web search",
-      "group.commands": "Ran commands",
-      "group.reads": "Read files",
-      "group.writes": "Changed files",
-      "group.tools": "Called tools",
+      "group.commands": "Ran {count} commands",
+      "group.reads": "Read {count} files",
+      "group.writes": "Changed {count} files",
+      "group.tools": "Called {count} tools",
       "group.activity": "Tool calls",
       "group.sepAnd": " and ",
       "group.sepList": ", ",
@@ -1847,8 +1847,7 @@ window.__ModuleLoader__.load({
           onClick: () => setOpen(!open)
         },
         /* @__PURE__ */ React14.createElement("span", { className: `dsh-codex-tool-group-chevron ${open ? "open" : ""}` }, /* @__PURE__ */ React14.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.2", "aria-hidden": "true" }, /* @__PURE__ */ React14.createElement("path", { d: "M4 6l3.3 3.3a1 1 0 0 0 1.4 0L12 6", strokeLinecap: "round" }))),
-        /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-tool-group-title" }, summary),
-        /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-tool-group-count" }, items.length)
+        /* @__PURE__ */ React14.createElement("span", { className: "dsh-codex-tool-group-title" }, summary)
       ), open ? /* @__PURE__ */ React14.createElement("div", { className: "dsh-codex-tool-group-body" }, items.map((item) => /* @__PURE__ */ React14.createElement(ItemCard, { key: item.id, item, api }))) : null);
     }
     function summarize(items, t) {
@@ -1871,10 +1870,10 @@ window.__ModuleLoader__.load({
         }
       }
       const parts = [];
-      if (commands > 0) parts.push(t("group.commands"));
-      if (reads > 0) parts.push(t("group.reads"));
-      if (writes > 0) parts.push(t("group.writes"));
-      if (tools > 0) parts.push(t("group.tools"));
+      if (commands > 0) parts.push(t("group.commands", { count: commands }));
+      if (reads > 0) parts.push(t("group.reads", { count: reads }));
+      if (writes > 0) parts.push(t("group.writes", { count: writes }));
+      if (tools > 0) parts.push(t("group.tools", { count: tools }));
       if (parts.length === 0) return t("group.activity");
       return parts.join(parts.length > 2 ? t("group.sepList") : t("group.sepAnd"));
     }
@@ -3733,7 +3732,6 @@ window.__ModuleLoader__.load({
     .dsh-codex-tool-group-head:hover .dsh-codex-tool-group-title { color: var(--dsw-alias-label-primary, #1a1a1a); }
     .dsh-codex-tool-group-chevron { display: inline-flex; transition: transform 0.15s ease; }
     .dsh-codex-tool-group-chevron.open { transform: rotate(180deg); }
-    .dsh-codex-tool-group-count { margin-left: auto; font-size: 11px; color: var(--dsw-alias-label-secondary, #8a8f95); }
     .dsh-codex-tool-group-body {
       display: flex;
       flex-direction: column;

@@ -911,7 +911,6 @@ export const CSS = `
 .dsh-codex-tool-group-head:hover .dsh-codex-tool-group-title { color: var(--dsw-alias-label-primary, #1a1a1a); }
 .dsh-codex-tool-group-chevron { display: inline-flex; transition: transform 0.15s ease; }
 .dsh-codex-tool-group-chevron.open { transform: rotate(180deg); }
-.dsh-codex-tool-group-count { margin-left: auto; font-size: 11px; color: var(--dsw-alias-label-secondary, #8a8f95); }
 .dsh-codex-tool-group-body {
   display: flex;
   flex-direction: column;

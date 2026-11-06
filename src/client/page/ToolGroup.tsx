@@ -71,7 +71,6 @@ export function ToolGroup({ items, api }: { items: CodexItem[], api: Api }) {
           </svg>
         </span>
         <span className="dsh-codex-tool-group-title">{summary}</span>
-        <span className="dsh-codex-tool-group-count">{items.length}</span>
       </button>
       {open ? (
         <div className="dsh-codex-tool-group-body">
@@ -84,7 +83,7 @@ export function ToolGroup({ items, api }: { items: CodexItem[], api: Api }) {
   )
 }
 
-function summarize(items: CodexItem[], t: (key: string) => string): string {
+function summarize(items: CodexItem[], t: (key: string, vars?: Record<string, string | number>) => string): string {
   let commands = 0
   let reads = 0
   let writes = 0
@@ -104,10 +103,10 @@ function summarize(items: CodexItem[], t: (key: string) => string): string {
     }
   }
   const parts: string[] = []
-  if (commands > 0) parts.push(t('group.commands'))
-  if (reads > 0) parts.push(t('group.reads'))
-  if (writes > 0) parts.push(t('group.writes'))
-  if (tools > 0) parts.push(t('group.tools'))
+  if (commands > 0) parts.push(t('group.commands', { count: commands }))
+  if (reads > 0) parts.push(t('group.reads', { count: reads }))
+  if (writes > 0) parts.push(t('group.writes', { count: writes }))
+  if (tools > 0) parts.push(t('group.tools', { count: tools }))
   if (parts.length === 0) return t('group.activity')
   return parts.join(parts.length > 2 ? t('group.sepList') : t('group.sepAnd'))
 }
