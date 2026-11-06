@@ -34,6 +34,7 @@ export const zh = {
   'projects.empty': '还没有任何会话',
   'projects.search': '搜索项目',
   'projects.noMatch': '没有匹配的项目',
+  'projects.loadMore': '加载更多',
 
   'threads.loading': '加载中…',
   'threads.empty': '这个项目还没有会话',
@@ -99,6 +100,7 @@ export const zh = {
   'actions.archive': '归档',
   'actions.fork': 'Fork',
   'actions.export': '导出',
+  'actions.menu': '会话操作',
   'actions.delete': '删除',
   'actions.renameTitle': '重命名会话',
   'actions.deleteTitle': '删除会话',
@@ -241,6 +243,7 @@ export const en = {
   'projects.empty': 'No sessions yet',
   'projects.search': 'Search projects',
   'projects.noMatch': 'No matching projects',
+  'projects.loadMore': 'Load more',
 
   'threads.loading': 'Loading…',
   'threads.empty': 'No sessions in this project',
@@ -306,6 +309,7 @@ export const en = {
   'actions.archive': 'Archive',
   'actions.fork': 'Fork',
   'actions.export': 'Export',
+  'actions.menu': 'Session actions',
   'actions.delete': 'Delete',
   'actions.renameTitle': 'Rename session',
   'actions.deleteTitle': 'Delete session',

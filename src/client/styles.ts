@@ -154,6 +154,66 @@ export const CSS = `
 .dsh-codex-project-name { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dsh-codex-project-meta { font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+.dsh-codex-row-menu { position: relative; display: inline-flex; flex: none; margin-left: 4px; }
+.dsh-codex-row-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #6b6b6b);
+  cursor: pointer;
+  opacity: 0;
+}
+.dsh-codex-thread:hover .dsh-codex-row-menu-trigger,
+.dsh-codex-thread.active .dsh-codex-row-menu-trigger { opacity: 1; }
+.dsh-codex-row-menu-trigger:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.06)); }
+.dsh-codex-row-menu-backdrop { position: fixed; inset: 0; z-index: 45; }
+.dsh-codex-row-menu-pop {
+  position: fixed;
+  z-index: 46;
+  width: 156px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--dsw-alias-bg-base, #ffffff);
+  box-shadow:
+    0 0 0 0.5px var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.12)),
+    0 6px 20px rgba(0, 0, 0, 0.14);
+}
+.dsh-codex-row-menu-pop button {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.dsh-codex-row-menu-pop button:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+.dsh-codex-row-menu-pop button.danger { color: #c0392b; }
+.dsh-codex-load-more {
+  display: block;
+  width: 100%;
+  margin: 2px 0 6px;
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #6b6b6b);
+  font: inherit;
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+}
+.dsh-codex-load-more:hover { color: var(--dsw-alias-label-primary, #1a1a1a); }
+.dsh-codex-load-more:disabled { opacity: 0.6; cursor: default; }
 .dsh-codex-thread-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .dsh-codex-thread-name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dsh-codex-thread-meta { font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

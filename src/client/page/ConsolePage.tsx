@@ -25,6 +25,8 @@ import { VersionsDialog } from './VersionsDialog'
 
 /** 长会话按回合分页：初始与每页都只取最近/更早的 2 个回合。 */
 const TURN_PAGE = 2
+/** 侧栏会话列表每页 10 条，搜索由宿主用 searchTerm 在服务端完成。 */
+const THREAD_PAGE = 10
 
 export interface ConsolePageProps {
   api: Api
@@ -55,6 +57,10 @@ export function ConsolePage(props: ConsolePageProps) {
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [versionsOpen, setVersionsOpen] = React.useState(false)
   const [newThreadCwd, setNewThreadCwd] = React.useState('')
+  const searchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const listGeneration = React.useRef(0)
+  const queryRef = React.useRef<{ search: string, cwd: string | null }>({ search: '', cwd: null })
+  queryRef.current = { search: search.trim(), cwd: selectedCwd }
 
   const selectedIdRef = React.useRef<string | null>(null)
   selectedIdRef.current = selectedId
@@ -62,10 +68,20 @@ export function ConsolePage(props: ConsolePageProps) {
   threadsRef.current = threads
 
   const loadThreads = React.useCallback(
-    async (cursor: string | null) => {
+    async (cursor: string | null, override: { search?: string, cwd?: string | null } = {}) => {
+      const searchValue = override.search !== undefined ? override.search : queryRef.current.search
+      const cwd = override.cwd !== undefined ? override.cwd : queryRef.current.cwd
+      const generation = ++listGeneration.current
       setLoadingThreads(true)
       try {
-        const page = await api<ThreadPage>('threads/list', { limit: 100, ...(cursor ? { cursor } : {}) })
+        const page = await api<ThreadPage>('threads/list', {
+          limit: THREAD_PAGE,
+          ...(cursor ? { cursor } : {}),
+          ...(searchValue !== '' ? { search: searchValue } : {}),
+          ...(cwd !== null ? { cwd } : {}),
+        })
+        // 只应用最后一次请求的结果，避免“加载更多”与搜索并发时把旧结果拼进来。
+        if (generation !== listGeneration.current) return
         setThreads((previous) => {
           if (!cursor) return page.data
           const known = new Set(previous.map((thread) => thread.id))
@@ -73,13 +89,30 @@ export function ConsolePage(props: ConsolePageProps) {
         })
         setNextCursor(page.nextCursor)
       } catch (cause) {
-        setError(messageOf(cause))
+        if (generation === listGeneration.current) setError(messageOf(cause))
       } finally {
-        setLoadingThreads(false)
+        if (generation === listGeneration.current) setLoadingThreads(false)
       }
     },
     [api],
   )
+
+  // 搜索输入防抖：清空或输入变化后 250ms 重新从服务端取第一页。
+  const handleSearch = React.useCallback(
+    (value: string) => {
+      setSearch(value)
+      if (searchTimer.current !== null) clearTimeout(searchTimer.current)
+      searchTimer.current = setTimeout(() => {
+        searchTimer.current = null
+        void loadThreads(null, { search: value.trim() })
+      }, 250)
+    },
+    [loadThreads],
+  )
+
+  React.useEffect(() => () => {
+    if (searchTimer.current !== null) clearTimeout(searchTimer.current)
+  }, [])
 
   const refreshPending = React.useCallback(async () => {
     try {
@@ -362,17 +395,31 @@ export function ConsolePage(props: ConsolePageProps) {
     [api],
   )
 
-  const visibleThreads = React.useMemo(() => {
-    const query = search.trim().toLowerCase()
-    return threads
-      .filter((thread) => selectedCwd === null || thread.cwd === selectedCwd)
-      .filter((thread) => {
-        if (query === '') return true
-        const haystack = `${threadTitle(thread)} ${thread.cwd ?? ''}`.toLowerCase()
-        return haystack.includes(query)
-      })
-      .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
-  }, [threads, selectedCwd, search])
+  const visibleThreads = React.useMemo(
+    () => [...threads].sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
+    [threads],
+  )
+
+  const handleThreadRenamed = React.useCallback((id: string, name: string) => {
+    setThreads((previous) => previous.map((thread) => (thread.id === id ? { ...thread, name } : thread)))
+    setDetail((previous) =>
+      previous !== null && previous.thread.id === id
+        ? { ...previous, thread: { ...previous.thread, name } }
+        : previous,
+    )
+  }, [])
+
+  const handleThreadChanged = React.useCallback(() => {
+    void loadThreads(null)
+  }, [loadThreads])
+
+  const handleThreadDeleted = React.useCallback((id: string) => {
+    setThreads((previous) => previous.filter((thread) => thread.id !== id))
+    if (selectedIdRef.current === id) {
+      setSelectedId(null)
+      setDetail(null)
+    }
+  }, [])
 
   const visiblePending = React.useMemo(
     () =>
@@ -413,18 +460,27 @@ export function ConsolePage(props: ConsolePageProps) {
                 onSelect={(cwd) => {
                   setSelectedCwd(cwd)
                   setSearch('')
+                  if (searchTimer.current !== null) {
+                    clearTimeout(searchTimer.current)
+                    searchTimer.current = null
+                  }
+                  void loadThreads(null, { cwd, search: '' })
                 }}
               />
               <ThreadList
+                api={api}
                 threads={visibleThreads}
                 selectedId={selectedId}
                 loading={loadingThreads}
-                hasMore={nextCursor !== null && selectedCwd === null && search.trim() === ''}
+                hasMore={nextCursor !== null}
                 search={search}
                 showCwd={selectedCwd === null}
-                onSearch={setSearch}
+                onSearch={handleSearch}
                 onSelect={setSelectedId}
                 onLoadMore={() => void loadThreads(nextCursor)}
+                onThreadRenamed={handleThreadRenamed}
+                onThreadChanged={handleThreadChanged}
+                onThreadDeleted={handleThreadDeleted}
               />
             </div>
           </aside>

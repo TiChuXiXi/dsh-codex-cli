@@ -7,6 +7,8 @@ import { relativeTime } from '../utils'
 import { useStoredCollapsed } from '../hooks'
 import { SectionHeader } from './SectionHeader'
 
+const PROJECT_PAGE = 10
+
 export interface ProjectListProps {
   projects: Project[]
   totalThreads: number
@@ -18,12 +20,18 @@ export function ProjectList({ projects, totalThreads, selectedCwd, onSelect }: P
   const t = useT()
   const [search, setSearch] = React.useState('')
   const [collapsed, toggleCollapsed] = useStoredCollapsed('dsh-codex-projects-collapsed')
+  const [visibleCount, setVisibleCount] = React.useState(PROJECT_PAGE)
   const query = search.trim().toLowerCase()
   const visible =
     query === ''
       ? projects
       : projects.filter((project) => `${project.name} ${project.cwd}`.toLowerCase().includes(query))
   const showAll = query === '' || t('projects.all').toLowerCase().includes(query)
+  const shown = visible.slice(0, visibleCount)
+
+  React.useEffect(() => {
+    setVisibleCount(PROJECT_PAGE)
+  }, [search])
 
   return (
     <div>
@@ -53,7 +61,7 @@ export function ProjectList({ projects, totalThreads, selectedCwd, onSelect }: P
               </span>
             </button>
           ) : null}
-          {visible.map((project) => (
+          {shown.map((project) => (
             <button
               type="button"
               key={project.cwd}
@@ -75,6 +83,15 @@ export function ProjectList({ projects, totalThreads, selectedCwd, onSelect }: P
           ))}
           {visible.length === 0 && !showAll ? (
             <div className="dsh-codex-loading">{t('projects.noMatch')}</div>
+          ) : null}
+          {visible.length > visibleCount ? (
+            <button
+              type="button"
+              className="dsh-codex-load-more"
+              onClick={() => setVisibleCount((previous) => previous + PROJECT_PAGE)}
+            >
+              {t('projects.loadMore')}
+            </button>
           ) : null}
           {projects.length === 0 ? <div className="dsh-codex-loading">{t('projects.empty')}</div> : null}
         </>
