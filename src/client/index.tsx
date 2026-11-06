@@ -46,7 +46,7 @@ export function apply(ctx: any): void {
         id: PANEL_ID,
         order: 30,
         locale: NS,
-        label: () => 'Codex',
+        label: () => 'Codex CLI',
       },
       CodexIcon,
     ),
@@ -70,12 +70,12 @@ export function apply(ctx: any): void {
       ctx.sidebarRightTabs.register({
         id: TAB_ID,
         kind: TAB_ID,
-        title: () => 'Codex',
+        title: () => 'Codex CLI',
         guide: [
           {
             id: TAB_ID,
             order: 30,
-            title: () => 'Codex',
+            title: () => 'Codex CLI',
             description: () => '当前项目的 Codex 会话',
             icon: CodexIcon,
           },
@@ -122,5 +122,5 @@ export function apply(ctx: any): void {
 }
 
 function SessionTabTitle() {
-  return <span>Codex</span>
+  return <span>Codex CLI</span>
 }
