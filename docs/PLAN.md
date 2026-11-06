@@ -491,3 +491,8 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 已读时间 `dsh-codex-viewed-at` 按会话记 localStorage；选中会话时写入当前时间并清除未读。
 - SSE `turn/completed`：当前会话立即标记已读，其他会话标绿；列表每 20 秒用当前查询和已加载条数轮询一次，覆盖后台（未订阅）会话的完成状态。
 - 验证：打开 A、B 两个会话（均变灰）→ 后台让 A 完成一个回合 → 刷新列表，A 显示绿点；点开 A 后恢复灰点。
+
+### 2026-11-06 · 轮询刷新不再闪加载态
+
+- `loadThreads` 增加 `silent` 选项：后台轮询不设置 `loadingThreads`，也不渲染「加载中…」；用户操作（展开项目、搜索、加载更多）仍显示加载态。
+- 验证：展开 certbase 后连续观察 26 秒（覆盖一次 20 秒轮询），会话区「加载中…」出现 0 次，10 条会话保持显示。

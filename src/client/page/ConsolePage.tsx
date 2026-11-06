@@ -117,12 +117,13 @@ export function ConsolePage(props: ConsolePageProps) {
   threadsRef.current = threads
 
   const loadThreads = React.useCallback(
-    async (cursor: string | null, override: { search?: string, cwd?: string | null, limit?: number } = {}) => {
+    async (cursor: string | null, override: { search?: string, cwd?: string | null, limit?: number, silent?: boolean } = {}) => {
       const searchValue = override.search !== undefined ? override.search : queryRef.current.search
       const cwd = override.cwd !== undefined ? override.cwd : queryRef.current.cwd
       const limit = Math.min(200, Math.max(1, override.limit ?? THREAD_PAGE))
+      const silent = override.silent === true
       const generation = ++listGeneration.current
-      setLoadingThreads(true)
+      if (!silent) setLoadingThreads(true)
       try {
         const page = await api<ThreadPage>('threads/list', {
           limit,
@@ -142,7 +143,7 @@ export function ConsolePage(props: ConsolePageProps) {
       } catch (cause) {
         if (generation === listGeneration.current) setError(messageOf(cause))
       } finally {
-        if (generation === listGeneration.current) setLoadingThreads(false)
+        if (!silent && generation === listGeneration.current) setLoadingThreads(false)
       }
     },
     [api],
@@ -257,7 +258,7 @@ export function ConsolePage(props: ConsolePageProps) {
 
   React.useEffect(() => {
     const timer = setInterval(() => {
-      void loadThreads(null, { limit: Math.max(THREAD_PAGE, threadsRef.current.length) })
+      void loadThreads(null, { limit: Math.max(THREAD_PAGE, threadsRef.current.length), silent: true })
     }, 20000)
     return () => clearInterval(timer)
   }, [loadThreads])

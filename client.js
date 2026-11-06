@@ -2553,8 +2553,9 @@ window.__ModuleLoader__.load({
           const searchValue = override.search !== void 0 ? override.search : queryRef.current.search;
           const cwd = override.cwd !== void 0 ? override.cwd : queryRef.current.cwd;
           const limit = Math.min(200, Math.max(1, override.limit ?? THREAD_PAGE));
+          const silent = override.silent === true;
           const generation = ++listGeneration.current;
-          setLoadingThreads(true);
+          if (!silent) setLoadingThreads(true);
           try {
             const page = await api("threads/list", {
               limit,
@@ -2573,7 +2574,7 @@ window.__ModuleLoader__.load({
           } catch (cause) {
             if (generation === listGeneration.current) setError(messageOf(cause));
           } finally {
-            if (generation === listGeneration.current) setLoadingThreads(false);
+            if (!silent && generation === listGeneration.current) setLoadingThreads(false);
           }
         },
         [api]
@@ -2671,7 +2672,7 @@ window.__ModuleLoader__.load({
       }, [api, refresh, refreshPending, loadQuota]);
       React16.useEffect(() => {
         const timer = setInterval(() => {
-          void loadThreads(null, { limit: Math.max(THREAD_PAGE, threadsRef.current.length) });
+          void loadThreads(null, { limit: Math.max(THREAD_PAGE, threadsRef.current.length), silent: true });
         }, 2e4);
         return () => clearInterval(timer);
       }, [loadThreads]);
