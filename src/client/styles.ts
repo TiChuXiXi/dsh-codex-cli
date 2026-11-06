@@ -1016,6 +1016,43 @@ export const CSS = `
   cursor: pointer;
 }
 .dsh-codex-exit:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); color: var(--dsw-alias-label-primary, #1a1a1a); }
+.dsh-codex-picker { width: min(560px, 92vw); max-height: 84vh; overflow: auto; }
+.dsh-codex-picker-section {
+  margin: 10px 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dsw-alias-label-secondary, #6b6b6b);
+}
+.dsh-codex-picker-list { display: flex; flex-direction: column; gap: 2px; max-height: 220px; overflow: auto; }
+.dsh-codex-picker-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.dsh-codex-picker-item:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+.dsh-codex-picker-item:disabled { opacity: 0.6; cursor: default; }
+.dsh-codex-picker-name { font-size: 13px; }
+.dsh-codex-picker-path {
+  font-family: var(--dsh-font-family-code, ui-monospace, monospace);
+  font-size: 11px;
+  color: var(--dsw-alias-label-secondary, #6b6b6b);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dsh-codex-checkbox { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; font-size: 12px; cursor: pointer; }
+.dsh-codex-checkbox input { accent-color: #4176e6; }
 `
 
 /** 注入一次样式；重复调用无副作用。 */

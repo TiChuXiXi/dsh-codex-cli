@@ -462,3 +462,13 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 进入 Codex 面板时把 `document.title` 改为 `Codex CLI`，并把两个 favicon（dark/light media）替换为 ChatGPT 标志的 data URL（暗色白、亮色黑）；退出时恢复原 href/type 与标题。
 - 复用 `codexLogo.ts` 的路径与 `codexFavicon(color)`，CodexIcon 同步改为引用同一路径。
 - 验证：进入后 title=Codex CLI、两个 icon 均为 data URL（dark=#ffffff、light=#0f1115）；退出后 title 与 favicon 恢复为 DeepSeek Harness / favicon-dark.svg、favicon.svg。
+
+### 2026-11-06 · 自动恢复会话与新建项目
+
+- `dsh-codex-last-thread` 记录最后打开的会话，进入面板时作为 `selectedId` 初始值；加载失败（已删除）时清空记录。
+- 「新会话」：`currentCwd = detail.cwd ?? selectedCwd`，有值则直接 `threads/new`（只传 cwd，走 Codex 默认配置）；无值则打开 `ProjectPickerDialog`。
+- 选择框：列出已有项目；新建项目需输入绝对路径、勾选「我信任该目录中的代码」（已信任目录自动勾选并禁用），提交前用 `fs/check` 校验存在且是目录，通过后 `threads/new` 并打开；信任目录写入 `dsh-codex-trusted-cwds`。
+- 修复 `threads/get` 对无回合新线程的 `list_turns is not supported yet` 回退（返回元数据 + 空历史），使自动恢复新会话可用。
+- 对话框移到 `.dsh-codex-root` 内，避免被全屏层的 stacking context 盖住。
+- 删除不再使用的 NewThreadDialog。
+- 验证：选择框 6 个项目；不存在的目录提示；新目录创建会话成功；再点新会话直接在同一 cwd 建会话且不弹框；退出再进入自动打开最后会话；无报错。

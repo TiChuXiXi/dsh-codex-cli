@@ -85,6 +85,19 @@ window.__ModuleLoader__.load({
       "quota.window.minutes": "{count} 分钟",
       "quota.resetCredits": "{count} 次重置",
       "quota.resetsAt": "重置于 {time}",
+      "picker.title": "选择项目",
+      "picker.existing": "现有项目",
+      "picker.newProject": "新建项目",
+      "picker.path": "目录路径",
+      "picker.placeholder": "/绝对路径",
+      "picker.trust": "我信任该目录中的代码",
+      "picker.trusted": "该目录已信任",
+      "picker.hint": "首次在新目录使用 Codex 时，命令执行会按审批策略请求确认。",
+      "picker.notFound": "目录不存在：{path}",
+      "picker.notDir": "不是目录：{path}",
+      "picker.needTrust": "请先确认信任该目录",
+      "picker.create": "创建并开会话",
+      "picker.creating": "创建中…",
       "focus.search": "搜索项目或会话",
       "status.idle": "未连接",
       "status.connecting": "连接中",
@@ -301,6 +314,19 @@ window.__ModuleLoader__.load({
       "quota.window.minutes": "{count}m",
       "quota.resetCredits": "{count} resets",
       "quota.resetsAt": "Resets at {time}",
+      "picker.title": "Choose a project",
+      "picker.existing": "Existing projects",
+      "picker.newProject": "New project",
+      "picker.path": "Directory",
+      "picker.placeholder": "/absolute/path",
+      "picker.trust": "I trust the code in this directory",
+      "picker.trusted": "This directory is trusted",
+      "picker.hint": "The first time you use Codex in a new directory, command execution will ask for approval.",
+      "picker.notFound": "Directory not found: {path}",
+      "picker.notDir": "Not a directory: {path}",
+      "picker.needTrust": "Confirm that you trust this directory first",
+      "picker.create": "Create and open",
+      "picker.creating": "Creating…",
       "focus.search": "Search projects or sessions",
       "status.idle": "Not connected",
       "status.connecting": "Connecting",
@@ -662,6 +688,9 @@ window.__ModuleLoader__.load({
         return seconds > 0 ? `${t("duration.minutes", { count: minutes })} ${t("duration.seconds", { count: seconds })}` : t("duration.minutes", { count: minutes });
       }
       return t("duration.seconds", { count: seconds });
+    }
+    function messageOf(cause) {
+      return cause instanceof Error ? cause.message : String(cause);
     }
     function statusKey(status) {
       const type = status?.type ?? "idle";
@@ -1128,60 +1157,105 @@ window.__ModuleLoader__.load({
       return t("quota.window.minutes", { count: Math.round(minutes) });
     }
 
-    // src/client/page/NewThreadDialog.tsx
+    // src/client/page/ProjectPickerDialog.tsx
     var React7 = __toESM(require("react"), 1);
-    var EFFORTS = ["", "minimal", "low", "medium", "high"];
-    var APPROVALS = ["on-request", "never", "untrusted"];
-    var SANDBOXES = ["workspace-write", "read-only", "danger-full-access"];
-    function NewThreadDialog({ open, defaultCwd, projects, models, onClose, onCreate }) {
+    function ProjectPickerDialog({ open, api, projects, trusted, onPick, onClose }) {
       const t = useT();
-      const [cwd, setCwd] = React7.useState(defaultCwd);
-      const [model, setModel] = React7.useState("");
-      const [effort, setEffort] = React7.useState("");
-      const [approvalPolicy, setApprovalPolicy] = React7.useState("on-request");
-      const [sandbox, setSandbox] = React7.useState("workspace-write");
+      const [path, setPath] = React7.useState("");
+      const [trust, setTrust] = React7.useState(false);
       const [busy, setBusy] = React7.useState(false);
       const [error, setError] = React7.useState(null);
       React7.useEffect(() => {
         if (!open) return;
-        setCwd(defaultCwd);
+        setPath("");
+        setTrust(false);
+        setBusy(false);
         setError(null);
-      }, [open, defaultCwd]);
+      }, [open]);
       if (!open) return null;
-      const submit = async () => {
+      const trimmed = path.trim();
+      const alreadyTrusted = trimmed !== "" && trusted.includes(trimmed);
+      const pick = async (cwd) => {
         if (busy) return;
-        if (cwd.trim() === "") {
-          setError(t("newThread.cwd"));
-          return;
-        }
         setBusy(true);
         setError(null);
         try {
-          await onCreate({
-            cwd: cwd.trim(),
-            model: model === "" ? void 0 : model,
-            effort: effort === "" ? void 0 : effort,
-            approvalPolicy,
-            sandbox
-          });
+          await onPick(cwd);
         } catch (cause) {
           setError(cause instanceof Error ? cause.message : String(cause));
         } finally {
           setBusy(false);
         }
       };
-      return /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
-        if (event.target === event.currentTarget && !busy) onClose();
-      } }, /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React7.createElement("header", { className: "dsh-codex-dialog-head" }, t("newThread.title")), /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("newThread.cwd")), /* @__PURE__ */ React7.createElement(
-        "input",
-        {
-          className: "dsh-codex-search",
-          list: "dsh-codex-projects",
-          value: cwd,
-          onChange: (event) => setCwd(event.target.value),
-          placeholder: "/root/project/..."
+      const create = async () => {
+        if (trimmed === "") {
+          setError(t("picker.path"));
+          return;
         }
-      ), /* @__PURE__ */ React7.createElement("datalist", { id: "dsh-codex-projects" }, projects.map((project) => /* @__PURE__ */ React7.createElement("option", { key: project.cwd, value: project.cwd })))), /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("newThread.model")), /* @__PURE__ */ React7.createElement("select", { className: "dsh-codex-select", value: model, onChange: (event) => setModel(event.target.value) }, /* @__PURE__ */ React7.createElement("option", { value: "" }, t("newThread.default")), models.map((entry) => /* @__PURE__ */ React7.createElement("option", { key: entry.id, value: entry.id }, entry.displayName)))), /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-field-row" }, /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("newThread.effort")), /* @__PURE__ */ React7.createElement("select", { className: "dsh-codex-select", value: effort, onChange: (event) => setEffort(event.target.value) }, EFFORTS.map((value) => /* @__PURE__ */ React7.createElement("option", { key: value, value }, value === "" ? t("newThread.default") : value)))), /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("newThread.approval")), /* @__PURE__ */ React7.createElement("select", { className: "dsh-codex-select", value: approvalPolicy, onChange: (event) => setApprovalPolicy(event.target.value) }, APPROVALS.map((value) => /* @__PURE__ */ React7.createElement("option", { key: value, value }, value))))), /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("newThread.sandbox")), /* @__PURE__ */ React7.createElement("select", { className: "dsh-codex-select", value: sandbox, onChange: (event) => setSandbox(event.target.value) }, SANDBOXES.map((value) => /* @__PURE__ */ React7.createElement("option", { key: value, value }, value)))), error !== null ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: onClose }, t("newThread.cancel")), /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void submit() }, busy ? t("newThread.creating") : t("newThread.create")))));
+        if (!alreadyTrusted && !trust) {
+          setError(t("picker.needTrust"));
+          return;
+        }
+        if (busy) return;
+        setBusy(true);
+        setError(null);
+        try {
+          const info = await api("fs/check", { path: trimmed });
+          if (!info.exists) {
+            setError(t("picker.notFound", { path: trimmed }));
+            return;
+          }
+          if (!info.isDirectory) {
+            setError(t("picker.notDir", { path: trimmed }));
+            return;
+          }
+          await onPick(info.path);
+        } catch (cause) {
+          setError(cause instanceof Error ? cause.message : String(cause));
+        } finally {
+          setBusy(false);
+        }
+      };
+      return /* @__PURE__ */ React7.createElement(
+        "div",
+        {
+          className: "dsh-codex-dialog-backdrop",
+          onMouseDown: (event) => {
+            if (event.target === event.currentTarget && !busy) onClose();
+          }
+        },
+        /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog dsh-codex-picker", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ React7.createElement("header", { className: "dsh-codex-dialog-head" }, t("picker.title")), /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-picker-section" }, t("picker.existing")), /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-picker-list" }, projects.map((project) => /* @__PURE__ */ React7.createElement(
+          "button",
+          {
+            type: "button",
+            key: project.cwd,
+            className: "dsh-codex-picker-item",
+            disabled: busy,
+            onClick: () => void pick(project.cwd)
+          },
+          /* @__PURE__ */ React7.createElement("span", { className: "dsh-codex-picker-name" }, project.name === "" ? project.cwd : project.name),
+          /* @__PURE__ */ React7.createElement("span", { className: "dsh-codex-picker-path" }, project.cwd)
+        )), projects.length === 0 ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-loading" }, t("projects.empty")) : null), /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-picker-section" }, t("picker.newProject")), /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-field" }, /* @__PURE__ */ React7.createElement("span", null, t("picker.path")), /* @__PURE__ */ React7.createElement(
+          "input",
+          {
+            className: "dsh-codex-search",
+            value: path,
+            placeholder: t("picker.placeholder"),
+            onChange: (event) => setPath(event.target.value),
+            onKeyDown: (event) => {
+              if (event.key === "Enter") void create();
+            }
+          }
+        )), /* @__PURE__ */ React7.createElement("label", { className: "dsh-codex-checkbox" }, /* @__PURE__ */ React7.createElement(
+          "input",
+          {
+            type: "checkbox",
+            checked: alreadyTrusted || trust,
+            disabled: alreadyTrusted || busy,
+            onChange: (event) => setTrust(event.target.checked)
+          }
+        ), /* @__PURE__ */ React7.createElement("span", null, alreadyTrusted ? t("picker.trusted") : t("picker.trust"))), /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-hint" }, t("picker.hint")), error !== null ? /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog-error" }, error) : null, /* @__PURE__ */ React7.createElement("div", { className: "dsh-codex-dialog-actions" }, /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: onClose }, t("actions.cancel")), /* @__PURE__ */ React7.createElement("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void create() }, busy ? t("picker.creating") : t("picker.create"))))
+      );
     }
 
     // src/client/page/ThreadView.tsx
@@ -2363,6 +2437,24 @@ window.__ModuleLoader__.load({
     // src/client/page/ConsolePage.tsx
     var TURN_PAGE = 2;
     var THREAD_PAGE = 10;
+    var LAST_THREAD_KEY = "dsh-codex-last-thread";
+    var TRUSTED_KEY = "dsh-codex-trusted-cwds";
+    function readStored(key) {
+      try {
+        return window.localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    }
+    function readTrusted() {
+      try {
+        const raw = window.localStorage.getItem(TRUSTED_KEY);
+        const parsed = raw === null ? [] : JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed.filter((entry) => typeof entry === "string") : [];
+      } catch {
+        return [];
+      }
+    }
     function ConsolePage(props) {
       const t = props.t ?? fallbackTranslate;
       const api = props.api;
@@ -2374,7 +2466,7 @@ window.__ModuleLoader__.load({
       const [threads, setThreads] = React16.useState([]);
       const [nextCursor, setNextCursor] = React16.useState(null);
       const [selectedCwd, setSelectedCwd] = React16.useState(null);
-      const [selectedId, setSelectedId] = React16.useState(null);
+      const [selectedId, setSelectedId] = React16.useState(() => readStored(LAST_THREAD_KEY));
       const [detail, setDetail] = React16.useState(null);
       const [detailLoading, setDetailLoading] = React16.useState(false);
       const [olderCursor, setOlderCursor] = React16.useState(null);
@@ -2387,9 +2479,12 @@ window.__ModuleLoader__.load({
       const [pending2, setPending] = React16.useState([]);
       const [models, setModels] = React16.useState([]);
       const [quota, setQuota] = React16.useState(null);
-      const [dialogOpen, setDialogOpen] = React16.useState(false);
+      const [pickerOpen, setPickerOpen] = React16.useState(false);
+      const [trusted, setTrusted] = React16.useState(readTrusted);
       const [versionsOpen, setVersionsOpen] = React16.useState(false);
-      const [newThreadCwd, setNewThreadCwd] = React16.useState("");
+      const restoredRef = React16.useRef(selectedId !== null);
+      const createThreadRef = React16.useRef(async () => {
+      });
       const searchTimer = React16.useRef(null);
       const listGeneration = React16.useRef(0);
       const queryRef = React16.useRef({ search: "", cwd: null });
@@ -2476,13 +2571,19 @@ window.__ModuleLoader__.load({
           if (request.kind === "thread") {
             setSelectedId(request.threadId);
           } else {
-            setNewThreadCwd(request.cwd);
-            setDialogOpen(true);
+            void createThreadRef.current({ cwd: request.cwd });
           }
         };
         consume();
         return subscribePending(consume);
       }, []);
+      React16.useEffect(() => {
+        if (selectedId === null) return;
+        try {
+          window.localStorage.setItem(LAST_THREAD_KEY, selectedId);
+        } catch {
+        }
+      }, [selectedId]);
       React16.useEffect(() => {
         void refresh();
         void refreshPending();
@@ -2576,10 +2677,20 @@ window.__ModuleLoader__.load({
         loadingOlderRef.current = false;
         api("threads/get", { threadId: selectedId, limit: TURN_PAGE }).then((next) => {
           if (cancelled) return;
+          restoredRef.current = false;
           setDetail(next);
           setOlderCursor(next.nextCursor ?? null);
         }).catch((cause) => {
-          if (!cancelled) setError(messageOf(cause));
+          if (cancelled) return;
+          setError(messageOf(cause));
+          if (restoredRef.current) {
+            restoredRef.current = false;
+            try {
+              window.localStorage.removeItem(LAST_THREAD_KEY);
+            } catch {
+            }
+            setSelectedId(null);
+          }
         }).finally(() => {
           if (!cancelled) setDetailLoading(false);
         });
@@ -2700,10 +2811,39 @@ window.__ModuleLoader__.load({
           if (thread !== null && thread !== void 0) {
             setThreads((previous) => upsertThread(previous, thread));
             setSelectedId(thread.id);
-            setDialogOpen(false);
+            setSelectedCwd(thread.cwd ?? request.cwd);
+            setPickerOpen(false);
+            setTrusted((previous) => {
+              if (previous.includes(request.cwd)) return previous;
+              const next = [...previous, request.cwd];
+              try {
+                window.localStorage.setItem(TRUSTED_KEY, JSON.stringify(next));
+              } catch {
+              }
+              return next;
+            });
           }
         },
         [api]
+      );
+      createThreadRef.current = createThread;
+      const currentCwd = detail?.thread.cwd ?? selectedCwd;
+      const handleNew = React16.useCallback(() => {
+        if (currentCwd !== null && currentCwd !== "") {
+          void createThread({ cwd: currentCwd }).catch((cause) => setError(messageOf(cause)));
+          return;
+        }
+        setPickerOpen(true);
+      }, [currentCwd, createThread]);
+      const pickProject = React16.useCallback(
+        async (cwd) => {
+          await createThread({ cwd });
+        },
+        [createThread]
+      );
+      const trustedCwds = React16.useMemo(
+        () => Array.from(/* @__PURE__ */ new Set([...projects.map((project) => project.cwd), ...trusted])),
+        [projects, trusted]
       );
       const visibleThreads = React16.useMemo(
         () => [...threads].sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
@@ -2752,7 +2892,6 @@ window.__ModuleLoader__.load({
         () => selectedId === null ? [] : pending2.filter((entry) => entry.params?.threadId === void 0 || entry.params.threadId === selectedId),
         [pending2, selectedId]
       );
-      const defaultCwd = detail?.thread.cwd ?? selectedCwd ?? projects[0]?.cwd ?? "";
       const totalThreads = projects.reduce((sum, project) => sum + project.threadCount, 0);
       const runningCount = projects.reduce((sum, project) => sum + project.activeCount, 0);
       return /* @__PURE__ */ React16.createElement(I18nContext.Provider, { value: t }, /* @__PURE__ */ React16.createElement("div", { className: "dsh-codex-root" }, /* @__PURE__ */ React16.createElement(
@@ -2775,7 +2914,7 @@ window.__ModuleLoader__.load({
           onSelectProject: handleProjectToggle,
           onSelectThread: setSelectedId,
           onLoadMore: () => void loadThreads(nextCursor),
-          onNew: () => setDialogOpen(true),
+          onNew: handleNew,
           onVersions: () => setVersionsOpen(true),
           onRefresh: () => void refresh(),
           onExit,
@@ -2817,16 +2956,17 @@ window.__ModuleLoader__.load({
             }
           ) : null
         }
-      ))), /* @__PURE__ */ React16.createElement(
-        NewThreadDialog,
+      )), /* @__PURE__ */ React16.createElement(
+        ProjectPickerDialog,
         {
-          open: dialogOpen,
-          models,
-          defaultCwd: newThreadCwd || defaultCwd,
-          onClose: () => setDialogOpen(false),
-          onSubmit: createThread
+          open: pickerOpen,
+          api,
+          projects,
+          trusted: trustedCwds,
+          onPick: pickProject,
+          onClose: () => setPickerOpen(false)
         }
-      ), /* @__PURE__ */ React16.createElement(VersionsDialog, { open: versionsOpen, api, onClose: () => setVersionsOpen(false) }));
+      ), /* @__PURE__ */ React16.createElement(VersionsDialog, { open: versionsOpen, api, onClose: () => setVersionsOpen(false) })));
     }
 
     // src/client/page/SessionTab.tsx
@@ -3915,6 +4055,43 @@ window.__ModuleLoader__.load({
       cursor: pointer;
     }
     .dsh-codex-exit:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); color: var(--dsw-alias-label-primary, #1a1a1a); }
+    .dsh-codex-picker { width: min(560px, 92vw); max-height: 84vh; overflow: auto; }
+    .dsh-codex-picker-section {
+      margin: 10px 0 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--dsw-alias-label-secondary, #6b6b6b);
+    }
+    .dsh-codex-picker-list { display: flex; flex-direction: column; gap: 2px; max-height: 220px; overflow: auto; }
+    .dsh-codex-picker-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      width: 100%;
+      padding: 7px 9px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .dsh-codex-picker-item:hover { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
+    .dsh-codex-picker-item:disabled { opacity: 0.6; cursor: default; }
+    .dsh-codex-picker-name { font-size: 13px; }
+    .dsh-codex-picker-path {
+      font-family: var(--dsh-font-family-code, ui-monospace, monospace);
+      font-size: 11px;
+      color: var(--dsw-alias-label-secondary, #6b6b6b);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .dsh-codex-checkbox { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; font-size: 12px; cursor: pointer; }
+    .dsh-codex-checkbox input { accent-color: #4176e6; }
     `;
     function installStyles() {
       if (typeof document === "undefined") return;

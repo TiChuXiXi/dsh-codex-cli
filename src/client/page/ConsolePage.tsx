@@ -15,9 +15,9 @@ import type {
 } from '../types'
 import { useCodexTab } from '../hooks'
 import { subscribePending, takePending } from '../store'
-import { applyDetailEvent, threadTitle, upsertThread } from '../utils'
+import { applyDetailEvent, messageOf, threadTitle, upsertThread } from '../utils'
 import { FocusSidebar } from './FocusSidebar'
-import { NewThreadDialog, type NewThreadRequest } from './NewThreadDialog'
+import { ProjectPickerDialog } from './ProjectPickerDialog'
 import { ThreadView } from './ThreadView'
 import type { ModelOption } from './Composer'
 import { ThreadActions } from './ThreadActions'
@@ -27,6 +27,27 @@ import { VersionsDialog } from './VersionsDialog'
 const TURN_PAGE = 2
 /** 侧栏会话列表每页 10 条，搜索由宿主用 searchTerm 在服务端完成。 */
 const THREAD_PAGE = 10
+/** 记住最后一次打开的会话，以及用户已信任的目录。 */
+const LAST_THREAD_KEY = 'dsh-codex-last-thread'
+const TRUSTED_KEY = 'dsh-codex-trusted-cwds'
+
+function readStored(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function readTrusted(): string[] {
+  try {
+    const raw = window.localStorage.getItem(TRUSTED_KEY)
+    const parsed = raw === null ? [] : JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((entry) => typeof entry === 'string') : []
+  } catch {
+    return []
+  }
+}
 
 export interface ConsolePageProps {
   api: Api
@@ -45,7 +66,7 @@ export function ConsolePage(props: ConsolePageProps) {
   const [threads, setThreads] = React.useState<CodexThread[]>([])
   const [nextCursor, setNextCursor] = React.useState<string | null>(null)
   const [selectedCwd, setSelectedCwd] = React.useState<string | null>(null)
-  const [selectedId, setSelectedId] = React.useState<string | null>(null)
+  const [selectedId, setSelectedId] = React.useState<string | null>(() => readStored(LAST_THREAD_KEY))
   const [detail, setDetail] = React.useState<ThreadDetail | null>(null)
   const [detailLoading, setDetailLoading] = React.useState(false)
   const [olderCursor, setOlderCursor] = React.useState<any>(null)
@@ -58,9 +79,11 @@ export function ConsolePage(props: ConsolePageProps) {
   const [pending, setPending] = React.useState<PendingApproval[]>([])
   const [models, setModels] = React.useState<ModelOption[]>([])
   const [quota, setQuota] = React.useState<RateLimits | null>(null)
-  const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [pickerOpen, setPickerOpen] = React.useState(false)
+  const [trusted, setTrusted] = React.useState<string[]>(readTrusted)
   const [versionsOpen, setVersionsOpen] = React.useState(false)
-  const [newThreadCwd, setNewThreadCwd] = React.useState('')
+  const restoredRef = React.useRef(selectedId !== null)
+  const createThreadRef = React.useRef<(request: { cwd: string }) => Promise<void>>(async () => {})
   const searchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const listGeneration = React.useRef(0)
   const queryRef = React.useRef<{ search: string, cwd: string | null }>({ search: '', cwd: null })
@@ -160,13 +183,21 @@ export function ConsolePage(props: ConsolePageProps) {
       if (request.kind === 'thread') {
         setSelectedId(request.threadId)
       } else {
-        setNewThreadCwd(request.cwd)
-        setDialogOpen(true)
+        void createThreadRef.current({ cwd: request.cwd })
       }
     }
     consume()
     return subscribePending(consume)
   }, [])
+
+  React.useEffect(() => {
+    if (selectedId === null) return
+    try {
+      window.localStorage.setItem(LAST_THREAD_KEY, selectedId)
+    } catch {
+      // 隐私模式忽略。
+    }
+  }, [selectedId])
 
   React.useEffect(() => {
     void refresh()
@@ -271,11 +302,22 @@ export function ConsolePage(props: ConsolePageProps) {
     api<ThreadDetail>('threads/get', { threadId: selectedId, limit: TURN_PAGE })
       .then((next) => {
         if (cancelled) return
+        restoredRef.current = false
         setDetail(next)
         setOlderCursor(next.nextCursor ?? null)
       })
       .catch((cause) => {
-        if (!cancelled) setError(messageOf(cause))
+        if (cancelled) return
+        setError(messageOf(cause))
+        if (restoredRef.current) {
+          restoredRef.current = false
+          try {
+            window.localStorage.removeItem(LAST_THREAD_KEY)
+          } catch {
+            // 忽略。
+          }
+          setSelectedId(null)
+        }
       })
       .finally(() => {
         if (!cancelled) setDetailLoading(false)
@@ -404,15 +446,48 @@ export function ConsolePage(props: ConsolePageProps) {
   )
 
   const createThread = React.useCallback(
-    async (request: NewThreadRequest) => {
+    async (request: { cwd: string }) => {
       const thread = await api<CodexThread>('threads/new', request)
       if (thread !== null && thread !== undefined) {
         setThreads((previous) => upsertThread(previous, thread))
         setSelectedId(thread.id)
-        setDialogOpen(false)
+        setSelectedCwd(thread.cwd ?? request.cwd)
+        setPickerOpen(false)
+        setTrusted((previous) => {
+          if (previous.includes(request.cwd)) return previous
+          const next = [...previous, request.cwd]
+          try {
+            window.localStorage.setItem(TRUSTED_KEY, JSON.stringify(next))
+          } catch {
+            // 忽略。
+          }
+          return next
+        })
       }
     },
     [api],
+  )
+  createThreadRef.current = createThread
+
+  const currentCwd = detail?.thread.cwd ?? selectedCwd
+  const handleNew = React.useCallback(() => {
+    if (currentCwd !== null && currentCwd !== '') {
+      void createThread({ cwd: currentCwd }).catch((cause) => setError(messageOf(cause)))
+      return
+    }
+    setPickerOpen(true)
+  }, [currentCwd, createThread])
+
+  const pickProject = React.useCallback(
+    async (cwd: string) => {
+      await createThread({ cwd })
+    },
+    [createThread],
+  )
+
+  const trustedCwds = React.useMemo(
+    () => Array.from(new Set([...projects.map((project) => project.cwd), ...trusted])),
+    [projects, trusted],
   )
 
   const visibleThreads = React.useMemo(
@@ -475,7 +550,6 @@ export function ConsolePage(props: ConsolePageProps) {
     [pending, selectedId],
   )
 
-  const defaultCwd = detail?.thread.cwd ?? selectedCwd ?? projects[0]?.cwd ?? ''
   const totalThreads = projects.reduce((sum, project) => sum + project.threadCount, 0)
 
   const runningCount = projects.reduce((sum, project) => sum + project.activeCount, 0)
@@ -501,7 +575,7 @@ export function ConsolePage(props: ConsolePageProps) {
           onSelectProject={handleProjectToggle}
           onSelectThread={setSelectedId}
           onLoadMore={() => void loadThreads(nextCursor)}
-          onNew={() => setDialogOpen(true)}
+          onNew={handleNew}
           onVersions={() => setVersionsOpen(true)}
           onRefresh={() => void refresh()}
           onExit={onExit}
@@ -552,16 +626,17 @@ export function ConsolePage(props: ConsolePageProps) {
             }
           />
         </main>
-      </div>
 
-      <NewThreadDialog
-        open={dialogOpen}
-        models={models}
-        defaultCwd={newThreadCwd || defaultCwd}
-        onClose={() => setDialogOpen(false)}
-        onSubmit={createThread}
-      />
-      <VersionsDialog open={versionsOpen} api={api} onClose={() => setVersionsOpen(false)} />
+        <ProjectPickerDialog
+          open={pickerOpen}
+          api={api}
+          projects={projects}
+          trusted={trustedCwds}
+          onPick={pickProject}
+          onClose={() => setPickerOpen(false)}
+        />
+        <VersionsDialog open={versionsOpen} api={api} onClose={() => setVersionsOpen(false)} />
+      </div>
     </I18nContext.Provider>
   )
 }

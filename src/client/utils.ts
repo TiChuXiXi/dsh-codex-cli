@@ -72,6 +72,10 @@ export function formatDuration(ms: number, t: Translate): string {
   return t('duration.seconds', { count: seconds })
 }
 
+export function messageOf(cause: unknown): string {
+  return cause instanceof Error ? cause.message : String(cause)
+}
+
 export function statusKey(status: CodexThread['status']): string {
   const type = status?.type ?? 'idle'
   return `state.${type}`
