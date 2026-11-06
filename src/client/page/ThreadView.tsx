@@ -184,9 +184,8 @@ export function ThreadView({
   const orderedTurns = [...detail.turns]
     .map((turn, index) => ({ turn, index }))
     .sort((a, b) => {
-      // 运行中的回合可能还没有 startedAt，排到最后而不是最前。
-      const at = a.turn.startedAt ?? a.turn.completedAt ?? Number.MAX_SAFE_INTEGER
-      const bt = b.turn.startedAt ?? b.turn.completedAt ?? Number.MAX_SAFE_INTEGER
+      const at = turnTime(a.turn)
+      const bt = turnTime(b.turn)
       return at === bt ? a.index - b.index : at - bt
     })
     .map((entry) => entry.turn)
@@ -315,6 +314,15 @@ export function ThreadView({
 }
 
 /** 回合结束后的用时与完成时间，形如「用时 1 分 29 秒 · 09:15」。 */
+function turnTime(turn: CodexTurn): number {
+  if (typeof turn.startedAt === 'number') return turn.startedAt * 1000
+  if (typeof turn.completedAt === 'number') return turn.completedAt * 1000
+  const times = (turn.items ?? [])
+    .flatMap((item) => [item.startedAtMs, item.completedAtMs])
+    .filter((value): value is number => typeof value === 'number')
+  return times.length > 0 ? Math.min(...times) : Number.MAX_SAFE_INTEGER
+}
+
 function TurnFooter({ turn }: { turn: CodexTurn }) {
   const t = useT()
   if (turn.status === 'inProgress') return null

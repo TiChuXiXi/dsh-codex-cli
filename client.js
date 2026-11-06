@@ -2754,8 +2754,8 @@ window.__ModuleLoader__.load({
       if (detail === null) return null;
       const thread = detail.thread;
       const orderedTurns = [...detail.turns].map((turn, index) => ({ turn, index })).sort((a, b) => {
-        const at = a.turn.startedAt ?? a.turn.completedAt ?? Number.MAX_SAFE_INTEGER;
-        const bt = b.turn.startedAt ?? b.turn.completedAt ?? Number.MAX_SAFE_INTEGER;
+        const at = turnTime(a.turn);
+        const bt = turnTime(b.turn);
         return at === bt ? a.index - b.index : at - bt;
       }).map((entry) => entry.turn);
       const items = orderedTurns.flatMap((turn) => turn.items ?? []);
@@ -2807,6 +2807,12 @@ window.__ModuleLoader__.load({
           onStop
         }
       ));
+    }
+    function turnTime(turn) {
+      if (typeof turn.startedAt === "number") return turn.startedAt * 1e3;
+      if (typeof turn.completedAt === "number") return turn.completedAt * 1e3;
+      const times = (turn.items ?? []).flatMap((item) => [item.startedAtMs, item.completedAtMs]).filter((value) => typeof value === "number");
+      return times.length > 0 ? Math.min(...times) : Number.MAX_SAFE_INTEGER;
     }
     function TurnFooter({ turn }) {
       const t = useT();
