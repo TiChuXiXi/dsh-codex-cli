@@ -25,6 +25,8 @@ export interface CodexThread {
 export interface CodexItem {
   id: string
   type: string
+  startedAtMs?: number | null
+  completedAtMs?: number | null
   text?: string
   summary?: string[]
   content?: Array<{ type: string, text?: string }>

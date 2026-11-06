@@ -385,3 +385,9 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 模型与推理强度合并进一个两级菜单：模型列表带描述与勾选；推理强度按 Codex TUI 的层级——低/中/高/极高 + 「更多推理…」里的 Max/Ultra（共 6 档），描述直接取 `model/list` 的 `supportedReasoningEfforts`，并标出「默认/当前」。
 - 选择通过 `turns/start` 的 `model` / `effort` 下发；`defaultReasoningEffort` 用于「（默认）」标记。
 - 验证：菜单 9 个模型；推理强度 5 个顶层入口（低/中/高/极高/更多推理…），「更多推理…」内 Max/Ultra；选中 GPT-6-Astra 或 Ultra 后触发器同步；API 侧 `gpt-6-luna` + `low` 覆盖后线程元数据同步为 `gpt-6-luna` / `low`。
+
+### 2026-11-06 · 消息时间与回合耗时
+
+- 消息头显示本地时间：用户消息为「时间 你」，Codex 为「Codex 时间」，取自 item 的 `startedAtMs`。
+- 每个已结束回合追加一行「用时 X 分 Y 秒 · HH:MM」：优先用 turn 的 `durationMs`，缺失时用 `completedAt - startedAt` 或最后一条 item 的 `completedAtMs`；中断/失败显示对应前缀。
+- 验证：长会话中 8 个回合 footer 全部渲染，时长如「5 分 23 秒」「34 秒」「1 分 29 秒」，时间与消息头一致。

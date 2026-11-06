@@ -3,8 +3,8 @@
 import * as React from 'react'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
-import type { PendingApproval, ThreadDetail } from '../types'
-import { basename, relativeTime, statusKey, threadTitle } from '../utils'
+import type { CodexTurn, PendingApproval, ThreadDetail } from '../types'
+import { basename, formatClock, formatDuration, relativeTime, statusKey, threadTitle } from '../utils'
 import { ApprovalStack } from './ApprovalCard'
 import { Composer, type ModelOption } from './Composer'
 import { ItemCard } from './ItemCard'
@@ -73,6 +73,7 @@ export function ThreadView({
 
   const thread = detail.thread
   const items = detail.turns.flatMap((turn) => turn.items ?? [])
+  const hasItems = items.length > 0
 
   return (
     <>
@@ -116,10 +117,17 @@ export function ThreadView({
         </div>
       </div>
       <div className="dsh-codex-messages" ref={messagesRef}>
-        {items.length === 0 ? (
+        {!hasItems ? (
           <div className="dsh-codex-empty">{t('thread.noMessages')}</div>
         ) : (
-          items.map((item) => <ItemCard key={item.id} item={item} api={api} />)
+          detail.turns.map((turn) => (
+            <React.Fragment key={turn.id}>
+              {(turn.items ?? []).map((item) => (
+                <ItemCard key={item.id} item={item} api={api} />
+              ))}
+              <TurnFooter turn={turn} />
+            </React.Fragment>
+          ))
         )}
       </div>
       <ApprovalStack approvals={pending} onRespond={onRespond} />
@@ -137,4 +145,32 @@ export function ThreadView({
       />
     </>
   )
+}
+
+/** 回合结束后的用时与完成时间，形如「用时 1 分 29 秒 · 09:15」。 */
+function TurnFooter({ turn }: { turn: CodexTurn }) {
+  const t = useT()
+  if (turn.status === 'inProgress') return null
+  const startMs = typeof turn.startedAt === 'number' ? turn.startedAt * 1000 : null
+  const lastItem = [...(turn.items ?? [])].reverse().find((item) => typeof item.completedAtMs === 'number')
+  const endMs = typeof turn.completedAt === 'number' ? turn.completedAt * 1000 : (lastItem?.completedAtMs ?? null)
+  const durationMs =
+    typeof turn.durationMs === 'number'
+      ? turn.durationMs
+      : startMs !== null && endMs !== null
+        ? endMs - startMs
+        : null
+  const duration = durationMs === null ? '' : formatDuration(durationMs, t)
+  const clock = formatClock(endMs)
+  if (duration === '' && clock === '') return null
+  const label =
+    duration === ''
+      ? ''
+      : turn.status === 'interrupted'
+        ? t('turn.interrupted', { duration })
+        : turn.status === 'failed'
+          ? t('turn.failed', { duration })
+          : t('turn.workedFor', { duration })
+  const text = label === '' ? clock : clock === '' ? label : `${label} · ${clock}`
+  return <div className="dsh-codex-turn-footer">{text}</div>
 }

@@ -5,13 +5,13 @@ import { useT } from '../i18n'
 import type { Api } from '../rpc'
 import type { CodexItem } from '../types'
 import { Markdown } from '../markdown'
-import { itemText } from '../utils'
+import { formatClock, itemText } from '../utils'
 
 export function ItemCard({ item, api }: { item: CodexItem, api: Api }) {
   const t = useT()
   switch (item.type) {
     case 'userMessage':
-      return <Message kind="user" label={t('item.user')} text={itemText(item)} />
+      return <Message kind="user" label={t('item.user')} text={itemText(item)} time={formatClock(item.startedAtMs)} />
     case 'agentMessage':
       return (
         <Message
@@ -19,6 +19,7 @@ export function ItemCard({ item, api }: { item: CodexItem, api: Api }) {
           label={t('item.assistant')}
           text={typeof item.text === 'string' ? item.text : ''}
           muted={item.phase === 'commentary'}
+          time={formatClock(item.startedAtMs)}
         />
       )
     case 'reasoning':
@@ -50,12 +51,26 @@ export function ItemCard({ item, api }: { item: CodexItem, api: Api }) {
   }
 }
 
-function Message({ kind, label, text, muted = false }: { kind: 'user' | 'assistant', label: string, text: string, muted?: boolean }) {
+function Message({
+  kind,
+  label,
+  text,
+  muted = false,
+  time = '',
+}: {
+  kind: 'user' | 'assistant'
+  label: string
+  text: string
+  muted?: boolean
+  time?: string
+}) {
   if (text.trim() === '') return null
   return (
     <div className={`dsh-codex-message ${kind}`}>
       <div className="dsh-codex-message-head">
+        {kind === 'user' && time !== '' ? <span className="dsh-codex-message-time">{time}</span> : null}
         <span>{label}</span>
+        {kind === 'assistant' && time !== '' ? <span className="dsh-codex-message-time">{time}</span> : null}
       </div>
       <div className="dsh-codex-bubble" style={muted ? { opacity: 0.82 } : undefined}>
         <Markdown text={text} />

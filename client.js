@@ -239,6 +239,12 @@ window.__ModuleLoader__.load({
       "error.title": "出错了",
       "error.retry": "重试",
       "error.offline": "宿主未连接，稍后会自动重试。",
+      "duration.seconds": "{count} 秒",
+      "duration.minutes": "{count} 分",
+      "duration.hours": "{count} 小时",
+      "turn.workedFor": "用时 {duration}",
+      "turn.interrupted": "已中断（{duration}）",
+      "turn.failed": "失败（{duration}）",
       "time.justNow": "刚刚",
       "time.minutes": "{count} 分钟前",
       "time.hours": "{count} 小时前",
@@ -417,6 +423,12 @@ window.__ModuleLoader__.load({
       "error.title": "Something went wrong",
       "error.retry": "Retry",
       "error.offline": "The host is not connected; retrying automatically.",
+      "duration.seconds": "{count}s",
+      "duration.minutes": "{count}m",
+      "duration.hours": "{count}h",
+      "turn.workedFor": "Worked for {duration}",
+      "turn.interrupted": "Interrupted after {duration}",
+      "turn.failed": "Failed after {duration}",
       "time.justNow": "just now",
       "time.minutes": "{count}m ago",
       "time.hours": "{count}h ago",
@@ -521,6 +533,23 @@ window.__ModuleLoader__.load({
       if (delta < 3600) return t("time.minutes", { count: Math.floor(delta / 60) });
       if (delta < 86400) return t("time.hours", { count: Math.floor(delta / 3600) });
       return t("time.days", { count: Math.floor(delta / 86400) });
+    }
+    function formatClock(ms) {
+      if (typeof ms !== "number" || !Number.isFinite(ms) || ms <= 0) return "";
+      return new Date(ms).toLocaleTimeString(void 0, { hour: "2-digit", minute: "2-digit" });
+    }
+    function formatDuration(ms, t) {
+      const total = Math.max(0, Math.round(ms / 1e3));
+      const hours = Math.floor(total / 3600);
+      const minutes = Math.floor(total % 3600 / 60);
+      const seconds = total % 60;
+      if (hours > 0) {
+        return minutes > 0 ? `${t("duration.hours", { count: hours })} ${t("duration.minutes", { count: minutes })}` : t("duration.hours", { count: hours });
+      }
+      if (minutes > 0) {
+        return seconds > 0 ? `${t("duration.minutes", { count: minutes })} ${t("duration.seconds", { count: seconds })}` : t("duration.minutes", { count: minutes });
+      }
+      return t("duration.seconds", { count: seconds });
     }
     function statusKey(status) {
       const type = status?.type ?? "idle";
@@ -1270,7 +1299,7 @@ window.__ModuleLoader__.load({
       const t = useT();
       switch (item.type) {
         case "userMessage":
-          return /* @__PURE__ */ React10.createElement(Message, { kind: "user", label: t("item.user"), text: itemText(item) });
+          return /* @__PURE__ */ React10.createElement(Message, { kind: "user", label: t("item.user"), text: itemText(item), time: formatClock(item.startedAtMs) });
         case "agentMessage":
           return /* @__PURE__ */ React10.createElement(
             Message,
@@ -1278,7 +1307,8 @@ window.__ModuleLoader__.load({
               kind: "assistant",
               label: t("item.assistant"),
               text: typeof item.text === "string" ? item.text : "",
-              muted: item.phase === "commentary"
+              muted: item.phase === "commentary",
+              time: formatClock(item.startedAtMs)
             }
           );
         case "reasoning":
@@ -1309,9 +1339,15 @@ window.__ModuleLoader__.load({
           return /* @__PURE__ */ React10.createElement(Disclosure, { title: t("item.other", { type: item.type }), body: null });
       }
     }
-    function Message({ kind, label, text, muted = false }) {
+    function Message({
+      kind,
+      label,
+      text,
+      muted = false,
+      time = ""
+    }) {
       if (text.trim() === "") return null;
-      return /* @__PURE__ */ React10.createElement("div", { className: `dsh-codex-message ${kind}` }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-message-head" }, /* @__PURE__ */ React10.createElement("span", null, label)), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-bubble", style: muted ? { opacity: 0.82 } : void 0 }, /* @__PURE__ */ React10.createElement(Markdown, { text })));
+      return /* @__PURE__ */ React10.createElement("div", { className: `dsh-codex-message ${kind}` }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-message-head" }, kind === "user" && time !== "" ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-message-time" }, time) : null, /* @__PURE__ */ React10.createElement("span", null, label), kind === "assistant" && time !== "" ? /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-message-time" }, time) : null), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-bubble", style: muted ? { opacity: 0.82 } : void 0 }, /* @__PURE__ */ React10.createElement(Markdown, { text })));
     }
     function Reasoning({ item }) {
       const t = useT();
@@ -1477,7 +1513,8 @@ window.__ModuleLoader__.load({
       if (detail === null) return null;
       const thread = detail.thread;
       const items = detail.turns.flatMap((turn) => turn.items ?? []);
-      return /* @__PURE__ */ React11.createElement(React11.Fragment, null, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header-top" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), actions), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React11.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.messages", { count: items.length })))), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-messages", ref: messagesRef }, items.length === 0 ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : items.map((item) => /* @__PURE__ */ React11.createElement(ItemCard, { key: item.id, item, api }))), /* @__PURE__ */ React11.createElement(ApprovalStack, { approvals: pending2, onRespond }), /* @__PURE__ */ React11.createElement(
+      const hasItems = items.length > 0;
+      return /* @__PURE__ */ React11.createElement(React11.Fragment, null, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-header-top" }, /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-thread-title", title: thread.id }, threadTitle(thread)), actions), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-chips" }, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.status"), ": ", t(statusKey(thread.status))), thread.cwd ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip", title: thread.cwd }, t("thread.cwd"), ": ", /* @__PURE__ */ React11.createElement("code", null, basename(thread.cwd))) : null, thread.model ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.model"), ": ", thread.model) : null, thread.reasoningEffort ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.effort"), ": ", thread.reasoningEffort) : null, typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.git"), ": ", thread.gitInfo.branch) : null, thread.updatedAt ? /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.updated"), ": ", relativeTime(thread.updatedAt, t)) : null, /* @__PURE__ */ React11.createElement("span", { className: "dsh-codex-chip" }, t("thread.messages", { count: items.length })))), /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-messages", ref: messagesRef }, !hasItems ? /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-empty" }, t("thread.noMessages")) : detail.turns.map((turn) => /* @__PURE__ */ React11.createElement(React11.Fragment, { key: turn.id }, (turn.items ?? []).map((item) => /* @__PURE__ */ React11.createElement(ItemCard, { key: item.id, item, api })), /* @__PURE__ */ React11.createElement(TurnFooter, { turn })))), /* @__PURE__ */ React11.createElement(ApprovalStack, { approvals: pending2, onRespond }), /* @__PURE__ */ React11.createElement(
         Composer,
         {
           disabled: false,
@@ -1492,6 +1529,20 @@ window.__ModuleLoader__.load({
           onStop
         }
       ));
+    }
+    function TurnFooter({ turn }) {
+      const t = useT();
+      if (turn.status === "inProgress") return null;
+      const startMs = typeof turn.startedAt === "number" ? turn.startedAt * 1e3 : null;
+      const lastItem = [...turn.items ?? []].reverse().find((item) => typeof item.completedAtMs === "number");
+      const endMs = typeof turn.completedAt === "number" ? turn.completedAt * 1e3 : lastItem?.completedAtMs ?? null;
+      const durationMs = typeof turn.durationMs === "number" ? turn.durationMs : startMs !== null && endMs !== null ? endMs - startMs : null;
+      const duration = durationMs === null ? "" : formatDuration(durationMs, t);
+      const clock = formatClock(endMs);
+      if (duration === "" && clock === "") return null;
+      const label = duration === "" ? "" : turn.status === "interrupted" ? t("turn.interrupted", { duration }) : turn.status === "failed" ? t("turn.failed", { duration }) : t("turn.workedFor", { duration });
+      const text = label === "" ? clock : clock === "" ? label : `${label} · ${clock}`;
+      return /* @__PURE__ */ React11.createElement("div", { className: "dsh-codex-turn-footer" }, text);
     }
 
     // src/client/page/ThreadActions.tsx
@@ -2964,6 +3015,17 @@ window.__ModuleLoader__.load({
     .dsh-codex-menu-tag { margin-left: 6px; font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
     .dsh-codex-menu-tag.current { color: #4176e6; }
     .dsh-codex-menu-warning { padding: 0 8px 6px; font-size: 11px; color: #b7791f; }
+    .dsh-codex-message-time {
+      font-size: 11px;
+      color: var(--dsw-alias-label-secondary, #8a8f95);
+    }
+    .dsh-codex-turn-footer {
+      flex: none;
+      margin: 2px 0 10px;
+      font-family: var(--dsh-font-family-code, ui-monospace, monospace);
+      font-size: 11px;
+      color: var(--dsw-alias-label-secondary, #8a8f95);
+    }
     `;
     function installStyles() {
       if (typeof document === "undefined") return;

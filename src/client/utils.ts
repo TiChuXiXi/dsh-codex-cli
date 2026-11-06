@@ -34,6 +34,31 @@ export function relativeTime(seconds: number | null | undefined, t: Translate): 
   return t('time.days', { count: Math.floor(delta / 86400) })
 }
 
+/** 本地时钟：HH:MM（跟随界面语言，中文为 24 小时制）。 */
+export function formatClock(ms: number | null | undefined): string {
+  if (typeof ms !== 'number' || !Number.isFinite(ms) || ms <= 0) return ''
+  return new Date(ms).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+}
+
+/** 时长：1 小时 2 分 / 1 分 29 秒 / 45 秒。 */
+export function formatDuration(ms: number, t: Translate): string {
+  const total = Math.max(0, Math.round(ms / 1000))
+  const hours = Math.floor(total / 3600)
+  const minutes = Math.floor((total % 3600) / 60)
+  const seconds = total % 60
+  if (hours > 0) {
+    return minutes > 0
+      ? `${t('duration.hours', { count: hours })} ${t('duration.minutes', { count: minutes })}`
+      : t('duration.hours', { count: hours })
+  }
+  if (minutes > 0) {
+    return seconds > 0
+      ? `${t('duration.minutes', { count: minutes })} ${t('duration.seconds', { count: seconds })}`
+      : t('duration.minutes', { count: minutes })
+  }
+  return t('duration.seconds', { count: seconds })
+}
+
 export function statusKey(status: CodexThread['status']): string {
   const type = status?.type ?? 'idle'
   return `state.${type}`

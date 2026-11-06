@@ -754,6 +754,17 @@ export const CSS = `
 .dsh-codex-menu-tag { margin-left: 6px; font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
 .dsh-codex-menu-tag.current { color: #4176e6; }
 .dsh-codex-menu-warning { padding: 0 8px 6px; font-size: 11px; color: #b7791f; }
+.dsh-codex-message-time {
+  font-size: 11px;
+  color: var(--dsw-alias-label-secondary, #8a8f95);
+}
+.dsh-codex-turn-footer {
+  flex: none;
+  margin: 2px 0 10px;
+  font-family: var(--dsh-font-family-code, ui-monospace, monospace);
+  font-size: 11px;
+  color: var(--dsw-alias-label-secondary, #8a8f95);
+}
 `
 
 /** 注入一次样式；重复调用无副作用。 */
