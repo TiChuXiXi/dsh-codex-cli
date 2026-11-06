@@ -10,8 +10,9 @@ import * as React from 'react'
 export const NS = 'codexCli'
 
 export const zh = {
-  'app.title': 'Codex',
-  'app.subtitle': 'Codex CLI 管理端',
+  'app.title': 'Codex CLI',
+  'app.subtitle': '管理端',
+  'focus.search': '搜索项目或会话',
 
   'status.idle': '未连接',
   'status.connecting': '连接中',
@@ -226,8 +227,9 @@ export const zh = {
 }
 
 export const en = {
-  'app.title': 'Codex',
-  'app.subtitle': 'Codex CLI console',
+  'app.title': 'Codex CLI',
+  'app.subtitle': 'Console',
+  'focus.search': 'Search projects or sessions',
 
   'status.idle': 'Not connected',
   'status.connecting': 'Connecting',

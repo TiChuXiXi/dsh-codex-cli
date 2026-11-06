@@ -14,10 +14,8 @@ import type {
 } from '../types'
 import { subscribePending, takePending } from '../store'
 import { applyDetailEvent, threadTitle, upsertThread } from '../utils'
+import { FocusSidebar } from './FocusSidebar'
 import { NewThreadDialog, type NewThreadRequest } from './NewThreadDialog'
-import { ProjectList } from './ProjectList'
-import { StatusHeader } from './StatusHeader'
-import { ThreadList } from './ThreadList'
 import { ThreadView } from './ThreadView'
 import type { ModelOption } from './Composer'
 import { ThreadActions } from './ThreadActions'
@@ -30,12 +28,14 @@ const THREAD_PAGE = 10
 
 export interface ConsolePageProps {
   api: Api
+  onExit?: () => void
   t?: (key: string, vars?: Record<string, string | number>) => string
 }
 
 export function ConsolePage(props: ConsolePageProps) {
   const t = props.t ?? fallbackTranslate
   const api = props.api
+  const onExit = props.onExit ?? (() => {})
 
   const [status, setStatus] = React.useState<HubStatus | null>(null)
   const [projects, setProjects] = React.useState<Project[]>([])
@@ -104,7 +104,8 @@ export function ConsolePage(props: ConsolePageProps) {
       if (searchTimer.current !== null) clearTimeout(searchTimer.current)
       searchTimer.current = setTimeout(() => {
         searchTimer.current = null
-        void loadThreads(null, { search: value.trim() })
+        const next = value.trim()
+        void loadThreads(null, { search: next, cwd: next === '' ? queryRef.current.cwd : null })
       }, 250)
     },
     [loadThreads],
@@ -400,6 +401,32 @@ export function ConsolePage(props: ConsolePageProps) {
     [threads],
   )
 
+  const handleProjectToggle = React.useCallback(
+    (cwd: string) => {
+      if (selectedCwd === cwd) {
+        setSelectedCwd(null)
+        return
+      }
+      setSelectedCwd(cwd)
+      setSearch('')
+      if (searchTimer.current !== null) {
+        clearTimeout(searchTimer.current)
+        searchTimer.current = null
+      }
+      void loadThreads(null, { cwd, search: '' })
+    },
+    [selectedCwd, loadThreads],
+  )
+
+  // 打开某个会话后自动展开它所属的项目。
+  const detailCwd = detail?.thread.cwd ?? null
+  React.useEffect(() => {
+    if (detailCwd === null || detailCwd === '' || search.trim() !== '') return
+    if (selectedCwd === detailCwd) return
+    setSelectedCwd(detailCwd)
+    void loadThreads(null, { cwd: detailCwd, search: '' })
+  }, [detailCwd, search])
+
   const handleThreadRenamed = React.useCallback((id: string, name: string) => {
     setThreads((previous) => previous.map((thread) => (thread.id === id ? { ...thread, name } : thread)))
     setDetail((previous) =>
@@ -432,123 +459,89 @@ export function ConsolePage(props: ConsolePageProps) {
   const defaultCwd = detail?.thread.cwd ?? selectedCwd ?? projects[0]?.cwd ?? ''
   const totalThreads = projects.reduce((sum, project) => sum + project.threadCount, 0)
 
+  const runningCount = projects.reduce((sum, project) => sum + project.activeCount, 0)
+
   return (
     <I18nContext.Provider value={t}>
       <div className="dsh-codex-root">
-        <StatusHeader
+        <FocusSidebar
+          api={api}
           status={status}
           streamState={streamState}
-          onRefresh={() => void refresh()}
+          projects={projects}
+          totalThreads={totalThreads}
+          runningCount={runningCount}
+          threads={visibleThreads}
+          selectedCwd={selectedCwd}
+          selectedId={selectedId}
+          loading={loadingThreads}
+          hasMore={nextCursor !== null}
+          search={search}
+          onSearch={handleSearch}
+          onSelectProject={handleProjectToggle}
+          onSelectThread={setSelectedId}
+          onLoadMore={() => void loadThreads(nextCursor)}
           onNew={() => setDialogOpen(true)}
           onVersions={() => setVersionsOpen(true)}
+          onRefresh={() => void refresh()}
+          onExit={onExit}
+          onThreadRenamed={handleThreadRenamed}
+          onThreadChanged={handleThreadChanged}
+          onThreadDeleted={handleThreadDeleted}
         />
-        {error !== null ? (
-          <div className="dsh-codex-error">
-            {error}
-            <button type="button" className="dsh-codex-button" style={{ marginLeft: 8 }} onClick={() => void refresh()}>
-              {t('error.retry')}
-            </button>
-          </div>
-        ) : null}
-        <div className="dsh-codex-body">
-          <aside className="dsh-codex-sidebar">
-            <div className="dsh-codex-sidebar-scroll">
-              <ProjectList
-                projects={projects}
-                totalThreads={totalThreads}
-                selectedCwd={selectedCwd}
-                onSelect={(cwd) => {
-                  setSelectedCwd(cwd)
-                  setSearch('')
-                  if (searchTimer.current !== null) {
-                    clearTimeout(searchTimer.current)
-                    searchTimer.current = null
-                  }
-                  void loadThreads(null, { cwd, search: '' })
-                }}
-              />
-              <ThreadList
-                api={api}
-                threads={visibleThreads}
-                selectedId={selectedId}
-                loading={loadingThreads}
-                hasMore={nextCursor !== null}
-                search={search}
-                showCwd={selectedCwd === null}
-                onSearch={handleSearch}
-                onSelect={setSelectedId}
-                onLoadMore={() => void loadThreads(nextCursor)}
-                onThreadRenamed={handleThreadRenamed}
-                onThreadChanged={handleThreadChanged}
-                onThreadDeleted={handleThreadDeleted}
-              />
+        <main className="dsh-codex-main">
+          {error !== null ? (
+            <div className="dsh-codex-error">
+              {error}
+              <button type="button" className="dsh-codex-button" style={{ marginLeft: 8 }} onClick={() => void refresh()}>
+                {t('error.retry')}
+              </button>
             </div>
-          </aside>
-          <main className="dsh-codex-main">
-            <ThreadView
-              api={api}
-              detail={detail}
-              loading={detailLoading}
-              selectedId={selectedId}
-              activeTurnId={activeTurnId}
-              models={models}
-              hasOlder={olderCursor !== null}
-              loadingOlder={loadingOlder}
-              onLoadOlder={loadOlder}
-              pending={visiblePending}
-              onRespond={respond}
-              onSend={send}
-              onSteer={steer}
-              onStop={stop}
-              actions={
-                detail === null ? undefined : (
-                  <ThreadActions
-                    api={api}
-                    thread={detail.thread}
-                    onRenamed={(name) => {
-                      setThreads((previous) =>
-                        previous.map((thread) => (thread.id === detail.thread.id ? { ...thread, name } : thread)),
-                      )
-                      setDetail((previous) =>
-                        previous === null ? previous : { ...previous, thread: { ...previous.thread, name } },
-                      )
-                    }}
-                    onArchived={() => {
-                      setThreads((previous) => previous.filter((thread) => thread.id !== detail.thread.id))
-                      setSelectedId(null)
-                    }}
-                    onForked={(thread) => {
-                      setThreads((previous) => upsertThread(previous, thread))
-                      setSelectedId(thread.id)
-                    }}
-                    onDeleted={() => {
-                      setThreads((previous) => previous.filter((thread) => thread.id !== detail.thread.id))
-                      setSelectedId(null)
-                    }}
-                  />
-                )
-              }
-            />
-          </main>
-        </div>
-        <VersionsDialog open={versionsOpen} onClose={() => setVersionsOpen(false)} api={api} />
-        <NewThreadDialog
-          open={dialogOpen}
-          defaultCwd={newThreadCwd === '' ? defaultCwd : newThreadCwd}
-          projects={projects}
-          models={models}
-          onClose={() => {
-            setDialogOpen(false)
-            setNewThreadCwd('')
-          }}
-          onCreate={createThread}
-        />
+          ) : null}
+          <ThreadView
+            api={api}
+            detail={detail}
+            loading={detailLoading}
+            selectedId={selectedId}
+            activeTurnId={activeTurnId}
+            models={models}
+            hasOlder={olderCursor !== null}
+            loadingOlder={loadingOlder}
+            onLoadOlder={loadOlder}
+            pending={visiblePending}
+            onRespond={respond}
+            onSend={send}
+            onSteer={steer}
+            onStop={stop}
+            actions={
+              detail !== null ? (
+                <ThreadActions
+                  api={api}
+                  thread={detail.thread}
+                  onRenamed={(name) => handleThreadRenamed(detail.thread.id, name)}
+                  onArchived={() => {
+                    setSelectedId(null)
+                    void loadThreads(null)
+                  }}
+                  onForked={(thread) => {
+                    if (thread !== null && thread !== undefined) setSelectedId(thread.id)
+                  }}
+                  onDeleted={() => handleThreadDeleted(detail.thread.id)}
+                />
+              ) : null
+            }
+          />
+        </main>
       </div>
+
+      <NewThreadDialog
+        open={dialogOpen}
+        models={models}
+        defaultCwd={newThreadCwd || defaultCwd}
+        onClose={() => setDialogOpen(false)}
+        onSubmit={createThread}
+      />
+      <VersionsDialog open={versionsOpen} api={api} onClose={() => setVersionsOpen(false)} />
     </I18nContext.Provider>
   )
-}
-
-function messageOf(cause: unknown): string {
-  if (cause instanceof Error) return cause.message
-  return String(cause)
 }

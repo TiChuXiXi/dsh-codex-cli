@@ -440,3 +440,12 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 菜单宽度从 156px 收到 110px，项内边距 6px 8px，去掉多余留白。
 - 关闭条件改为「侧栏滚动 / 窗口 resize / Esc / 点击外部」；原先监听全局 scroll（capture），对话区流式输出自动滚动时会把菜单关掉，现在不会。
 - 验证：菜单实测 110px；滚动消息区后菜单仍为 1 个；滚动侧栏后关闭为 0。
+
+### 2026-11-06 · 全屏 Codex 模式
+
+- 管理页根节点改为 `position: fixed; inset: 0; z-index: 1000`，覆盖 DSH 侧栏与顶栏，整页只显示 Codex 内容；底部「DeepSeek Harness」调用 `ctx.layout.selectPanel(null)` 切回会话视图。
+- 顶部状态栏下沉到左侧面板：品牌、连接/传输/版本/实时状态、会话总数与运行中数量、新会话/版本/刷新；移除「全部会话」行。
+- 项目改为树：项目行（文件夹图标 + 名称 + 计数）展开后按 DSH 行样式嵌套会话；每页 10 条 + 「加载更多」。
+- 搜索非空时跨项目搜索会话（cwd 置空），同时列出匹配的项目；清空后回到树，并自动展开当前会话所属项目。
+- 删除不再使用的 StatusHeader / ProjectList / ThreadList 组件。
+- 验证：根节点 1440×900 覆盖全屏；侧栏 288px；统计 79 个会话；certbase 展开 10 条会话；点会话打开详情；退出后根节点消失、DSH 侧栏恢复；搜索「核查」5 条、清空后自动展开 certbase 10 条。

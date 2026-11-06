@@ -58,7 +58,16 @@ export function apply(ctx: any): void {
         name: 'main',
         key: PANEL_ID,
         locale: NS,
-        inject: () => ({ api }),
+        inject: () => ({
+          api,
+          onExit: () => {
+            try {
+              ctx.layout.selectPanel(null)
+            } catch {
+              // 退出失败时留在 Codex 模式。
+            }
+          },
+        }),
       },
       ConsolePage,
     ),
