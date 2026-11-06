@@ -504,3 +504,9 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 加号面板与斜杠命令共用一组命令；斜杠支持上下键选择、Enter 执行、Esc 取消。
 - 会话权限三档（只读/自动/完全访问），完全访问二次确认；发送时映射 approvalPolicy/sandboxPolicy（readOnly/workspaceWrite/dangerFullAccess）。
 - 验证：加号面板 7 项；权限确认框文案正确，取消后仍为自动、切只读生效；上传文件落盘并显示 chip；斜杠面板 7 条；带附件发送成功；无页面报错。
+
+### 2026-11-06 · 四档会话权限
+
+- 按 Codex 实际菜单改为四档：需要审批（on-request + user + workspaceWrite/restricted）、替我审批（on-request + auto_review + workspaceWrite/enabled）、完全访问（never + dangerFullAccess，二次确认）、只读（on-request + user + readOnly/restricted）。
+- `sandboxPolicy.networkAccess` 修正为协议要求的 "restricted"/"enabled"；`approvalsReviewer` 支持 user/auto_review。
+- 验证：权限菜单显示四档中文文案；默认「需要审批」；完全访问确认框仍生效。

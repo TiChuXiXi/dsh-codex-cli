@@ -25,7 +25,7 @@ export interface Attachment {
   kind: 'file' | 'image'
 }
 
-export type PermissionMode = 'read' | 'auto' | 'full'
+export type PermissionMode = 'ask' | 'approve' | 'full' | 'read'
 
 export interface ComposerProps {
   api: Api
@@ -435,7 +435,7 @@ export function Composer({
             <div className="dsh-codex-menu-backdrop" onPointerDown={closeAll} />
             <div className="dsh-codex-permission-menu" role="menu">
               <div className="dsh-codex-menu-title">{t('permission.title')}</div>
-              {(['read', 'auto', 'full'] as PermissionMode[]).map((mode) => (
+              {(['ask', 'approve', 'full', 'read'] as PermissionMode[]).map((mode) => (
                 <button
                   type="button"
                   key={mode}

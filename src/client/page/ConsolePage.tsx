@@ -463,22 +463,34 @@ export function ConsolePage(props: ConsolePageProps) {
     async (text: string, options: { model?: string, effort?: string, attachments?: Attachment[], permission?: PermissionMode } = {}) => {
       if (selectedId === null) return
       setError(null)
-      const permission = options.permission ?? 'auto'
+      const permission = options.permission ?? 'ask'
+      const workspaceWrite = (networkAccess: 'restricted' | 'enabled') => ({
+        type: 'workspaceWrite',
+        writableRoots: [],
+        networkAccess,
+        excludeTmpdirEnvVar: false,
+        excludeSlashTmp: false,
+      })
       const permissionPayload =
         permission === 'full'
-          ? { approvalPolicy: 'never', sandboxPolicy: { type: 'dangerFullAccess' } }
+          ? { approvalPolicy: 'never', approvalsReviewer: 'user', sandboxPolicy: { type: 'dangerFullAccess' } }
           : permission === 'read'
-            ? { approvalPolicy: 'on-request', sandboxPolicy: { type: 'readOnly', networkAccess: false } }
-            : {
+            ? {
                 approvalPolicy: 'on-request',
-                sandboxPolicy: {
-                  type: 'workspaceWrite',
-                  writableRoots: [],
-                  networkAccess: true,
-                  excludeTmpdirEnvVar: false,
-                  excludeSlashTmp: false,
-                },
+                approvalsReviewer: 'user',
+                sandboxPolicy: { type: 'readOnly', networkAccess: 'restricted' },
               }
+            : permission === 'approve'
+              ? {
+                  approvalPolicy: 'on-request',
+                  approvalsReviewer: 'auto_review',
+                  sandboxPolicy: workspaceWrite('enabled'),
+                }
+              : {
+                  approvalPolicy: 'on-request',
+                  approvalsReviewer: 'user',
+                  sandboxPolicy: workspaceWrite('restricted'),
+                }
       try {
         await api('turns/start', {
           threadId: selectedId,

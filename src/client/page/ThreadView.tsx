@@ -61,7 +61,7 @@ export function ThreadView({
   const threadId = detail?.thread.id ?? null
   const [model, setModel] = React.useState('')
   const [effort, setEffort] = React.useState('')
-  const [permission, setPermission] = React.useState<PermissionMode>('auto')
+  const [permission, setPermission] = React.useState<PermissionMode>('ask')
 
   // 切换会话时用该会话的模型/推理强度初始化；之后用户的选择保持到再次切换。
   React.useEffect(() => {
@@ -70,9 +70,9 @@ export function ThreadView({
     setEffort(detail.thread.reasoningEffort ?? '')
     try {
       const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`)
-      setPermission(saved === 'read' || saved === 'full' ? saved : 'auto')
+      setPermission(saved === 'read' || saved === 'full' || saved === 'approve' ? saved : 'ask')
     } catch {
-      setPermission('auto')
+      setPermission('ask')
     }
   }, [threadId])
 

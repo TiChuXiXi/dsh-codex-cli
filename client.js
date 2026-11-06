@@ -171,12 +171,14 @@ window.__ModuleLoader__.load({
       "cmd.new": "新会话",
       "cmd.newDesc": "在当前项目新建会话",
       "permission.title": "会话权限",
+      "permission.ask": "需要审批",
+      "permission.askDesc": "读写工作区、执行命令，访问网络或修改工作区外文件时需审批",
+      "permission.approve": "替我审批",
+      "permission.approveDesc": "仅对检测到可能不安全的操作请求审批",
       "permission.read": "只读",
-      "permission.readDesc": "只能读取，不允许修改",
-      "permission.auto": "自动",
-      "permission.autoDesc": "工作区内可修改，敏感操作需审批",
+      "permission.readDesc": "只读工作区文件，修改或访问网络需审批",
       "permission.full": "完全访问",
-      "permission.fullDesc": "不做沙箱限制，命令直接执行",
+      "permission.fullDesc": "可直接修改工作区外文件并访问网络，不经审批",
       "permission.fullTitle": "切换到完全访问？",
       "permission.fullBody": "完全访问会取消沙箱限制，Codex 可以不经审批读写文件、执行命令和访问网络。确认切换？",
       "permission.confirm": "确认切换",
@@ -452,12 +454,14 @@ window.__ModuleLoader__.load({
       "cmd.new": "New session",
       "cmd.newDesc": "Create a session in the current project",
       "permission.title": "Session permission",
+      "permission.ask": "Ask for approval",
+      "permission.askDesc": "Read and edit workspace files and run commands, approval for network access or edits outside the workspace",
+      "permission.approve": "Approve for me",
+      "permission.approveDesc": "Only ask for actions detected as potentially unsafe",
       "permission.read": "Read only",
-      "permission.readDesc": "Read-only, no modifications",
-      "permission.auto": "Auto",
-      "permission.autoDesc": "Modify inside the workspace, ask for sensitive actions",
+      "permission.readDesc": "Read workspace files, approval for edits or network access",
       "permission.full": "Full access",
-      "permission.fullDesc": "No sandbox restrictions, commands run directly",
+      "permission.fullDesc": "Edit files outside the workspace and access the internet without approval",
       "permission.fullTitle": "Switch to full access?",
       "permission.fullBody": "Full access removes the sandbox: Codex can read and write files, run commands, and access the network without approval. Continue?",
       "permission.confirm": "Switch",
@@ -1956,7 +1960,7 @@ window.__ModuleLoader__.load({
           hint: t(command.desc),
           onClick: () => runCommand(command.id)
         }
-      )))) : null, permissionOpen ? /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-permission-menu", role: "menu" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("permission.title")), ["read", "auto", "full"].map((mode) => /* @__PURE__ */ React10.createElement(
+      )))) : null, permissionOpen ? /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-permission-menu", role: "menu" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("permission.title")), ["ask", "approve", "full", "read"].map((mode) => /* @__PURE__ */ React10.createElement(
         "button",
         {
           type: "button",
@@ -2583,16 +2587,16 @@ window.__ModuleLoader__.load({
       const threadId = detail?.thread.id ?? null;
       const [model, setModel] = React14.useState("");
       const [effort, setEffort] = React14.useState("");
-      const [permission, setPermission] = React14.useState("auto");
+      const [permission, setPermission] = React14.useState("ask");
       React14.useEffect(() => {
         if (detail === null) return;
         setModel(detail.thread.model ?? "");
         setEffort(detail.thread.reasoningEffort ?? "");
         try {
           const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`);
-          setPermission(saved === "read" || saved === "full" ? saved : "auto");
+          setPermission(saved === "read" || saved === "full" || saved === "approve" ? saved : "ask");
         } catch {
-          setPermission("auto");
+          setPermission("ask");
         }
       }, [threadId]);
       const changePermission = React14.useCallback(
@@ -3391,16 +3395,26 @@ window.__ModuleLoader__.load({
         async (text, options = {}) => {
           if (selectedId === null) return;
           setError(null);
-          const permission = options.permission ?? "auto";
-          const permissionPayload = permission === "full" ? { approvalPolicy: "never", sandboxPolicy: { type: "dangerFullAccess" } } : permission === "read" ? { approvalPolicy: "on-request", sandboxPolicy: { type: "readOnly", networkAccess: false } } : {
+          const permission = options.permission ?? "ask";
+          const workspaceWrite = (networkAccess) => ({
+            type: "workspaceWrite",
+            writableRoots: [],
+            networkAccess,
+            excludeTmpdirEnvVar: false,
+            excludeSlashTmp: false
+          });
+          const permissionPayload = permission === "full" ? { approvalPolicy: "never", approvalsReviewer: "user", sandboxPolicy: { type: "dangerFullAccess" } } : permission === "read" ? {
             approvalPolicy: "on-request",
-            sandboxPolicy: {
-              type: "workspaceWrite",
-              writableRoots: [],
-              networkAccess: true,
-              excludeTmpdirEnvVar: false,
-              excludeSlashTmp: false
-            }
+            approvalsReviewer: "user",
+            sandboxPolicy: { type: "readOnly", networkAccess: "restricted" }
+          } : permission === "approve" ? {
+            approvalPolicy: "on-request",
+            approvalsReviewer: "auto_review",
+            sandboxPolicy: workspaceWrite("enabled")
+          } : {
+            approvalPolicy: "on-request",
+            approvalsReviewer: "user",
+            sandboxPolicy: workspaceWrite("restricted")
           };
           try {
             await api("turns/start", {
