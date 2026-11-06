@@ -112,6 +112,8 @@ export function Composer({
   const [uploading, setUploading] = React.useState(false)
   const [uploadError, setUploadError] = React.useState<string | null>(null)
   const [slashIndex, setSlashIndex] = React.useState(0)
+  const [slashDismissed, setSlashDismissed] = React.useState(false)
+  const slashRef = React.useRef<HTMLDivElement | null>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement | null>(null)
 
@@ -153,7 +155,28 @@ export function Composer({
         const label = t(command.label).toLowerCase()
         return command.id.includes(slashQuery) || label.includes(slashQuery)
       })
-  const slashOpen = slashQuery !== null && slashCommands.length > 0
+  const slashOpen = slashQuery !== null && slashCommands.length > 0 && !slashDismissed
+
+  React.useEffect(() => {
+    if (!slashOpen) return undefined
+    const onPointer = (event: PointerEvent) => {
+      const target = event.target
+      if (!(target instanceof Node)) return
+      if (slashRef.current?.contains(target)) return
+      if (textareaRef.current?.contains(target)) return
+      setSlashDismissed(true)
+    }
+    document.addEventListener('pointerdown', onPointer, true)
+    return () => document.removeEventListener('pointerdown', onPointer, true)
+  }, [slashOpen])
+
+  // 键盘切换时把选中项滚入可视区域
+  React.useEffect(() => {
+    if (!slashOpen) return
+    const element = slashRef.current?.querySelector(`[data-slash-index="${slashIndex}"]`)
+    if (element instanceof HTMLElement) element.scrollIntoView({ block: 'nearest' })
+  }, [slashIndex, slashOpen])
+
 
   const closeAll = () => {
     setPlusOpen(false)
@@ -260,6 +283,26 @@ export function Composer({
 
   return (
     <div className="dsh-codex-composer-wrap">
+      {slashOpen ? (
+        <div className="dsh-codex-slash" role="listbox" ref={slashRef}>
+          {slashCommands.map((command, index) => (
+            <button
+              type="button"
+              key={command.id}
+              role="option"
+              aria-selected={index === slashIndex}
+              data-slash-index={index}
+              className={`dsh-codex-slash-item ${index === slashIndex ? 'active' : ''}`}
+              onMouseEnter={() => setSlashIndex(index)}
+              onClick={() => runCommand(command.id)}
+            >
+              <span className="dsh-codex-slash-name">/{command.id}</span>
+              <span className="dsh-codex-slash-label">{t(command.label)}</span>
+              <span className="dsh-codex-slash-desc">{t(command.desc)}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
       {plusOpen ? (
         <>
           <div className="dsh-codex-menu-backdrop" onPointerDown={closeAll} />
@@ -312,6 +355,7 @@ export function Composer({
           onChange={(event) => {
             setText(event.target.value)
             setSlashIndex(0)
+            setSlashDismissed(false)
           }}
           onKeyDown={(event) => {
             if (slashOpen) {
@@ -333,7 +377,7 @@ export function Composer({
               }
               if (event.key === 'Escape') {
                 event.preventDefault()
-                setText('')
+                setSlashDismissed(true)
                 return
               }
             }
@@ -343,26 +387,6 @@ export function Composer({
             }
           }}
         />
-
-        {slashOpen ? (
-          <div className="dsh-codex-slash" role="listbox">
-            {slashCommands.map((command, index) => (
-              <button
-                type="button"
-                key={command.id}
-                role="option"
-                aria-selected={index === slashIndex}
-                className={`dsh-codex-slash-item ${index === slashIndex ? 'active' : ''}`}
-                onMouseEnter={() => setSlashIndex(index)}
-                onClick={() => runCommand(command.id)}
-              >
-                <span className="dsh-codex-slash-name">/{command.id}</span>
-                <span className="dsh-codex-slash-label">{t(command.label)}</span>
-                <span className="dsh-codex-slash-desc">{t(command.desc)}</span>
-              </button>
-            ))}
-          </div>
-        ) : null}
 
         <div className="dsh-codex-composer-row">
           <div className="dsh-codex-composer-tools">

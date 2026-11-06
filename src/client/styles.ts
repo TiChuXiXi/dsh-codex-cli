@@ -1213,13 +1213,16 @@ export const CSS = `
 .dsh-codex-permission-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .dsh-codex-slash {
   position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 46px;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 6px);
   z-index: 30;
-  max-height: 260px;
-  overflow: auto;
-  padding: 4px;
+  width: min(774px, calc(100% - 36px));
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 4px 6px 4px 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.22) transparent;
   border-radius: 14px;
   background: var(--dsw-alias-bg-base, #ffffff);
   box-shadow:
@@ -1245,6 +1248,9 @@ export const CSS = `
 .dsh-codex-slash-item.active { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
 .dsh-codex-slash-name { width: 74px; flex: none; font-family: var(--dsh-font-family-code, ui-monospace, monospace); font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
 .dsh-codex-slash-label { font-size: 12px; }
+.dsh-codex-slash::-webkit-scrollbar { width: 6px; }
+.dsh-codex-slash::-webkit-scrollbar-track { background: transparent; }
+.dsh-codex-slash::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.22); border-radius: 999px; }
 .dsh-codex-slash-desc { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
 `
 

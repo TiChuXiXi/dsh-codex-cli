@@ -1721,6 +1721,8 @@ window.__ModuleLoader__.load({
       const [uploading, setUploading] = React10.useState(false);
       const [uploadError, setUploadError] = React10.useState(null);
       const [slashIndex, setSlashIndex] = React10.useState(0);
+      const [slashDismissed, setSlashDismissed] = React10.useState(false);
+      const slashRef = React10.useRef(null);
       const textareaRef = React10.useRef(null);
       const fileInputRef = React10.useRef(null);
       React10.useEffect(() => {
@@ -1754,7 +1756,24 @@ window.__ModuleLoader__.load({
         const label = t(command.label).toLowerCase();
         return command.id.includes(slashQuery) || label.includes(slashQuery);
       });
-      const slashOpen = slashQuery !== null && slashCommands.length > 0;
+      const slashOpen = slashQuery !== null && slashCommands.length > 0 && !slashDismissed;
+      React10.useEffect(() => {
+        if (!slashOpen) return void 0;
+        const onPointer = (event) => {
+          const target = event.target;
+          if (!(target instanceof Node)) return;
+          if (slashRef.current?.contains(target)) return;
+          if (textareaRef.current?.contains(target)) return;
+          setSlashDismissed(true);
+        };
+        document.addEventListener("pointerdown", onPointer, true);
+        return () => document.removeEventListener("pointerdown", onPointer, true);
+      }, [slashOpen]);
+      React10.useEffect(() => {
+        if (!slashOpen) return;
+        const element = slashRef.current?.querySelector(`[data-slash-index="${slashIndex}"]`);
+        if (element instanceof HTMLElement) element.scrollIntoView({ block: "nearest" });
+      }, [slashIndex, slashOpen]);
       const closeAll = () => {
         setPlusOpen(false);
         setPermissionOpen(false);
@@ -1851,7 +1870,22 @@ window.__ModuleLoader__.load({
           setBusy(false);
         }
       };
-      return /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-composer-wrap" }, plusOpen ? /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-plus-panel", role: "menu" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.add")), /* @__PURE__ */ React10.createElement(PlusItem, { icon: /* @__PURE__ */ React10.createElement(PaperclipGlyph, null), label: t("cmd.attach"), hint: t("cmd.attachDesc"), onClick: () => runCommand("attach") }), /* @__PURE__ */ React10.createElement(PlusItem, { icon: /* @__PURE__ */ React10.createElement(FolderGlyph2, null), label: t("cmd.project"), hint: t("cmd.projectDesc"), onClick: () => runCommand("project") }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.commands")), COMMANDS.filter((command) => command.id !== "attach" && command.id !== "project").map((command) => /* @__PURE__ */ React10.createElement(
+      return /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-composer-wrap" }, slashOpen ? /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-slash", role: "listbox", ref: slashRef }, slashCommands.map((command, index) => /* @__PURE__ */ React10.createElement(
+        "button",
+        {
+          type: "button",
+          key: command.id,
+          role: "option",
+          "aria-selected": index === slashIndex,
+          "data-slash-index": index,
+          className: `dsh-codex-slash-item ${index === slashIndex ? "active" : ""}`,
+          onMouseEnter: () => setSlashIndex(index),
+          onClick: () => runCommand(command.id)
+        },
+        /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-slash-name" }, "/", command.id),
+        /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-slash-label" }, t(command.label)),
+        /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-slash-desc" }, t(command.desc))
+      ))) : null, plusOpen ? /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-plus-panel", role: "menu" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.add")), /* @__PURE__ */ React10.createElement(PlusItem, { icon: /* @__PURE__ */ React10.createElement(PaperclipGlyph, null), label: t("cmd.attach"), hint: t("cmd.attachDesc"), onClick: () => runCommand("attach") }), /* @__PURE__ */ React10.createElement(PlusItem, { icon: /* @__PURE__ */ React10.createElement(FolderGlyph2, null), label: t("cmd.project"), hint: t("cmd.projectDesc"), onClick: () => runCommand("project") }), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-menu-title" }, t("composer.commands")), COMMANDS.filter((command) => command.id !== "attach" && command.id !== "project").map((command) => /* @__PURE__ */ React10.createElement(
         PlusItem,
         {
           key: command.id,
@@ -1880,6 +1914,7 @@ window.__ModuleLoader__.load({
           onChange: (event) => {
             setText(event.target.value);
             setSlashIndex(0);
+            setSlashDismissed(false);
           },
           onKeyDown: (event) => {
             if (slashOpen) {
@@ -1901,7 +1936,7 @@ window.__ModuleLoader__.load({
               }
               if (event.key === "Escape") {
                 event.preventDefault();
-                setText("");
+                setSlashDismissed(true);
                 return;
               }
             }
@@ -1911,21 +1946,7 @@ window.__ModuleLoader__.load({
             }
           }
         }
-      ), slashOpen ? /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-slash", role: "listbox" }, slashCommands.map((command, index) => /* @__PURE__ */ React10.createElement(
-        "button",
-        {
-          type: "button",
-          key: command.id,
-          role: "option",
-          "aria-selected": index === slashIndex,
-          className: `dsh-codex-slash-item ${index === slashIndex ? "active" : ""}`,
-          onMouseEnter: () => setSlashIndex(index),
-          onClick: () => runCommand(command.id)
-        },
-        /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-slash-name" }, "/", command.id),
-        /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-slash-label" }, t(command.label)),
-        /* @__PURE__ */ React10.createElement("span", { className: "dsh-codex-slash-desc" }, t(command.desc))
-      ))) : null, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-composer-row" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-composer-tools" }, /* @__PURE__ */ React10.createElement(
+      ), /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-composer-row" }, /* @__PURE__ */ React10.createElement("div", { className: "dsh-codex-composer-tools" }, /* @__PURE__ */ React10.createElement(
         "button",
         {
           type: "button",
@@ -5038,13 +5059,16 @@ window.__ModuleLoader__.load({
     .dsh-codex-permission-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .dsh-codex-slash {
       position: absolute;
-      left: 8px;
-      right: 8px;
-      bottom: 46px;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(100% + 6px);
       z-index: 30;
-      max-height: 260px;
-      overflow: auto;
-      padding: 4px;
+      width: min(774px, calc(100% - 36px));
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 4px 6px 4px 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.22) transparent;
       border-radius: 14px;
       background: var(--dsw-alias-bg-base, #ffffff);
       box-shadow:
@@ -5070,6 +5094,9 @@ window.__ModuleLoader__.load({
     .dsh-codex-slash-item.active { background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.05)); }
     .dsh-codex-slash-name { width: 74px; flex: none; font-family: var(--dsh-font-family-code, ui-monospace, monospace); font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
     .dsh-codex-slash-label { font-size: 12px; }
+    .dsh-codex-slash::-webkit-scrollbar { width: 6px; }
+    .dsh-codex-slash::-webkit-scrollbar-track { background: transparent; }
+    .dsh-codex-slash::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.22); border-radius: 999px; }
     .dsh-codex-slash-desc { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
     `;
     function installStyles() {
