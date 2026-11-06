@@ -542,6 +542,12 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 还原：`thread/resume` 的 `collaborationMode` 由 `openThread` 缓存，`threads/settings` 返回；打开线程时据此点亮标签。新建线程（无 rollout）由 `startTurn` 成功后把本次 `collaborationMode` 写进缓存。
 - 验证：UI 实测——加号面板 1 项、标签出现、运行中关闭标签后该回合仍为 plan（`threads/settings` + `thread/resume` 均为 plan）、下一回合变 default；`thread/resume` 独立复核 plan → default，reasoning effort 保持用户选择（high）。测试 17/17 通过。
 
+### 2026-11-06 · 工具调用摘要按实际文件统计
+
+- 旧逻辑按 `server + tool` 名称正则分类：`list_projects` / `list_directory` 因为含 "list" 被算成「读取」，`read_multiple_files` 每次只 +1，`index_status` 算「工具」。
+- 新逻辑：只有 `read_*` 工具计入「读取」，并从 `arguments.paths` / `path` / `file` 统计**去重后的文件路径**；`list_*`、`search_*`、`get_*`、`index_*` 都计入「工具」。
+- 例子：截图中的组（3 次 `read_multiple_files` 读 3+3+2 个路径、去重 5 个文件；`list_projects` + `list_directory` + 2 次 `index_status`；2 条 `git status`）旧摘要「2 命令 / 5 文件 / 2 工具」→ 新摘要「2 命令 / 5 文件 / 4 工具」。5 原本是巧合（3 次读 + 2 次 list），现在才是真实去重文件数。
+
 ### 2026-11-06 · 未完成任务：右侧面板 cwd 参数化（暂停）
 
 **目标**：让 DSH 原生右栏（工作区文件 / 版本管理 / 新建终端）接受显式 `cwd`，不再依赖 DSH 会话 id，从而可直接挂在 Codex 全屏面板里，复用 PDF/DOCX/XLSX/Markdown/图片预览、终端和 `dsh-git-vcs`。

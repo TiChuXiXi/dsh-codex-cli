@@ -85,9 +85,10 @@ export function ToolGroup({ items, api }: { items: CodexItem[], api: Api }) {
 
 function summarize(items: CodexItem[], t: (key: string, vars?: Record<string, string | number>) => string): string {
   let commands = 0
-  let reads = 0
   let writes = 0
   let tools = 0
+  let anonymousReads = 0
+  const readPaths = new Set<string>()
   for (const item of items) {
     if (item.type === 'commandExecution') {
       commands += 1
@@ -96,12 +97,24 @@ function summarize(items: CodexItem[], t: (key: string, vars?: Record<string, st
     } else if (item.type === 'webSearch' || item.type === 'dynamicToolCall') {
       tools += 1
     } else if (item.type === 'mcpToolCall') {
-      const name = `${item.server ?? ''} ${item.tool ?? ''}`.toLowerCase()
-      if (/read|list|glob|search|get_|find/.test(name)) reads += 1
-      else if (/write|edit|create|delete|move|rename|apply|patch/.test(name)) writes += 1
-      else tools += 1
+      const tool = String(item.tool ?? '').toLowerCase()
+      const name = `${item.server ?? ''} ${tool}`.toLowerCase()
+      // 只有真正读文件的工具才计入「读取」；list_* / search_* / get_* / index_* 都是工具调用。
+      if (/^read|_read/.test(tool)) {
+        const paths = filePathsOf(item)
+        if (paths !== null && paths.length > 0) {
+          for (const path of paths) readPaths.add(path)
+        } else {
+          anonymousReads += 1
+        }
+      } else if (/write|edit|create|delete|move|rename|apply|patch/.test(name)) {
+        writes += 1
+      } else {
+        tools += 1
+      }
     }
   }
+  const reads = readPaths.size + anonymousReads
   const parts: string[] = []
   if (commands > 0) parts.push(t('group.commands', { count: commands }))
   if (reads > 0) parts.push(t('group.reads', { count: reads }))
@@ -109,4 +122,26 @@ function summarize(items: CodexItem[], t: (key: string, vars?: Record<string, st
   if (tools > 0) parts.push(t('group.tools', { count: tools }))
   if (parts.length === 0) return t('group.activity')
   return parts.join(parts.length > 2 ? t('group.sepList') : t('group.sepAnd'))
+}
+
+/** 从工具参数里取实际读到的文件路径；取不到时返回 null，按一次匿名读取计数。 */
+function filePathsOf(item: CodexItem): string[] | null {
+  let args: unknown = item.arguments
+  if (typeof args === 'string') {
+    try {
+      args = JSON.parse(args)
+    } catch {
+      return null
+    }
+  }
+  if (args === null || typeof args !== 'object') return null
+  const record = args as Record<string, unknown>
+  if (Array.isArray(record.paths)) {
+    return record.paths.filter((path): path is string => typeof path === 'string' && path !== '')
+  }
+  for (const key of ['path', 'file'] as const) {
+    const value = record[key]
+    if (typeof value === 'string' && value !== '') return [value]
+  }
+  return null
 }

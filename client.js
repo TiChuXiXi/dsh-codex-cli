@@ -3020,9 +3020,10 @@ window.__ModuleLoader__.load({
     }
     function summarize(items, t) {
       let commands = 0;
-      let reads = 0;
       let writes = 0;
       let tools = 0;
+      let anonymousReads = 0;
+      const readPaths = /* @__PURE__ */ new Set();
       for (const item of items) {
         if (item.type === "commandExecution") {
           commands += 1;
@@ -3031,12 +3032,23 @@ window.__ModuleLoader__.load({
         } else if (item.type === "webSearch" || item.type === "dynamicToolCall") {
           tools += 1;
         } else if (item.type === "mcpToolCall") {
-          const name = `${item.server ?? ""} ${item.tool ?? ""}`.toLowerCase();
-          if (/read|list|glob|search|get_|find/.test(name)) reads += 1;
-          else if (/write|edit|create|delete|move|rename|apply|patch/.test(name)) writes += 1;
-          else tools += 1;
+          const tool = String(item.tool ?? "").toLowerCase();
+          const name = `${item.server ?? ""} ${tool}`.toLowerCase();
+          if (/^read|_read/.test(tool)) {
+            const paths = filePathsOf(item);
+            if (paths !== null && paths.length > 0) {
+              for (const path of paths) readPaths.add(path);
+            } else {
+              anonymousReads += 1;
+            }
+          } else if (/write|edit|create|delete|move|rename|apply|patch/.test(name)) {
+            writes += 1;
+          } else {
+            tools += 1;
+          }
         }
       }
+      const reads = readPaths.size + anonymousReads;
       const parts = [];
       if (commands > 0) parts.push(t("group.commands", { count: commands }));
       if (reads > 0) parts.push(t("group.reads", { count: reads }));
@@ -3044,6 +3056,26 @@ window.__ModuleLoader__.load({
       if (tools > 0) parts.push(t("group.tools", { count: tools }));
       if (parts.length === 0) return t("group.activity");
       return parts.join(parts.length > 2 ? t("group.sepList") : t("group.sepAnd"));
+    }
+    function filePathsOf(item) {
+      let args = item.arguments;
+      if (typeof args === "string") {
+        try {
+          args = JSON.parse(args);
+        } catch {
+          return null;
+        }
+      }
+      if (args === null || typeof args !== "object") return null;
+      const record = args;
+      if (Array.isArray(record.paths)) {
+        return record.paths.filter((path) => typeof path === "string" && path !== "");
+      }
+      for (const key of ["path", "file"]) {
+        const value = record[key];
+        if (typeof value === "string" && value !== "") return [value];
+      }
+      return null;
     }
 
     // src/client/page/ThreadView.tsx
