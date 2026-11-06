@@ -197,14 +197,20 @@ export const CSS = `
   color: var(--dsw-alias-label-secondary, #6b6b6b);
 }
 .dsh-codex-bubble {
-  max-width: min(760px, 92%);
-  padding: 9px 12px;
-  border-radius: 10px;
-  background: var(--dsw-alias-bg-layer-1, rgba(0, 0, 0, 0.035));
+  max-width: min(760px, 100%);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
   overflow-wrap: anywhere;
 }
 .dsh-codex-message.user .dsh-codex-bubble {
-  background: var(--dsw-alias-button-elevated-fill, rgba(47, 143, 91, 0.12));
+  max-width: min(720px, 82%);
+  padding: 10px 14px;
+  border-radius: 16px 16px 6px 16px;
+  background: rgba(65, 118, 230, 0.08);
+  box-shadow:
+    inset 0 0 0 1px rgba(65, 118, 230, 0.14),
+    0 1px 2px rgba(15, 17, 21, 0.04);
 }
 .dsh-codex-text { white-space: pre-wrap; overflow-wrap: anywhere; }
 .dsh-codex-text code {

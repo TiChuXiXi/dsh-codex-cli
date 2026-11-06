@@ -406,3 +406,8 @@ dsh plugin --profile web add /root/project/dsh-codex-cli
 - 触发：滚动到 `scrollTop < 240` 自动加载，或点顶部「加载更早的消息」；加载中按钮显示「正在加载更早的消息…」并禁用。
 - 位置保持：触发前记录 `scrollHeight/scrollTop`，前插后的 `useLayoutEffect` 把 `scrollTop` 调整为 `top + (newHeight - oldHeight)`；失败时清空待恢复状态。
 - 验证：certbase 线程初始 58 个条目块 / 2 个 footer；滚到顶部后加载到 297 块 / 4 个 footer；高度 3835 → 19550，`scrollTop` 0 → 15715（视觉位置不变）；第二页无元数据、与第一页无重叠。
+
+### 2026-11-06 · 用户消息气泡
+
+- 用户消息改为右对齐气泡：`rgba(65,118,230,.08)` 底色、`rgba(65,118,230,.14)` 内描边、`16px 16px 6px 16px` 圆角、`10px 14px` 内边距、最大宽度 `min(720px, 82%)`。
+- 助手回复去掉底色与内边距，保持纯文本；时间与「你/Codex」标签仍在气泡上方。
