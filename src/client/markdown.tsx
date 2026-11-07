@@ -6,9 +6,20 @@
  */
 
 import * as React from 'react'
+import {INLINE} from './markdownTokens'
 import type { Api } from './rpc'
+import {downloadsOnClick} from './fileTypes'
+import {FileDownloadButton} from './components/FileDownloadButton'
 import { ImageViewer } from './components/ImageViewer'
 
+const FileCwd = React.createContext('')
+function LocalFileLink({href,label}:{href:string,label:string}){
+  const api=React.useContext(ImageApi),cwd=React.useContext(FileCwd)
+  let path=href.replace(/:\d+(?::\d+)?$/,'')
+  try{path=decodeURIComponent(path)}catch{}
+  if(api&&cwd&&downloadsOnClick(path))return <FileDownloadButton api={api} cwd={cwd} path={path}><span>{label}</span></FileDownloadButton>
+  return <><a href={href} onClick={event=>{event.preventDefault();window.dispatchEvent(new CustomEvent('dsh-codex-open-file',{detail:path}))}}>{label}</a></>
+}
 const ImageApi = React.createContext<Api | null>(null)
 function MarkdownImage({src, alt}: {src: string, alt: string}) {
   const api = React.useContext(ImageApi)
@@ -32,12 +43,12 @@ type Block =
   | { kind: 'table', header: string[], rows: string[][] }
   | { kind: 'hr' }
 
-export function Markdown({ text, api }: { text: string, api?: Api }) {
+export function Markdown({ text, api, cwd = '' }: { text: string, api?: Api, cwd?:string }) {
   const blocks = React.useMemo(() => parseBlocks(text), [text])
   return (
-    <ImageApi.Provider value={api ?? null}><div className="dsh-codex-markdown">
+    <ImageApi.Provider value={api ?? null}><FileCwd.Provider value={cwd}><div className="dsh-codex-markdown">
       {blocks.map((block, index) => renderBlock(block, index))}
-    </div></ImageApi.Provider>
+    </div></FileCwd.Provider></ImageApi.Provider>
   )
 }
 
@@ -99,7 +110,7 @@ function renderLines(lines: string[], keyPrefix: string): React.ReactNode[] {
   return nodes
 }
 
-const INLINE = /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\n]+\*)|(!?\[[^\]\n]+\]\([^)\s]+\))/gu
+
 
 function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = []
@@ -112,8 +123,8 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
     const token = match[0]
     const key = `${keyPrefix}-${index}`
     if (token.startsWith('![')) {
-      const match = /^!\[([^\]]*)\]\(([^)\s]+)\)$/u.exec(token)
-      if (match) nodes.push(<MarkdownImage key={key} alt={match[1]} src={match[2]} />)
+      const match = /^!\[([^\]]*)\]\(\s*(<[^>\n]+>|[^)\s]+)\s*\)$/u.exec(token)
+      if (match) nodes.push(<MarkdownImage key={key} alt={match[1]} src={match[2].replace(/^<|>$/g,'')} />)
     } else if (token.startsWith('`')) {
       nodes.push(<code key={key}>{token.slice(1, -1)}</code>)
     } else if (token.startsWith('**')) {
@@ -121,19 +132,14 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
     } else if (token.startsWith('*')) {
       nodes.push(<em key={key}>{token.slice(1, -1)}</em>)
     } else {
-      const linkMatch = /^\[([^\]]+)\]\(([^)\s]+)\)$/u.exec(token)
+      const linkMatch = /^\[([^\]]+)\]\(\s*(<[^>\n]+>|[^)\s]+)\s*\)$/u.exec(token)
       if (linkMatch === null) {
         nodes.push(token)
       } else {
-        const [, label, href] = linkMatch
+        const label = linkMatch[1], href = linkMatch[2].replace(/^<|>$/g,'')
         if (href.startsWith('/') && !href.startsWith('//')) {
           nodes.push(
-            <a key={key} href={href} onClick={(event) => {
-              event.preventDefault()
-              window.dispatchEvent(new CustomEvent('dsh-codex-open-file', { detail: href }))
-            }}>
-              {label}
-            </a>,
+            <LocalFileLink key={key} href={href} label={label}/>,
           )
         } else if (/^https?:\/\//iu.test(href)) {
           nodes.push(

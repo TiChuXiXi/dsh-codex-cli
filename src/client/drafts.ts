@@ -1,7 +1,9 @@
+import type {SkillReference} from './skills'
 import type { Attachment } from './page/Composer'
 export function readDraft(threadId: string | null): {
   text: string
   attachments: Attachment[]
+  skills: SkillReference[]
 } {
   try {
     const parsed = threadId
@@ -17,6 +19,7 @@ export function readDraft(threadId: string | null): {
     )
       return {
         text: parsed.text,
+        skills:Array.isArray(parsed.skills)?parsed.skills.filter((s:any)=>typeof s?.name==='string'&&typeof s?.path==='string').slice(0,100):[],
         attachments: parsed.attachments
           .slice(0, 100)
           .filter(
@@ -28,17 +31,18 @@ export function readDraft(threadId: string | null): {
           ),
       }
   } catch {}
-  return { text: '', attachments: [] }
+  return { text: '', attachments: [], skills:[] }
 }
 export function saveDraft(
   threadId: string | null,
   text: string,
   attachments: Attachment[],
+  skills: SkillReference[] = [],
 ) {
   if (!threadId) return
   try {
     const key = 'dsh-codex-draft:' + threadId
     if (!text && !attachments.length) sessionStorage.removeItem(key)
-    else sessionStorage.setItem(key, JSON.stringify({ text, attachments }))
+    else sessionStorage.setItem(key, JSON.stringify({ text, attachments, skills }))
   } catch {}
 }

@@ -1,5 +1,6 @@
 node_modules/
 .dsh-uploads/
+.dsh-trash/
 shots/*
 !shots/02-console.png
 !shots/83-new-project.png

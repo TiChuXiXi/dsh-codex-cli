@@ -256,3 +256,18 @@
   justify-content: space-between;
   border-top: 1px solid var(--dsw-alias-border-l3, #ddd);
 }
+
+.dsh-codex-root .codex-file-context-menu{z-index:1600;min-width:210px;padding:5px;background:var(--codex-bg);border:1px solid var(--codex-border);border-radius:8px;box-shadow:var(--dsw-elevation-prominent);max-height:calc(100vh - 16px);overflow:auto}
+.dsh-codex-root .codex-file-context-menu button{display:flex;width:100%;align-items:center;gap:9px;border:0;border-radius:4px;padding:7px 10px;background:transparent;color:var(--codex-text);text-align:left;font-size:12px;cursor:pointer}
+.dsh-codex-root .codex-file-context-menu button:hover,.dsh-codex-root .codex-file-context-menu button:focus{background:var(--codex-soft)}
+.dsh-codex-root .codex-file-context-menu button.danger{color:var(--codex-danger);border-top:1px solid var(--codex-border);margin-top:4px}
+.dsh-codex-root .codex-file-modal-backdrop{position:fixed;inset:0;z-index:1700;background:#0005;display:flex;justify-content:center;align-items:center;padding:20px}
+.dsh-codex-root .codex-file-modal{width:420px;max-width:100%;padding:20px;border:1px solid var(--codex-border);border-radius:10px;background:var(--codex-bg);color:var(--codex-text);box-shadow:var(--dsw-elevation-prominent)}
+.dsh-codex-root .codex-file-modal code{overflow-wrap:anywhere;font-family:var(--dsh-font-family-code)}
+.dsh-codex-root .codex-file-modal footer{display:flex;justify-content:flex-end;gap:8px}
+
+.dsh-codex-root .dsh-codex-download{display:inline-flex;align-items:center;gap:4px;vertical-align:middle;max-width:100%;flex-wrap:wrap}
+.dsh-codex-root .dsh-codex-download-button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:4px;background:transparent;color:var(--codex-muted);padding:3px;cursor:pointer}
+.dsh-codex-root .dsh-codex-download-button:hover{background:var(--codex-soft);color:var(--codex-text)}
+.dsh-codex-root .dsh-codex-download-error{color:var(--codex-danger);font-size:12px;overflow-wrap:anywhere}
+.dsh-codex-root button.dsh-codex-message-file{cursor:pointer;color:var(--codex-text);font:inherit}

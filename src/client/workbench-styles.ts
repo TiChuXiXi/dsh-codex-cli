@@ -402,4 +402,23 @@ html[data-codex-transition]::view-transition{pointer-events:none}
  .dsh-codex-root .dsh-codex-transfer-label-short{display:inline}
  .dsh-codex-root .dsh-codex-header-transfer .dsh-codex-button{padding-inline:9px}
 }
+
+.dsh-codex-root .dsh-codex-skill-picker{position:absolute;bottom:100%;left:0;right:0;z-index:80;background:var(--codex-bg);border:1px solid var(--codex-border);border-radius:10px;box-shadow:var(--dsw-elevation-prominent);margin-bottom:8px;padding:8px;max-height:min(65vh,500px);overflow:auto}
+.dsh-codex-root .dsh-codex-skill-picker header{display:flex;align-items:center;gap:8px;padding:4px 6px;font-size:13px}
+.dsh-codex-root .dsh-codex-skill-picker header span{flex:1;color:var(--codex-muted);font-size:11px}
+.dsh-codex-root .dsh-codex-skill-picker header button{border:0;background:transparent;color:var(--codex-muted);padding:5px;cursor:pointer}
+.dsh-codex-root .dsh-codex-skill-picker>input{box-sizing:border-box;width:100%;margin:6px 0}
+.dsh-codex-root .dsh-codex-skill-picker [role=option]{display:block;width:100%;border:0;border-radius:5px;padding:8px;text-align:left;background:transparent;color:var(--codex-text);cursor:pointer}
+.dsh-codex-root .dsh-codex-skill-picker [role=option][aria-selected=true]{background:var(--codex-selected)}
+.dsh-codex-root .dsh-codex-skill-picker [role=option][aria-disabled=true]{opacity:.5;cursor:default}
+.dsh-codex-root .dsh-codex-skill-picker [role=option]>span{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dsh-codex-root .dsh-codex-skill-picker strong{font-size:12px}
+.dsh-codex-root .dsh-codex-skill-picker code{font-family:var(--dsh-font-family-code);font-size:11px;color:var(--codex-accent)}
+.dsh-codex-root .dsh-codex-skill-picker p{font-size:12px;line-height:1.5;margin:5px 0;white-space:pre-wrap}
+.dsh-codex-root .dsh-codex-skill-picker small{display:block;font-size:10px;color:var(--codex-muted);overflow-wrap:anywhere}
+.dsh-codex-root .dsh-codex-skill-picker footer{padding:5px 8px;font-size:11px;color:var(--codex-muted)}
+.dsh-codex-root .dsh-codex-skill-warning{color:var(--codex-warning)}
+.dsh-codex-root .dsh-codex-selected-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.dsh-codex-root .dsh-codex-selected-skills>span{display:flex;align-items:center;gap:5px;border:1px solid var(--codex-border);border-radius:5px;padding:3px 6px;font-family:var(--dsh-font-family-code);font-size:11px;background:var(--codex-panel)}
+.dsh-codex-root .dsh-codex-selected-skills button{border:0;background:transparent;color:var(--codex-muted);padding:2px;cursor:pointer}
 `

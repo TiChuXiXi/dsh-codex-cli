@@ -1,6 +1,7 @@
 /** Codex 管理页：左侧项目/会话，右侧会话详情 + 审批 + 输入区。 */
 
 import * as React from 'react'
+import type {SkillReference} from '../skills'
 import {Icon,IconButton} from '../components/Icon'
 import {useAppearance} from '../useAppearance'
 import {useDialogFocus} from '../components/DialogFocus'
@@ -599,7 +600,7 @@ export function ConsolePage(props: ConsolePageProps) {
   }, [api, selectedId, olderCursor])
 
   const send = React.useCallback(
-    async (text: string, options: { model?: string, effort?: string, attachments?: Attachment[], permission?: PermissionMode } = {}) => {
+    async (text: string, options: { model?: string, effort?: string, attachments?: Attachment[], skills?:SkillReference[], permission?: PermissionMode } = {}) => {
       if (selectedId === null) return
       setError(null)
       const permission = options.permission ?? 'ask'
@@ -647,6 +648,7 @@ export function ConsolePage(props: ConsolePageProps) {
           model: options.model,
           effort: options.effort,
           attachments: options.attachments,
+          skills:options.skills,
           ...(collaborationMode === undefined ? {} : { collaborationMode }),
           ...permissionPayload,
         })
@@ -663,11 +665,11 @@ export function ConsolePage(props: ConsolePageProps) {
   )
 
   const steer = React.useCallback(
-    async (text: string) => {
+    async (text: string, skills:SkillReference[] = []) => {
       if (selectedId === null || activeTurnId === null) return
       setError(null)
       try {
-        await api('turns/steer', { threadId: selectedId, turnId: activeTurnId, text })
+        await api('turns/steer', { threadId: selectedId, turnId: activeTurnId, text, skills })
       } catch (cause) {
         if (/no active turn to steer/i.test(messageOf(cause))) {
           rejectedTurns.current!.add(activeTurnId)

@@ -3,6 +3,8 @@
  */
 
 import * as React from 'react'
+import {SkillPicker} from '../components/SkillPicker'
+import {skillQuery,filterSkills,hasSkill,type Skill,type SkillReference} from '../skills'
 import {Icon} from '../components/Icon'
 import {ImageViewer} from '../components/ImageViewer'
 import { useT } from '../i18n'
@@ -49,10 +51,11 @@ export interface ComposerProps {
   onSend: (text: string, options: {
     model?: string
     effort?: string
+    skills?: SkillReference[]
     attachments?: Attachment[]
     permission?: PermissionMode
   }) => Promise<void>
-  onSteer: (text: string) => Promise<void>
+  onSteer: (text: string, skills?:SkillReference[]) => Promise<void>
   onStop: () => Promise<void>
   onPickProject: () => void
   onNew: () => void
@@ -62,9 +65,10 @@ export interface ComposerProps {
 }
 
 type Menu = null | 'root' | 'model' | 'effort' | 'more'
-type CommandId = 'model' | 'effort' | 'permission' | 'plan' | 'attach' | 'project' | 'compact' | 'diff' | 'export' | 'init' | 'review' | 'new'
+type CommandId = 'skill' | 'model' | 'effort' | 'permission' | 'plan' | 'attach' | 'project' | 'compact' | 'diff' | 'export' | 'init' | 'review' | 'new'
 
 const COMMANDS: Array<{ id: CommandId, label: string, desc: string }> = [
+  {id:'skill',label:'cmd.skill',desc:'cmd.skillDesc'},
   { id: 'model', label: 'cmd.model', desc: 'cmd.modelDesc' },
   { id: 'effort', label: 'cmd.effort', desc: 'cmd.effortDesc' },
   { id: 'permission', label: 'cmd.permission', desc: 'cmd.permissionDesc' },
@@ -133,7 +137,55 @@ export function Composer({
   const uploadQueue = React.useRef<Promise<void>>(Promise.resolve())
   const pendingUploads = React.useRef(0)
 
-  React.useEffect(() => { saveDraft(threadId, text, attachments) }, [threadId, text, attachments])
+  React.useEffect(()=>{
+    const reference=(event:Event)=>{
+      const detail=(event as CustomEvent).detail
+      if(detail?.cwd !== cwd || !threadId || disabled || typeof detail.path !== 'string')return
+      detail.accepted=true
+      setAttachments(old=>old.some(item=>item.path===detail.path)?old:[...old,{path:detail.path,name:detail.name,kind:'file'}])
+      textareaRef.current?.focus()
+    }
+    window.addEventListener('dsh-codex-reference',reference)
+    return()=>window.removeEventListener('dsh-codex-reference',reference)
+  },[cwd,threadId,disabled])
+
+  const [selectedSkills,setSelectedSkills]=React.useState<SkillReference[]>(initialDraft.skills)
+  const [catalog,setCatalog]=React.useState<Skill[]|null>(null),[skillLoading,setSkillLoading]=React.useState(false)
+  const [skillError,setSkillError]=React.useState(''),[skillErrors,setSkillErrors]=React.useState<{path?:string,message:string}[]>([])
+  const [skillList,setSkillList]=React.useState(false),[skillSearch,setSkillSearch]=React.useState(''),[skillIndex,setSkillIndex]=React.useState(0)
+  const [caret,setCaret]=React.useState(text.length),[skillDismissed,setSkillDismissed]=React.useState(false)
+  const skillRange=skillQuery(text,caret)
+  const skillOpen=skillList || (!!skillRange&&!skillDismissed)
+  const skillResults=filterSkills(catalog||[],skillList?skillSearch:skillRange?.query||'')
+  const requestGeneration=React.useRef(0)
+  const loadSkills=async(forceReload=false)=>{
+    const generation=++requestGeneration.current
+    setSkillLoading(true);setSkillError('')
+    try{
+      const result=await api('skills/list',{cwd,threadId,forceReload})
+      if(generation!==requestGeneration.current)return
+      setCatalog(result.skills);setSkillErrors(result.errors||[])
+    }catch(e){if(generation===requestGeneration.current)setSkillError(e instanceof Error?e.message:String(e))}
+    finally{if(generation===requestGeneration.current)setSkillLoading(false)}
+  }
+  React.useEffect(()=>{setCatalog(null);setSkillError('');setSkillLoading(false);setSkillErrors([]);return()=>{requestGeneration.current++}},[cwd,threadId])
+  React.useEffect(()=>{if(skillOpen&&catalog===null&&!skillLoading&&!skillError)void loadSkills()},[skillOpen,catalog,skillLoading,skillError,cwd,threadId])
+  const closeSkills=()=>{setSkillList(false);setSkillDismissed(true);textareaRef.current?.focus()}
+  const chooseSkill=(skill:Skill)=>{
+    if(!skill.enabled)return
+    const area=textareaRef.current
+    const range=!skillList?skillRange:null
+    const start=range?.start??(area?.selectionStart??text.length),end=range?.end??start
+    const marker='$'+skill.name+' '
+    const next=text.slice(0,start)+(start>0&&!/\s/.test(text[start-1])?' ':'')+marker+text.slice(end)
+    setText(next)
+    setSelectedSkills(old=>[...old.filter(s=>s.path!==skill.path&&s.name!==skill.name),{name:skill.name,path:skill.path}])
+    setSkillList(false);setSkillDismissed(true)
+    const cursor=next.length-text.slice(end).length
+    setCaret(cursor)
+    requestAnimationFrame(()=>{area?.focus();area?.setSelectionRange(cursor,cursor)})
+  }
+  React.useEffect(() => { saveDraft(threadId, text, attachments,selectedSkills.filter(s=>hasSkill(text,s.name))) }, [threadId, text, attachments,selectedSkills])
 
   React.useEffect(() => {
     const element = textareaRef.current
@@ -171,9 +223,9 @@ export function Composer({
     ? []
     : COMMANDS.filter((command) => {
         const label = t(command.label).toLowerCase()
-        return command.id.includes(slashQuery) || label.includes(slashQuery)
+        return command.id.includes(slashQuery) || (command.id==='skill'&&slashQuery==='skills') || label.includes(slashQuery)
       })
-  const slashOpen = slashQuery !== null && slashCommands.length > 0 && !slashDismissed
+  const slashOpen = !skillOpen && slashQuery !== null && slashCommands.length > 0 && !slashDismissed
 
   React.useEffect(() => {
     if (!slashOpen) return undefined
@@ -205,7 +257,8 @@ export function Composer({
   const runCommand = (id: CommandId) => {
     closeAll()
     setText('')
-    if (id === 'model') setMenu('model')
+    if (id === 'skill') {setSkillList(true);setSkillSearch('');setSkillIndex(0)}
+    else if (id === 'model') setMenu('model')
     else if (id === 'effort') setMenu('effort')
     else if (id === 'permission') setPermissionOpen(true)
     else if (id === 'plan') onEnterPlan()
@@ -308,16 +361,17 @@ export function Composer({
     setBusy(true)
     try {
       if (activeTurnId !== null) {
-        await onSteer(value)
+        await onSteer(value,selectedSkills.filter(s=>hasSkill(value,s.name)))
       } else {
         await onSend(value, {
           model: model === '' ? undefined : model,
           effort: effort === '' ? undefined : effort,
           attachments,
+          skills:selectedSkills.filter(s=>hasSkill(value,s.name)),
           permission,
         })
       }
-      setText('')
+      setText('');setSelectedSkills([]);setSkillDismissed(true)
       if (activeTurnId === null) setAttachments([])
       textareaRef.current?.focus()
     } catch {
@@ -339,6 +393,7 @@ export function Composer({
 
   return (
     <div className="dsh-codex-composer-wrap">
+      {skillOpen&&<SkillPicker skills={skillResults} query={skillList?skillSearch:skillRange?.query||''} onQuery={skillList?q=>{setSkillSearch(q);setSkillIndex(0)}:undefined} loading={skillLoading} error={skillError} errors={skillErrors} index={skillIndex} onIndex={setSkillIndex} onChoose={chooseSkill} onClose={closeSkills} onRefresh={()=>void loadSkills(true)}/>}
       {slashOpen ? (
         <div className="dsh-codex-slash" role="listbox" ref={slashRef}>
           {slashCommands.map((command, index) => (
@@ -379,6 +434,7 @@ export function Composer({
         </>
       ) : null}
       <div className="dsh-codex-composer-card">
+      {selectedSkills.filter(s=>hasSkill(text,s.name)).length>0&&<div className="dsh-codex-selected-skills">{selectedSkills.filter(s=>hasSkill(text,s.name)).map(s=><span key={s.path} title={s.path}><Icon name="model" size={14}/>${s.name}<button type="button" aria-label={'移除技能 '+s.name} onClick={()=>{setSelectedSkills(old=>old.filter(item=>item.path!==s.path));setText(old=>old.replace('$'+s.name,''));setSkillDismissed(true)}}><Icon name="close" size={12}/></button></span>)}</div>}
         <input ref={fileInputRef} type="file" multiple hidden onChange={(event) => { uploadFiles(event.target.files); event.target.value = '' }} />
         <input ref={folderInputRef} type="file" multiple hidden {...({webkitdirectory: '', directory: ''} as any)} onChange={(event) => { uploadFiles(event.target.files); event.target.value = '' }} />
 
@@ -419,12 +475,24 @@ export function Composer({
             if (!event.clipboardData.getData('text/plain')) event.preventDefault()
             uploadFiles(files)
           }}
+          onClick={event=>{setCaret(event.currentTarget.selectionStart);setSkillDismissed(false)}}
+          onKeyUp={event=>setCaret(event.currentTarget.selectionStart)}
           onChange={(event) => {
+            setCaret(event.target.selectionStart);setSkillDismissed(false);setSkillIndex(0)
             setText(event.target.value)
             setSlashIndex(0)
             setSlashDismissed(false)
           }}
+          aria-controls={skillOpen?'codex-skill-options':undefined}
+          aria-expanded={skillOpen}
+          aria-activedescendant={skillOpen?'codex-skill-option-'+skillIndex:undefined}
           onKeyDown={(event) => {
+            if(event.nativeEvent.isComposing)return
+            if(skillOpen){
+              if(event.key==='Escape'){event.preventDefault();closeSkills();return}
+              if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();if(skillResults.length)setSkillIndex(i=>(i+(event.key==='ArrowDown'?1:-1)+skillResults.length)%skillResults.length);return}
+              if(event.key==='Enter'||event.key==='Tab'){event.preventDefault();if(skillResults[skillIndex]?.enabled)chooseSkill(skillResults[skillIndex]);return}
+            }
             if (slashOpen) {
               if (event.key === 'ArrowDown') {
                 event.preventDefault()

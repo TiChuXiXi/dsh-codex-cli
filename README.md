@@ -145,6 +145,10 @@ node scripts/smoke-host.mjs auto   # 不经过 DSH，直接连守护进程冒烟
 
 运行 `npm run test:workbench:live` 可检查真实 DSH 中的工作台；认证状态、Playwright 与 Chromium 路径通过环境传入，配置方式见 [视觉改造验收记录](docs/UI_REDESIGN_ACCEPTANCE.md)。验收截图可通过脚本重新生成。
 
+## 技能选择
+
+在对话输入框输入 `/skill`（也支持 `/skills`）并按 Enter，或从加号菜单选择“技能”，查看当前项目的技能名称、说明、来源及启用状态。输入 `$` 可快速搜索并选择，支持方向键、Enter/Tab 确认和 Escape 关闭。选中的 `$技能名` 与精确技能路径一起随消息提交，草稿会保留选择；删除标记或移除技能标签即可取消。列表来自当前会话提供商的 Codex app-server，刷新按钮可重新扫描。
+
 ## 安全边界
 
 - `/codex-cli` 所有请求先过 `ctx.connection.requestRejection()`（Host/Origin + 会话认证）。

@@ -1,5 +1,29 @@
 # 会话交接 · 2026-11-07
 
+## Skills 列表与对话指定
+
+已接入原生 app-server skills/list。输入 `/skill` 或 `/skills` 后 Enter 打开可搜索技能列表，也可从加号菜单选“技能”；输入 `$` 在光标处补全。支持名称/说明筛选、来源路径、禁用状态、刷新/错误反馈、方向键/Enter/Tab/Escape，选中后插入 `$name` 并保留精确路径，草稿按会话恢复。提交和运行中插话分别将技能送为 turn/start、turn/steer 的 type=skill 输入；同名选择精确路径，失效/禁用引用明确报错，删除文本标记后不再携带技能。列表与发送按会话提供商路由，路径绑定当前项目。
+
+核心：lib/skills.js、CodexHub.skills/skillInputs、ProviderHub.skills、skills/list 路由、src/client/skills.ts、SkillPicker.tsx、Composer 与 drafts。协议依据官方 https://developers.openai.com/codex/app-server/ 和本机 codex app-server generate-ts（临时输出 /tmp/codex-skills-protocol），没有读取后自行拼装技能文件系统清单。
+
+构建及 57 项测试通过；测试含模拟 stdio app-server 对实际 turn/start/steer 参数断言，未运行技能或调用模型。主 DSH 实际 skills/list 返回本项目 38 项技能；真实浏览器 8 项检查通过（真实列表、搜索、$ 补全、Tab、草稿恢复、发送技能路径、Escape、别名），发送在浏览器中拦截。截图 /tmp/codex-skills-picker.png，脚本 /tmp/codex-skills-browser.mjs。本轮包含之前文件菜单/下载的未提交修改，均保留，未创建提交。
+
+
+## 下载链接空白兼容修复
+
+用户截图中的实际消息是 `[下载安装包]( /root/...deb)`，左括号后有空格，原行内 tokenizer 拒绝解析，导致原始 Markdown 直接显示。现已兼容链接目标前后空白以及尖括号包围的含空格路径。共享 tokenizer 在 markdownTokens.ts，回归测试 markdown-links.test.mjs。已用主 DSH 浏览器加载截图中的原消息，下载实际 certbase-online_1.2.3+20261107T165307_lx-ct-pc-linux3_arm64.deb，并核对 SHA-256 与消息一致；未安装/运行或修改该项目文件。截图 /tmp/codex-actual-deb-download-fixed.png。
+
+## 文件下载与默认点击行为
+
+文件右键菜单新增显式下载。对话里的普通文档、代码和图片维持预览；已识别的压缩包、安装包、数据库、二进制数据等格式默认点击下载。类型规则在 src/client/fileTypes.ts；Markdown 本地链接和消息文件附件共用。PDF/Office 文档不改为自动下载；现有预览能力的限制仍然适用。下载绑定该消息会话 cwd，复用 workspace/open 和路径边界检查，GET /codex-cli/workspace/download 在同一认证栅栏下流式发送原始文件，支持中文文件名；不支持目录打包。52 项测试通过，真实 3080 浏览器验证右键下载、二进制链接/附件下载、文档链接/附件预览及下载字节/中文名称。截图 /tmp/codex-file-downloads.png。本轮修改尚未提交。
+
+## 工作区文件右键菜单
+
+已接入文件、文件夹和空白区域菜单：打开文件、上传至目标文件夹、复制绝对/相对路径、@ 到当前会话、刷新、删除。删除前确认并移动到工作区 .dsh-trash；该目录已在本项目忽略。文件夹删除包含全部子项；根目录、.git 和回收目录受保护。上传单文件上限 25MiB，同名不覆盖；上传专用 RPC 支持 Base64 后的请求体大小。引用通过当前 cwd 的 Composer 附件队列发送为 mention，不自动发送对话。
+
+新接口 workspace/upload、workspace/remove，后端在 lib/workspace.js；菜单 FileContextMenu.tsx，文件树 FilesPane.tsx。50 项测试通过；主 DSH 3080 的真实浏览器以 /tmp 夹具完成 8 项检查，含 3MiB 上传、文件回收删除、文件夹删除取消、路径复制、键盘菜单及引用焦点。截图 /tmp/codex-files-context-menu.png。当前修改尚未提交。
+
+
 ## 主服务加载修复补记
 
 用户截图发现 3080 主服务仍返回 git/repo/snapshot 未知端点，先前隔离验收不能替代主服务加载验证。现已通过 profile 热重组与 runtime 源码替换修复，主 PID 3718543 未变、单实例，revision=git-vcs-1。已在真实主服务浏览器对当前项目只读确认六页和 265 项变更正常显示。runtime 构建指纹新增 lib/git.js。详见 GIT_VCS_ACCEPTANCE.md 末节。

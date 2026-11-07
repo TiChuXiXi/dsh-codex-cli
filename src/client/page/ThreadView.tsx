@@ -1,6 +1,7 @@
 /** 会话详情：标题、元信息、消息流、审批与输入区。 */
 
 import * as React from 'react'
+import type {SkillReference} from '../skills'
 import {Icon} from '../components/Icon'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
@@ -32,10 +33,10 @@ export interface ThreadViewProps {
   onSend: (text: string, options: {
     model?: string
     effort?: string
-    attachments?: Attachment[]
+    attachments?: Attachment[], skills?:SkillReference[]
     permission?: PermissionMode
   }) => Promise<void>
-  onSteer: (text: string) => Promise<void>
+  onSteer: (text: string, skills?:SkillReference[]) => Promise<void>
   onStop: () => Promise<void>
   onPickProject: () => void
   onNew: () => void
@@ -279,7 +280,7 @@ export function ThreadView({
                   entry.kind === 'group' ? (
                     <ToolGroup key={entry.key} items={entry.items} api={api} />
                   ) : (
-                    <ItemCard key={entry.item.id} item={entry.item} api={api} />
+                    <ItemCard key={entry.item.id} item={entry.item} api={api} cwd={detail.thread.cwd ?? ''} />
                   ),
                 )}
                 <TurnFooter turn={turn} />

@@ -1,6 +1,8 @@
 /** 单条 ThreadItem 的渲染：消息常显，命令/工具/文件默认折叠。 */
 
 import * as React from 'react'
+import {downloadsOnClick} from '../fileTypes'
+import {FileDownloadButton} from '../components/FileDownloadButton'
 import {Icon} from '../components/Icon'
 import {ImageViewer} from '../components/ImageViewer'
 import {CodexIcon} from '../components/CodexIcon'
@@ -10,15 +12,16 @@ import type { CodexItem } from '../types'
 import { Markdown } from '../markdown'
 import { formatClock, itemText } from '../utils'
 
-export function ItemCard({ item, api }: { item: CodexItem, api: Api }) {
+export function ItemCard({ item, api, cwd = '' }: { item: CodexItem, api: Api, cwd?:string }) {
   const t = useT()
   switch (item.type) {
     case 'userMessage':
-      return <Message kind="user" label={t('item.user')} text={itemText(item)} time={formatClock(item.startedAtMs)} api={api} attachments={(item.content ?? []).filter(part => typeof part.path === 'string' && (part.type === 'localImage' || part.type === 'local_image' || (part.type === 'mention' && part.path.includes('/.dsh-uploads/codex-cli/')))).map(part => ({path:part.path as string, name:part.name, image:part.type !== 'mention'}))} />
+      return <Message cwd={cwd} kind="user" label={t('item.user')} text={itemText(item)} time={formatClock(item.startedAtMs)} api={api} attachments={(item.content ?? []).filter(part => typeof part.path === 'string' && (part.type === 'localImage' || part.type === 'local_image' || part.type === 'mention')).map(part => ({path:part.path as string, name:part.name, image:part.type !== 'mention'}))} />
     case 'agentMessage':
       return (
         <Message
           api={api}
+          cwd={cwd}
           kind="assistant"
           label={t('item.assistant')}
           text={typeof item.text === 'string' ? item.text : ''}
@@ -57,6 +60,7 @@ export function ItemCard({ item, api }: { item: CodexItem, api: Api }) {
 
 function Message({
   api,
+  cwd = '',
   kind,
   label,
   text,
@@ -65,6 +69,7 @@ function Message({
   time = '',
 }: {
   api: Api
+  cwd?: string
   kind: 'user' | 'assistant'
   label: string
   text: string
@@ -83,8 +88,8 @@ function Message({
       <div className="dsh-codex-bubble" style={muted ? { opacity: 0.82 } : undefined}>
         {attachments.length > 0 && <div className="dsh-codex-message-images">{attachments.map((attachment, index) => attachment.image
           ? <ImageView key={attachment.path + index} item={{id:attachment.path, type:'imageView', path:attachment.path}} api={api} hideCaption />
-          : <div className="dsh-codex-message-file" key={attachment.path + index} title={attachment.path}><Icon name="file" size={24}/></div>)}</div>}
-        {text.trim() !== '' && <Markdown text={text} api={api} />}
+          : downloadsOnClick(attachment.path) ? <FileDownloadButton key={attachment.path + index} api={api} cwd={cwd} path={attachment.path} className="dsh-codex-message-file"><Icon name="file" size={24}/><Icon name="download" size={14}/></FileDownloadButton> : <button type="button" className="dsh-codex-message-file" key={attachment.path+index} title={attachment.path} aria-label={'预览 '+(attachment.name||attachment.path.split('/').at(-1))} onClick={()=>window.dispatchEvent(new CustomEvent('dsh-codex-open-file',{detail:attachment.path}))}><Icon name="file" size={24}/></button>)}</div>}
+        {text.trim() !== '' && <Markdown text={text} api={api} cwd={cwd} />}
       </div>
     </div>
   )
