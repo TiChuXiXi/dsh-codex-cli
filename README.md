@@ -1,158 +1,76 @@
 # dsh-codex-cli
 
-> 2026-11-07 会话续接入口：[最新交接记忆](docs/HANDOFF.md)。[Git 版本管理面板重构](docs/GIT_VCS_REFACTOR.md)已实施；构建、49 项测试和真实 DSH 浏览器/热加载结果见[验收记录](docs/GIT_VCS_ACCEPTANCE.md)。
-
-把 Codex CLI 从命令行搬进 DeepSeek Harness Web GUI 的管理端插件：项目/会话管理、交互式对话、命令审批、版本与健康检查。
+在 DeepSeek Harness（DSH）的 Web 界面中使用和管理本机 Codex CLI 的插件。它将项目、会话、对话、审批和工作区工具集中在一个页面，适合希望通过浏览器操作运行在 DSH 宿主机上的 Codex 的用户。
 
 ![Codex 管理页](shots/02-console.png)
 
-## 现在能做什么
+## 功能范围
 
-- **项目与会话**：按 cwd 聚合本机 Codex 会话，显示会话数、运行中数量、git 分支、模型与最近活动；可搜索、分页加载。
-- **交互对话**：打开任意历史会话，直接发消息、看流式输出、运行中插话（steer）、停止回合。
-- **审批闭环**：命令审批、文件变更审批、用户提问以卡片形式出现在对话下方；在终端里批准过的请求会自动消失。
-- **实时共享**：默认连接 Codex 守护进程，终端里正在跑的会话也能在网页里实时看到。
-- **新建项目**：搜索框右侧的「新建项目」按钮（或「选择项目」弹窗里的「新建项目…」）打开目录浏览器，默认从宿主家目录（`~`）起步，仿 DSH「选择工作区目录」的 Miller 分栏：面包屑/可编辑路径、进入子目录、显示隐藏目录、在当前目录或选中的目录里新建文件夹；确认目录后建会话并立刻把项目挂进项目树（Codex 首个回合前不会把新线程写进 `thread/list`，前端做乐观插入）。
-- **会话管理**：重命名、归档/取消归档、Fork、导出 markdown、永久删除（二次确认）。
-- **版本与健康**：CLI / 守护进程 / 最新版、安装渠道、升级、回滚、守护进程重启/更新/停止、`codex doctor` 体检；长命令在后台跑并实时回显。
+- **项目与会话**：按项目目录浏览、搜索和管理会话，支持新建、重命名、归档、分叉、导出和删除。
+- **Codex 对话**：流式查看回复与工具调用，发送消息、运行中插话和停止；处理命令、文件变更等审批，切换模型、推理强度、权限与计划模式。
+- **技能**：输入 `/skill` 打开可搜索的技能列表；输入 `$` 快速选择技能，选择结果随消息发送。
+- **工作区文件**：浏览文件，预览支持的文件类型；右键上传、删除、复制路径、下载或引用到对话。文件删除会移入工作区的 `.dsh-trash`。
+- **Git 版本管理**：查看本地变更和差异、选择文件提交、浏览提交图，以及操作分支、远程仓库和贮藏，查看命令记录。无需单独运行 dsh-git-vcs 插件。
+- **其他工具**：在工作区中运行命令、打开浏览器标签；查看 Codex CLI 状态并使用界面提供的版本管理与健康检查。
 
-- **渲染**：markdown（标题/列表/代码块/表格/链接）、本地图片懒加载预览（8MB 上限）。
-- **标签页**：进入 Codex 模式后浏览器标题变为 `Codex CLI`、图标换成 ChatGPT 标志（暗色/亮色两版），退出时恢复原标题与图标。
-- **全屏 Codex 模式**：点击左侧栏 Codex CLI 后整个页面被 Codex 覆盖（DSH 侧栏/顶栏完全隐藏），左侧是 Codex 自己的面板：品牌、状态（已连接/实时，带绿/黄/红圆点）、信息（环境/会话/额度）、新会话/版本/刷新、搜索、项目树（项目下嵌套会话），底部「DeepSeek Harness」按钮切回 DSH。
-- **额度**：`account/rateLimits/read` 读取剩余百分比、窗口（每周/5 小时等）与可用重置次数；首次读取较慢时显示「加载中…」而不是占位横杠，读取失败才显示「—」；订阅 `account/rateLimits/updated` 并每 60 秒兜底刷新，悬停显示重置时间。
-- **未读完成**：运行中显示蓝色呼吸点；回合完成且未查看时变绿色；点开会话后变灰色（已读时间按会话记在 localStorage，列表每 20 秒静默刷新一次后台状态，不显示加载态）。
-- **进入即恢复**：记住最后一次打开的会话（localStorage），下次进入 Codex 模式自动打开；会话已被删除时自动清空。
-- **新会话**：有当前项目（打开中的会话或展开的项目）时直接在该 cwd 新建并打开；没有项目时弹出「选择项目」，从现有项目里选，或点「新建项目…」走目录浏览器。
-- **项目树**：项目行（文件夹图标 + 名称 + 会话数）点击展开，会话按 DSH 的行样式嵌套显示；切换项目时用 `threadsOwner`（cwd + 搜索词）校验列表归属，加载完成前显示「加载中…」，不会闪出上个项目的会话；每页 10 条，底部「加载更多」；搜索走宿主 `searchTerm` 在服务端完成，不受分页影响。
-- **会话行操作**：每行右侧「…」菜单（110px 宽）提供重命名、归档、Fork、导出、删除；菜单只随侧栏滚动关闭，对话区流式滚动不会把它顶掉。
-- **历史分页**：长会话初始只渲染最近 2 个回合；向上滚动到接近顶部时自动加载更早的 2 个回合（也可点顶部「加载更早的消息」），前插后保持当前视觉位置。
-- **滚动跟随**：贴着底部时自动跟随流式输出；用户上滚后停止跟随，右下角出现圆形按钮，点一下平滑回到底部并恢复跟随。
-- **工具调用分组**：连续的命令/文件变更/MCP 工具调用折叠成一组，摘要带数量，如「执行了 3 条命令、读取了 10 个文件、修改了 2 个文件」；默认收起，点摘要展开。
-- **右侧面板（插件自建）**：会话右侧可打开「文件 / 版本 / 终端」三栏：文件浏览与文本预览、Git 变更勾选提交/差异/多泳道历史/分支/远程/贮藏/命令记录、在会话 cwd 运行命令。注意这不是 DSH 原生右栏，原生右栏的复用尚未完成，见下方「已知限制 / 未完成」。
-- **加号面板**：输入区左下角「+」打开添加与快捷命令（文件和文件夹、选择项目、切换模型、推理强度、会话权限、计划模式、压缩上下文、新会话）；斜杠命令 `/model` `/effort` `/permission` `/plan` `/attach` `/project` `/compact` `/new` 可直接调出同一组命令。
-- **文件上传**：上传到会话 cwd 的 `.dsh-uploads/codex-cli/`，以附件 chip 显示，发送时作为 `mention` / `localImage` 输入交给 Codex。
-- **会话权限**：需要审批 / 替我审批 / 完全访问 / 只读，打开会话时优先读取该会话的实际设置（`thread/resume` 返回的 `approvalPolicy` / `approvalsReviewer` / `sandbox`），读不到才回退 localStorage；切到完全访问有二次确认，发送时映射为 `approvalPolicy` + `approvalsReviewer` + `sandboxPolicy`。
-- **计划模式**：加号面板「计划模式」或 `/plan` 进入（与 Codex TUI 的 `/plan` 同源：`turn/start.collaborationMode`），输入区出现绿色「计划」标签，点 × 退出；关闭只改下一回合的模式，正在运行的回合不受影响。重新打开线程时按线程的 `collaborationMode` 还原标签。
-- **消息样式**：用户提问是右对齐的浅蓝圆角气泡（细描边、右下小圆角），助手回复保持纯文本。
-- **时间信息**：消息名旁显示本地时间（用户消息时间在前、Codex 在后），每个回合结束后显示「用时 X 分 Y 秒 · HH:MM」。
-- **输入区**：对齐 DSH 默认 composer 的圆角卡片；模型与推理强度两级菜单（推理强度与 Codex TUI 一致：低/中/高/极高 + 「更多推理…」里的 Max/Ultra，共 6 档，带官方描述与「默认/当前」标记），选择随下一次发送生效；运行中显示状态点与停止键。
+插件运行在 DSH 宿主机上，操作的是**该宿主机**上的 Codex 会话、文件和 Git 仓库。它不提供 Codex 模型服务或账号，也不会替代 Codex CLI、Git 或 DSH。模型、技能及部分操作的可用性取决于所安装的 Codex 版本、账号和配置。
 
-## 已知限制 / 未完成
+## 环境与兼容性
 
-- **右侧面板尚未复用 DSH 原生实现**：当前 Codex 面板里的「文件 / 版本 / 终端」是插件自建的简化版，不具备 DSH 原生的 PDF / DOCX / XLSX / Markdown / 图片预览、浏览器页、完整终端和 `dsh-git-vcs` 的全部能力。
-- **阻塞点**：DSH 右栏只在会话视图挂载（`RightbarRoot` 的 `visible` 条件是 `activePanelId === null`），且三个 tab 的 cwd 都从 `sessionId` 推导；Codex 是 global main panel，右栏 seat 不存在。
-- **当前计划方向**：在本插件内移植完整右栏，补齐文件、预览、交互终端、浏览器和 Git 服务，优先不改 DSH 本体。原先修改 DSH 接受显式 `cwd` 的方案作为历史记录保留在 `docs/PLAN.md`。
-- 原生右栏 cwd 参数化改造**当前暂停**，未动 DSH 源码；现有自建面板继续可用。2026-11-07 新路线为在当前插件内移植完整右栏，实施、热加载与验收计划见 [docs/RIGHTBAR_PLAN.md](docs/RIGHTBAR_PLAN.md)。
+- **DSH**：插件声明要求 `>=0.2.1-rc.5`；目前在 `0.2.1-rc.5` 环境完成验证，其他版本尚未逐一验证。
+- **Codex CLI**：需要可运行的 `codex` 和可用的登录或模型配置，插件通过 Codex app-server 通信。本次验证使用 `codex-cli 0.167.0`；最低兼容版本尚未确定，旧版本可能缺少部分接口。
+- **运行环境**：当前验证环境为 Linux、Node.js `24.19.0`。其他系统与 Node.js 版本尚未完整验证；Git 功能还需要宿主机安装 Git。
+- 浏览器访问 DSH 的方式与认证由 DSH 管理。插件使用宿主进程权限访问文件和运行操作，请只向可信用户开放 DSH。
 
 ## 安装
 
+在安装了 DSH 的宿主机上获取源码，然后安装依赖并构建：
+
 ```bash
-dsh plugin --profile web add /root/project/dsh-codex-cli
+git clone https://github.com/TiChuXiXi/dsh-codex-cli.git
+cd dsh-codex-cli
+npm install
+npm run build
+dsh plugin --profile web add "$(pwd)"
 ```
 
-安装后，包自带的 `cordis.patch.yml` 会由已启用的 bundle 插入 `codex-cli`，无需再添加用户 insert。确认有效配置只包含一条 `codex-cli`。
+仓库公开后上述克隆地址才能使用。若已通过其他方式取得源码，从 `cd` 后的步骤开始即可。这里的 `web` 是 DSH profile 名称；使用其他 profile 时请替换。
 
-需要覆盖现有插件配置时，在 profile 的用户 patch 层（`~/.dsh/profiles/web/cordis.patch.yml`）按 id 修改：
+插件包自带 `cordis.patch.yml`，启用 bundle 后会插入 `codex-cli` 配置，无需再添加第二条 insert。首次安装或修改 bundle 后，按 DSH 的提示处理加载或重启；打开 DSH Web 界面，在左侧选择 **Codex CLI**。请先在宿主机确认 `codex --version` 可运行，并完成 Codex 登录或服务配置。
+
+需要调整配置时，可在对应 profile 的用户 patch 中按 id 覆盖，例如：
 
 ```yaml
 - id: codex-cli
   config:
     transport: auto
+    codexPath: ''
+    codexHome: ''
 ```
 
-已安装插件的普通配置和代码更新可使用热加载；首次添加或变更 bundle 的部署边界需要按本机 DSH 返回的状态处理。
-
-> **注意**：不要同时启用 bundle 自带的 insert 和用户层的第二条 insert。2026-11-07 本机已保留 bundle、移除重复的用户 insert；原配置已备份。旧的“只在用户层插入”方式仅适用于未启用该 bundle 的组合。
+`transport: auto` 优先连接守护进程，失败时回退到独立的 stdio 进程；`codexPath` 留空时从 PATH 查找，`codexHome` 留空时使用 `CODEX_HOME` 或默认目录。
 
 ## 使用
 
-左侧栏点 **Codex**：
+1. 进入 **Codex CLI**，选择已有项目和会话，或新建项目目录及会话。
+2. 在输入框发送消息；Enter 发送，Shift+Enter 换行。运行中可插话或停止，并在审批卡片中处理请求。
+3. 在输入框输入 `/skill` 并按 Enter，或输入 `$` 搜索技能；使用方向键和 Enter/Tab 选择。
+4. 打开右侧工作区，在文件树中右键文件、文件夹或空白区域进行对应操作；打开版本管理查看当前会话项目的 Git 状态。
 
-| 区域 | 作用 |
-| --- | --- |
-| 新建项目 | 搜索框右侧的文件夹加号：浏览目录、新建文件夹、选中后建会话 |
-| 项目列表 | 点项目行展开/收起，点会话行进入对话 |
-| 会话列表 | 搜索、状态点、模型与相对时间；点开进入对话 |
-| 对话区 | 消息、推理、命令、文件变更、工具调用（默认折叠，点开看详情） |
-| 审批卡 | 命令/文件变更：允许、本会话允许、拒绝 |
-| 输入区 | Enter 发送、Shift+Enter 换行；回合运行中按钮变「插话」，旁边是「停止」 |
-| 顶栏 | 连接状态、传输方式（守护进程/独立实例）、Codex 版本、事件流状态、刷新、新会话 |
-
-新建项目的目录浏览器（面包屑、两栏浏览、新建文件夹、隐藏目录开关）：
+工作区单文件上传上限为 25 MiB；下载针对单个文件，不提供目录打包下载。文件预览能力取决于文件类型。Git 写操作、终端命令和 Codex 操作会影响宿主机文件，请根据实际需要选择会话权限。
 
 ![新建项目](shots/83-new-project.png)
 
-计划模式（输入区「计划」标签，点 × 退出；运行中的回合不受影响）：
-
-![计划模式](shots/84-plan-mode.png)
-
-## 架构
-
-```
-浏览器（DSH Web）
- ├ main 面板：Codex 管理页
- │    POST /codex-cli/*（RPC 信封）   GET /codex-cli/events（SSE）
- └ 宿主进程（Cordis 插件）
-      ├ Transport：daemon（WebSocket over Unix socket）→ stdio 兜底
-      ├ JsonRpcClient：请求表、服务端请求、重连
-      ├ CodexHub：线程/回合/审批/项目聚合
-      └ EventBus：全局 seq、环形缓冲、增量合并
-```
-
-- 宿主半区：`index.js` + `lib/`，不 import 任何 `@deepseek-ai/*` 运行时值，服务全部走 `ctx.get()`。
-- 浏览器半区：`src/client/`，由 `scripts/build-client.mjs`（esbuild）打成 `client.js`；`react` 保持 external。
-- 协议类型：`research/codex-ts/`（`codex app-server generate-ts` 生成），schema 在 `research/codex-schema/`。
-
-### 端点
-
-| 端点 | 作用 |
-| --- | --- |
-| `status` | 连接状态、版本、配置、挂起审批 |
-| `projects/list` | 按 cwd 聚合的项目 |
-| `threads/list` / `threads/get` | 会话分页 / 会话详情（元数据 + 最近回合） |
-| `threads/new` | 新建会话 |
-| `threads/open` / `threads/close` | 订阅 / 释放实时事件 |
-| `turns/start` / `turns/steer` / `turns/interrupt` | 发消息 / 插话 / 停止 |
-| `approvals/pending` / `approvals/respond` | 审批补发 / 响应 |
-| `threads/rename` `archive` `unarchive` `delete` `fork` `export` | 会话管理 |
-| `versions/check` `update` `rollback` `job` | 版本探测与升级/回滚（后台 job） |
-| `daemon/action` | 守护进程 start/stop/restart/update |
-| `doctor/run` | `codex doctor --json` |
-| `images/read` | 读本地图片转 data URL（png/jpg/webp/gif，≤8MB） |
-| `fs/list` / `fs/mkdir` | 目录浏览（家目录 / 面包屑 / 隐藏项 / 1000 行截断）与新建单层子目录 |
-| `models/list` / `config/read` | 选择器数据 |
-
-SSE 事件：`hello`、`connection`、`thread/upsert`、`thread/status`、`turn/started`、`turn/completed`、`item/upsert`、`item/delta`、`item/patch`、`approval/requested`、`approval/resolved`、`mcp/status`、`thread/usage`、`resync`。
-
-## 开发
+## 开发与验证
 
 ```bash
-npm install            # 宿主依赖、Lucide 图标与 esbuild
-npm run build          # src/client -> client.js
-npm test               # node --test
-node scripts/smoke-host.mjs auto   # 不经过 DSH，直接连守护进程冒烟
+npm install
+npm run build
+npm test
 ```
 
-前端运行 `npm run build` 后，DSH 的 `client-hmr` 自动替换已打开页面中的插件；插件会恢复当前面板、工作区布局及当前标签页中的会话草稿，无需手动刷新。宿主热加载配置与真实验收命令见 [docs/RIGHTBAR_ACCEPTANCE.md](docs/RIGHTBAR_ACCEPTANCE.md)。可用 `npm run dev:reload:host` 请求 profile 重组；以 `status.runtime` 和实际页面结果判断成功。
+前端源码位于 `src/client/`，构建输出为 `client.js`；宿主端位于 `index.js` 和 `lib/`。测试包含临时 Git 仓库及本地模拟服务。浏览器和热加载验收依赖实际 DSH 环境，构建成功本身不代表实际页面已加载。
 
-右栏移植当前已实现布局框架、文件树与文本/Markdown/图片基础预览。Git 六页及服务已落地，见 [Git 验收](docs/GIT_VCS_ACCEPTANCE.md)。完整 PDF/Office/表格、PTY 终端与文件写操作仍按 [实施计划](docs/RIGHTBAR_PLAN.md) 继续推进；命令运行仍沿用旧版内容组件。
+## 许可与第三方来源
 
-## 工作台界面
-
-正式插件已采用统一的中性蓝灰样式：左侧活动栏与可折叠项目导航、清晰的会话区，以及可拖动的右侧工作区。右上角月亮/太阳按钮切换浅深主题，圆形扩散从点击位置展开；主题与导航折叠状态会保留。减少动态效果或浏览器不支持 View Transition 时直接切换。
-
-所有操作图标来自 Lucide。手机端的项目栏为抽屉，右栏双分栏按活动分栏展示，返回桌面保留布局；菜单、文档预览、审批和维护弹窗均采用同一套主题变量。
-
-运行 `npm run test:workbench:live` 可检查真实 DSH 中的工作台；认证状态、Playwright 与 Chromium 路径通过环境传入，配置方式见 [视觉改造验收记录](docs/UI_REDESIGN_ACCEPTANCE.md)。验收截图可通过脚本重新生成。
-
-## 技能选择
-
-在对话输入框输入 `/skill`（也支持 `/skills`）并按 Enter，或从加号菜单选择“技能”，查看当前项目的技能名称、说明、来源及启用状态。输入 `$` 可快速搜索并选择，支持方向键、Enter/Tab 确认和 Escape 关闭。选中的 `$技能名` 与精确技能路径一起随消息提交，草稿会保留选择；删除标记或移除技能标签即可取消。列表来自当前会话提供商的 Codex app-server，刷新按钮可重新扫描。
-
-## 安全边界
-
-- `/codex-cli` 所有请求先过 `ctx.connection.requestRejection()`（Host/Origin + 会话认证）。
-- 不自动批准任何审批；无人响应时按 `approvalTimeoutMs`（默认 10 分钟）自动拒绝。
-- 只连本机 Unix socket 或自己 spawn 的子进程，不监听网络端口。
-- 历史与实时条目对超长输出/diff/JSON 做截断，避免一次拉回几 MB。
-- `images/read` 只接受常见图片扩展名与 8MB 以内的文件；路径来自 Codex 的 `imageView` 条目，插件不主动遍历目录。
+本项目采用 [MIT 许可证](LICENSE)。第三方代码及许可证见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)，其中包括 Git 功能参考的 dsh-git-vcs。
