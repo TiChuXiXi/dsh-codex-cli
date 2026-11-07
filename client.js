@@ -19337,6 +19337,7 @@ window.__ModuleLoader__.load({
       let lanes = [];
       return commits.map((c) => {
         let lane = lanes.indexOf(c.hash);
+        const incoming = lane >= 0;
         if (lane < 0) {
           lane = lanes.indexOf("");
           if (lane < 0) lane = lanes.length;
@@ -19355,7 +19356,7 @@ window.__ModuleLoader__.load({
         });
         const through = before.flatMap((hash, i) => hash && i !== lane ? [i] : []);
         while (lanes.at(-1) === "") lanes.pop();
-        return { lane, before, after: [...lanes], edges, through };
+        return { lane, before, after: [...lanes], edges, through, incoming };
       });
     }
 
@@ -19873,7 +19874,7 @@ window.__ModuleLoader__.load({
         return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("button", { className: "git-history-row", onClick: () => onSelect(c), children: [
           /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("svg", { width, height: "48", "aria-hidden": "true", style: { minWidth: width }, children: [
             r2.through.map((n) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("path", { d: "M" + x(n) + " 0 V48", stroke: colors[n % colors.length], fill: "none" }, "v" + n)),
-            r2.before[r2.lane] === c.hash && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("path", { d: "M" + x(r2.lane) + " 0 V24", stroke: colors[r2.lane % colors.length] }),
+            r2.incoming && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("path", { d: "M" + x(r2.lane) + " 0 V24", stroke: colors[r2.lane % colors.length] }),
             r2.edges.map((edge, j) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("path", { d: "M" + x(edge.from) + " 24 C" + x(edge.from) + " 38 " + x(edge.to) + " 38 " + x(edge.to) + " 48", stroke: colors[edge.to % colors.length], fill: "none" }, j)),
             /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("circle", { cx: x(r2.lane), cy: "24", r: "4", stroke: colors[r2.lane % colors.length], fill: c.hash === head ? colors[r2.lane % colors.length] : "var(--codex-bg)" })
           ] }),
@@ -24961,7 +24962,7 @@ window.__ModuleLoader__.load({
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
       }, onDropCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
-      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-07T08:39:39.646Z", children: [
+      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-07T08:40:56.417Z", children: [
         /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
           /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
           /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("button", { type: "button", className: "dsh-codex-workbench-project", title: detail?.thread.cwd ?? selectedCwd ?? "", onClick: () => setPickerOpen(true), children: [
