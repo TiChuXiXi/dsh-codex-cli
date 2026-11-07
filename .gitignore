@@ -2,8 +2,8 @@ node_modules/
 .dsh-uploads/
 .dsh-trash/
 shots/*
-!shots/02-console.png
-!shots/83-new-project.png
+!shots/workbench-redacted.png
+!shots/skills-redacted.png
 !shots/84-plan-mode.png
 research/
 *.log

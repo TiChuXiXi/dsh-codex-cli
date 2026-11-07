@@ -2,7 +2,7 @@
 
 在 DeepSeek Harness（DSH）的 Web 界面中使用和管理本机 Codex CLI 的插件。它将项目、会话、对话、审批和工作区工具集中在一个页面，适合希望通过浏览器操作运行在 DSH 宿主机上的 Codex 的用户。
 
-![Codex 管理页](shots/02-console.png)
+![Codex 管理页](shots/workbench-redacted.png)
 
 ## 功能范围
 
@@ -61,7 +61,7 @@ dsh plugin --profile web add "$(pwd)"
 
 技能列表与工作区文件（截图中的个人信息已遮挡）：
 
-![技能列表与工作区文件](shots/83-new-project.png)
+![技能列表与工作区文件](shots/skills-redacted.png)
 
 ## 开发与验证
 
