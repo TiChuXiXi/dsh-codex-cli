@@ -1,6 +1,7 @@
 /** 版本与健康对话框：版本探测、升级/回滚、守护进程动作、doctor 体检。 */
 
 import * as React from 'react'
+import {Icon} from '../components/Icon'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 
@@ -185,7 +186,7 @@ export function VersionsDialog({ open, onClose, api }: VersionsDialogProps) {
                   disabled={job?.status === 'running'}
                   onClick={() => void startJob('versions/update', {})}
                 >
-                  {t('versions.update')} → {check.latest?.version}
+                  {t('versions.update')} <Icon name="arrowRight" size={14}/> {check.latest?.version}
                 </button>
               ) : (
                 <span className="dsh-codex-hint">{t('versions.upToDate')}</span>

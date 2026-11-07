@@ -1,6 +1,7 @@
 /** 宿主 DTO 与 codex 协议的浏览器侧最小类型。 */
 
 export interface CodexThread {
+  modelProvider?: string
   id: string
   sessionId: string | null
   name: string | null
@@ -29,7 +30,7 @@ export interface CodexItem {
   completedAtMs?: number | null
   text?: string
   summary?: string[]
-  content?: Array<{ type: string, text?: string }>
+  content?: Array<{ type: string, text?: string, path?: string, url?: string, name?: string }>
   command?: string
   cwd?: string
   status?: string
@@ -97,6 +98,7 @@ export interface CodexEvent {
   itemId?: string
   channel?: string
   summaryIndex?: number
+  contentIndex?: number
 }
 
 export interface PendingApproval {
@@ -121,6 +123,7 @@ export interface RateLimits {
   planType: string | null
   primary: RateLimitWindow | null
   secondary: RateLimitWindow | null
+  monthly?: RateLimitWindow | null
   credits: { hasCredits: boolean, unlimited: boolean, balance: string | null } | null
   resetCredits: number
   ordinaryUsageAllowed: boolean | null

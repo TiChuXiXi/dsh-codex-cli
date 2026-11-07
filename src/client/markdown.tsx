@@ -6,6 +6,22 @@
  */
 
 import * as React from 'react'
+import type { Api } from './rpc'
+import { ImageViewer } from './components/ImageViewer'
+
+const ImageApi = React.createContext<Api | null>(null)
+function MarkdownImage({src, alt}: {src: string, alt: string}) {
+  const api = React.useContext(ImageApi)
+  const [local, setLocal] = React.useState<string | null>(null)
+  React.useEffect(() => {
+    if (!src.startsWith('/') || !api) return
+    let active = true
+    api<{dataUrl:string}>('images/read', {path:src}).then(value => {if (active) setLocal(value.dataUrl)}).catch(() => {})
+    return () => {active = false}
+  }, [src, api])
+  const url = src.startsWith('/') ? local : /^https?:\/\//i.test(src) ? src : null
+  return url ? <ImageViewer src={url} alt={alt} /> : <span>{alt}</span>
+}
 
 type Block =
   | { kind: 'code', lang: string, text: string }
@@ -16,12 +32,12 @@ type Block =
   | { kind: 'table', header: string[], rows: string[][] }
   | { kind: 'hr' }
 
-export function Markdown({ text }: { text: string }) {
+export function Markdown({ text, api }: { text: string, api?: Api }) {
   const blocks = React.useMemo(() => parseBlocks(text), [text])
   return (
-    <div className="dsh-codex-markdown">
+    <ImageApi.Provider value={api ?? null}><div className="dsh-codex-markdown">
       {blocks.map((block, index) => renderBlock(block, index))}
-    </div>
+    </div></ImageApi.Provider>
   )
 }
 
@@ -83,7 +99,7 @@ function renderLines(lines: string[], keyPrefix: string): React.ReactNode[] {
   return nodes
 }
 
-const INLINE = /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\n]+\*)|(\[[^\]\n]+\]\([^)\s]+\))/gu
+const INLINE = /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\n]+\*)|(!?\[[^\]\n]+\]\([^)\s]+\))/gu
 
 function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = []
@@ -95,7 +111,10 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
     if (match.index > last) nodes.push(text.slice(last, match.index))
     const token = match[0]
     const key = `${keyPrefix}-${index}`
-    if (token.startsWith('`')) {
+    if (token.startsWith('![')) {
+      const match = /^!\[([^\]]*)\]\(([^)\s]+)\)$/u.exec(token)
+      if (match) nodes.push(<MarkdownImage key={key} alt={match[1]} src={match[2]} />)
+    } else if (token.startsWith('`')) {
       nodes.push(<code key={key}>{token.slice(1, -1)}</code>)
     } else if (token.startsWith('**')) {
       nodes.push(<strong key={key}>{token.slice(2, -2)}</strong>)
@@ -107,7 +126,16 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
         nodes.push(token)
       } else {
         const [, label, href] = linkMatch
-        if (/^https?:\/\//iu.test(href) || href.startsWith('/')) {
+        if (href.startsWith('/') && !href.startsWith('//')) {
+          nodes.push(
+            <a key={key} href={href} onClick={(event) => {
+              event.preventDefault()
+              window.dispatchEvent(new CustomEvent('dsh-codex-open-file', { detail: href }))
+            }}>
+              {label}
+            </a>,
+          )
+        } else if (/^https?:\/\//iu.test(href)) {
           nodes.push(
             <a key={key} href={href} target="_blank" rel="noreferrer noopener">
               {label}
@@ -287,7 +315,7 @@ function Highlighted({ text }: { text: string }) {
   )
 }
 
-function highlightLine(line: string): React.ReactNode[] {
+export function highlightLine(line: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = []
   let last = 0
   let match: RegExpExecArray | null

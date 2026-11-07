@@ -6,10 +6,13 @@
  */
 
 import { EventBus } from './lib/events.js'
-import { CodexHub } from './lib/hub.js'
+import { ProviderHub as CodexHub } from './lib/provider-hub.js'
 import { createRoutes } from './lib/routes.js'
 import { normalizeConfig } from './lib/config.js'
 import { VersionService } from './lib/versions.js'
+import { createRuntime } from './lib/runtime.js'
+import { WorkspaceService } from './lib/workspace.js'
+import { createGitService } from './lib/git.js'
 
 export const name = 'codex-cli'
 
@@ -23,10 +26,15 @@ export const name = 'codex-cli'
 export const inject = ['connection', 'webServer']
 
 export function apply(ctx, rawConfig) {
+  const runtime = createRuntime(ctx)
   const config = normalizeConfig(rawConfig)
   const logger = ctx.logger ?? console
   const bus = new EventBus({ capacity: config.eventBufferSize })
   const hub = new CodexHub({ config, logger, bus })
+  const workspace = new WorkspaceService(bus)
+  const git = createGitService(rawConfig?.git)
+  ctx.effect(() => () => git.dispose(), 'codex-cli: Git services')
+  ctx.effect(() => () => workspace.dispose(), 'codex-cli: workspace services')
   const versions = new VersionService({ config, logger, bus, hub })
 
   const connection = ctx.get('connection')
@@ -48,12 +56,11 @@ export function apply(ctx, rawConfig) {
   )
 
   ctx.effect(
-    () =>
-      webServer.register({
-        kind: 'prefix',
-        path: '/codex-cli',
-        handler: createRoutes({ hub, bus, connection, config, logger, versions }),
-      }),
+    () => {
+      const handler = createRoutes({ hub, bus, connection, config, logger, versions, runtime, workspace, git })
+      const unregister = webServer.register({ kind: 'prefix', path: '/codex-cli', handler })
+      return () => { handler.dispose(); unregister() }
+    },
     'codex-cli: routes',
   )
 

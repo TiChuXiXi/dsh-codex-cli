@@ -3,8 +3,11 @@
  */
 
 import * as React from 'react'
+import {Icon} from '../components/Icon'
+import {ImageViewer} from '../components/ImageViewer'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
+import { readDraft, saveDraft } from '../drafts'
 
 export interface EffortOption {
   reasoningEffort: string
@@ -28,6 +31,7 @@ export interface Attachment {
 export type PermissionMode = 'ask' | 'approve' | 'full' | 'read'
 
 export interface ComposerProps {
+  threadId: string | null
   api: Api
   cwd: string
   disabled: boolean
@@ -85,6 +89,7 @@ const FALLBACK_EFFORTS: EffortOption[] = [
 ]
 
 export function Composer({
+  threadId,
   api,
   cwd,
   disabled,
@@ -109,13 +114,14 @@ export function Composer({
   onExport,
 }: ComposerProps) {
   const t = useT()
-  const [text, setText] = React.useState('')
+  const [initialDraft] = React.useState(() => readDraft(threadId))
+  const [text, setText] = React.useState(initialDraft.text)
   const [busy, setBusy] = React.useState(false)
   const [menu, setMenu] = React.useState<Menu>(null)
   const [plusOpen, setPlusOpen] = React.useState(false)
   const [permissionOpen, setPermissionOpen] = React.useState(false)
   const [confirmFull, setConfirmFull] = React.useState(false)
-  const [attachments, setAttachments] = React.useState<Attachment[]>([])
+  const [attachments, setAttachments] = React.useState<Attachment[]>(initialDraft.attachments)
   const [uploading, setUploading] = React.useState(false)
   const [uploadError, setUploadError] = React.useState<string | null>(null)
   const [slashIndex, setSlashIndex] = React.useState(0)
@@ -123,6 +129,11 @@ export function Composer({
   const slashRef = React.useRef<HTMLDivElement | null>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement | null>(null)
+  const folderInputRef = React.useRef<HTMLInputElement | null>(null)
+  const uploadQueue = React.useRef<Promise<void>>(Promise.resolve())
+  const pendingUploads = React.useRef(0)
+
+  React.useEffect(() => { saveDraft(threadId, text, attachments) }, [threadId, text, attachments])
 
   React.useEffect(() => {
     const element = textareaRef.current
@@ -221,20 +232,23 @@ export function Composer({
     onPermissionChange(mode)
   }
 
-  const uploadFiles = async (files: FileList | null) => {
+  const uploadFiles = (files: FileList | File[] | null) => {
     if (files === null || files.length === 0) return
+    const batch = Array.from(files)
     if (cwd === '') {
       setUploadError(t('composer.noCwd'))
       return
     }
+    pendingUploads.current++
     setUploading(true)
     setUploadError(null)
+    uploadQueue.current = uploadQueue.current.then(async () => {
     try {
-      for (const file of Array.from(files)) {
+      for (const file of batch) {
         const dataBase64 = await readAsBase64(file)
         const saved = await api<{ path: string, name: string }>('upload/save', {
           cwd,
-          name: file.name,
+          name: file.webkitRelativePath || file.name || 'clipboard-image.png',
           dataBase64,
         })
         setAttachments((previous) => [
@@ -249,14 +263,48 @@ export function Composer({
     } catch (cause) {
       setUploadError(cause instanceof Error ? cause.message : String(cause))
     } finally {
-      setUploading(false)
-      if (fileInputRef.current !== null) fileInputRef.current.value = ''
+      pendingUploads.current--
+      setUploading(pendingUploads.current > 0)
     }
+    })
   }
+
+  const uploadFilesRef = React.useRef(uploadFiles)
+  uploadFilesRef.current = uploadFiles
+  React.useEffect(() => {
+    const area = textareaRef.current?.closest('main')
+    if (!area) return
+    const hasFiles = (event: DragEvent) => Array.from(event.dataTransfer?.types ?? []).includes('Files')
+    const over = (event: DragEvent) => {
+      if (!hasFiles(event)) return
+      event.preventDefault()
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy'
+      area.classList.add('is-file-dragging')
+    }
+    const leave = (event: DragEvent) => {
+      if (!event.relatedTarget || !area.contains(event.relatedTarget as Node)) area.classList.remove('is-file-dragging')
+    }
+    const drop = (event: DragEvent) => {
+      if (!hasFiles(event)) return
+      event.preventDefault()
+      area.classList.remove('is-file-dragging')
+      const files = Array.from(event.dataTransfer?.files ?? [])
+      if (files.length) uploadFilesRef.current(files)
+    }
+    area.addEventListener('dragover', over)
+    area.addEventListener('dragleave', leave)
+    area.addEventListener('drop', drop)
+    return () => {
+      area.removeEventListener('dragover', over)
+      area.removeEventListener('dragleave', leave)
+      area.removeEventListener('drop', drop)
+      area.classList.remove('is-file-dragging')
+    }
+  }, [])
 
   const submit = async () => {
     const value = text.trim()
-    if ((value === '' && attachments.length === 0) || busy || disabled) return
+    if ((value === '' && attachments.length === 0) || (activeTurnId !== null && value === '') || busy || disabled || pendingUploads.current > 0) return
     setBusy(true)
     try {
       if (activeTurnId !== null) {
@@ -270,7 +318,7 @@ export function Composer({
         })
       }
       setText('')
-      setAttachments([])
+      if (activeTurnId === null) setAttachments([])
       textareaRef.current?.focus()
     } catch {
       // 失败保留草稿。
@@ -316,7 +364,6 @@ export function Composer({
           <div className="dsh-codex-menu-backdrop" onPointerDown={closeAll} />
           <div className="dsh-codex-plus-panel" role="menu">
             <div className="dsh-codex-menu-title">{t('composer.add')}</div>
-            <PlusItem icon={<PaperclipGlyph />} label={t('cmd.attach')} hint={t('cmd.attachDesc')} onClick={() => runCommand('attach')} />
             <PlusItem icon={<FolderGlyph />} label={t('cmd.project')} hint={t('cmd.projectDesc')} onClick={() => runCommand('project')} />
             <div className="dsh-codex-menu-title">{t('composer.commands')}</div>
             {COMMANDS.filter((command) => command.id !== 'attach' && command.id !== 'project').map((command) => (
@@ -332,20 +379,20 @@ export function Composer({
         </>
       ) : null}
       <div className="dsh-codex-composer-card">
-        <input ref={fileInputRef} type="file" multiple hidden onChange={(event) => void uploadFiles(event.target.files)} />
+        <input ref={fileInputRef} type="file" multiple hidden onChange={(event) => { uploadFiles(event.target.files); event.target.value = '' }} />
+        <input ref={folderInputRef} type="file" multiple hidden {...({webkitdirectory: '', directory: ''} as any)} onChange={(event) => { uploadFiles(event.target.files); event.target.value = '' }} />
 
         {attachments.length > 0 || uploading || uploadError !== null ? (
           <div className="dsh-codex-attachments">
             {attachments.map((attachment) => (
-              <span key={attachment.path} className="dsh-codex-attachment" title={attachment.path}>
-                <span className="dsh-codex-attachment-name">{attachment.name}</span>
+              <span key={attachment.path} className="dsh-codex-attachment dsh-codex-attachment-card" title={attachment.name}>
+                <AttachmentPreview attachment={attachment} api={api} />
                 <button
                   type="button"
-                  aria-label={t('composer.removeAttachment')}
+                  className="dsh-codex-attachment-remove"
+                  aria-label={t('composer.removeAttachment') + ': ' + attachment.name}
                   onClick={() => setAttachments((previous) => previous.filter((item) => item.path !== attachment.path))}
-                >
-                  ×
-                </button>
+                ><Icon name="close" size={14}/></button>
               </span>
             ))}
             {uploading ? <span className="dsh-codex-attachment uploading">{t('composer.uploading')}</span> : null}
@@ -366,6 +413,12 @@ export function Composer({
                 ? t('composer.planPlaceholder')
                 : t('composer.placeholder')
           }
+          onPaste={(event) => {
+            const files = Array.from(event.clipboardData.files)
+            if (files.length === 0) return
+            if (!event.clipboardData.getData('text/plain')) event.preventDefault()
+            uploadFiles(files)
+          }}
           onChange={(event) => {
             setText(event.target.value)
             setSlashIndex(0)
@@ -415,10 +468,10 @@ export function Composer({
                 setMenu(null)
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-                <path d="M8 2.5v11M2.5 8h11" strokeLinecap="round" />
-              </svg>
+              <Icon name="plus" size={16}/>
             </button>
+            <button type="button" className="dsh-codex-icon-button dsh-codex-attach" aria-label={t('composer.attachFile')} title={t('composer.attachFile')} disabled={disabled} onClick={() => { closeAll(); fileInputRef.current?.click() }}><Icon name="attachment" size={18}/></button>
+            <button type="button" className="dsh-codex-icon-button dsh-codex-attach" aria-label={t('composer.attachFolder')} title={t('composer.attachFolder')} disabled={disabled} onClick={() => { closeAll(); folderInputRef.current?.click() }}><Icon name="folderPlus" size={18}/></button>
             <button
               type="button"
               className="dsh-codex-permission-trigger"
@@ -432,12 +485,6 @@ export function Composer({
               <ShieldGlyph />
               <span>{t(`permission.${permission}`)}</span>
             </button>
-            {activeTurnId !== null ? (
-              <span className="dsh-codex-running">
-                <span className="dsh-codex-dot ok pulse" />
-                {t('composer.running')}
-              </span>
-            ) : null}
             {planMode ? (
               <span className="dsh-codex-plan-tag">
                 {t('plan.tag')}
@@ -481,7 +528,7 @@ export function Composer({
             <button
               type="button"
               className="dsh-codex-send"
-              disabled={disabled || busy || (text.trim() === '' && attachments.length === 0)}
+              disabled={disabled || busy || uploading || (text.trim() === '' && (attachments.length === 0 || activeTurnId !== null))}
               aria-label={activeTurnId === null ? t('composer.send') : t('composer.steer')}
               title={activeTurnId === null ? t('composer.send') : t('composer.steer')}
               onClick={() => void submit()}
@@ -717,6 +764,22 @@ function labelForEffort(t: (key: string) => string, value: string): string {
   return text === key ? value : text
 }
 
+function AttachmentPreview({attachment, api}: {attachment: Attachment, api: Api}) {
+  const [src, setSrc] = React.useState<string | null>(null)
+  React.useEffect(() => {
+    let active = true
+    setSrc(null)
+    if (attachment.kind !== 'image') return () => { active = false }
+    api<{dataUrl: string}>('images/read', {path: attachment.path})
+      .then((result) => { if (active) setSrc(result.dataUrl) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [api, attachment.path, attachment.kind])
+  const extension = attachment.name.split('.').pop()?.toLowerCase() ?? ''
+  const icon = /^(png|jpe?g|gif|webp|svg|bmp|avif|heic)$/.test(extension) ? 'fileImage' : /^(zip|rar|7z|tar|gz)$/.test(extension) ? 'fileArchive' : /^(xls|xlsx|csv|ods)$/.test(extension) ? 'fileSpreadsheet' : /^(mp3|wav|m4a|ogg|flac)$/.test(extension) ? 'fileAudio' : /^(mp4|mov|webm|mkv)$/.test(extension) ? 'fileVideo' : /^(js|ts|tsx|jsx|py|c|cpp|h|java|html|css|json|sh|rs|go)$/.test(extension) ? 'fileCode' : /^(pdf|doc|docx|ppt|pptx)$/.test(extension) ? 'fileType' : 'file'
+  return src ? <ImageViewer className="dsh-codex-attachment-preview" src={src} alt={attachment.name} onError={() => setSrc(null)} /> : <span className="dsh-codex-attachment-placeholder"><Icon name={icon} size={29}/><span>{extension || 'FILE'}</span></span>
+}
+
 function readAsBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -730,109 +793,28 @@ function readAsBase64(file: File): Promise<string> {
   })
 }
 
-function CommandGlyph({ id }: { id: CommandId }) {
-  if (id === 'permission') return <ShieldGlyph />
-  if (id === 'plan') return <PlanGlyph />
-  if (id === 'model' || id === 'effort') return <ModelGlyph />
-  if (id === 'compact') return <span aria-hidden="true">⇣</span>
-  if (id === 'new') return <span aria-hidden="true">＋</span>
-  return <span aria-hidden="true">⌘</span>
-}
+function CommandGlyph({id}:{id:CommandId}){return <Icon size={16} name={id==='plan'?'plan':id==='permission'?'shield':id==='model'?'model':id==='effort'?'brain':id==='compact'?'arrowDown':id==='new'?'plus':id==='export'?'download':id==='diff'?'git':'command'}/>}
 
-function PlanGlyph() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
-      <path d="M5.5 4.5h8M5.5 8h8M5.5 11.5h5" strokeLinecap="round" />
-      <path d="m2 4.2.9.9L4.4 3.5M2 7.7l.9.9L4.4 7M2 11.2l.9.9 1.5-1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
+function PlanGlyph(){return <Icon name="plan" size={16}/>}
 
-function CloseGlyph() {
-  return (
-    <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-      <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
-    </svg>
-  )
-}
+function CloseGlyph(){return <Icon name="close" size={16}/>}
 
-function ShieldGlyph() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
-      <path d="M8 1.8 13 3.6v3.6c0 3.1-2.1 5.3-5 6.9-2.9-1.6-5-3.8-5-6.9V3.6L8 1.8Z" strokeLinejoin="round" />
-    </svg>
-  )
-}
+function ShieldGlyph(){return <Icon name="shield" size={16}/>}
 
-function PaperclipGlyph() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
-      <path d="M10.8 5.2 6.4 9.6a1.6 1.6 0 0 0 2.3 2.3l4.7-4.7a3 3 0 0 0-4.2-4.2L4.1 8.1a4.2 4.2 0 0 0 5.9 5.9l3.4-3.4" strokeLinecap="round" />
-    </svg>
-  )
-}
+function PaperclipGlyph(){return <Icon name="attachment" size={16}/>}
 
-function FolderGlyph() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
-      <path d="M1.9 4.3c0-.66.54-1.2 1.2-1.2h2.9l1.5 1.7h5.4c.66 0 1.2.54 1.2 1.2v6.3c0 .66-.54 1.2-1.2 1.2H3.1c-.66 0-1.2-.54-1.2-1.2V4.3Z" strokeLinejoin="round" />
-    </svg>
-  )
-}
+function FolderGlyph(){return <Icon name="folder" size={16}/>}
 
-function ModelGlyph() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1" aria-hidden="true">
-      <path d="M8 1.6 9.6 5.1 13.4 6.6 9.6 8.1 8 11.6 6.4 8.1 2.6 6.6 6.4 5.1 8 1.6Z" strokeLinejoin="round" />
-      <path d="M12.6 10.4l.7 1.5 1.5.7-1.5.7-.7 1.5-.7-1.5-1.5-.7 1.5-.7.7-1.5Z" strokeLinejoin="round" />
-    </svg>
-  )
-}
+function ModelGlyph(){return <Icon name="model" size={16}/>}
 
-function ChevronGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1" aria-hidden="true">
-      <path d="M4 6l3.3 3.3a1 1 0 0 0 1.4 0L12 6" strokeLinecap="round" />
-    </svg>
-  )
-}
+function ChevronGlyph(){return <Icon name="chevronDown" size={16}/>}
 
-function ChevronRightGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1" aria-hidden="true">
-      <path d="M6 4l3.3 3.3a1 1 0 0 1 0 1.4L6 12" strokeLinecap="round" />
-    </svg>
-  )
-}
+function ChevronRightGlyph(){return <Icon name="chevronRight" size={16}/>}
 
-function ChevronLeftGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1" aria-hidden="true">
-      <path d="M10 4 6.7 7.3a1 1 0 0 0 0 1.4L10 12" strokeLinecap="round" />
-    </svg>
-  )
-}
+function ChevronLeftGlyph(){return <Icon name="chevronLeft" size={16}/>}
 
-function SendGlyph() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M8 13V3M3.6 7.4 8 3l4.4 4.4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
+function SendGlyph(){return <Icon name="arrowUp" size={16}/>}
 
-function StopGlyph() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
-      <rect x="2.5" y="2.5" width="7" height="7" rx="1.2" />
-    </svg>
-  )
-}
+function StopGlyph(){return <Icon name="stop" size={16}/>}
 
-function CheckGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-      <path d="M3.5 8.5 6.5 11.5 12.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
+function CheckGlyph(){return <Icon name="check" size={16}/>}

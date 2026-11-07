@@ -1,6 +1,9 @@
 /** Codex 模式左侧栏：品牌/状态、统计、操作、搜索、项目树与返回 DSH。 */
 
 import * as React from 'react'
+import {Icon,IconButton} from '../components/Icon'
+import {OverflowLabel} from '../components/OverflowLabel'
+import {SelectMenu} from '../components/SelectMenu'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 import type { CodexThread, HubStatus, Project, RateLimits, RateLimitWindow } from '../types'
@@ -10,6 +13,8 @@ import { formatDateTime } from '../utils'
 import { ThreadRow } from './ThreadRow'
 
 export interface FocusSidebarProps {
+  provider: string
+  onProviderChange: (provider: string) => void
   api: Api
   status: HubStatus | null
   streamState: StreamState
@@ -21,7 +26,6 @@ export interface FocusSidebarProps {
   threads: CodexThread[]
   threadsOwner: { cwd: string | null, search: string } | null
   unread: Set<string>
-  viewedAt: Record<string, number>
   selectedCwd: string | null
   selectedId: string | null
   loading: boolean
@@ -43,6 +47,8 @@ export interface FocusSidebarProps {
 
 export function FocusSidebar({
   api,
+  provider,
+  onProviderChange,
   status,
   streamState,
   projects,
@@ -53,7 +59,6 @@ export function FocusSidebar({
   threads,
   threadsOwner,
   unread,
-  viewedAt,
   selectedCwd,
   selectedId,
   loading,
@@ -81,14 +86,7 @@ export function FocusSidebar({
     .filter((part) => part !== '')
     .join(' · ')
   const isUnread = (thread: CodexThread): boolean => {
-    if (thread.status?.type === 'active') return false
-    if (unread.has(thread.id)) return true
-    const seen = viewedAt[thread.id]
-    return (
-      typeof seen === 'number' &&
-      typeof thread.updatedAt === 'number' &&
-      thread.updatedAt > seen
-    )
+    return thread.status?.type !== 'active' && unread.has(thread.id)
   }
   const query = search.trim().toLowerCase()
   const searchText = search.trim()
@@ -104,14 +102,14 @@ export function FocusSidebar({
     : projects
 
   return (
-    <aside className="dsh-codex-focus-sidebar">
+    <aside id="dsh-codex-project-nav" className="dsh-codex-focus-sidebar" aria-label="项目与会话">
       <div className="dsh-codex-focus-brand">
         <span className="dsh-codex-focus-logo">
           <CodexIcon size={20} />
         </span>
         <span className="dsh-codex-focus-brand-text">
-          <strong>Codex CLI</strong>
-          <small>{t('app.subtitle')}</small>
+          <strong>Codex <small>CLI</small></strong>
+
         </span>
       </div>
 
@@ -142,14 +140,12 @@ export function FocusSidebar({
 
       <div className="dsh-codex-focus-actions">
         <button type="button" className="dsh-codex-button primary" onClick={onNew}>
-          {t('newThread.open')}
+          <Icon name="plus" size={17}/>{t('newThread.open')}
         </button>
-        <button type="button" className="dsh-codex-button" onClick={onVersions}>
+        <button type="button" className="dsh-codex-button" title={t('versions.open')} onClick={onVersions}>
           {t('versions.open')}
         </button>
-        <button type="button" className="dsh-codex-button" onClick={onRefresh}>
-          {t('status.refresh')}
-        </button>
+        <IconButton icon="refresh" label={t('status.refresh')} onClick={onRefresh}/>
       </div>
 
       <div className="dsh-codex-focus-search-row">
@@ -186,9 +182,7 @@ export function FocusSidebar({
                   onClick={() => onSelectProject(project.cwd)}
                 >
                   <FolderGlyph />
-                  <span className="dsh-codex-tree-project-name">
-                    {project.name === '' ? project.cwd : project.name}
-                  </span>
+                  <OverflowLabel className="dsh-codex-tree-project-name" text={project.name === '' ? project.cwd : project.name} />
                   <span className="dsh-codex-tree-project-count">{project.threadCount}</span>
                 </button>
               ))
@@ -232,12 +226,10 @@ export function FocusSidebar({
                     onClick={() => onSelectProject(project.cwd)}
                   >
                     <FolderGlyph open={expanded} />
-                    <span className="dsh-codex-tree-project-name">
-                      {project.name === '' ? project.cwd : project.name}
-                    </span>
+                    <OverflowLabel className="dsh-codex-tree-project-name" text={project.name === '' ? project.cwd : project.name} />
                     <span className="dsh-codex-tree-project-count">{project.threadCount}</span>
                   </button>
-                  {expanded ? (
+                  <AnimatedSessions expanded={expanded}>
                     <div className="dsh-codex-tree-sessions">
                       {treeThreads.map((thread) => (
                         <ThreadRow
@@ -263,7 +255,7 @@ export function FocusSidebar({
                         </button>
                       ) : null}
                     </div>
-                  ) : null}
+                  </AnimatedSessions>
                 </React.Fragment>
               )
             })}
@@ -275,49 +267,26 @@ export function FocusSidebar({
       </div>
 
       <div className="dsh-codex-focus-footer">
-        <button type="button" className="dsh-codex-exit" onClick={onExit}>
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
-            <path d="M9.5 4 5.5 8l4 4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          DeepSeek Harness
-        </button>
+        <div className="dsh-codex-provider-picker"><span>提供商</span>
+          <SelectMenu label="提供商" value={provider} direction="up" onChange={onProviderChange} options={[{value:'openai',label:'ChatGPT'},{value:'opencode-go',label:'OpenCode Go'}]} />
+        </div>
+        <div className="dsh-codex-sidebar-health"><span className={'dsh-codex-dot '+phaseClass}/><span>{t(`status.${phase}`)}</span><IconButton icon="settings" label="版本与连接" onClick={onVersions}/></div>
+        <div className="dsh-codex-sidebar-quota" title={quotaInfo.title}>{quotaInfo.text}</div>
+        <button type="button" className="dsh-codex-sidebar-exit" onClick={onExit}><Icon name="arrowLeft" size={16}/>返回 DeepSeek Harness</button>
       </div>
     </aside>
   )
 }
 
-function FolderPlusGlyph() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path
-        d="M1.9 4.3c0-.66.54-1.2 1.2-1.2h2.9l1.5 1.7h5.4c.66 0 1.2.54 1.2 1.2v6.3c0 .66-.54 1.2-1.2 1.2H3.1c-.66 0-1.2-.54-1.2-1.2V4.3Z"
-        stroke="currentColor"
-        strokeWidth="1"
-        strokeLinejoin="round"
-      />
-      <path d="M8 6.6v4.2M5.9 8.7h4.2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  )
+function AnimatedSessions({expanded, children}: {expanded: boolean, children: React.ReactNode}) {
+  const retained = React.useRef(children)
+  if (expanded) retained.current = children
+  return <div className={'dsh-codex-sessions-transition' + (expanded ? ' is-expanded' : '')} aria-hidden={!expanded} inert={!expanded}><div>{retained.current}</div></div>
 }
 
-function FolderGlyph({ open = false }: { open?: boolean }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path
-        d="M1.9 4.3c0-.66.54-1.2 1.2-1.2h2.9l1.5 1.7h5.4c.66 0 1.2.54 1.2 1.2v6.3c0 .66-.54 1.2-1.2 1.2H3.1c-.66 0-1.2-.54-1.2-1.2V4.3Z"
-        fill="currentColor"
-        opacity={open ? 0.22 : 0.14}
-      />
-      <path
-        d="M1.9 4.3c0-.66.54-1.2 1.2-1.2h2.9l1.5 1.7h5.4c.66 0 1.2.54 1.2 1.2v6.3c0 .66-.54 1.2-1.2 1.2H3.1c-.66 0-1.2-.54-1.2-1.2V4.3Z"
-        stroke="currentColor"
-        strokeWidth="1"
-        strokeLinejoin="round"
-      />
-      {open ? <path d="M2.2 7.1h11.6" stroke="currentColor" strokeWidth="1" /> : null}
-    </svg>
-  )
-}
+function FolderPlusGlyph(){return <Icon name="folderPlus" size={17}/>}
+
+function FolderGlyph({open=false}:{open?:boolean}){return <Icon name={open?'folderOpen':'folder'} size={17}/>}
 
 function quotaSummary(quota: RateLimits | null, t: (key: string, vars?: Record<string, string | number>) => string): { text: string, title?: string } {
   if (quota === null) return { text: t('quota.unknown') }
@@ -326,6 +295,7 @@ function quotaSummary(quota: RateLimits | null, t: (key: string, vars?: Record<s
   const windows: RateLimitWindow[] = []
   if (quota.primary !== null) windows.push(quota.primary)
   if (quota.secondary !== null) windows.push(quota.secondary)
+  if (quota.monthly != null) windows.push(quota.monthly)
   for (const window of windows) {
     const percent = Math.max(0, Math.min(100, 100 - Math.round(window.usedPercent)))
     const label = windowLabel(window.windowDurationMins, t)
@@ -340,6 +310,7 @@ function quotaSummary(quota: RateLimits | null, t: (key: string, vars?: Record<s
 
 function windowLabel(minutes: number | null, t: (key: string, vars?: Record<string, string | number>) => string): string {
   if (typeof minutes !== 'number' || minutes <= 0) return ''
+  if (minutes >= 43200) return '月'
   if (minutes >= 10080) return t('quota.window.weekly')
   if (minutes >= 1440) return t('quota.window.daily')
   if (minutes >= 300) return t('quota.window.5h')

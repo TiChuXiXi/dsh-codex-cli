@@ -4,8 +4,10 @@ import * as React from 'react'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 import type { CodexThread } from '../types'
-import { basename, relativeTime, threadTitle } from '../utils'
+import { relativeTime, threadTitle } from '../utils'
 import { ThreadRowMenu } from './ThreadRowMenu'
+import { OverflowLabel } from '../components/OverflowLabel'
+import { Icon } from '../components/Icon'
 
 export interface ThreadRowProps {
   api: Api
@@ -31,17 +33,9 @@ export function ThreadRow({
   onDeleted,
 }: ThreadRowProps) {
   const t = useT()
-  const status = thread.status?.type ?? 'idle'
-  const dotClass =
-    status === 'active'
-      ? 'ok pulse'
-      : status === 'systemError'
-        ? 'error'
-        : unread
-          ? 'done'
-          : ''
-  const meta = [thread.model, relativeTime(thread.updatedAt, t)]
-  if (showCwd && thread.cwd) meta.push(basename(thread.cwd))
+  const running = thread.status?.type === 'active'
+  const showCompletionDot = unread && !selected && !running
+  const time = relativeTime(thread.updatedAt, t)
   return (
     <div
       role="button"
@@ -50,17 +44,18 @@ export function ThreadRow({
       title={`${threadTitle(thread)}\n${thread.cwd ?? ''}`}
       onClick={() => onSelect(thread.id)}
       onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
+        if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
           event.preventDefault()
           onSelect(thread.id)
         }
       }}
     >
-      <span className={`dsh-codex-dot ${dotClass}`} />
+      {showCompletionDot && <span className="dsh-codex-dot done" />}
       <span className="dsh-codex-thread-main">
-        <span className="dsh-codex-thread-name">{threadTitle(thread)}</span>
-        <span className="dsh-codex-thread-meta">{meta.filter(Boolean).join(' · ')}</span>
+        <OverflowLabel className="dsh-codex-thread-name" text={threadTitle(thread)} />
       </span>
+      <span className={`dsh-codex-thread-trailing${running ? ' running' : ''}`}>
+        {running ? <Icon name="loader" size={16} className="dsh-codex-running-spinner" /> : <span className="dsh-codex-thread-time">{time}</span>}
       <ThreadRowMenu
         api={api}
         thread={thread}
@@ -68,6 +63,7 @@ export function ThreadRow({
         onChanged={onChanged}
         onDeleted={() => onDeleted(thread.id)}
       />
+      </span>
     </div>
   )
 }

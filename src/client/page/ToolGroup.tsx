@@ -1,6 +1,7 @@
 /** 连续的工具调用折叠成一组：摘要 + 展开/收起。 */
 
 import * as React from 'react'
+import {Icon} from '../components/Icon'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 import type { CodexItem } from '../types'
@@ -66,9 +67,7 @@ export function ToolGroup({ items, api }: { items: CodexItem[], api: Api }) {
         onClick={() => setOpen(!open)}
       >
         <span className={`dsh-codex-tool-group-chevron ${open ? 'open' : ''}`}>
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
-            <path d="M4 6l3.3 3.3a1 1 0 0 0 1.4 0L12 6" strokeLinecap="round" />
-          </svg>
+          <Icon name="chevronDown" size={16}/>
         </span>
         <span className="dsh-codex-tool-group-title">{summary}</span>
       </button>

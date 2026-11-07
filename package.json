@@ -15,7 +15,8 @@
     "client.js",
     "cordis.patch.yml",
     "locale",
-    "README.md"
+    "README.md",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "dsh": {
     "engines": {
@@ -29,6 +30,9 @@
     }
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "highlight.js": "^11.12.0",
+    "lucide-react": "^1.70.0",
     "ws": "^8.22.1"
   },
   "devDependencies": {
@@ -44,7 +48,10 @@
   },
   "scripts": {
     "build": "node scripts/build-client.mjs",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "dev:reload:host": "node scripts/reload-host.mjs",
+    "test:sidebar:live": "node scripts/verify-sidebar.mjs",
+    "test:workbench:live": "node scripts/verify-workbench-live.mjs"
   },
   "keywords": [
     "dsh",

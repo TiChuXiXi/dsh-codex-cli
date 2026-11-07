@@ -1,6 +1,8 @@
 /** Codex 会话右侧面板：文件浏览、版本管理、终端。 */
 
 import * as React from 'react'
+import {Icon} from '../components/Icon'
+import {GitPane as GitTab} from '../sidebar/GitPane'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 
@@ -31,6 +33,7 @@ export interface RightPanelProps {
   api: Api
   cwd: string
   open: boolean
+  requestId?: number
   tab: RightTab
   onTabChange: (tab: RightTab) => void
   onClose: () => void
@@ -55,9 +58,7 @@ export function RightPanel({ api, cwd, open, tab, onTabChange, onClose }: RightP
           ))}
         </div>
         <button type="button" className="dsh-codex-right-close" aria-label={t('right.close')} onClick={onClose}>
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
-            <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
-          </svg>
+          <Icon name="close" size={17}/>
         </button>
       </div>
       {cwd === '' ? (
@@ -73,7 +74,7 @@ export function RightPanel({ api, cwd, open, tab, onTabChange, onClose }: RightP
   )
 }
 
-function FilesTab({ api, cwd }: { api: Api, cwd: string }) {
+export function FilesTab({ api, cwd }: { api: Api, cwd: string }) {
   const t = useT()
   const [path, setPath] = React.useState(cwd)
   const [entries, setEntries] = React.useState<Entry[]>([])
@@ -118,15 +119,11 @@ function FilesTab({ api, cwd }: { api: Api, cwd: string }) {
     <div className="dsh-codex-right-body">
       <div className="dsh-codex-right-bar">
         <button type="button" className="dsh-codex-icon-button" title={t('right.up')} onClick={() => void load(up)}>
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
-            <path d="M8 12V4M4 8l4-4 4 4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <Icon name="arrowLeft" size={17}/>
         </button>
         <code className="dsh-codex-right-path" title={path}>{path}</code>
         <button type="button" className="dsh-codex-icon-button" title={t('right.refresh')} onClick={() => void load(path)}>
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
-            <path d="M13 8a5 5 0 1 1-1.5-3.5M13 3v3h-3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <Icon name="refresh" size={17}/>
         </button>
       </div>
       {error !== null ? <div className="dsh-codex-right-error">{error}</div> : null}
@@ -152,7 +149,7 @@ function FilesTab({ api, cwd }: { api: Api, cwd: string }) {
               onClick={() => (entry.type === 'dir' ? void load(entry.path) : void openFile(entry))}
             >
               <span className={`dsh-codex-right-glyph ${entry.type}`}>
-                {entry.type === 'dir' ? '▸' : '·'}
+                <Icon name={entry.type==='dir'?'folder':'file'} size={16}/>
               </span>
               <span className="dsh-codex-right-name">{entry.name}</span>
               {entry.type === 'file' && entry.size !== null ? (
@@ -168,98 +165,9 @@ function FilesTab({ api, cwd }: { api: Api, cwd: string }) {
   )
 }
 
-function GitTab({ api, cwd }: { api: Api, cwd: string }) {
-  const t = useT()
-  const [data, setData] = React.useState<GitData | null>(null)
-  const [diff, setDiff] = React.useState<{ path: string, text: string } | null>(null)
-  const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
+export {GitPane as GitTab} from '../sidebar/GitPane'
 
-  const load = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setData(await api<GitData>('git/status', { cwd }))
-      setDiff(null)
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause))
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  React.useEffect(() => {
-    void load()
-  }, [cwd])
-
-  const openDiff = async (path: string) => {
-    try {
-      const result = await api<{ diff: string }>('git/diff', { cwd, path })
-      setDiff({ path, text: result.diff === '' ? t('right.noChanges') : result.diff })
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause))
-    }
-  }
-
-  return (
-    <div className="dsh-codex-right-body">
-      <div className="dsh-codex-right-bar">
-        <span className="dsh-codex-right-meta">
-          {data !== null ? `${t('right.branch')} ${data.branch}` : ''}
-        </span>
-        <span style={{ flex: 1 }} />
-        <button type="button" className="dsh-codex-button" onClick={() => void load()}>
-          {t('right.refresh')}
-        </button>
-      </div>
-      {error !== null ? <div className="dsh-codex-right-error">{error}</div> : null}
-      {diff !== null ? (
-        <>
-          <div className="dsh-codex-right-bar">
-            <button type="button" className="dsh-codex-button" onClick={() => setDiff(null)}>
-              {t('right.back')}
-            </button>
-            <code className="dsh-codex-right-path">{diff.path}</code>
-          </div>
-          <pre className="dsh-codex-right-pre">{diff.text}</pre>
-        </>
-      ) : (
-        <div className="dsh-codex-right-list">
-          <div className="dsh-codex-right-section">{t('right.changes')}</div>
-          {data !== null && data.changes.length === 0 ? (
-            <div className="dsh-codex-loading">{t('right.noChanges')}</div>
-          ) : null}
-          {data?.changes.map((change) => (
-            <button
-              type="button"
-              key={`${change.status}:${change.path}`}
-              className="dsh-codex-right-row"
-              onClick={() => void openDiff(change.path)}
-            >
-              <span className="dsh-codex-right-glyph">{change.status}</span>
-              <span className="dsh-codex-right-name">{change.path}</span>
-            </button>
-          ))}
-          {data !== null && data.diffStat !== '' ? (
-            <>
-              <div className="dsh-codex-right-section">{t('right.diff')}</div>
-              <pre className="dsh-codex-right-pre small">{data.diffStat}</pre>
-            </>
-          ) : null}
-          {data !== null && data.log !== '' ? (
-            <>
-              <div className="dsh-codex-right-section">{t('right.log')}</div>
-              <pre className="dsh-codex-right-pre small">{data.log}</pre>
-            </>
-          ) : null}
-          {loading ? <div className="dsh-codex-loading">{t('threads.loading')}</div> : null}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function TerminalTab({ api, cwd }: { api: Api, cwd: string }) {
+export function TerminalTab({ api, cwd }: { api: Api, cwd: string }) {
   const t = useT()
   const [command, setCommand] = React.useState('')
   const [output, setOutput] = React.useState('')
@@ -292,6 +200,7 @@ function TerminalTab({ api, cwd }: { api: Api, cwd: string }) {
         <input
           className="dsh-codex-search"
           value={command}
+          aria-label={t('right.command')}
           placeholder={t('right.command')}
           onChange={(event) => setCommand(event.target.value)}
           onKeyDown={(event) => {
@@ -303,7 +212,7 @@ function TerminalTab({ api, cwd }: { api: Api, cwd: string }) {
         </button>
       </div>
       <pre className="dsh-codex-right-pre terminal">
-        {output === '' ? (running ? t('right.running') : '') : output}
+        {output === '' ? (running ? t('right.running') : '输入命令并运行，输出将显示在这里。') : output}
       </pre>
       {code !== null ? <div className="dsh-codex-right-meta">{t('right.exitCode', { code })}</div> : null}
     </div>

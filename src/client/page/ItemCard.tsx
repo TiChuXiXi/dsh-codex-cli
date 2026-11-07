@@ -1,6 +1,9 @@
 /** 单条 ThreadItem 的渲染：消息常显，命令/工具/文件默认折叠。 */
 
 import * as React from 'react'
+import {Icon} from '../components/Icon'
+import {ImageViewer} from '../components/ImageViewer'
+import {CodexIcon} from '../components/CodexIcon'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 import type { CodexItem } from '../types'
@@ -11,10 +14,11 @@ export function ItemCard({ item, api }: { item: CodexItem, api: Api }) {
   const t = useT()
   switch (item.type) {
     case 'userMessage':
-      return <Message kind="user" label={t('item.user')} text={itemText(item)} time={formatClock(item.startedAtMs)} />
+      return <Message kind="user" label={t('item.user')} text={itemText(item)} time={formatClock(item.startedAtMs)} api={api} attachments={(item.content ?? []).filter(part => typeof part.path === 'string' && (part.type === 'localImage' || part.type === 'local_image' || (part.type === 'mention' && part.path.includes('/.dsh-uploads/codex-cli/')))).map(part => ({path:part.path as string, name:part.name, image:part.type !== 'mention'}))} />
     case 'agentMessage':
       return (
         <Message
+          api={api}
           kind="assistant"
           label={t('item.assistant')}
           text={typeof item.text === 'string' ? item.text : ''}
@@ -52,28 +56,35 @@ export function ItemCard({ item, api }: { item: CodexItem, api: Api }) {
 }
 
 function Message({
+  api,
   kind,
   label,
   text,
   muted = false,
+  attachments = [],
   time = '',
 }: {
+  api: Api
   kind: 'user' | 'assistant'
   label: string
   text: string
   muted?: boolean
+  attachments?: {path:string, name?:string, image:boolean}[]
   time?: string
 }) {
-  if (text.trim() === '') return null
+  if (text.trim() === '' && attachments.length === 0) return null
   return (
     <div className={`dsh-codex-message ${kind}`}>
       <div className="dsh-codex-message-head">
         {kind === 'user' && time !== '' ? <span className="dsh-codex-message-time">{time}</span> : null}
-        <span>{label}</span>
+        <span className="dsh-codex-message-avatar">{kind==='assistant'?<CodexIcon size={17}/>:<Icon name="message" size={16}/>}</span><strong>{label}</strong>
         {kind === 'assistant' && time !== '' ? <span className="dsh-codex-message-time">{time}</span> : null}
       </div>
       <div className="dsh-codex-bubble" style={muted ? { opacity: 0.82 } : undefined}>
-        <Markdown text={text} />
+        {attachments.length > 0 && <div className="dsh-codex-message-images">{attachments.map((attachment, index) => attachment.image
+          ? <ImageView key={attachment.path + index} item={{id:attachment.path, type:'imageView', path:attachment.path}} api={api} hideCaption />
+          : <div className="dsh-codex-message-file" key={attachment.path + index} title={attachment.path}><Icon name="file" size={24}/></div>)}</div>}
+        {text.trim() !== '' && <Markdown text={text} api={api} />}
       </div>
     </div>
   )
@@ -82,7 +93,7 @@ function Message({
 function Reasoning({ item }: { item: CodexItem }) {
   const t = useT()
   const summary = Array.isArray(item.summary) ? item.summary.filter((part) => part.trim() !== '') : []
-  const body = summary.length > 0 ? summary.join('\n\n') : ''
+  const body = summary.join('\n\n')
   if (body === '') return null
   return (
     <details className="dsh-codex-reasoning">
@@ -206,7 +217,7 @@ function Divider({ label }: { label: string }) {
 /** 图片预览：进入视口附近才向宿主读文件，转成 data URL 后显示；同路径只读一次。 */
 const imageCache = new Map<string, string>()
 
-function ImageView({ item, api }: { item: CodexItem, api: Api }) {
+function ImageView({ item, api, hideCaption = false }: { item: CodexItem, api: Api, hideCaption?: boolean }) {
   const t = useT()
   const path = typeof item.path === 'string' ? item.path : ''
   const holderRef = React.useRef<HTMLDivElement | null>(null)
@@ -260,13 +271,13 @@ function ImageView({ item, api }: { item: CodexItem, api: Api }) {
   return (
     <figure className="dsh-codex-image" ref={holderRef}>
       {src !== null ? (
-        <img src={src} alt={basenameOf(path)} loading="lazy" />
+        <ImageViewer src={src} alt={basenameOf(path)} />
       ) : (
         <div className="dsh-codex-image-placeholder">
           {failed ? t('item.imageFailed') : t('item.imageLoading')}
         </div>
       )}
-      <figcaption>{basenameOf(path)}</figcaption>
+      {!hideCaption && <figcaption>{basenameOf(path)}</figcaption>}
     </figure>
   )
 }

@@ -1,5 +1,7 @@
 # dsh-codex-cli
 
+> 2026-11-07 会话续接入口：[最新交接记忆](docs/HANDOFF.md)。[Git 版本管理面板重构](docs/GIT_VCS_REFACTOR.md)已实施；构建、49 项测试和真实 DSH 浏览器/热加载结果见[验收记录](docs/GIT_VCS_ACCEPTANCE.md)。
+
 把 Codex CLI 从命令行搬进 DeepSeek Harness Web GUI 的管理端插件：项目/会话管理、交互式对话、命令审批、版本与健康检查。
 
 ![Codex 管理页](shots/02-console.png)
@@ -26,7 +28,7 @@
 - **历史分页**：长会话初始只渲染最近 2 个回合；向上滚动到接近顶部时自动加载更早的 2 个回合（也可点顶部「加载更早的消息」），前插后保持当前视觉位置。
 - **滚动跟随**：贴着底部时自动跟随流式输出；用户上滚后停止跟随，右下角出现圆形按钮，点一下平滑回到底部并恢复跟随。
 - **工具调用分组**：连续的命令/文件变更/MCP 工具调用折叠成一组，摘要带数量，如「执行了 3 条命令、读取了 10 个文件、修改了 2 个文件」；默认收起，点摘要展开。
-- **右侧面板（插件自建）**：会话右侧可打开「文件 / 版本 / 终端」三栏：文件浏览与文本预览、Git 分支/变更/diff/最近提交、在会话 cwd 运行命令。注意这不是 DSH 原生右栏，原生右栏的复用尚未完成，见下方「已知限制 / 未完成」。
+- **右侧面板（插件自建）**：会话右侧可打开「文件 / 版本 / 终端」三栏：文件浏览与文本预览、Git 变更勾选提交/差异/多泳道历史/分支/远程/贮藏/命令记录、在会话 cwd 运行命令。注意这不是 DSH 原生右栏，原生右栏的复用尚未完成，见下方「已知限制 / 未完成」。
 - **加号面板**：输入区左下角「+」打开添加与快捷命令（文件和文件夹、选择项目、切换模型、推理强度、会话权限、计划模式、压缩上下文、新会话）；斜杠命令 `/model` `/effort` `/permission` `/plan` `/attach` `/project` `/compact` `/new` 可直接调出同一组命令。
 - **文件上传**：上传到会话 cwd 的 `.dsh-uploads/codex-cli/`，以附件 chip 显示，发送时作为 `mention` / `localImage` 输入交给 Codex。
 - **会话权限**：需要审批 / 替我审批 / 完全访问 / 只读，打开会话时优先读取该会话的实际设置（`thread/resume` 返回的 `approvalPolicy` / `approvalsReviewer` / `sandbox`），读不到才回退 localStorage；切到完全访问有二次确认，发送时映射为 `approvalPolicy` + `approvalsReviewer` + `sandboxPolicy`。
@@ -39,8 +41,8 @@
 
 - **右侧面板尚未复用 DSH 原生实现**：当前 Codex 面板里的「文件 / 版本 / 终端」是插件自建的简化版，不具备 DSH 原生的 PDF / DOCX / XLSX / Markdown / 图片预览、浏览器页、完整终端和 `dsh-git-vcs` 的全部能力。
 - **阻塞点**：DSH 右栏只在会话视图挂载（`RightbarRoot` 的 `visible` 条件是 `activePanelId === null`），且三个 tab 的 cwd 都从 `sessionId` 推导；Codex 是 global main panel，右栏 seat 不存在。
-- **计划方向**：fork DSH 源码，把右栏改成接受显式 `cwd` target（与 session 解耦），Codex 插件只负责传 `thread.cwd` 并挂载原生右栏。改动点、工作量与风险见 `docs/PLAN.md` 的「未完成任务：右侧面板 cwd 参数化」。
-- 该改造**当前暂停**，未动 DSH 源码；现有自建面板继续可用。
+- **当前计划方向**：在本插件内移植完整右栏，补齐文件、预览、交互终端、浏览器和 Git 服务，优先不改 DSH 本体。原先修改 DSH 接受显式 `cwd` 的方案作为历史记录保留在 `docs/PLAN.md`。
+- 原生右栏 cwd 参数化改造**当前暂停**，未动 DSH 源码；现有自建面板继续可用。2026-11-07 新路线为在当前插件内移植完整右栏，实施、热加载与验收计划见 [docs/RIGHTBAR_PLAN.md](docs/RIGHTBAR_PLAN.md)。
 
 ## 安装
 
@@ -48,20 +50,19 @@
 dsh plugin --profile web add /root/project/dsh-codex-cli
 ```
 
-然后在 profile 的用户 patch 层（`~/.dsh/profiles/web/cordis.patch.yml`）加一行：
+安装后，包自带的 `cordis.patch.yml` 会由已启用的 bundle 插入 `codex-cli`，无需再添加用户 insert。确认有效配置只包含一条 `codex-cli`。
+
+需要覆盖现有插件配置时，在 profile 的用户 patch 层（`~/.dsh/profiles/web/cordis.patch.yml`）按 id 修改：
 
 ```yaml
-- insert:
-    - id: codex-cli
-      name: dsh-codex-cli
-      inject: [connection, webServer]
-      config:
-        transport: auto
+- id: codex-cli
+  config:
+    transport: auto
 ```
 
-`patchReload: live` 会直接热加载，不需要重启 `dsh web`。
+已安装插件的普通配置和代码更新可使用热加载；首次添加或变更 bundle 的部署边界需要按本机 DSH 返回的状态处理。
 
-> **注意**：`dsh plugin add` 会把包同时写进 `dsh.profile.bundles`，而包自带的 `cordis.patch.yml` 也会插入同一行 `codex-cli`，重启后会出现重复行。本机采用「只在用户 patch 层插入」的方式，因此需要把 `dsh-codex-cli` 从 `dsh.profile.bundles` 里移除（依赖保留）。见 `docs/PLAN.md` 的安装说明。
+> **注意**：不要同时启用 bundle 自带的 insert 和用户层的第二条 insert。2026-11-07 本机已保留 bundle、移除重复的用户 insert；原配置已备份。旧的“只在用户层插入”方式仅适用于未启用该 bundle 的组合。
 
 ## 使用
 
@@ -126,13 +127,23 @@ SSE 事件：`hello`、`connection`、`thread/upsert`、`thread/status`、`turn/
 ## 开发
 
 ```bash
-npm install            # ws + esbuild
+npm install            # 宿主依赖、Lucide 图标与 esbuild
 npm run build          # src/client -> client.js
 npm test               # node --test
 node scripts/smoke-host.mjs auto   # 不经过 DSH，直接连守护进程冒烟
 ```
 
-宿主代码改动后，`touch ~/.dsh/profiles/web/cordis.patch.yml` 触发热重组；浏览器代码改动后刷新页面。
+前端运行 `npm run build` 后，DSH 的 `client-hmr` 自动替换已打开页面中的插件；插件会恢复当前面板、工作区布局及当前标签页中的会话草稿，无需手动刷新。宿主热加载配置与真实验收命令见 [docs/RIGHTBAR_ACCEPTANCE.md](docs/RIGHTBAR_ACCEPTANCE.md)。可用 `npm run dev:reload:host` 请求 profile 重组；以 `status.runtime` 和实际页面结果判断成功。
+
+右栏移植当前已实现布局框架、文件树与文本/Markdown/图片基础预览。Git 六页及服务已落地，见 [Git 验收](docs/GIT_VCS_ACCEPTANCE.md)。完整 PDF/Office/表格、PTY 终端与文件写操作仍按 [实施计划](docs/RIGHTBAR_PLAN.md) 继续推进；命令运行仍沿用旧版内容组件。
+
+## 工作台界面
+
+正式插件已采用统一的中性蓝灰样式：左侧活动栏与可折叠项目导航、清晰的会话区，以及可拖动的右侧工作区。右上角月亮/太阳按钮切换浅深主题，圆形扩散从点击位置展开；主题与导航折叠状态会保留。减少动态效果或浏览器不支持 View Transition 时直接切换。
+
+所有操作图标来自 Lucide。手机端的项目栏为抽屉，右栏双分栏按活动分栏展示，返回桌面保留布局；菜单、文档预览、审批和维护弹窗均采用同一套主题变量。
+
+运行 `npm run test:workbench:live` 可检查真实 DSH 中的工作台；认证状态、Playwright 与 Chromium 路径通过环境传入，配置方式见 [视觉改造验收记录](docs/UI_REDESIGN_ACCEPTANCE.md)。验收截图可通过脚本重新生成。
 
 ## 安全边界
 

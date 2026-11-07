@@ -1,6 +1,7 @@
 /** 选择项目：切换现有项目，或转去目录浏览器新建项目。 */
 
 import * as React from 'react'
+import {Icon} from '../components/Icon'
 import { useT } from '../i18n'
 import type { Project } from '../types'
 
@@ -82,10 +83,4 @@ export function ProjectPickerDialog({ open, projects, onPick, onNewProject, onCl
   )
 }
 
-function PlusGlyph() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-      <path d="M8 3.5v9M3.5 8h9" strokeLinecap="round" />
-    </svg>
-  )
-}
+function PlusGlyph(){return <Icon name="plus" size={16}/>}

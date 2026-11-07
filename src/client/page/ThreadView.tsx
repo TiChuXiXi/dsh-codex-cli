@@ -1,6 +1,7 @@
 /** 会话详情：标题、元信息、消息流、审批与输入区。 */
 
 import * as React from 'react'
+import {Icon} from '../components/Icon'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 import type { CodexTurn, PendingApproval, ThreadDetail } from '../types'
@@ -9,8 +10,10 @@ import { ApprovalStack } from './ApprovalCard'
 import { Composer, type Attachment, type ModelOption, type PermissionMode } from './Composer'
 import { ItemCard } from './ItemCard'
 import { ToolGroup, groupActivity } from './ToolGroup'
+import { runningStartedAt } from '../running-time'
 
 export interface ThreadViewProps {
+  provider: string
   api: Api
   detail: ThreadDetail | null
   loading: boolean
@@ -44,6 +47,7 @@ export interface ThreadViewProps {
 
 export function ThreadView({
   api,
+  provider,
   detail,
   loading,
   selectedId,
@@ -75,19 +79,29 @@ export function ThreadView({
   const [effort, setEffort] = React.useState('')
   const [permission, setPermission] = React.useState<PermissionMode>('ask')
   const [, setTick] = React.useState(0)
-  const runningSinceRef = React.useRef<number>(Date.now())
+  const runningSinceRef = React.useRef<{ key:string, time:number }>({key:'',time:Date.now()})
+  const runningKey=threadId&&activeTurnId?`dsh-codex-running:${threadId}`:''
+  const runningIdentity=runningKey&&activeTurnId?`${runningKey}:${activeTurnId}`:''
+  if(runningSinceRef.current.key!==runningIdentity){
+    let time=Date.now()
+    if(runningKey&&activeTurnId)try{
+      const saved=JSON.parse(sessionStorage.getItem(runningKey)||'null')
+      if(saved?.turnId===activeTurnId&&typeof saved.time==='number'&&saved.time>0&&saved.time<=time)time=saved.time
+    }catch{}
+    runningSinceRef.current={key:runningIdentity,time}
+  }
 
   // 切换会话时用该会话的模型/推理强度初始化；之后用户的选择保持到再次切换。
   React.useEffect(() => {
     if (activeTurnId === null) return undefined
-    runningSinceRef.current = Date.now()
+    if(runningKey)try{sessionStorage.setItem(runningKey,JSON.stringify({turnId:activeTurnId,time:runningSinceRef.current.time}))}catch{}
     const timer = window.setInterval(() => setTick((value) => value + 1), 1000)
     return () => window.clearInterval(timer)
-  }, [activeTurnId])
+  }, [activeTurnId, runningKey])
 
   React.useEffect(() => {
     if (detail === null) return
-    setModel(detail.thread.model ?? '')
+    setModel(detail.thread.model ?? (provider === 'opencode-go' ? 'deepseek-v4.1-flash' : ''))
     setEffort(detail.thread.reasoningEffort ?? '')
     if (permissionFromSession !== undefined && permissionFromSession !== null) {
       setPermission(permissionFromSession)
@@ -198,45 +212,44 @@ export function ThreadView({
   const items = orderedTurns.flatMap((turn) => turn.items ?? [])
   const hasItems = items.length > 0
   const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null
-  const runningSeconds = activeTurn?.startedAt
-    ? Math.max(0, Math.floor(Date.now() / 1000 - activeTurn.startedAt))
-    : Math.max(0, Math.floor((Date.now() - runningSinceRef.current) / 1000))
+  const now = Date.now()
+  const runningMs = Math.max(0, Math.floor((now - runningStartedAt(activeTurn, runningSinceRef.current.time, now)) / 1000) * 1000)
 
   return (
     <>
       <div className="dsh-codex-thread-header">
-        <div className="dsh-codex-thread-header-top">
+        <div className="dsh-codex-thread-header-top" hidden>
           <div className="dsh-codex-thread-title" title={thread.id}>
             {threadTitle(thread)}
           </div>
           {actions}
         </div>
         <div className="dsh-codex-chips">
-          <span className="dsh-codex-chip">
+          <span className="dsh-codex-chip" data-meta="status">
             {t('thread.status')}: {t(statusKey(thread.status))}
           </span>
           {thread.cwd ? (
-            <span className="dsh-codex-chip" title={thread.cwd}>
+            <span className="dsh-codex-chip" data-meta="cwd" title={thread.cwd}>
               {t('thread.cwd')}: <code>{basename(thread.cwd)}</code>
             </span>
           ) : null}
           {thread.model ? (
-            <span className="dsh-codex-chip">
+            <span className="dsh-codex-chip" data-meta="model">
               {t('thread.model')}: {thread.model}
             </span>
           ) : null}
           {thread.reasoningEffort ? (
-            <span className="dsh-codex-chip">
+            <span className="dsh-codex-chip" data-meta="effort">
               {t('thread.effort')}: {thread.reasoningEffort}
             </span>
           ) : null}
           {typeof thread.gitInfo?.branch === 'string' && thread.gitInfo.branch !== '' ? (
-            <span className="dsh-codex-chip">
+            <span className="dsh-codex-chip" data-meta="branch">
               {t('thread.git')}: {thread.gitInfo.branch}
             </span>
           ) : null}
           {thread.updatedAt ? (
-            <span className="dsh-codex-chip">
+            <span className="dsh-codex-chip" data-meta="updated">
               {t('thread.updated')}: {relativeTime(thread.updatedAt, t)}
             </span>
           ) : null}
@@ -262,7 +275,7 @@ export function ThreadView({
           ) : (
             orderedTurns.map((turn) => (
               <React.Fragment key={turn.id}>
-                {groupActivity(turn.items ?? []).map((entry) =>
+                {groupActivity((turn.items ?? []).filter((item) => provider !== 'openai' || item.type !== 'reasoning')).map((entry) =>
                   entry.kind === 'group' ? (
                     <ToolGroup key={entry.key} items={entry.items} api={api} />
                   ) : (
@@ -289,12 +302,14 @@ export function ThreadView({
       <ApprovalStack approvals={pending} onRespond={onRespond} />
       {activeTurnId !== null ? (
         <div className="dsh-codex-running-bar">
-          <span className="dsh-codex-running-spinner" aria-hidden="true" />
-          <span>{t('thread.running', { seconds: runningSeconds })}</span>
+          <Icon name="loader" size={16} className="dsh-codex-running-spinner" />
+          <span>{t('thread.runningElapsed', { duration: formatDuration(runningMs, t) })}</span>
         </div>
       ) : null}
 
       <Composer
+        key={threadId ?? 'new'}
+        threadId={threadId}
         api={api}
         cwd={detail.thread.cwd ?? ''}
         disabled={false}
@@ -304,7 +319,11 @@ export function ThreadView({
         effort={effort}
         permission={permission}
         planMode={planMode}
-        onModelChange={setModel}
+        onModelChange={(value) => {
+          const next = value || (provider === 'opencode-go' ? 'deepseek-v4.1-flash' : '')
+          setModel(next)
+          setEffort(models.find(entry => entry.id === next)?.defaultReasoningEffort ?? '')
+        }}
         onEffortChange={setEffort}
         onPermissionChange={changePermission}
         onEnterPlan={onEnterPlan}
@@ -359,10 +378,4 @@ function TurnFooter({ turn }: { turn: CodexTurn }) {
   return <div className="dsh-codex-turn-footer">{text}</div>
 }
 
-function ChevronDownGlyph() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-      <path d="M4 6.2l3.3 3.3a1 1 0 0 0 1.4 0L12 6.2" strokeLinecap="round" />
-    </svg>
-  )
-}
+function ChevronDownGlyph(){return <Icon name="chevronDown" size={16}/>}

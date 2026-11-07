@@ -8,7 +8,7 @@
  */
 
 import { build } from 'esbuild'
-import { writeFile } from 'node:fs/promises'
+import { writeFile, rename } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -17,24 +17,26 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const result = await build({
   entryPoints: [resolve(root, 'src/client/index.tsx')],
   bundle: true,
+  outdir: resolve(root, '.client-build'),
+  loader: { '.module.css': 'local-css' },
   write: false,
   format: 'cjs',
   platform: 'browser',
   target: ['es2022'],
-  jsx: 'transform',
-  jsxFactory: 'React.createElement',
-  jsxFragment: 'React.Fragment',
-  external: ['react'],
+  jsx: 'automatic',
+  external: ['react', 'react-dom', 'react/jsx-runtime'],
   charset: 'utf8',
   legalComments: 'none',
   logLevel: 'warning',
   define: {
     'process.env.NODE_ENV': '"production"',
+    '__CODEX_CLIENT_BUILD_ID__': JSON.stringify(process.env.CODEX_CLIENT_BUILD_ID || new Date().toISOString()),
   },
 })
 
 if (result.outputFiles.length === 0) throw new Error('esbuild 没有产出文件')
-const code = result.outputFiles[0].text
+const code = result.outputFiles.find(file => file.path.endsWith('.js')).text
+const css = result.outputFiles.filter(file => file.path.endsWith('.css')).map(file => file.text).join('\n')
 const indented = code
   .split('\n')
   .map((line) => (line === '' ? '' : `    ${line}`))
@@ -44,6 +46,7 @@ const wrapped = `/* dsh-codex-cli 浏览器半区（scripts/build-client.mjs 生
 window.__ModuleLoader__.load({
   id: 'dsh-codex-cli',
   factory: (require) => {
+    const __CODEX_BUNDLE_CSS__ = ${JSON.stringify(css)}
     var module = { exports: {} }
     var exports = module.exports
 ${indented}
@@ -52,5 +55,7 @@ ${indented}
 })
 `
 
-await writeFile(resolve(root, 'client.js'), wrapped)
+// Publish the entry atomically only after the complete bundle and CSS are ready.
+await writeFile(resolve(root, 'client.js.next'), wrapped)
+await rename(resolve(root, 'client.js.next'), resolve(root, 'client.js'))
 console.log(`client.js ${Buffer.byteLength(wrapped)} bytes`)

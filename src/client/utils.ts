@@ -106,7 +106,18 @@ export function applyDetailEvent(detail: ThreadDetail | null, event: CodexEvent)
     case 'turn/started': {
       const turn = event.payload?.turn
       if (turn === null || turn === undefined) return detail
-      if (detail.turns.some((candidate) => candidate.id === turn.id)) return detail
+      const existing = detail.turns.find((candidate) => candidate.id === turn.id)
+      if (existing) return {
+        ...detail,
+        turns: detail.turns.map((candidate) => candidate.id === turn.id
+          ? {
+              ...candidate, ...turn,
+              startedAt: turn.startedAt ?? candidate.startedAt,
+              status: candidate.status && candidate.status !== 'inProgress' ? candidate.status : turn.status ?? candidate.status,
+              items: candidate.items ?? [],
+            }
+          : candidate),
+      }
       return { ...detail, turns: [...detail.turns, { ...turn, items: [] }] }
     }
     case 'turn/completed': {
@@ -139,8 +150,12 @@ export function applyDetailEvent(detail: ThreadDetail | null, event: CodexEvent)
             summary[index] = `${summary[index] ?? ''}${delta}`
             return { ...item, summary }
           }
-          case 'reasoningText':
-            return { ...item, content: [...(item.content ?? []), { type: 'text', text: delta }] }
+          case 'reasoningText': {
+            const content = [...(item.content ?? [])]
+            const index = typeof event.contentIndex === 'number' ? event.contentIndex : 0
+            content[index] = { type: 'text', text: `${content[index]?.text ?? ''}${delta}` }
+            return { ...item, content }
+          }
           case 'plan':
             return { ...item, text: `${item.text ?? ''}${delta}` }
           default:
@@ -168,7 +183,11 @@ function upsertItem(detail: ThreadDetail, turnId: string, item: CodexItem): Thre
   const items = [...(turn.items ?? [])]
   const itemIndex = items.findIndex((candidate) => candidate.id === item.id)
   if (itemIndex === -1) items.push(item)
-  else items[itemIndex] = { ...items[itemIndex], ...item }
+  else items[itemIndex] = {
+    ...items[itemIndex], ...item,
+    startedAtMs: item.startedAtMs ?? items[itemIndex].startedAtMs,
+    completedAtMs: item.completedAtMs ?? items[itemIndex].completedAtMs,
+  }
   turns[turnIndex] = { ...turn, items }
   return { ...detail, turns }
 }

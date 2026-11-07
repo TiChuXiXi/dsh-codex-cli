@@ -1,6 +1,7 @@
 /** 会话行操作菜单：重命名、归档、Fork、导出、删除。 */
 
 import * as React from 'react'
+import {Icon} from '../components/Icon'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 import type { CodexThread } from '../types'
@@ -132,11 +133,7 @@ export function ThreadRowMenu({ api, thread, onRenamed, onChanged, onDeleted }: 
           else openMenu()
         }}
       >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-          <circle cx="3.2" cy="8" r="1.3" />
-          <circle cx="8" cy="8" r="1.3" />
-          <circle cx="12.8" cy="8" r="1.3" />
-        </svg>
+        <Icon name="more" size={16}/>
       </button>
 
       {open && position !== null ? (

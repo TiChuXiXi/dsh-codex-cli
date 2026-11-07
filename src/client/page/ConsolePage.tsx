@@ -1,10 +1,14 @@
 /** Codex 管理页：左侧项目/会话，右侧会话详情 + 审批 + 输入区。 */
 
 import * as React from 'react'
+import {Icon,IconButton} from '../components/Icon'
+import {useAppearance} from '../useAppearance'
+import {useDialogFocus} from '../components/DialogFocus'
 import { I18nContext, fallbackTranslate } from '../i18n'
 import { openEventStream, type StreamState } from '../events'
 import type { Api } from '../rpc'
 import type {
+  CodexEvent,
   CodexThread,
   HubStatus,
   PendingApproval,
@@ -19,7 +23,10 @@ import { applyDetailEvent, messageOf, threadTitle, upsertThread } from '../utils
 import { FocusSidebar } from './FocusSidebar'
 import { ProjectPickerDialog } from './ProjectPickerDialog'
 import { DirectoryPickerDialog } from './DirectoryPickerDialog'
-import { RightPanel, type RightTab } from './RightPanel'
+import { SidebarWorkspace as RightPanel } from '../sidebar/SidebarWorkspace'
+import type { RightTab } from './RightPanel'
+import { notifyWorkspace } from '../sidebar/workspace-events'
+declare const __CODEX_CLIENT_BUILD_ID__: string
 import { ThreadView } from './ThreadView'
 import type { Attachment, ModelOption, PermissionMode } from './Composer'
 import { ThreadActions } from './ThreadActions'
@@ -31,28 +38,13 @@ const TURN_PAGE = 2
 const THREAD_PAGE = 10
 /** 记住最后一次打开的会话。 */
 const LAST_THREAD_KEY = 'dsh-codex-last-thread'
-const VIEWED_KEY = 'dsh-codex-viewed-at'
+const VIEWED_TURNS_KEY = 'dsh-codex-viewed-turns'
 
 function readStored(key: string): string | null {
   try {
     return window.localStorage.getItem(key)
   } catch {
     return null
-  }
-}
-
-function readViewedAt(): Record<string, number> {
-  try {
-    const raw = window.localStorage.getItem(VIEWED_KEY)
-    const parsed = raw === null ? null : JSON.parse(raw)
-    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
-    const result: Record<string, number> = {}
-    for (const [key, value] of Object.entries(parsed)) {
-      if (typeof value === 'number') result[key] = value
-    }
-    return result
-  } catch {
-    return {}
   }
 }
 
@@ -111,6 +103,19 @@ export function ConsolePage(props: ConsolePageProps) {
   const api = React.useMemo(() => props.api, [])
   const onExit = props.onExit ?? (() => {})
   useCodexTab()
+  const rootRef=React.useRef<HTMLDivElement>(null)
+  const appearance=useAppearance(rootRef)
+  const [navWidth, setNavWidth] = React.useState(() => {
+    try { const value = Number(localStorage.getItem('dsh-codex-nav-width')); return value >= 260 && value <= 420 ? value : 280 } catch { return 280 }
+  })
+  const [navResizing, setNavResizing] = React.useState(false)
+  const navDrag = React.useRef<{startX:number, width:number} | null>(null)
+  const updateNavWidth = (value: number) => {
+    const width = Math.round(Math.min(420, Math.max(260, value)))
+    setNavWidth(width)
+    try { localStorage.setItem('dsh-codex-nav-width', String(width)) } catch {}
+  }
+  useDialogFocus(rootRef)
 
   const [status, setStatus] = React.useState<HubStatus | null>(null)
   const [projects, setProjects] = React.useState<Project[]>([])
@@ -127,11 +132,31 @@ export function ConsolePage(props: ConsolePageProps) {
   const [loadingThreads, setLoadingThreads] = React.useState(false)
   const [threadsOwner, setThreadsOwner] = React.useState<{ cwd: string | null, search: string } | null>(null)
   const [unread, setUnread] = React.useState<Set<string>>(() => new Set())
-  const [viewedAt, setViewedAt] = React.useState<Record<string, number>>(readViewedAt)
+  const latestCompletedTurn = React.useRef<Record<string, string>>({})
+  const completedEvents = React.useRef<Map<string, CodexEvent>>(new Map())
+  const rejectedTurns = React.useRef<Set<string> | null>(null)
+  if (rejectedTurns.current === null) {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('dsh-codex-inactive-turns') ?? '[]')
+      rejectedTurns.current = new Set(Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : [])
+    } catch { rejectedTurns.current = new Set() }
+  }
+  const viewedTurns = React.useRef<Set<string> | null>(null)
+  if (viewedTurns.current === null) {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(VIEWED_TURNS_KEY) ?? '[]')
+      viewedTurns.current = new Set(Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : [])
+    } catch {
+      viewedTurns.current = new Set()
+    }
+  }
   const [error, setError] = React.useState<string | null>(null)
   const [streamState, setStreamState] = React.useState<StreamState>('connecting')
   const [search, setSearch] = React.useState('')
   const [pending, setPending] = React.useState<PendingApproval[]>([])
+  const [provider, setProvider] = React.useState(() => readStored('dsh-codex-provider') === 'opencode-go' ? 'opencode-go' : 'openai')
+  const providerRef = React.useRef(provider)
+  providerRef.current = provider
   const [models, setModels] = React.useState<ModelOption[]>([])
   const [quota, setQuota] = React.useState<RateLimits | null>(null)
   const [sessionPermission, setSessionPermission] = React.useState<PermissionMode | null>(null)
@@ -141,6 +166,12 @@ export function ConsolePage(props: ConsolePageProps) {
   quotaRef.current = quota
   const [pickerOpen, setPickerOpen] = React.useState(false)
   const [rightTab, setRightTab] = React.useState<RightTab>('files')
+  const [rightRequest, setRightRequest] = React.useState(0)
+  React.useEffect(() => {
+    const openFile = () => setRightOpen(true)
+    window.addEventListener('dsh-codex-open-file', openFile)
+    return () => window.removeEventListener('dsh-codex-open-file', openFile)
+  }, [])
   const [rightOpen, setRightOpen] = React.useState(() => {
     try {
       return window.localStorage.getItem('dsh-codex-right-open') === '1'
@@ -173,6 +204,7 @@ export function ConsolePage(props: ConsolePageProps) {
       try {
         const page = await api<ThreadPage>('threads/list', {
           limit,
+          provider: providerRef.current,
           ...(cursor ? { cursor } : {}),
           ...(searchValue !== '' ? { search: searchValue } : {}),
           ...(cwd !== null ? { cwd } : {}),
@@ -214,13 +246,15 @@ export function ConsolePage(props: ConsolePageProps) {
   }, [])
 
   const loadQuota = React.useCallback(async () => {
+    const owner = providerRef.current
     if (quotaRef.current === null) setQuotaLoading(true)
     try {
-      setQuota(await api<RateLimits>('account/rateLimits'))
+      const result = await api<RateLimits>('account/rateLimits', {provider: owner})
+      if (providerRef.current === owner) setQuota(result)
     } catch {
-      // 未登录或后端不支持时保持空值。
+      if (providerRef.current === owner) setQuota(null)
     } finally {
-      setQuotaLoading(false)
+      if (providerRef.current === owner) setQuotaLoading(false)
     }
   }, [api])
 
@@ -238,8 +272,9 @@ export function ConsolePage(props: ConsolePageProps) {
     try {
       const [nextStatus, nextProjects] = await Promise.all([
         api<HubStatus>('status'),
-        api<Project[]>('projects/list', {}),
+        api<Project[]>('projects/list', {provider}),
       ])
+      if (providerRef.current !== provider) return
       setStatus(nextStatus)
       setProjects(nextProjects)
     } catch (cause) {
@@ -247,7 +282,7 @@ export function ConsolePage(props: ConsolePageProps) {
     }
     await loadThreads(null)
     await loadQuota()
-  }, [api, loadThreads, loadQuota])
+  }, [api, loadThreads, loadQuota, provider])
 
   // 右侧栏 tab 的导航请求：打开某个线程，或带着 cwd 打开新会话对话框。
   React.useEffect(() => {
@@ -265,19 +300,19 @@ export function ConsolePage(props: ConsolePageProps) {
   }, [])
 
   const markViewed = React.useCallback((id: string) => {
+    const turnId = latestCompletedTurn.current[id]
+    if (turnId) {
+      viewedTurns.current!.add(turnId)
+      try {
+        window.localStorage.setItem(VIEWED_TURNS_KEY, JSON.stringify([...viewedTurns.current!]))
+      } catch {
+        // 存储不可用时保留当前页面的状态。
+      }
+    }
     setUnread((previous) => {
       if (!previous.has(id)) return previous
       const next = new Set(previous)
       next.delete(id)
-      return next
-    })
-    setViewedAt((previous) => {
-      const next = { ...previous, [id]: Math.floor(Date.now() / 1000) }
-      try {
-        window.localStorage.setItem(VIEWED_KEY, JSON.stringify(next))
-      } catch {
-        // 忽略。
-      }
       return next
     })
   }, [])
@@ -295,12 +330,13 @@ export function ConsolePage(props: ConsolePageProps) {
   React.useEffect(() => {
     void refresh()
     void refreshPending()
-    api<Array<{ id: string, displayName: string }>>('models/list')
-      .then((list) => setModels(list))
-      .catch(() => {})
+    let cancelled = false
+    api<ModelOption[]>('models/list', {provider})
+      .then((list) => { if (!cancelled) setModels(list) })
+      .catch((cause) => { if (!cancelled) setError(messageOf(cause)) })
     const quotaTimer = setInterval(() => void loadQuota(), 60000)
-    return () => clearInterval(quotaTimer)
-  }, [api, refresh, refreshPending, loadQuota])
+    return () => { cancelled = true; clearInterval(quotaTimer) }
+  }, [api, refresh, refreshPending, loadQuota, provider])
 
   React.useEffect(() => {
     const timer = setInterval(() => {
@@ -314,13 +350,19 @@ export function ConsolePage(props: ConsolePageProps) {
       onState: setStreamState,
       onEvent: (event) => {
         switch (event.type) {
+          case 'hello':
+            notifyWorkspace({ workspaceId: '*', path: '.' })
+            break
+          case 'workspace/changed':
+            notifyWorkspace(event.payload)
+            break
           case 'connection':
             setStatus(event.payload as HubStatus)
             void refreshPending()
             break
           case 'thread/upsert': {
             const thread = event.payload?.thread as CodexThread | null
-            if (thread !== null && thread !== undefined) setThreads((previous) => upsertThread(previous, thread))
+            if (thread !== null && thread !== undefined && (thread.modelProvider ?? 'openai') === providerRef.current) setThreads((previous) => upsertThread(previous, thread))
             break
           }
           case 'thread/status':
@@ -382,10 +424,27 @@ export function ConsolePage(props: ConsolePageProps) {
           case 'item/upsert':
           case 'item/delta':
           case 'item/patch':
-            setDetail((previous) => applyDetailEvent(previous, event))
+            if (event.type === 'turn/completed' && event.turnId && event.payload?.turn) {
+              completedEvents.current.set(event.turnId, event)
+            }
+            setDetail((previous) => {
+              const next = applyDetailEvent(previous, event)
+              if (next && event.type === 'turn/started' && event.threadId === next.thread.id) {
+                return { ...next, thread: { ...next.thread, status: { type: 'active' } } }
+              }
+              return next
+            })
             if (event.type === 'turn/completed' && event.threadId !== undefined) {
+              if (event.turnId) latestCompletedTurn.current[event.threadId] = event.turnId
               if (event.threadId === selectedIdRef.current) {
                 markViewed(event.threadId)
+              } else if (event.turnId && viewedTurns.current!.has(event.turnId)) {
+                setUnread((previous) => {
+                  if (!previous.has(event.threadId!)) return previous
+                  const next = new Set(previous)
+                  next.delete(event.threadId!)
+                  return next
+                })
               } else {
                 setUnread((previous) => {
                   if (previous.has(event.threadId!)) return previous
@@ -423,7 +482,18 @@ export function ConsolePage(props: ConsolePageProps) {
       .then((next) => {
         if (cancelled) return
         restoredRef.current = false
-        setDetail(next)
+        const owner = next.thread.modelProvider ?? 'openai'
+        if (owner !== providerRef.current) {
+          listGeneration.current++
+          setQuota(null); quotaRef.current = null; setQuotaLoading(true)
+          providerRef.current = owner; setProvider(owner); setThreads([]); setProjects([]); setModels([])
+          try { localStorage.setItem('dsh-codex-provider', owner) } catch {}
+        }
+        let reconciled = next
+        for (const event of completedEvents.current.values()) {
+          reconciled = applyDetailEvent(reconciled, event) ?? reconciled
+        }
+        setDetail(reconciled)
         setOlderCursor(next.nextCursor ?? null)
       })
       .catch((cause) => {
@@ -495,10 +565,10 @@ export function ConsolePage(props: ConsolePageProps) {
 
   const activeTurnId = React.useMemo(() => {
     if (detail === null) return null
-    for (let index = detail.turns.length - 1; index >= 0; index -= 1) {
-      if (detail.turns[index].status === 'inProgress') return detail.turns[index].id
-    }
-    return null
+    const latest = detail.turns[detail.turns.length - 1]
+    if (!latest || latest.status !== 'inProgress' || rejectedTurns.current!.has(latest.id)) return null
+    if (detail.thread.status?.type === 'idle') return null
+    return latest.id
   }, [detail])
 
   const loadOlder = React.useCallback(async () => {
@@ -599,7 +669,14 @@ export function ConsolePage(props: ConsolePageProps) {
       try {
         await api('turns/steer', { threadId: selectedId, turnId: activeTurnId, text })
       } catch (cause) {
-        setError(messageOf(cause))
+        if (/no active turn to steer/i.test(messageOf(cause))) {
+          rejectedTurns.current!.add(activeTurnId)
+          try { sessionStorage.setItem('dsh-codex-inactive-turns', JSON.stringify([...rejectedTurns.current!])) } catch {}
+          setDetail((previous) => previous?.thread.id === selectedId ? { ...previous } : previous)
+          setError('该任务已结束，消息已保留，请重新发送。')
+        } else {
+          setError(messageOf(cause))
+        }
         throw cause
       }
     },
@@ -632,12 +709,13 @@ export function ConsolePage(props: ConsolePageProps) {
 
   const createThread = React.useCallback(
     async (request: { cwd: string }) => {
-      const thread = await api<CodexThread>('threads/new', request)
+      const thread = await api<CodexThread>('threads/new', {...request, provider: providerRef.current})
       if (thread !== null && thread !== undefined) {
         const cwd = thread.cwd ?? request.cwd
         setThreads((previous) => upsertThread(previous, thread))
         setSelectedId(thread.id)
         setSelectedCwd(cwd)
+        queryRef.current={cwd,search:''}
         setPickerOpen(false)
         setDirPickerOpen(false)
         // 新建项目后立刻把它挂进项目树，并展开到该项目。
@@ -653,6 +731,24 @@ export function ConsolePage(props: ConsolePageProps) {
     [api, loadThreads],
   )
   createThreadRef.current = createThread
+
+  const changeProvider = (next: string) => {
+    if (next === provider) return
+    listGeneration.current++
+    setSelectedId(null); setDetail(null); setThreads([]); setProjects([]); setModels([]); setNextCursor(null)
+    setQuota(null); quotaRef.current = null; setQuotaLoading(true)
+    setProvider(next); providerRef.current = next
+    try { localStorage.setItem('dsh-codex-provider', next); localStorage.removeItem(LAST_THREAD_KEY) } catch {}
+  }
+  const transferThread = async () => {
+    if (!selectedId || activeTurnId) return
+    const target = (detail?.thread.modelProvider ?? provider) === 'opencode-go' ? 'openai' : 'opencode-go'
+    try {
+      const thread = await api<CodexThread>('threads/fork', {threadId:selectedId,provider:target})
+      changeProvider(target)
+      setSelectedId(thread.id); setSelectedCwd(thread.cwd); setThreads([thread])
+    } catch (cause) { setError(messageOf(cause)); throw cause }
+  }
 
   const currentCwd = detail?.thread.cwd ?? selectedCwd
 
@@ -718,9 +814,11 @@ export function ConsolePage(props: ConsolePageProps) {
     (cwd: string) => {
       if (selectedCwd === cwd) {
         setSelectedCwd(null)
+        queryRef.current={cwd:null,search:''}
         return
       }
       setSelectedCwd(cwd)
+      queryRef.current={cwd,search:''}
       setSearch('')
       if (searchTimer.current !== null) {
         clearTimeout(searchTimer.current)
@@ -737,6 +835,7 @@ export function ConsolePage(props: ConsolePageProps) {
     if (detailCwd === null || detailCwd === '' || search.trim() !== '') return
     if (selectedCwd === detailCwd) return
     setSelectedCwd(detailCwd)
+    queryRef.current={cwd:detailCwd,search:''}
     void loadThreads(null, { cwd: detailCwd, search: '' })
   }, [detailCwd, search])
 
@@ -775,8 +874,38 @@ export function ConsolePage(props: ConsolePageProps) {
 
   return (
     <I18nContext.Provider value={t}>
-      <div className="dsh-codex-root">
+      <div ref={rootRef} onDragOverCapture={event => {if (Array.from(event.dataTransfer.types).includes('Files')) event.preventDefault()}} onDropCapture={event => {if (Array.from(event.dataTransfer.types).includes('Files')) event.preventDefault()}} style={{'--codex-nav-width': navWidth + 'px'} as React.CSSProperties} className={'dsh-codex-root'+(navResizing?' is-nav-resizing':'')+(appearance.collapsed?' is-nav-collapsed':'')+(appearance.navOpen?' is-nav-open':'')+(rightOpen?' has-right':'')} data-codex-theme={appearance.theme} data-client-build={__CODEX_CLIENT_BUILD_ID__}>
+        <header className="dsh-codex-workbench-header">
+          <IconButton icon="panelLeft" label="展开或折叠项目栏" aria-expanded={appearance.navOpen||!appearance.collapsed} aria-controls="dsh-codex-project-nav" onClick={appearance.toggleNav}/>
+          <button type="button" className="dsh-codex-workbench-project" title={detail?.thread.cwd??selectedCwd??''} onClick={()=>setPickerOpen(true)}>{projectNameOf(detail?.thread.cwd??selectedCwd??'')||'选择项目'}<Icon name="chevronRight" size={15}/></button>
+          <h1>{detail?threadTitle(detail.thread):'Codex 工作台'}</h1>
+          <span className="dsh-codex-spacer"/>
+          {detail ? <TransferAction
+            provider={detail.thread.modelProvider??provider}
+            disabled={activeTurnId !== null}
+            onTransfer={transferThread}
+          /> : null}
+          <IconButton icon={appearance.theme==='dark'?'sun':'moon'} label={appearance.theme==='dark'?'切换浅色模式':'切换深色模式'} aria-disabled={appearance.busy} onClick={appearance.toggleTheme}/>
+          {detail&&<ThreadActions api={api} thread={detail.thread}
+            onRenamed={name=>handleThreadRenamed(detail.thread.id,name)}
+            onArchived={()=>{setSelectedId(null);void loadThreads(null)}}
+            onForked={thread=>{if(thread?.id)setSelectedId(thread.id)}}
+            onDeleted={()=>handleThreadDeleted(detail.thread.id)}/>}
+          <IconButton icon="panelRight" label={rightOpen?t('right.hide'):t('right.show')} aria-expanded={rightOpen} className={rightOpen?'is-selected':''} onClick={()=>setRightOpen(value=>!value)}/>
+        </header>
+        {appearance.navOpen&&<button type="button" className="dsh-codex-nav-backdrop" aria-label="关闭项目导航" onClick={appearance.closeNav}/>}
+
+        <div className="dsh-codex-nav-resize" role="separator" aria-label="调整项目栏宽度" aria-orientation="vertical" aria-valuemin={260} aria-valuemax={420} aria-valuenow={navWidth} tabIndex={appearance.collapsed ? -1 : 0}
+          onKeyDown={event => { if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); updateNavWidth(navWidth + (event.key === 'ArrowRight' ? 10 : -10)) } }}
+          onPointerDown={event => { if (event.button !== 0) return; event.preventDefault(); navDrag.current = {startX:event.clientX, width:navWidth}; setNavResizing(true); event.currentTarget.setPointerCapture(event.pointerId) }}
+          onPointerMove={event => { if (navDrag.current) updateNavWidth(navDrag.current.width + event.clientX - navDrag.current.startX) }}
+          onPointerUp={event => { if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); navDrag.current = null; setNavResizing(false) }}
+          onPointerCancel={() => { navDrag.current = null; setNavResizing(false) }}
+          onLostPointerCapture={() => { navDrag.current = null; setNavResizing(false) }}
+        />
         <FocusSidebar
+          provider={provider}
+          onProviderChange={changeProvider}
           api={api}
           status={status}
           streamState={streamState}
@@ -788,7 +917,6 @@ export function ConsolePage(props: ConsolePageProps) {
           threads={visibleThreads}
           threadsOwner={threadsOwner}
           unread={unread}
-          viewedAt={viewedAt}
           selectedCwd={selectedCwd}
           selectedId={selectedId}
           loading={loadingThreads}
@@ -796,7 +924,7 @@ export function ConsolePage(props: ConsolePageProps) {
           search={search}
           onSearch={handleSearch}
           onSelectProject={handleProjectToggle}
-          onSelectThread={setSelectedId}
+          onSelectThread={id=>{setSelectedId(id);appearance.closeNav()}}
           onLoadMore={() => void loadThreads(nextCursor)}
           onNew={handleNew}
           onNewProject={openNewProject}
@@ -826,6 +954,7 @@ export function ConsolePage(props: ConsolePageProps) {
             </div>
           ) : null}
           <ThreadView
+            provider={detail?.thread.modelProvider ?? provider}
             api={api}
             detail={detail}
             loading={detailLoading}
@@ -850,34 +979,10 @@ export function ConsolePage(props: ConsolePageProps) {
             onDiff={() => {
               setRightOpen(true)
               setRightTab('git')
+              setRightRequest(value => value + 1)
             }}
             onExport={() => void exportThread()}
-            actions={
-              detail !== null ? (
-                <div className="dsh-codex-thread-actions">
-                  <button
-                    type="button"
-                    className="dsh-codex-button"
-                    onClick={() => setRightOpen((previous) => !previous)}
-                  >
-                    {rightOpen ? t('right.hide') : t('right.show')}
-                  </button>
-                  <ThreadActions
-                  api={api}
-                  thread={detail.thread}
-                  onRenamed={(name) => handleThreadRenamed(detail.thread.id, name)}
-                  onArchived={() => {
-                    setSelectedId(null)
-                    void loadThreads(null)
-                  }}
-                  onForked={(thread) => {
-                    if (thread !== null && thread !== undefined) setSelectedId(thread.id)
-                  }}
-                  onDeleted={() => handleThreadDeleted(detail.thread.id)}
-                />
-                </div>
-              ) : null
-            }
+
           />
         </main>
 
@@ -885,6 +990,7 @@ export function ConsolePage(props: ConsolePageProps) {
           api={api}
           cwd={detail?.thread.cwd ?? selectedCwd ?? ''}
           open={rightOpen}
+          requestId={rightRequest}
           tab={rightTab}
           onTabChange={setRightTab}
           onClose={() => setRightOpen(false)}
@@ -903,10 +1009,31 @@ export function ConsolePage(props: ConsolePageProps) {
           onPick={pickProject}
           onClose={() => setDirPickerOpen(false)}
         />
+        <footer className="dsh-codex-workbench-status"><span><i className={'dsh-codex-dot '+(streamState==='open'?'ok':'warn')}/>{t('status.events.'+streamState)}</span><span className="dsh-codex-status-branch"><Icon name="git" size={13}/>{detail?.thread.gitInfo?.branch as string||'工作区'}</span><span className="dsh-codex-spacer"/><span>{t('projects.count',{count:totalThreads})}</span><button type="button" onClick={()=>setVersionsOpen(true)}>版本与连接</button></footer>
         <VersionsDialog open={versionsOpen} api={api} onClose={() => setVersionsOpen(false)} />
       </div>
     </I18nContext.Provider>
   )
+}
+
+function TransferAction({provider,disabled,onTransfer}:{provider:string,disabled:boolean,onTransfer:()=>Promise<void>}){
+  const [open,setOpen]=React.useState(false)
+  const [busy,setBusy]=React.useState(false)
+  const target=provider==='opencode-go'?'ChatGPT':'OpenCode Go'
+  return <div className="dsh-codex-header-transfer">
+    <button type="button" className="dsh-codex-button dsh-codex-transfer-trigger" aria-expanded={open} disabled={disabled} onClick={()=>setOpen(value=>!value)}>
+      <span className="dsh-codex-transfer-label">携带历史转交至 {target}</span>
+      <span className="dsh-codex-transfer-label-short">转交</span>
+    </button>
+    {open ? <div className="dsh-codex-transfer-confirm" role="dialog" aria-label={`转交至 ${target}`}>
+      <strong>转交至 {target}</strong>
+      <p>将复制此会话历史创建新分支，后续消息会携带历史发送给目标提供商。</p>
+      <div className="dsh-codex-transfer-actions">
+        <button type="button" className="dsh-codex-button primary" disabled={busy} onClick={async()=>{setBusy(true);try{await onTransfer();setOpen(false)}catch{}finally{setBusy(false)}}}>{busy?'正在创建…':'创建历史分支'}</button>
+        <button type="button" className="dsh-codex-button" disabled={busy} onClick={()=>setOpen(false)}>取消</button>
+      </div>
+    </div>:null}
+  </div>
 }
 
 function permissionFromSettings(settings: { approvalPolicy: string | null, approvalsReviewer: string | null, sandbox: { type: string } | null } | null): PermissionMode | null {

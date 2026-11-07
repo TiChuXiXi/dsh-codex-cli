@@ -98,6 +98,7 @@ export const zh = {
 
   'threads.loading': '加载中…',
   'thread.running': 'Codex 正在处理，用时 {seconds} 秒 …',
+  'thread.runningElapsed': 'Codex 正在处理，用时 {duration}…',
   'threads.empty': '这个项目还没有会话',
   'threads.loadMore': '加载更多',
   'threads.archived': '已归档',
@@ -111,6 +112,8 @@ export const zh = {
   'composer.commands': '快捷命令',
   'composer.removeAttachment': '移除附件',
   'composer.uploading': '上传中…',
+  'composer.attachFile': '添加文件',
+  'composer.attachFolder': '添加文件夹',
   'composer.noCwd': '先打开一个会话再上传文件',
   'cmd.model': '切换模型',
   'cmd.modelDesc': '选择本次及后续回合使用的模型',
@@ -422,6 +425,7 @@ export const en = {
 
   'threads.loading': 'Loading…',
   'thread.running': 'Codex is working · {seconds}s …',
+  'thread.runningElapsed': 'Codex is working · {duration}…',
   'threads.empty': 'No sessions in this project',
   'threads.loadMore': 'Load more',
   'threads.archived': 'Archived',
@@ -435,6 +439,8 @@ export const en = {
   'composer.commands': 'Commands',
   'composer.removeAttachment': 'Remove attachment',
   'composer.uploading': 'Uploading…',
+  'composer.attachFile': 'Attach files',
+  'composer.attachFolder': 'Attach folder',
   'composer.noCwd': 'Open a session before uploading files',
   'cmd.model': 'Switch model',
   'cmd.modelDesc': 'Choose the model for this and later turns',

@@ -1,5 +1,9 @@
 # DSH Codex CLI 管理端插件 · 规划
 
+> 最新交接（2026-11-07）：先读 [HANDOFF.md](./HANDOFF.md)，当前首要待办见 [GIT_VCS_REFACTOR.md](./GIT_VCS_REFACTOR.md)。Git 面板重构仅完成调查，尚未实现。
+
+> 2026-11-07：右栏路线已调整为“在当前 Codex 插件内移植完整功能，优先不改 DSH 本体”。实施架构、分阶段交付、DSH 热加载手册和验收矩阵见 [RIGHTBAR_PLAN.md](./RIGHTBAR_PLAN.md)。本文末尾暂停的 cwd 参数化方案保留为历史记录。
+
 状态：实施中 · 2026-11-05
 读者：插件实现者（本人与后续 AI 会话）
 范围：把本机 Codex CLI 的版本、项目会话与交互对话搬进 DSH Web GUI 的一个插件；不含 Codex 内核改造。

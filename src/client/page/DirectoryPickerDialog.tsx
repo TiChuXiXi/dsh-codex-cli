@@ -1,6 +1,7 @@
 /** 新建项目：仿 DSH「选择工作区目录」的 Miller 分栏浏览，可在任意层级新建文件夹后选中。 */
 
 import * as React from 'react'
+import {Icon} from '../components/Icon'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 
@@ -253,7 +254,7 @@ export function DirectoryPickerDialog({ open, api, onPick, onClose }: DirectoryP
               <div className="dsh-codex-browse-crumbs" role="navigation">
                 {(listing?.crumbs ?? []).map((crumb, index, all) => (
                   <React.Fragment key={crumb.path}>
-                    {index > 0 ? <span className="dsh-codex-browse-chevron">›</span> : null}
+                    {index > 0 ? <span className="dsh-codex-browse-chevron"><Icon name="chevronRight" size={14}/></span> : null}
                     <button
                       type="button"
                       className={`dsh-codex-browse-crumb ${index === all.length - 1 ? 'current' : ''}`}
@@ -466,53 +467,12 @@ export function DirectoryPickerDialog({ open, api, onPick, onClose }: DirectoryP
   )
 }
 
-function FolderGlyph() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="dsh-codex-browse-glyph">
-      <path
-        d="M1.9 4.3c0-.66.54-1.2 1.2-1.2h2.9l1.5 1.7h5.4c.66 0 1.2.54 1.2 1.2v6.3c0 .66-.54 1.2-1.2 1.2H3.1c-.66 0-1.2-.54-1.2-1.2V4.3Z"
-        fill="currentColor"
-        opacity="0.14"
-      />
-      <path
-        d="M1.9 4.3c0-.66.54-1.2 1.2-1.2h2.9l1.5 1.7h5.4c.66 0 1.2.54 1.2 1.2v6.3c0 .66-.54 1.2-1.2 1.2H3.1c-.66 0-1.2-.54-1.2-1.2V4.3Z"
-        stroke="currentColor"
-        strokeWidth="1"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
+function FolderGlyph(){return <Icon name="folder" size={16}/>}
 
-function PlusGlyph() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-      <path d="M8 3.5v9M3.5 8h9" strokeLinecap="round" />
-    </svg>
-  )
-}
+function PlusGlyph(){return <Icon name="plus" size={16}/>}
 
-function ChevronGlyph() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-      <path d="m6 4 4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
+function ChevronGlyph(){return <Icon name="chevronRight" size={16}/>}
 
-function PencilGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
-      <path d="M2.8 13.2 3.4 10l7-7 2.6 2.6-7 7-3.2.6Z" strokeLinejoin="round" />
-      <path d="m9.6 3.8 2.6 2.6" strokeLinecap="round" />
-    </svg>
-  )
-}
+function PencilGlyph(){return <Icon name="pencil" size={16}/>}
 
-function UpGlyph() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
-      <path d="M8 12V4M4 8l4-4 4 4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
+function UpGlyph(){return <Icon name="arrowUp" size={16}/>}
