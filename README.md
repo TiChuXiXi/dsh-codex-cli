@@ -34,7 +34,7 @@ npm run build
 dsh plugin --profile web add "$(pwd)"
 ```
 
-仓库公开后上述克隆地址才能使用。若已通过其他方式取得源码，从 `cd` 后的步骤开始即可。这里的 `web` 是 DSH profile 名称；使用其他 profile 时请替换。
+若已通过其他方式取得源码，从 `cd` 后的步骤开始即可。这里的 `web` 是 DSH profile 名称；使用其他 profile 时请替换。
 
 插件包自带 `cordis.patch.yml`，启用 bundle 后会插入 `codex-cli` 配置，无需再添加第二条 insert。首次安装或修改 bundle 后，按 DSH 的提示处理加载或重启；打开 DSH Web 界面，在左侧选择 **Codex CLI**。请先在宿主机确认 `codex --version` 可运行，并完成 Codex 登录或服务配置。
 
@@ -59,7 +59,9 @@ dsh plugin --profile web add "$(pwd)"
 
 工作区单文件上传上限为 25 MiB；下载针对单个文件，不提供目录打包下载。文件预览能力取决于文件类型。Git 写操作、终端命令和 Codex 操作会影响宿主机文件，请根据实际需要选择会话权限。
 
-![新建项目](shots/83-new-project.png)
+技能列表与工作区文件（截图中的个人信息已遮挡）：
+
+![技能列表与工作区文件](shots/83-new-project.png)
 
 ## 开发与验证
 
