@@ -28,7 +28,7 @@
 | `src/client/styles.ts`、`workbench-styles.ts` | 基础样式及工作台覆盖样式，后者位于 `src/client/` |
 | `src/client/i18n.ts`、`types.ts`、`rpc.ts` | 翻译、客户端类型及 RPC 封装，均位于 `src/client/` |
 | `client.js` | 已跟踪的浏览器构建产物，不能手工修改 |
-| `test/*.test.mjs` | Node 自动测试、临时 Git 仓库和模拟协议服务 |
+| `test/*.test.mjs` | 本地 Node 测试（Git 忽略，不随克隆分发），含临时 Git 仓库和模拟协议服务 |
 | `scripts/` | 构建、宿主重组与实际环境验收脚本 |
 | `vendor/dsh-dockkit/` | 第三方组件快照；来源见其中的 `PROVENANCE.md` |
 | `docs/`、`shots/` | 设计/验收记录及已脱敏截图 |
@@ -57,7 +57,7 @@ npm test
 
 ## 测试与验收
 
-`npm test` 执行 `node --test test/*.test.mjs`。只运行受影响模块时，例如：
+`test/` 仅在本地保留，已从 Git 跟踪中移除；新克隆不包含测试文件。仅在本地已有该目录和测试文件时运行 `npm test`，它执行 `node --test test/*.test.mjs`。缺少测试文件时明确报告未执行，不把缺失当作测试通过。只运行受影响模块时，例如：
 
 ```bash
 node --test test/git.test.mjs test/git-push.test.mjs
