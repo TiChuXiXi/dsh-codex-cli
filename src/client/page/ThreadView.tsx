@@ -5,13 +5,15 @@ import type {SkillReference} from '../skills'
 import {Icon} from '../components/Icon'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
-import type { CodexTurn, PendingApproval, ThreadDetail } from '../types'
+import type { CodexItem, CodexTurn, PendingApproval, ThreadDetail } from '../types'
 import { basename, formatClock, formatDuration, relativeTime, statusKey, threadTitle } from '../utils'
 import { ApprovalStack } from './ApprovalCard'
 import { Composer, type Attachment, type ModelOption, type PermissionMode } from './Composer'
 import { ItemCard } from './ItemCard'
 import { ToolGroup, groupActivity } from './ToolGroup'
 import { runningStartedAt } from '../running-time'
+
+type SettingEvent = {id: string; turnId: string | null; itemId: string | null; text: string}
 
 export interface ThreadViewProps {
   provider: string
@@ -75,10 +77,33 @@ export function ThreadView({
 }: ThreadViewProps) {
   const t = useT()
   const messagesRef = React.useRef<HTMLDivElement | null>(null)
+  const messageContentRef = React.useRef<HTMLDivElement | null>(null)
   const threadId = detail?.thread.id ?? null
   const [model, setModel] = React.useState('')
   const [effort, setEffort] = React.useState('')
   const [permission, setPermission] = React.useState<PermissionMode>('ask')
+  const settingEvents = React.useRef<Record<string, SettingEvent[]>>({})
+  const [, refreshSettingEvents] = React.useReducer((value: number) => value + 1, 0)
+  const eventsFor = (id: string): SettingEvent[] => {
+    if (settingEvents.current[id]) return settingEvents.current[id]
+    try {
+      const stored = JSON.parse(localStorage.getItem('dsh-codex-setting-events:' + id) || '[]')
+      if (Array.isArray(stored)) {
+        return settingEvents.current[id] = stored.filter((e: any) => e && typeof e.id === 'string' && typeof e.text === 'string' && (e.turnId === null || typeof e.turnId === 'string') && (e.itemId === null || typeof e.itemId === 'string')).slice(-500)
+      }
+    } catch {}
+    return settingEvents.current[id] = []
+  }
+  const recordSetting = (text: string) => {
+    if (!threadId || !detail) return
+    const turns = [...detail.turns].sort((a, b) => turnTime(a) - turnTime(b))
+    const last = turns.at(-1)
+    const event: SettingEvent = {id: crypto.randomUUID(), turnId: last?.id ?? null, itemId: last?.items?.at(-1)?.id ?? null, text}
+    const next = [...eventsFor(threadId), event].slice(-500)
+    settingEvents.current[threadId] = next
+    try { localStorage.setItem('dsh-codex-setting-events:' + threadId, JSON.stringify(next)) } catch {}
+    refreshSettingEvents()
+  }
   const [, setTick] = React.useState(0)
   const runningSinceRef = React.useRef<{ key:string, time:number }>({key:'',time:Date.now()})
   const runningKey=threadId&&activeTurnId?`dsh-codex-running:${threadId}`:''
@@ -100,24 +125,26 @@ export function ThreadView({
     return () => window.clearInterval(timer)
   }, [activeTurnId, runningKey])
 
-  React.useEffect(() => {
+  // Restore before paint: a selection from the previous thread is not a pending edit.
+  React.useLayoutEffect(() => {
     if (detail === null) return
     setModel(detail.thread.model ?? (provider === 'opencode-go' ? 'deepseek-v4.1-flash' : ''))
     setEffort(detail.thread.reasoningEffort ?? '')
-    if (permissionFromSession !== undefined && permissionFromSession !== null) {
-      setPermission(permissionFromSession)
-      return
-    }
     try {
       const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`)
-      setPermission(saved === 'read' || saved === 'full' || saved === 'approve' ? saved : 'ask')
+      if (saved === 'read' || saved === 'full' || saved === 'approve' || saved === 'ask') {
+        setPermission(saved)
+        return
+      }
     } catch {
-      setPermission('ask')
+      // Fall back to the server's last known settings.
     }
+    setPermission(permissionFromSession ?? 'ask')
   }, [threadId, permissionFromSession])
 
   const changePermission = React.useCallback(
     (mode: PermissionMode) => {
+      if (mode !== permission) recordSetting(`权限已切换为${t('permission.' + mode)}（下一轮生效）`)
       setPermission(mode)
       if (threadId === null) return
       try {
@@ -126,7 +153,7 @@ export function ThreadView({
         // 忽略。
       }
     },
-    [threadId],
+    [threadId, permission, detail, t],
   )
 
   // 是否贴着底部：决定新内容到来时要不要跟随；用户上滚后停止跟随。
@@ -157,6 +184,27 @@ export function ThreadView({
     if (!atBottomRef.current) return
     element.scrollTop = element.scrollHeight
   }, [detail])
+
+  // Images, code previews and composer resizing can change layout without new message data.
+  // Observe both the viewport and its content so late layout changes keep the bottom visible.
+  React.useLayoutEffect(() => {
+    const element = messagesRef.current
+    const content = messageContentRef.current
+    if (!element || !content) return
+    const follow = () => {
+      if (atBottomRef.current && pendingPrependRef.current === null) {
+        element.scrollTop = element.scrollHeight
+      }
+    }
+    const observer = new ResizeObserver(follow)
+    observer.observe(element)
+    observer.observe(content)
+    content.addEventListener('load', follow, true)
+    return () => {
+      observer.disconnect()
+      content.removeEventListener('load', follow, true)
+    }
+  }, [threadId, loading])
 
   // 加载失败时清掉待恢复的位置，避免下一次流式更新误判。
   React.useEffect(() => {
@@ -210,6 +258,18 @@ export function ThreadView({
       return at === bt ? a.index - b.index : at - bt
     })
     .map((entry) => entry.turn)
+  const changes = eventsFor(thread.id)
+  const insertChanges = (turn: CodexTurn): CodexItem[] => {
+    const result: CodexItem[] = []
+    const pending = changes.filter(event => event.turnId === turn.id)
+    for (const item of turn.items ?? []) {
+      result.push(item)
+      for (const event of pending.filter(e => e.itemId === item.id)) result.push({id: event.id, type: 'localSettingChange', text: event.text})
+    }
+    const known = new Set((turn.items ?? []).map(item => item.id))
+    for (const event of pending.filter(e => e.itemId === null || !known.has(e.itemId))) result.push({id: event.id, type: 'localSettingChange', text: event.text})
+    return result
+  }
   const items = orderedTurns.flatMap((turn) => turn.items ?? [])
   const hasItems = items.length > 0
   const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null
@@ -261,6 +321,7 @@ export function ThreadView({
       </div>
       <div className="dsh-codex-messages-wrap">
         <div className="dsh-codex-messages" ref={messagesRef} onScroll={onMessagesScroll}>
+          <div ref={messageContentRef} style={{display: 'flow-root'}}>
           {hasOlder && hasItems ? (
             <button
               type="button"
@@ -271,12 +332,11 @@ export function ThreadView({
               {loadingOlder ? t('thread.loadingOlder') : t('thread.loadOlder')}
             </button>
           ) : null}
-          {!hasItems ? (
-            <div className="dsh-codex-empty">{t('thread.noMessages')}</div>
-          ) : (
-            orderedTurns.map((turn) => (
+          {changes.filter(event => event.turnId === null).map(event => <ItemCard key={event.id} item={{id: event.id, type: 'localSettingChange', text: event.text}} api={api} />)}
+          {!hasItems && changes.length === 0 && <div className="dsh-codex-empty">{t('thread.noMessages')}</div>}
+          {orderedTurns.map((turn) => (
               <React.Fragment key={turn.id}>
-                {groupActivity((turn.items ?? []).filter((item) => provider !== 'openai' || item.type !== 'reasoning')).map((entry) =>
+                {groupActivity(insertChanges(turn).filter((item) => provider !== 'openai' || item.type !== 'reasoning')).map((entry) =>
                   entry.kind === 'group' ? (
                     <ToolGroup key={entry.key} items={entry.items} api={api} />
                   ) : (
@@ -285,8 +345,8 @@ export function ThreadView({
                 )}
                 <TurnFooter turn={turn} />
               </React.Fragment>
-            ))
-          )}
+            ))}
+          </div>
         </div>
         {showJump ? (
           <button
@@ -308,6 +368,9 @@ export function ThreadView({
         </div>
       ) : null}
 
+      {threadId === selectedId && activeTurnId !== null && permissionFromSession != null && permission !== permissionFromSession && (
+        <div className="dsh-codex-permission-pending" role="status">权限更改将在下一轮生效；当前回合和待处理的审批仍使用原权限。</div>
+      )}
       <Composer
         key={threadId ?? 'new'}
         threadId={threadId}
@@ -322,6 +385,7 @@ export function ThreadView({
         planMode={planMode}
         onModelChange={(value) => {
           const next = value || (provider === 'opencode-go' ? 'deepseek-v4.1-flash' : '')
+          if (next !== model) recordSetting(`模型已切换为 ${models.find(entry => entry.id === next)?.displayName ?? (next || t('composer.defaultModel'))}（下一轮生效）`)
           setModel(next)
           setEffort(models.find(entry => entry.id === next)?.defaultReasoningEffort ?? '')
         }}
@@ -334,7 +398,13 @@ export function ThreadView({
         onCompact={onCompact}
         onDiff={onDiff}
         onExport={onExport}
-        onSend={onSend}
+        onSend={(text, options) => {
+          atBottomRef.current = true
+          setShowJump(false)
+          const element = messagesRef.current
+          if (element) element.scrollTop = element.scrollHeight
+          return onSend(text, options)
+        }}
         onSteer={onSteer}
         onStop={onStop}
       />

@@ -160,7 +160,7 @@ export function ConsolePage(props: ConsolePageProps) {
   providerRef.current = provider
   const [models, setModels] = React.useState<ModelOption[]>([])
   const [quota, setQuota] = React.useState<RateLimits | null>(null)
-  const [sessionPermission, setSessionPermission] = React.useState<PermissionMode | null>(null)
+  const [sessionPermission, setSessionPermission] = React.useState<{ threadId: string, mode: PermissionMode | null } | null>(null)
   const [planMode, setPlanMode] = React.useState(false)
   const [quotaLoading, setQuotaLoading] = React.useState(true)
   const quotaRef = React.useRef<RateLimits | null>(null)
@@ -539,7 +539,7 @@ export function ConsolePage(props: ConsolePageProps) {
             collaborationMode: { mode?: string | null } | null
           } | null>('threads/settings', { threadId: selectedId })
           if (!cancelled) {
-            setSessionPermission(permissionFromSettings(settings))
+            setSessionPermission({ threadId: selectedId, mode: permissionFromSettings(settings) })
             setPlanMode(settings?.collaborationMode?.mode === 'plan')
           }
         } catch {
@@ -652,6 +652,7 @@ export function ConsolePage(props: ConsolePageProps) {
           ...(collaborationMode === undefined ? {} : { collaborationMode }),
           ...permissionPayload,
         })
+        if (selectedIdRef.current === selectedId) setSessionPermission({ threadId: selectedId, mode: permission })
         // 首条消息落盘后线程才会出现在 thread/list：稍后补一次列表。
         window.setTimeout(() => {
           void loadThreads(null)
@@ -963,7 +964,7 @@ export function ConsolePage(props: ConsolePageProps) {
             selectedId={selectedId}
             activeTurnId={activeTurnId}
             models={models}
-            permissionFromSession={sessionPermission}
+            permissionFromSession={sessionPermission?.threadId === selectedId && detail?.thread.id === selectedId ? sessionPermission.mode : null}
             planMode={planMode}
             onEnterPlan={() => setPlanMode(true)}
             onExitPlan={() => setPlanMode(false)}

@@ -16,10 +16,12 @@ export function FilesPane({
   api,
   cwd,
   onOpen,
+  directory = '.',
 }: {
   api: Api
   cwd: string
   onOpen: (path: string) => void
+  directory?: string
 }) {
   const root=React.useRef<HTMLElement>(null)
   useDialogFocus(root)
@@ -65,6 +67,7 @@ export function FilesPane({
       cancelled = true
     }
   }, [api, cwd, revision])
+  const directoryPath = directory === '.' ? cwd : cwd.replace(/\/$/, '') + '/' + directory
   const upload=async(files:File[])=>{
     if(!workspace||!files.length)return
     setBusy(true);setError('');setNotice('')
@@ -90,9 +93,9 @@ export function FilesPane({
     finally{setBusy(false)}
   }
   return (
-    <section ref={root} onContextMenu={e=>contextAt(e,null,'.')} aria-busy={busy} className="codex-sidebar-files">
+    <section ref={root} onContextMenu={e=>contextAt(e,null,directory)} aria-busy={busy} className="codex-sidebar-files">
       <div className="codex-sidebar-file-toolbar">
-        <code className="codex-sidebar-file-toolbar-title" title={cwd}>{cwd}</code>
+        <code className="codex-sidebar-file-toolbar-title" title={directoryPath}>{directoryPath}</code>
         <button
           type="button"
           title="刷新工作区"
@@ -144,7 +147,7 @@ export function FilesPane({
           key={workspace.workspaceId}
           api={api}
           workspace={workspace}
-          path="."
+          path={directory}
           onOpen={onOpen}
           level={0}
           refresh={revision}

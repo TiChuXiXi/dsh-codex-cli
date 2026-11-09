@@ -14373,7 +14373,16 @@ window.__ModuleLoader__.load({
       "quota.window.1h": "1 小时",
       "quota.window.minutes": "{count} 分钟",
       "quota.resetCredits": "{count} 次重置",
+      "quota.details": "额度详情",
+      "quota.close": "关闭额度详情",
+      "quota.resetUnknown": "暂无重置时间",
+      "quota.balance": "余额：{balance}",
       "quota.resetsAt": "重置于 {time}",
+      "quota.resetsIn": "{time}后重置",
+      "quota.resetDue": "重置时间已到",
+      "quota.duration.days": "{count}天",
+      "quota.duration.hours": "{count}小时",
+      "quota.duration.minutes": "{count}分钟",
       "picker.title": "选择项目",
       "picker.existing": "现有项目",
       "picker.newHint": "项目按会话目录聚合。新建项目会先浏览目录，可在其中新建文件夹。",
@@ -14688,7 +14697,16 @@ window.__ModuleLoader__.load({
       "quota.window.1h": "1h",
       "quota.window.minutes": "{count}m",
       "quota.resetCredits": "{count} resets",
+      "quota.details": "Usage details",
+      "quota.close": "Close usage details",
+      "quota.resetUnknown": "Reset time unavailable",
+      "quota.balance": "Balance: {balance}",
       "quota.resetsAt": "Resets at {time}",
+      "quota.resetsIn": "Resets in {time}",
+      "quota.resetDue": "Reset time reached",
+      "quota.duration.days": "{count}d ",
+      "quota.duration.hours": "{count}h ",
+      "quota.duration.minutes": "{count}m",
       "picker.title": "Choose a project",
       "picker.existing": "Existing projects",
       "picker.newHint": "Projects are grouped by session directory. New project starts by browsing directories, where you can create a folder.",
@@ -16967,10 +16985,15 @@ window.__ModuleLoader__.load({
       onThreadDeleted
     }) {
       const t = useT();
+      const [now, setNow] = React8.useState(() => Date.now());
+      React8.useEffect(() => {
+        const timer = setInterval(() => setNow(Date.now()), 6e4);
+        return () => clearInterval(timer);
+      }, []);
       const phase = status?.phase ?? "connecting";
       const phaseClass = phase === "ready" ? "ok" : phase === "error" ? "error" : phase === "connecting" ? "warn" : "";
       const streamClass = streamState === "open" ? "ok" : streamState === "closed" ? "error" : "warn";
-      const quotaInfo = quota === null && quotaLoading ? { text: t("quota.loading") } : quotaSummary(quota, t);
+      const quotaInfo = quota === null && quotaLoading ? { text: t("quota.loading") } : quotaSummary(quota, t, now);
       const envParts = [status?.kind ? t(`status.${status.kind}`) : "", status?.codexVersion ? t("status.version", { version: status.codexVersion }) : ""].filter((part) => part !== "").join(" · ");
       const isUnread = (thread) => {
         return thread.status?.type !== "active" && unread.has(thread.id);
@@ -17131,7 +17154,7 @@ window.__ModuleLoader__.load({
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: t(`status.${phase}`) }),
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconButton, { icon: "settings", label: "版本与连接", onClick: onVersions })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "dsh-codex-sidebar-quota", title: quotaInfo.title, children: quotaInfo.text }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(QuotaPopover, { quota, loading: quotaLoading, now, t }),
           /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("button", { type: "button", className: "dsh-codex-sidebar-exit", onClick: onExit, children: [
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Icon2, { name: "arrowLeft", size: 16 }),
             "返回 DeepSeek Harness"
@@ -17150,7 +17173,82 @@ window.__ModuleLoader__.load({
     function FolderGlyph({ open = false }) {
       return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Icon2, { name: open ? "folderOpen" : "folder", size: 17 });
     }
-    function quotaSummary(quota, t) {
+    function QuotaRing({ remaining }) {
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("svg", { className: "quota-ring", viewBox: "0 0 24 24", width: "24", height: "24", "aria-hidden": "true", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "12", cy: "12", r: "10", fill: "none", className: "quota-ring-track", strokeWidth: "2" }),
+        remaining !== void 0 && remaining > 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "12", cy: "12", r: "10", fill: "none", className: "quota-ring-value", strokeWidth: "2", strokeLinecap: "round", pathLength: "100", strokeDasharray: `${remaining} 100`, transform: "rotate(-90 12 12)" }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { className: "quota-ring-icon", d: "M13.3 6.8 9 12.5h3l-1.3 4.7 4.3-5.7h-3z" })
+      ] });
+    }
+    function QuotaPopover({ quota, loading, now, t }) {
+      const [open, setOpen] = React8.useState(false);
+      const root = React8.useRef(null);
+      React8.useEffect(() => {
+        if (!open) return;
+        const pointer = (event) => {
+          if (!root.current?.contains(event.target)) setOpen(false);
+        };
+        const key = (event) => {
+          if (event.key === "Escape") {
+            setOpen(false);
+            root.current?.querySelector(".quota-trigger")?.focus();
+          }
+        };
+        document.addEventListener("pointerdown", pointer);
+        document.addEventListener("keydown", key);
+        return () => {
+          document.removeEventListener("pointerdown", pointer);
+          document.removeEventListener("keydown", key);
+        };
+      }, [open]);
+      const windows = [quota?.primary, quota?.secondary, quota?.monthly].filter((value) => value != null);
+      const unlimited = quota?.credits?.unlimited === true;
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "dsh-codex-sidebar-quota", ref: root, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { type: "button", className: "quota-trigger", "aria-expanded": open, "aria-controls": "quota-details", onClick: () => setOpen((value) => !value), children: windows.length > 0 && !unlimited ? windows.map((item, index) => {
+          const remaining = Math.max(0, Math.min(100, 100 - Math.round(item.usedPercent)));
+          return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "quota-chip", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(QuotaRing, { remaining }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+              windowLabel(item.windowDurationMins, t),
+              " · ",
+              t("quota.remaining", { percent: remaining })
+            ] })
+          ] }, index);
+        }) : /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "quota-chip", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(QuotaRing, {}),
+          loading && !quota ? t("quota.loading") : quotaSummary(quota, t, now).text
+        ] }) }),
+        open && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { id: "quota-details", className: "quota-popover", role: "dialog", "aria-label": t("quota.details"), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "quota-popover-header", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: t("quota.details") }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { type: "button", "aria-label": t("quota.close"), onClick: () => setOpen(false), children: "×" })
+          ] }),
+          windows.length > 0 && !unlimited ? windows.map((item, index) => {
+            const remaining = Math.max(0, Math.min(100, 100 - Math.round(item.usedPercent)));
+            const details = quotaSummary({ ...quota, primary: item, secondary: null, monthly: null, resetCredits: 0 }, t, now);
+            return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "quota-detail", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "quota-detail-heading", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: windowLabel(item.windowDurationMins, t) || t("info.quota") }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: t("quota.remaining", { percent: remaining }) })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "quota-progress", role: "progressbar", "aria-label": windowLabel(item.windowDurationMins, t) || t("info.quota"), "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": remaining, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { style: { width: remaining + "%" } }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "quota-reset-box", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Icon2, { name: "history", size: 15 }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "quota-detail-reset", children: details.text.split(" · ").slice(1).join(" · ") || t("quota.resetUnknown") }),
+                  item.resetsAt != null && item.resetsAt > 0 && Number.isFinite(item.resetsAt) && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "quota-detail-date", children: t("quota.resetsAt", { time: formatDateTime(item.resetsAt * 1e3) }) })
+                ] })
+              ] })
+            ] }, index);
+          }) : /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "quota-detail-reset", children: loading && !quota ? t("quota.loading") : quotaSummary(quota, t, now).text }),
+          quota && (quota.resetCredits > 0 || quota.credits?.balance) && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "quota-detail-extra", children: [
+            quota.resetCredits > 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: t("quota.resetCredits", { count: quota.resetCredits }) }),
+            quota.credits?.balance && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: t("quota.balance", { balance: quota.credits.balance }) })
+          ] })
+        ] })
+      ] });
+    }
+    function quotaSummary(quota, t, now) {
       if (quota === null) return { text: t("quota.unknown") };
       if (quota.credits?.unlimited === true) return { text: t("quota.unlimited") };
       const parts = [];
@@ -17158,15 +17256,25 @@ window.__ModuleLoader__.load({
       if (quota.primary !== null) windows.push(quota.primary);
       if (quota.secondary !== null) windows.push(quota.secondary);
       if (quota.monthly != null) windows.push(quota.monthly);
+      const titles = [];
       for (const window2 of windows) {
         const percent = Math.max(0, Math.min(100, 100 - Math.round(window2.usedPercent)));
         const label = windowLabel(window2.windowDurationMins, t);
-        parts.push(label === "" ? t("quota.remaining", { percent }) : `${label} ${t("quota.remaining", { percent })}`);
+        let part = label === "" ? t("quota.remaining", { percent }) : `${label} ${t("quota.remaining", { percent })}`;
+        if (typeof window2.resetsAt === "number" && Number.isFinite(window2.resetsAt) && window2.resetsAt > 0) {
+          const minutes = Math.ceil((window2.resetsAt * 1e3 - now) / 6e4);
+          if (minutes > 0) {
+            const days = Math.floor(minutes / 1440), hours = Math.floor(minutes % 1440 / 60), mins = minutes % 60;
+            const duration = [days ? t("quota.duration.days", { count: days }) : "", hours ? t("quota.duration.hours", { count: hours }) : "", !days && !hours && mins ? t("quota.duration.minutes", { count: mins }) : ""].filter(Boolean).join("");
+            part += " · " + t("quota.resetsIn", { time: duration.trim() });
+          } else part += " · " + t("quota.resetDue");
+          titles.push((label ? label + " " : "") + t("quota.resetsAt", { time: formatDateTime(window2.resetsAt * 1e3) }));
+        }
+        parts.push(part);
       }
       if (parts.length === 0 && quota.credits?.balance) parts.push(quota.credits.balance);
       if (quota.resetCredits > 0) parts.push(t("quota.resetCredits", { count: quota.resetCredits }));
-      const resetsAt = quota.primary?.resetsAt;
-      const title = typeof resetsAt === "number" ? t("quota.resetsAt", { time: formatDateTime(resetsAt * 1e3) }) : void 0;
+      const title = titles.length ? titles.join(" · ") : void 0;
       return { text: parts.length > 0 ? parts.join(" · ") : t("quota.unknown"), title };
     }
     function windowLabel(minutes, t) {
@@ -19333,6 +19441,7 @@ window.__ModuleLoader__.load({
     // src/client/sidebar/gitStyles.ts
     var GIT_CSS = `
     .dsh-codex-root .codex-git{height:100%;min-height:0;min-width:0;display:flex;flex-direction:column;position:relative;color:var(--codex-text);background:var(--codex-bg);font-size:12px;line-height:1.5} .codex-git *{box-sizing:border-box} .codex-git button{cursor:pointer} .codex-git code, .codex-git pre{font-family:var(--dsh-font-family-code);font-size:12px} .codex-git code{overflow-wrap:anywhere} .codex-git p{margin:8px 0} .codex-git h4{margin:12px 14px 4px;font-size:12px;color:var(--codex-muted)} .codex-git .git-toolbar{height:44px;min-height:44px;display:flex;align-items:center;padding:0 10px;gap:7px;border-bottom:1px solid var(--codex-border)} .codex-git .git-toolbar>code{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:30px} .codex-git .git-toolbar>span{white-space:nowrap} .codex-git .git-spacer{flex:1} .codex-git .dsh-codex-icon-button{width:28px;height:28px;flex:none} .codex-git .dsh-codex-icon-button svg{width:15px;height:15px} .codex-git .dsh-codex-button{min-height:28px;padding:4px 9px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:5px} .codex-git .git-tabs{display:flex;overflow:auto;flex:none;border-bottom:1px solid var(--codex-border);padding:0 6px;scrollbar-width:none} .codex-git .git-tabs>button{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;border:0;border-bottom:2px solid transparent;white-space:nowrap;padding:10px 6px;background:transparent;color:var(--codex-muted);font-size:12px} .codex-git .git-tabs>button:hover{background:var(--codex-soft)} .codex-git .git-tabs>button[aria-selected=true]{color:var(--codex-text);border-bottom-color:var(--codex-accent)} .codex-git .git-tabs small{font-size:10px;color:var(--codex-muted)} .codex-git .git-content{overflow:auto;min-height:100px;flex:1} .codex-git .git-section-head{display:flex;align-items:center;gap:7px;min-height:36px;padding:4px 10px;background:var(--codex-panel);border-bottom:1px solid var(--codex-border)} .codex-git .git-section-head>code{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .codex-git .git-section-head>strong{font-size:12px} .codex-git .git-section-head>span, .codex-git .git-section-head small{color:var(--codex-muted);font-size:11px} .codex-git .git-group{display:flex;align-items:center;padding:8px 12px 4px;color:var(--codex-muted);background:var(--codex-panel)} .codex-git label{display:flex;align-items:center;gap:7px} .codex-git input[type=checkbox]{accent-color:var(--codex-accent);width:13px;height:13px;flex:none;margin:0} .codex-git .git-file{display:flex;align-items:center;gap:6px;padding:3px 8px 3px 12px;min-height:32px} .codex-git .git-file:hover{background:var(--codex-soft)} .codex-git .git-file>button:not(.dsh-codex-icon-button){display:flex;flex:1;min-width:0;text-align:left;align-items:center;gap:8px;border:0;background:transparent;color:inherit;padding:2px} .codex-git .git-file code{white-space:nowrap;text-overflow:ellipsis;overflow:hidden;min-width:0} .codex-git .git-file code span{color:var(--codex-muted)} .codex-git .git-file b{color:var(--codex-success);font-size:11px;width:14px;flex:none} .codex-git .git-commit{padding:12px;border-top:1px solid var(--codex-border);position:sticky;bottom:0;background:var(--codex-bg)} .codex-git .git-commit textarea{width:100%;resize:vertical;border:1px solid var(--codex-border);border-radius:6px;padding:8px;margin-bottom:8px;min-height:65px;font-size:12px} .codex-git .git-inline{display:flex;align-items:center;gap:7px;flex-wrap:wrap} .codex-git .git-pad{padding:12px} .codex-git .git-muted{color:var(--codex-muted)} .codex-git .git-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:32px 18px;text-align:center;color:var(--codex-muted);min-height:140px} .codex-git .git-empty h3{font-size:15px;color:var(--codex-text);margin:0} .codex-git .git-error, .codex-git .git-notice{padding:8px 12px;overflow-wrap:anywhere;white-space:pre-wrap;max-height:160px;overflow:auto;flex:none} .codex-git .git-error{display:flex;align-items:center;gap:6px;color:var(--codex-danger);background:color-mix(in srgb,var(--codex-danger) 8%,var(--codex-bg))} .codex-git .git-error>span{flex:1} .codex-git .git-notice{color:var(--codex-success);border-bottom:1px solid var(--codex-border)} .codex-git .git-warning{padding:8px 10px;color:var(--codex-warning);background:var(--codex-warning-bg);white-space:pre-wrap;overflow-wrap:anywhere} .codex-git .git-card{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;border-bottom:1px solid var(--codex-border);padding:12px} .codex-git .git-card>div:first-child{min-width:0} .codex-git .git-card strong, .codex-git .git-card small, .codex-git .git-card code{display:block} .codex-git .git-card small{color:var(--codex-muted);font-size:11px} .codex-git .git-card code{font-size:11px;white-space:pre-wrap} .codex-git .git-card .git-inline{margin-top:8px} .codex-git .git-history-row{display:flex;align-items:stretch;min-width:100%;height:48px;border:0;border-bottom:1px solid color-mix(in srgb,var(--codex-border) 35%,transparent);background:transparent;color:inherit;text-align:left;padding:0 10px 0 2px} .codex-git .git-history-row:hover{background:var(--codex-soft)} .codex-git .git-history-row svg{overflow:visible;stroke-width:1.6;align-self:center} .codex-git .git-history-text{display:flex;flex-direction:column;justify-content:center;min-width:0;padding-left:5px;flex:1} .codex-git .git-history-text strong{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .codex-git .git-history-text small{font-size:11px;color:var(--codex-muted);white-space:nowrap} .codex-git .git-history-text em{font-size:10px;border:1px solid var(--codex-border);border-radius:3px;padding:1px 4px;margin-right:5px;font-style:normal;color:var(--codex-accent)} .codex-git .git-more{margin:12px} .codex-git .git-detail{flex:0 1 40%;min-height:100px;overflow:auto;border-top:1px solid var(--codex-border)} .codex-git .git-detail-file{border:0;border-top:1px solid var(--codex-border);padding:7px 12px;text-align:left;display:flex;gap:10px;background:transparent;width:100%;color:inherit} .codex-git .git-detail-file:hover{background:var(--codex-soft)} .codex-git .git-detail pre{white-space:pre-wrap} .codex-git .git-detail .git-section-head{position:sticky;top:0} .codex-git .git-diff{min-height:120px;flex:1;display:flex;flex-direction:column;border-top:1px solid var(--codex-border)} .codex-git .git-diff-scroll{min-height:0;overflow:auto;flex:1} .codex-git .git-diff-line{display:flex;min-height:19px;line-height:19px;font-family:var(--dsh-font-family-code);font-size:11px} .codex-git .git-diff-line>span{flex:0 0 34px;width:34px;text-align:right;color:var(--codex-muted);padding-right:6px;user-select:none;border-right:1px solid var(--codex-border)} .codex-git .git-diff-line>code{padding-left:8px;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px} .codex-git .git-diff-line.add{background:color-mix(in srgb,var(--codex-success) 13%,transparent)} .codex-git .git-diff-line.del{background:color-mix(in srgb,var(--codex-danger) 13%,transparent)} .codex-git .git-diff-line.hunk{background:var(--codex-selected);color:var(--codex-accent)} .codex-git .git-command{padding:9px 12px;border-bottom:1px solid var(--codex-border)} .codex-git .git-command summary{cursor:pointer;overflow-wrap:anywhere} .codex-git .git-command summary code{font-size:11px} .codex-git .git-command small{display:block;color:var(--codex-muted);padding-left:13px} .codex-git .git-command pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto} .codex-git .git-success{color:var(--codex-success)} .codex-git .git-conflict{color:var(--codex-danger)} .codex-git .git-modal-backdrop{position:fixed;inset:0;background:#0005;z-index:1500;display:flex;align-items:center;justify-content:center;padding:20px} .codex-git .git-modal{background:var(--codex-bg);border:1px solid var(--codex-border);border-radius:10px;box-shadow:var(--dsw-elevation-prominent);padding:20px;width:440px;max-width:100%;max-height:85vh;overflow:auto} .codex-git .git-modal header{font-size:15px;font-weight:600;margin-bottom:14px} .codex-git .git-modal>label{display:flex;flex-direction:column;align-items:stretch;margin:12px 0;gap:5px} .codex-git .git-modal input{width:100%} .codex-git .git-modal footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+    .codex-git .git-detail-branches{display:flex;flex-direction:column;align-items:flex-start;gap:5px;margin-top:8px;font-size:11px} .codex-git .git-detail-branch-group{display:flex;align-items:center;flex-wrap:wrap;gap:5px;max-width:100%} .codex-git .git-branch-badge{display:inline-flex;align-items:center;gap:4px;max-width:100%;overflow-wrap:anywhere;border:1px solid var(--codex-border);border-radius:3px;padding:1px 5px;color:var(--codex-accent)} .codex-git .git-branch-badge svg{flex:none} .codex-git .git-branch-badge small{font-size:10px;color:var(--codex-muted)}
     @media(max-width:600px){ .codex-git .git-tabs>button{padding:10px 7px} .codex-git .git-tabs>button svg{display:none} .codex-git .git-section-head{flex-wrap:wrap} .codex-git .git-toolbar{gap:4px}}
     `;
 
@@ -19362,6 +19471,21 @@ window.__ModuleLoader__.load({
         while (lanes.at(-1) === "") lanes.pop();
         return { lane, before, after: [...lanes], edges, through, incoming };
       });
+    }
+
+    // src/client/sidebar/gitPush.ts
+    function branchPushState(branch, remote, remoteBranches) {
+      if (!remote) return { disabled: true, target: "", publish: false, reason: "先在远程页添加远程仓库" };
+      if (!branch) return { disabled: true, target: "", publish: false, reason: "请先切换或创建本地分支" };
+      const tracked = branch.upstream.startsWith(remote + "/");
+      const target = tracked ? branch.upstream.slice(remote.length + 1) : branch.name;
+      const destination = remote + "/" + target;
+      const existing = remoteBranches.find((item) => item.name === destination);
+      if (!existing) return { disabled: false, target, publish: true, reason: "发布本地分支 " + branch.name + " 到 " + destination };
+      if (existing.hash === branch.hash || tracked && branch.ahead === 0) {
+        return { disabled: true, target, publish: false, reason: tracked && branch.behind > 0 ? "本地分支落后于 " + destination + "，没有可推送提交" : "已与 " + destination + " 同步，没有可推送提交" };
+      }
+      return { disabled: false, target, publish: false, reason: "推送 " + branch.name + " 到 " + destination };
     }
 
     // src/client/sidebar/GitPane.tsx
@@ -19505,10 +19629,21 @@ window.__ModuleLoader__.load({
       const chosen = data?.status.entries.filter((e) => selected.has(e.path)) || [];
       const mayWrite = data?.config.allowWrite !== false, mayDanger = data?.config.allowDangerous !== false;
       const action = (icon, label, onClick, disabled = false) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconButton, { icon, label, disabled: busy || disabled, onClick });
+      const pushState = (branch) => branchPushState(data?.branches.local.find((item) => item.name === branch), remote, data?.branches.remote || []);
+      const currentPush = pushState(data?.repo.detached ? "" : data?.repo.branch || "");
+      const pushBranch = (branch) => {
+        const state = pushState(branch);
+        if (state.disabled || busy || loading || !mayWrite || data?.config.allowPush === false) return;
+        const target = state.target;
+        confirm("推送分支 · " + branch, "push", { remote, branch: `refs/heads/${branch}:refs/heads/${target}`, setUpstream: true }, "将本地分支 " + branch + " 推送到 " + remote + "/" + target + "，并设置跟踪分支。");
+      };
       const remoteAction = (endpoint) => {
-        const payload = endpoint === "push" ? { remote, branch: data?.repo.branch, setUpstream: true } : { remote };
-        if (endpoint === "push" || endpoint === "pull") confirm(endpoint === "push" ? "推送当前分支" : "拉取远程更新", endpoint, payload, endpoint === "push" ? "将当前分支推送至 " + remote + "，并设置跟踪分支。" : "合并当前跟踪分支的远程更新；冲突会保留在工作区供处理。");
-        else void run(endpoint, payload);
+        if (endpoint === "push") {
+          if (data?.repo.branch) pushBranch(data.repo.branch);
+          return;
+        }
+        if (endpoint === "pull") confirm("拉取远程更新", endpoint, { remote }, "合并当前跟踪分支的远程更新；冲突会保留在工作区供处理。");
+        else void run(endpoint, { remote });
       };
       return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { ref: root, className: "codex-git", "aria-label": "Git 版本管理", "aria-busy": busy || loading, children: [
         /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("style", { children: GIT_CSS }),
@@ -19527,7 +19662,10 @@ window.__ModuleLoader__.load({
           /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "git-spacer" }),
           data && action("download", "获取远程更新", () => remoteAction("fetch"), !mayWrite),
           data && action("arrowDown", "拉取", () => remoteAction("pull"), !mayWrite),
-          data && action("arrowUp", "推送", () => remoteAction("push"), !mayWrite || !data.config.allowPush || !remote),
+          data && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("button", { type: "button", className: "dsh-codex-button git-push-button", title: data.repo.detached ? "分离 HEAD 状态，请先切换或创建本地分支" : currentPush.reason, disabled: busy || loading || !mayWrite || !data.config.allowPush || currentPush.disabled, onClick: () => remoteAction("push"), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Icon2, { name: "arrowUp", size: 15 }),
+            "推送"
+          ] }),
           action("refresh", "刷新 Git", () => {
             setError("");
             void refresh();
@@ -19636,6 +19774,7 @@ window.__ModuleLoader__.load({
               /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-section-head", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("strong", { children: "分支" }),
                 /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "git-spacer" }),
+                data.remotes.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(SelectMenu, { label: "推送到远程", value: remote, options: data.remotes.map((item) => ({ value: item.name, label: item.name })), onChange: setRemote }),
                 action("plus", "新建分支", () => openForm({ title: "新建分支", endpoint: "branch/create", payload: {}, fields: [{ key: "name", label: "分支名称" }, { key: "startPoint", label: "起点（可留空）" }] }), !mayWrite)
               ] }),
               ["local", "remote"].map((kind) => /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("section", { children: [
@@ -19660,6 +19799,10 @@ window.__ModuleLoader__.load({
                     ] })
                   ] }),
                   /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-inline", children: [
+                    kind === "local" && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("button", { type: "button", className: "dsh-codex-button", "aria-label": "推送分支 " + b.name, title: pushState(b.name).reason, disabled: busy || loading || !mayWrite || !data.config.allowPush || pushState(b.name).disabled, onClick: () => pushBranch(b.name), children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Icon2, { name: "arrowUp", size: 14 }),
+                      "推送"
+                    ] }),
                     action("arrowRight", "切换到 " + b.name, () => confirm("切换分支", "checkout", { ref: b.name }, "切换到 " + b.name + "；未提交改动由 Git 检查，冲突时停止。"), !mayWrite || data.repo.branch === b.name),
                     action("fork", "合并 " + b.name, () => confirm("合并分支", "merge", { ref: b.ref }, "将 " + b.name + " 合并到 " + data.repo.branch + "。"), !mayWrite || data.repo.branch === b.name),
                     kind === "local" && action("trash", "删除 " + b.name, () => confirm("删除分支", "branch/delete", { name: b.name }, "删除本地分支 " + b.name + "。未合并的分支会被 Git 拒绝。"), !mayWrite || !mayDanger || data.repo.branch === b.name)
@@ -19676,7 +19819,10 @@ window.__ModuleLoader__.load({
               data.remotes.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-inline git-pad", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(SelectMenu, { label: "操作远程", value: remote, options: data.remotes.map((r2) => ({ value: r2.name, label: r2.name })), onChange: setRemote }),
                 action("download", "获取选定远程", () => remoteAction("fetch"), !mayWrite),
-                action("arrowUp", "推送选定远程", () => remoteAction("push"), !mayWrite || !data.config.allowPush)
+                /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("button", { type: "button", className: "dsh-codex-button", "aria-label": "推送选定远程", title: currentPush.reason, disabled: busy || loading || !mayWrite || !data.config.allowPush || currentPush.disabled, onClick: () => remoteAction("push"), children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Icon2, { name: "arrowUp", size: 14 }),
+                  "推送"
+                ] })
               ] }),
               data.remotes.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: "git-empty", children: "尚未配置远程仓库，添加后可获取和推送。" }),
               data.remotes.map((r2) => /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-card", children: [
@@ -19755,6 +19901,18 @@ window.__ModuleLoader__.load({
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-pad", children: [
               /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("strong", { children: detail.commit.subject }),
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-detail-branches", "aria-label": "所在分支", title: "列出历史中包含此提交的本地与远程跟踪分支", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "git-muted", children: "所在分支" }),
+                ["local", "remote"].map((kind) => detail.branches?.[kind]?.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-detail-branch-group", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "git-muted", children: kind === "local" ? "本地" : "远程" }),
+                  detail.branches[kind].map((branch) => /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("span", { className: "git-branch-badge", title: branch.ref, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Icon2, { name: "git", size: 12 }),
+                    branch.name,
+                    kind === "local" && !data.repo.detached && data.repo.branch === branch.name && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("small", { children: "当前" })
+                  ] }, branch.ref))
+                ] }, kind)),
+                !detail.branches?.local?.length && !detail.branches?.remote?.length && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "git-muted", children: "没有分支包含此提交" })
+              ] }),
               /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("p", { children: [
                 detail.commit.author,
                 " <",
@@ -20027,7 +20185,8 @@ window.__ModuleLoader__.load({
     function FilesPane({
       api,
       cwd,
-      onOpen
+      onOpen,
+      directory = "."
     }) {
       const root = React15.useRef(null);
       useDialogFocus(root);
@@ -20048,10 +20207,10 @@ window.__ModuleLoader__.load({
         if (!busy && dialog && !dialog.contains(document.activeElement)) dialog.querySelector("button:not(:disabled)")?.focus();
         return () => document.removeEventListener("keydown", close, true);
       }, [deleting, busy]);
-      const contextAt = (event, entry, directory) => {
+      const contextAt = (event, entry, directory2) => {
         event.preventDefault();
         event.stopPropagation();
-        if (!busy) setContext({ x: event.clientX, y: event.clientY, entry, directory });
+        if (!busy) setContext({ x: event.clientX, y: event.clientY, entry, directory: directory2 });
       };
       const [workspace, setWorkspace] = React15.useState(null);
       const [revision, setRevision] = React15.useState(0);
@@ -20077,6 +20236,7 @@ window.__ModuleLoader__.load({
           cancelled = true;
         };
       }, [api, cwd, revision]);
+      const directoryPath = directory === "." ? cwd : cwd.replace(/\/$/, "") + "/" + directory;
       const upload = async (files) => {
         if (!workspace || !files.length) return;
         setBusy(true);
@@ -20119,9 +20279,9 @@ window.__ModuleLoader__.load({
           setBusy(false);
         }
       };
-      return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("section", { ref: root, onContextMenu: (e) => contextAt(e, null, "."), "aria-busy": busy, className: "codex-sidebar-files", children: [
+      return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("section", { ref: root, onContextMenu: (e) => contextAt(e, null, directory), "aria-busy": busy, className: "codex-sidebar-files", children: [
         /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "codex-sidebar-file-toolbar", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("code", { className: "codex-sidebar-file-toolbar-title", title: cwd, children: cwd }),
+          /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("code", { className: "codex-sidebar-file-toolbar-title", title: directoryPath, children: directoryPath }),
           /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
             "button",
             {
@@ -20140,14 +20300,14 @@ window.__ModuleLoader__.load({
         notice && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { role: "status", className: "dsh-codex-hint", children: notice }),
         error && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { role: "alert", className: "dsh-codex-right-error", children: error }),
         context && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(FileContextMenu, { context, onClose: () => setContext(null), onAction: async (action) => {
-          const { entry, directory } = context;
+          const { entry, directory: directory2 } = context;
           setContext(null);
           setError("");
-          const path = entry?.path || directory;
+          const path = entry?.path || directory2;
           const absolute = workspace?.cwd.replace(/\/$/, "") + "/" + (path === "." ? "" : path);
           try {
             if (action === "upload") {
-              destination.current = directory;
+              destination.current = directory2;
               input.current?.click();
             } else if (action === "delete" && entry) setDeleting(entry);
             else if (action === "open" && entry) onOpen(entry.path);
@@ -20203,7 +20363,7 @@ window.__ModuleLoader__.load({
           {
             api,
             workspace,
-            path: ".",
+            path: directory,
             onOpen,
             level: 0,
             refresh: revision,
@@ -20784,7 +20944,54 @@ window.__ModuleLoader__.load({
       bmp: "image/bmp",
       ico: "image/x-icon"
     };
-    function DocumentPane({
+    function DocumentPane({ api, cwd, path, onOpen }) {
+      const [target, setTarget] = React19.useState(null);
+      const [error, setError] = React19.useState("");
+      const [revision, setRevision] = React19.useState(0);
+      const [copyNotice, setCopyNotice] = React19.useState("");
+      React19.useEffect(() => {
+        let cancelled = false;
+        setTarget(null);
+        setError("");
+        async function resolve() {
+          try {
+            const workspace = await api("workspace/open", { cwd });
+            const info = await api("workspace/info", { workspaceId: workspace.workspaceId, path });
+            if (info.type !== "file" && info.type !== "dir") throw new Error("此路径不是可预览的文件或目录");
+            if (!cancelled) setTarget({ ...info, cwd: workspace.cwd });
+          } catch (cause) {
+            if (!cancelled) setError(cause instanceof Error ? cause.message : String(cause));
+          }
+        }
+        void resolve();
+        return () => {
+          cancelled = true;
+        };
+      }, [api, cwd, path, revision]);
+      if (error) return /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)("section", { className: "codex-sidebar-document", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)("header", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("code", { title: path, children: path }),
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: async () => {
+            try {
+              await navigator.clipboard.writeText(path.startsWith("/") ? path : cwd.replace(/\/$/, "") + "/" + path);
+              setCopyNotice("已复制路径");
+            } catch {
+              setCopyNotice("复制失败，请检查剪贴板权限");
+            }
+          }, children: "复制路径" }),
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: () => setRevision((r2) => r2 + 1), children: "重试" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)("div", { role: "alert", children: [
+          "无法打开此路径，可能已删除或不可访问。",
+          error
+        ] }),
+        copyNotice && /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { role: "status", children: copyNotice })
+      ] });
+      if (!target) return /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { className: "dsh-codex-loading", children: "正在打开路径…" });
+      if (target.type === "dir") return /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(FilesPane, { api, cwd: target.cwd, directory: target.path, onOpen });
+      return /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(FileDocumentPane, { api, cwd, path });
+    }
+    function FileDocumentPane({
       api,
       cwd,
       path
@@ -22163,7 +22370,12 @@ window.__ModuleLoader__.load({
               }
             );
           if (record2.kind === "document")
-            return /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(DocumentPane, { api, cwd, path: record2.contentId }, record2.contentId);
+            return /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(DocumentPane, { api, cwd, path: record2.contentId, onOpen: (path) => controller.openContent({
+              kind: "document",
+              contentId: path,
+              title: path.split("/").at(-1) || path,
+              paneId: findTabPane(controller.getSnapshot().state, record2.id).id
+            }) }, record2.contentId);
           if (record2.kind === "git") return /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(GitPane, { api, cwd });
           return /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(TerminalTab, { api, cwd });
         },
@@ -22859,7 +23071,9 @@ window.__ModuleLoader__.load({
       const defaultEffort = currentModel?.defaultReasoningEffort ?? null;
       const topEfforts = efforts.slice(0, 4);
       const moreEfforts = efforts.slice(4);
-      const effortLabel = effort === "" ? t("composer.defaultEffort") : labelForEffort(t, effort);
+      const effortIndex = Math.max(0, efforts.findIndex((option) => option.reasoningEffort === (effort || defaultEffort)));
+      const effortLabel = labelForEffort(t, efforts[effortIndex]?.reasoningEffort ?? effort);
+      const effortProgress = efforts.length > 1 ? effortIndex / (efforts.length - 1) * 100 : 0;
       const slashMatch = text.match(/^\/(\w*)$/);
       const slashQuery = slashMatch?.[1]?.toLowerCase() ?? null;
       const slashCommands = slashQuery === null ? [] : COMMANDS.filter((command) => {
@@ -22897,7 +23111,7 @@ window.__ModuleLoader__.load({
           setSkillSearch("");
           setSkillIndex(0);
         } else if (id === "model") setMenu("model");
-        else if (id === "effort") setMenu("effort");
+        else if (id === "effort") setMenu("root");
         else if (id === "permission") setPermissionOpen(true);
         else if (id === "plan") onEnterPlan();
         else if (id === "attach") fileInputRef.current?.click();
@@ -23311,18 +23525,33 @@ window.__ModuleLoader__.load({
               menu === "root" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
                 /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("model"), children: [
                   /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-cell-label", children: t("composer.model") }),
+                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("strong", { className: "dsh-effort-current", "aria-label": t("composer.effort"), children: effortLabel }),
                   /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-cell-value", children: modelLabel }),
                   /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(ChevronRightGlyph, {})
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("effort"), children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-cell-label", children: t("composer.effort") }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-cell-value", children: effortLabel }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(ChevronRightGlyph, {})
-                ] })
+                /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-effort-inline", children: /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-effort-track", style: { "--effort-progress": effortProgress + "%", "--effort-offset": 13 - effortProgress * 0.26 + "px", "--effort-color": `hsl(211 82% ${42 + effortProgress * 0.18}%)` }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-effort-fill" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-effort-dots", "aria-hidden": "true", children: efforts.map((option, index) => /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("i", { className: index < effortIndex ? "is-active" : "" }, option.reasoningEffort)) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-effort-thumb", "aria-hidden": "true" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+                    "input",
+                    {
+                      type: "range",
+                      min: 0,
+                      max: Math.max(0, efforts.length - 1),
+                      step: 1,
+                      disabled: efforts.length < 2,
+                      value: effortIndex,
+                      "aria-label": t("composer.effort"),
+                      "aria-valuetext": effortLabel,
+                      onChange: (event) => onEffortChange(efforts[Number(event.target.value)].reasoningEffort)
+                    }
+                  )
+                ] }) })
               ] }) : null,
               menu === "model" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
                 /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(MenuBack, { label: t("composer.model"), onClick: () => setMenu("root") }),
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-menu-list", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-menu-list model-name-list", children: [
                   models.map((entry) => /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(
                     "button",
                     {
@@ -23332,14 +23561,11 @@ window.__ModuleLoader__.load({
                       className: `dsh-codex-menu-item ${entry.id === model ? "selected" : ""}`,
                       onClick: () => {
                         onModelChange(entry.id);
-                        setMenu(null);
+                        setMenu("root");
                       },
                       children: [
                         /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-check", children: entry.id === model ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(CheckGlyph, {}) : null }),
-                        /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { className: "dsh-codex-menu-meta", children: [
-                          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-name", children: entry.displayName }),
-                          entry.description ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-desc", children: entry.description }) : null
-                        ] })
+                        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-meta", children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-name", children: entry.displayName }) })
                       ]
                     },
                     entry.id
@@ -23353,7 +23579,7 @@ window.__ModuleLoader__.load({
                       className: `dsh-codex-menu-item ${model === "" ? "selected" : ""}`,
                       onClick: () => {
                         onModelChange("");
-                        setMenu(null);
+                        setMenu("root");
                       },
                       children: [
                         /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-check", children: model === "" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(CheckGlyph, {}) : null }),
@@ -23363,50 +23589,27 @@ window.__ModuleLoader__.load({
                   )
                 ] })
               ] }) : null,
-              menu === "effort" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
+              menu === "effort" || menu === "more" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
                 /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(MenuBack, { label: t("composer.effort"), onClick: () => setMenu("root") }),
-                topEfforts.map((option) => /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
-                  EffortRow,
-                  {
-                    option,
-                    selected: option.reasoningEffort === effort,
-                    isDefault: option.reasoningEffort === defaultEffort,
-                    onSelect: () => {
-                      onEffortChange(option.reasoningEffort);
-                      setMenu(null);
+                /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-effort-slider", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("strong", { children: effortLabel }),
+                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { children: modelLabel }),
+                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+                    "input",
+                    {
+                      type: "range",
+                      min: 0,
+                      max: Math.max(0, efforts.length - 1),
+                      step: 1,
+                      disabled: efforts.length < 2,
+                      value: Math.max(0, efforts.findIndex((option) => option.reasoningEffort === (effort || defaultEffort))),
+                      "aria-label": t("composer.effort"),
+                      "aria-valuetext": effortLabel,
+                      onChange: (event) => onEffortChange(efforts[Number(event.target.value)].reasoningEffort)
                     }
-                  },
-                  option.reasoningEffort
-                )),
-                moreEfforts.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", className: "dsh-codex-menu-item", onClick: () => setMenu("more"), children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-check" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { className: "dsh-codex-menu-meta", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-name", children: t("composer.moreReasoning") }),
-                    /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-desc", children: t("composer.moreReasoningHint") })
-                  ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(ChevronRightGlyph, {})
-                ] }) : null
-              ] }) : null,
-              menu === "more" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(MenuBack, { label: t("composer.moreReasoning"), onClick: () => setMenu("effort") }),
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-menu-title", children: t("composer.advancedReasoning") }),
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-menu-warning", children: [
-                  "⚠ ",
-                  t("composer.consumesFaster")
-                ] }),
-                moreEfforts.map((option) => /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
-                  EffortRow,
-                  {
-                    option,
-                    selected: option.reasoningEffort === effort,
-                    isDefault: option.reasoningEffort === defaultEffort,
-                    onSelect: () => {
-                      onEffortChange(option.reasoningEffort);
-                      setMenu(null);
-                    }
-                  },
-                  option.reasoningEffort
-                ))
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-effort-ticks", children: efforts.map((option) => /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { children: labelForEffort(t, option.reasoningEffort) }, option.reasoningEffort)) })
+                ] })
               ] }) : null
             ] })
           ] }) : null,
@@ -23447,35 +23650,6 @@ window.__ModuleLoader__.load({
         /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-plus-label", children: label }),
         /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-plus-hint", children: hint })
       ] });
-    }
-    function EffortRow({
-      option,
-      selected,
-      isDefault,
-      onSelect
-    }) {
-      const t = useT();
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(
-        "button",
-        {
-          type: "button",
-          role: "menuitemradio",
-          "aria-checked": selected,
-          className: `dsh-codex-menu-item ${selected ? "selected" : ""}`,
-          onClick: onSelect,
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-check", children: selected ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(CheckGlyph, {}) : null }),
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { className: "dsh-codex-menu-meta", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { className: "dsh-codex-menu-name", children: [
-                labelForEffort(t, option.reasoningEffort),
-                isDefault ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-tag", children: t("composer.defaultTag") }) : null,
-                selected ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-tag current", children: t("composer.currentTag") }) : null
-              ] }),
-              option.description ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-desc", children: option.description }) : null
-            ] })
-          ]
-        }
-      );
     }
     function MenuBack({ label, onClick }) {
       return /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", className: "dsh-codex-menu-back", onClick, children: [
@@ -23594,6 +23768,8 @@ window.__ModuleLoader__.load({
           return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Disclosure, { title: t("item.search"), body: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Json, { value: item }) });
         case "imageView":
           return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ImageView, { item, api });
+        case "localSettingChange":
+          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Divider, { label: typeof item.text === "string" ? item.text : "" });
         case "contextCompaction":
           return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Divider, { label: t("item.compaction") });
         case "enteredReviewMode":
@@ -23959,10 +24135,37 @@ window.__ModuleLoader__.load({
     }) {
       const t = useT();
       const messagesRef = React26.useRef(null);
+      const messageContentRef = React26.useRef(null);
       const threadId = detail?.thread.id ?? null;
       const [model, setModel] = React26.useState("");
       const [effort, setEffort] = React26.useState("");
       const [permission, setPermission] = React26.useState("ask");
+      const settingEvents = React26.useRef({});
+      const [, refreshSettingEvents] = React26.useReducer((value) => value + 1, 0);
+      const eventsFor = (id) => {
+        if (settingEvents.current[id]) return settingEvents.current[id];
+        try {
+          const stored2 = JSON.parse(localStorage.getItem("dsh-codex-setting-events:" + id) || "[]");
+          if (Array.isArray(stored2)) {
+            return settingEvents.current[id] = stored2.filter((e) => e && typeof e.id === "string" && typeof e.text === "string" && (e.turnId === null || typeof e.turnId === "string") && (e.itemId === null || typeof e.itemId === "string")).slice(-500);
+          }
+        } catch {
+        }
+        return settingEvents.current[id] = [];
+      };
+      const recordSetting = (text) => {
+        if (!threadId || !detail) return;
+        const turns = [...detail.turns].sort((a, b) => turnTime(a) - turnTime(b));
+        const last = turns.at(-1);
+        const event = { id: crypto.randomUUID(), turnId: last?.id ?? null, itemId: last?.items?.at(-1)?.id ?? null, text };
+        const next = [...eventsFor(threadId), event].slice(-500);
+        settingEvents.current[threadId] = next;
+        try {
+          localStorage.setItem("dsh-codex-setting-events:" + threadId, JSON.stringify(next));
+        } catch {
+        }
+        refreshSettingEvents();
+      };
       const [, setTick] = React26.useState(0);
       const runningSinceRef = React26.useRef({ key: "", time: Date.now() });
       const runningKey = threadId && activeTurnId ? `dsh-codex-running:${threadId}` : "";
@@ -23985,23 +24188,23 @@ window.__ModuleLoader__.load({
         const timer = window.setInterval(() => setTick((value) => value + 1), 1e3);
         return () => window.clearInterval(timer);
       }, [activeTurnId, runningKey]);
-      React26.useEffect(() => {
+      React26.useLayoutEffect(() => {
         if (detail === null) return;
         setModel(detail.thread.model ?? (provider === "opencode-go" ? "deepseek-v4.1-flash" : ""));
         setEffort(detail.thread.reasoningEffort ?? "");
-        if (permissionFromSession !== void 0 && permissionFromSession !== null) {
-          setPermission(permissionFromSession);
-          return;
-        }
         try {
           const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`);
-          setPermission(saved === "read" || saved === "full" || saved === "approve" ? saved : "ask");
+          if (saved === "read" || saved === "full" || saved === "approve" || saved === "ask") {
+            setPermission(saved);
+            return;
+          }
         } catch {
-          setPermission("ask");
         }
+        setPermission(permissionFromSession ?? "ask");
       }, [threadId, permissionFromSession]);
       const changePermission = React26.useCallback(
         (mode) => {
+          if (mode !== permission) recordSetting(`权限已切换为${t("permission." + mode)}（下一轮生效）`);
           setPermission(mode);
           if (threadId === null) return;
           try {
@@ -24009,7 +24212,7 @@ window.__ModuleLoader__.load({
           } catch {
           }
         },
-        [threadId]
+        [threadId, permission, detail, t]
       );
       const atBottomRef = React26.useRef(true);
       const [showJump, setShowJump] = React26.useState(false);
@@ -24034,6 +24237,24 @@ window.__ModuleLoader__.load({
         if (!atBottomRef.current) return;
         element.scrollTop = element.scrollHeight;
       }, [detail]);
+      React26.useLayoutEffect(() => {
+        const element = messagesRef.current;
+        const content = messageContentRef.current;
+        if (!element || !content) return;
+        const follow = () => {
+          if (atBottomRef.current && pendingPrependRef.current === null) {
+            element.scrollTop = element.scrollHeight;
+          }
+        };
+        const observer = new ResizeObserver(follow);
+        observer.observe(element);
+        observer.observe(content);
+        content.addEventListener("load", follow, true);
+        return () => {
+          observer.disconnect();
+          content.removeEventListener("load", follow, true);
+        };
+      }, [threadId, loading]);
       React26.useEffect(() => {
         if (!loadingOlder) pendingPrependRef.current = null;
       }, [loadingOlder]);
@@ -24074,6 +24295,18 @@ window.__ModuleLoader__.load({
         const bt = turnTime(b.turn);
         return at === bt ? a.index - b.index : at - bt;
       }).map((entry) => entry.turn);
+      const changes = eventsFor(thread.id);
+      const insertChanges = (turn) => {
+        const result = [];
+        const pending3 = changes.filter((event) => event.turnId === turn.id);
+        for (const item of turn.items ?? []) {
+          result.push(item);
+          for (const event of pending3.filter((e) => e.itemId === item.id)) result.push({ id: event.id, type: "localSettingChange", text: event.text });
+        }
+        const known = new Set((turn.items ?? []).map((item) => item.id));
+        for (const event of pending3.filter((e) => e.itemId === null || !known.has(e.itemId))) result.push({ id: event.id, type: "localSettingChange", text: event.text });
+        return result;
+      };
       const items = orderedTurns.flatMap((turn) => turn.items ?? []);
       const hasItems = items.length > 0;
       const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null;
@@ -24120,7 +24353,7 @@ window.__ModuleLoader__.load({
           ] })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-messages-wrap", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll, children: /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { ref: messageContentRef, style: { display: "flow-root" }, children: [
             hasOlder && hasItems ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
               "button",
               {
@@ -24131,13 +24364,15 @@ window.__ModuleLoader__.load({
                 children: loadingOlder ? t("thread.loadingOlder") : t("thread.loadOlder")
               }
             ) : null,
-            !hasItems ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-empty", children: t("thread.noMessages") }) : orderedTurns.map((turn) => /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(React26.Fragment, { children: [
-              groupActivity((turn.items ?? []).filter((item) => provider !== "openai" || item.type !== "reasoning")).map(
+            changes.filter((event) => event.turnId === null).map((event) => /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ItemCard, { item: { id: event.id, type: "localSettingChange", text: event.text }, api }, event.id)),
+            !hasItems && changes.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-empty", children: t("thread.noMessages") }),
+            orderedTurns.map((turn) => /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(React26.Fragment, { children: [
+              groupActivity(insertChanges(turn).filter((item) => provider !== "openai" || item.type !== "reasoning")).map(
                 (entry) => entry.kind === "group" ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ToolGroup, { items: entry.items, api }, entry.key) : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ItemCard, { item: entry.item, api, cwd: detail.thread.cwd ?? "" }, entry.item.id)
               ),
               /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(TurnFooter, { turn })
             ] }, turn.id))
-          ] }),
+          ] }) }),
           showJump ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
             "button",
             {
@@ -24155,6 +24390,7 @@ window.__ModuleLoader__.load({
           /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Icon2, { name: "loader", size: 16, className: "dsh-codex-running-spinner" }),
           /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { children: t("thread.runningElapsed", { duration: formatDuration(runningMs, t) }) })
         ] }) : null,
+        threadId === selectedId && activeTurnId !== null && permissionFromSession != null && permission !== permissionFromSession && /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-permission-pending", role: "status", children: "权限更改将在下一轮生效；当前回合和待处理的审批仍使用原权限。" }),
         /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
           Composer,
           {
@@ -24170,6 +24406,7 @@ window.__ModuleLoader__.load({
             planMode,
             onModelChange: (value) => {
               const next = value || (provider === "opencode-go" ? "deepseek-v4.1-flash" : "");
+              if (next !== model) recordSetting(`模型已切换为 ${models.find((entry) => entry.id === next)?.displayName ?? (next || t("composer.defaultModel"))}（下一轮生效）`);
               setModel(next);
               setEffort(models.find((entry) => entry.id === next)?.defaultReasoningEffort ?? "");
             },
@@ -24182,7 +24419,13 @@ window.__ModuleLoader__.load({
             onCompact,
             onDiff,
             onExport,
-            onSend,
+            onSend: (text, options) => {
+              atBottomRef.current = true;
+              setShowJump(false);
+              const element = messagesRef.current;
+              if (element) element.scrollTop = element.scrollHeight;
+              return onSend(text, options);
+            },
             onSteer,
             onStop
           },
@@ -25130,7 +25373,7 @@ window.__ModuleLoader__.load({
           try {
             const settings = await api("threads/settings", { threadId: selectedId });
             if (!cancelled) {
-              setSessionPermission(permissionFromSettings(settings));
+              setSessionPermission({ threadId: selectedId, mode: permissionFromSettings(settings) });
               setPlanMode(settings?.collaborationMode?.mode === "plan");
             }
           } catch {
@@ -25225,6 +25468,7 @@ window.__ModuleLoader__.load({
               ...collaborationMode === void 0 ? {} : { collaborationMode },
               ...permissionPayload
             });
+            if (selectedIdRef.current === selectedId) setSessionPermission({ threadId: selectedId, mode: permission });
             window.setTimeout(() => {
               void loadThreads(null);
             }, 2500);
@@ -25440,7 +25684,7 @@ window.__ModuleLoader__.load({
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
       }, onDropCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
-      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-07T09:21:28.151Z", children: [
+      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T07:06:53.763Z", children: [
         /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
           /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
           /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", className: "dsh-codex-workbench-project", title: detail?.thread.cwd ?? selectedCwd ?? "", onClick: () => setPickerOpen(true), children: [
@@ -25585,7 +25829,7 @@ window.__ModuleLoader__.load({
               selectedId,
               activeTurnId,
               models,
-              permissionFromSession: sessionPermission,
+              permissionFromSession: sessionPermission?.threadId === selectedId && detail?.thread.id === selectedId ? sessionPermission.mode : null,
               planMode,
               onEnterPlan: () => setPlanMode(true),
               onExitPlan: () => setPlanMode(false),
@@ -25822,7 +26066,55 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-focus-footer{padding:12px 4px;border-top:1px solid var(--codex-border);margin-top:auto}
     .dsh-codex-sidebar-health{display:flex;align-items:center;gap:8px;font-size:12px}
     .dsh-codex-sidebar-health .dsh-codex-icon-button{margin-left:auto}
-    .dsh-codex-sidebar-quota{font-size:12px;color:var(--codex-muted);padding:8px 0;line-height:1.8}
+    .dsh-codex-sidebar-quota{position:relative;padding:5px 0;font-size:12px;color:var(--codex-muted)}
+    .quota-trigger{display:flex;flex-wrap:wrap;gap:4px 12px;width:100%;padding:5px 4px;border:0;border-radius:8px;background:transparent;color:inherit;text-align:left;cursor:pointer}
+    .quota-trigger:hover,.quota-trigger[aria-expanded=true]{background:var(--codex-hover,rgba(128,128,128,.1))}
+    .quota-trigger:focus-visible,.quota-popover-header button:focus-visible{outline:2px solid #668ed2;outline-offset:2px}
+    .quota-chip{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;min-height:25px}
+    .quota-ring{display:block;flex:0 0 24px;width:24px;height:24px;overflow:visible}
+    .dsh-codex-root .model-name-list{max-height:none;overflow:visible}
+    .dsh-codex-root .model-name-list .dsh-codex-menu-item{padding-top:7px;padding-bottom:7px}
+    .dsh-effort-inline{padding:8px 12px 14px}
+    .dsh-codex-menu-cell:has(.dsh-effort-current){position:relative}
+    .dsh-effort-current{position:absolute;left:50%;transform:translateX(-50%);font-size:12px;font-weight:600;color:var(--codex-text);pointer-events:none}
+    .dsh-effort-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;color:var(--codex-muted)}
+    .dsh-effort-heading strong{font-size:13px;font-weight:600;color:var(--codex-text)}
+    .dsh-effort-heading button{display:grid;place-items:center;border:0;background:transparent;color:inherit;padding:4px;border-radius:5px;cursor:pointer}
+    .dsh-effort-track{position:relative;height:26px;border-radius:20px;background:rgba(128,128,128,.17);margin:0 2px;overflow:hidden}
+    .dsh-effort-fill{position:absolute;inset:0 auto 0 0;width:calc(var(--effort-progress) + var(--effort-offset));border-radius:20px 0 0 20px;background:linear-gradient(90deg, hsl(211 78% 43%), var(--effort-color));pointer-events:none}
+    .dsh-effort-dots{position:absolute;z-index:1;inset:0 13px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+    .dsh-effort-dots i{width:4px;height:4px;flex:none;border-radius:50%;background:rgba(95,101,110,.5)}
+    .dsh-effort-dots i.is-active{background:rgba(255,255,255,.75)}
+    .dsh-effort-thumb{position:absolute;z-index:2;top:0;left:calc(var(--effort-progress) + var(--effort-offset));transform:translateX(-50%);width:26px;height:26px;box-sizing:border-box;border:1px solid rgba(0,0,0,.1);border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);pointer-events:none}
+    .dsh-codex-root .dsh-effort-track input{position:absolute;z-index:3;inset:0;display:block;width:100%;height:26px;min-height:0;margin:0;padding:0;border:0;border-radius:20px;box-sizing:border-box;box-shadow:none;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer;color:transparent}
+    .dsh-effort-track input::-webkit-slider-runnable-track{height:26px;background:transparent}
+    .dsh-effort-track input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:26px;height:26px;border:0;background:transparent;box-shadow:none;opacity:0}
+    .dsh-effort-track input::-moz-range-track{height:26px;background:transparent}
+    .dsh-effort-track input::-moz-range-thumb{width:26px;height:26px;border:0;background:transparent;box-shadow:none;opacity:0}
+    .dsh-effort-track input:focus-visible{outline:2px solid #758c9a;outline-offset:3px;border-radius:20px}
+    .dsh-effort-slider{padding:12px 14px 16px;display:flex;flex-direction:column;align-items:center;gap:8px}
+    .dsh-effort-slider>strong{color:#3983ef;font-size:14px}
+    .dsh-effort-slider>span{font-size:12px;color:var(--codex-muted)}
+    .dsh-effort-slider input{width:100%;height:26px;accent-color:#3983ef;cursor:pointer}
+    .dsh-effort-ticks{display:flex;width:100%;justify-content:space-between;font-size:10px;color:var(--codex-muted);gap:4px}
+    .quota-ring-track{stroke:rgba(128,145,155,.24)}
+    .quota-ring-value{stroke:#758c9a}
+    .quota-ring-icon{fill:#758c9a}
+    .quota-popover{position:absolute;z-index:60;left:0;bottom:calc(100% + 8px);width:100%;max-height:min(60vh,420px);overflow:auto;box-sizing:border-box;padding:16px;border:1px solid var(--codex-border);border-radius:14px;background:var(--codex-bg);color:var(--codex-text);box-shadow:0 12px 36px rgba(0,0,0,.18)}
+    .quota-popover-header,.quota-detail-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .quota-popover-header{font-size:14px;margin-bottom:12px}
+    .quota-popover-header button{border:0;background:transparent;color:var(--codex-muted);font-size:20px;line-height:1;cursor:pointer}
+    .quota-detail{padding:14px 0 12px;border-top:1px solid var(--codex-border)}
+    .quota-detail-heading{font-size:12px}
+    .quota-detail-heading strong{font-weight:600}
+    .quota-detail-heading span,.quota-detail-date,.quota-detail-extra{color:var(--codex-muted)}
+    .quota-progress{height:5px;margin:10px 0 12px;border-radius:4px;background:rgba(128,128,128,.2);overflow:hidden}
+    .quota-progress span{display:block;height:100%;border-radius:4px;background:#758c9a}
+    .quota-reset-box{display:flex;align-items:flex-start;gap:9px;padding:10px;border-radius:8px;background:var(--codex-panel);font-size:12px;line-height:1.5}
+    .quota-reset-box svg{flex:none;margin-top:1px;color:var(--codex-muted)}
+    .quota-detail-reset{font-weight:600;color:var(--codex-text)}
+    .quota-detail-date{font-size:11px;margin-top:2px}
+    .quota-detail-extra{display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 0 0;border-top:1px solid var(--codex-border);font-size:11px;line-height:1.5}
     .dsh-codex-root .dsh-codex-nav-resize{grid-column:2;grid-row:1/3;justify-self:end;width:8px;height:100%;z-index:10;cursor:col-resize;touch-action:none}
     .dsh-codex-root.is-nav-resizing{transition:none;user-select:none;cursor:col-resize}
     .dsh-codex-root.is-nav-collapsed .dsh-codex-nav-resize{display:none}
@@ -25857,11 +26149,14 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-composer-card:focus-within{border-color:var(--codex-accent);box-shadow:0 0 0 2px var(--codex-selected)}
     .dsh-codex-root .dsh-codex-composer-input{font-size:15px;line-height:1.75;min-height:60px;padding:5px 6px;outline:0!important}
     .dsh-codex-root .dsh-codex-composer-bottom{padding:2px 0 0;gap:5px}
+    .dsh-codex-root .dsh-codex-permission-pending{margin:0 24px 6px;padding:8px 12px;border-radius:7px;background:var(--codex-warning-bg);color:var(--codex-warning);font-size:12px;line-height:1.5}
     .dsh-codex-root .dsh-codex-composer-row{gap:5px}
     .dsh-codex-root .dsh-codex-attach{width:36px;height:36px}
     .dsh-codex-root .dsh-codex-plus{width:36px;height:36px;background:transparent;color:var(--codex-muted)}
     .dsh-codex-root .dsh-codex-permission-trigger,.dsh-codex-root .dsh-codex-model-trigger{min-height:36px;border-radius:7px;font-size:12px;color:var(--codex-muted)}
-    .dsh-codex-root .dsh-codex-send{width:40px;height:40px;border-radius:8px;background:var(--codex-text);color:var(--codex-bg)}
+    .dsh-codex-root .dsh-codex-stop,.dsh-codex-root .dsh-codex-send{box-sizing:border-box;width:40px;height:40px;padding:0;border-radius:8px}
+    .dsh-codex-root .dsh-codex-stop{border:1px solid var(--codex-border);background:transparent;color:var(--codex-muted)}
+    .dsh-codex-root .dsh-codex-send{background:var(--codex-text);color:var(--codex-bg)}
     .dsh-codex-root .dsh-codex-send:disabled{opacity:.35}
     .dsh-codex-root .dsh-codex-attachment{font-size:12px;border-radius:6px;background:var(--codex-panel);padding:4px 6px 4px 9px}
     .dsh-codex-root .dsh-codex-attachment .dsh-codex-attachment-remove{display:grid;place-items:center;min-width:26px;min-height:26px}
@@ -26048,7 +26343,7 @@ window.__ModuleLoader__.load({
      .dsh-codex-root .dsh-codex-composer-input{font-size:16px;min-height:64px}
      .dsh-codex-root .dsh-codex-permission-trigger{max-width:44px;padding:0 12px;font-size:0;gap:0}
      .dsh-codex-root .dsh-codex-model-trigger{max-width:105px;font-size:12px;gap:4px}
-     .dsh-codex-root .dsh-codex-plus,.dsh-codex-root .dsh-codex-send{width:44px;height:44px}
+     .dsh-codex-root .dsh-codex-plus,.dsh-codex-root .dsh-codex-stop,.dsh-codex-root .dsh-codex-send{width:44px;height:44px}
      .dsh-codex-root .dsh-codex-plus-panel,.dsh-codex-root .dsh-codex-slash{max-height:55dvh;width:calc(100% - 24px)}
      .dsh-codex-root .dsh-codex-plus-hint{display:none}
      .dsh-codex-root .dsh-codex-plus-item,.dsh-codex-root .dsh-codex-permission-option,.dsh-codex-root .dsh-codex-menu-item{min-height:44px}

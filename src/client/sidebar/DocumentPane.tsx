@@ -4,6 +4,7 @@ import {SelectMenu} from '../components/SelectMenu'
 import type { Api } from '../rpc'
 import { Markdown } from '../markdown'
 import { highlightCodeLines } from './codeHighlight'
+import { FilesPane } from './FilesPane'
 interface Page {
   content: string
   offset: number
@@ -20,7 +21,55 @@ const imageTypes: Record<string, string> = {
   bmp: 'image/bmp',
   ico: 'image/x-icon',
 }
-export function DocumentPane({
+/** Resolve local links before choosing the file preview or directory browser. */
+export function DocumentPane({api, cwd, path, onOpen}: {
+  api: Api
+  cwd: string
+  path: string
+  onOpen: (path: string) => void
+}) {
+  const [target, setTarget] = React.useState<{cwd: string; path: string; type: string} | null>(null)
+  const [error, setError] = React.useState('')
+  const [revision, setRevision] = React.useState(0)
+  const [copyNotice, setCopyNotice] = React.useState('')
+  React.useEffect(() => {
+    let cancelled = false
+    setTarget(null)
+    setError('')
+    async function resolve() {
+      try {
+        const workspace = await api<{workspaceId: string; cwd: string}>('workspace/open', {cwd})
+        const info = await api<{path: string; type: string}>('workspace/info', {workspaceId: workspace.workspaceId, path})
+        if (info.type !== 'file' && info.type !== 'dir') throw new Error('此路径不是可预览的文件或目录')
+        if (!cancelled) setTarget({...info, cwd: workspace.cwd})
+      } catch (cause) {
+        if (!cancelled) setError(cause instanceof Error ? cause.message : String(cause))
+      }
+    }
+    void resolve()
+    return () => { cancelled = true }
+  }, [api, cwd, path, revision])
+  if (error) return <section className="codex-sidebar-document">
+    <header><code title={path}>{path}</code>
+      <button type="button" className="dsh-codex-button" onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(path.startsWith('/') ? path : cwd.replace(/\/$/, '') + '/' + path)
+          setCopyNotice('已复制路径')
+        } catch {
+          setCopyNotice('复制失败，请检查剪贴板权限')
+        }
+      }}>复制路径</button>
+      <button type="button" className="dsh-codex-button" onClick={() => setRevision(r => r + 1)}>重试</button>
+    </header>
+    <div role="alert">无法打开此路径，可能已删除或不可访问。{error}</div>
+    {copyNotice && <div role="status">{copyNotice}</div>}
+  </section>
+  if (!target) return <div className="dsh-codex-loading">正在打开路径…</div>
+  if (target.type === 'dir') return <FilesPane api={api} cwd={target.cwd} directory={target.path} onOpen={onOpen}/>
+  return <FileDocumentPane api={api} cwd={cwd} path={path}/>
+}
+
+function FileDocumentPane({
   api,
   cwd,
   path,

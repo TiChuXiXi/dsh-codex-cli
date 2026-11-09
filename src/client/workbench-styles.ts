@@ -102,7 +102,55 @@ export const WORKBENCH_CSS = `
 .dsh-codex-root .dsh-codex-focus-footer{padding:12px 4px;border-top:1px solid var(--codex-border);margin-top:auto}
 .dsh-codex-sidebar-health{display:flex;align-items:center;gap:8px;font-size:12px}
 .dsh-codex-sidebar-health .dsh-codex-icon-button{margin-left:auto}
-.dsh-codex-sidebar-quota{font-size:12px;color:var(--codex-muted);padding:8px 0;line-height:1.8}
+.dsh-codex-sidebar-quota{position:relative;padding:5px 0;font-size:12px;color:var(--codex-muted)}
+.quota-trigger{display:flex;flex-wrap:wrap;gap:4px 12px;width:100%;padding:5px 4px;border:0;border-radius:8px;background:transparent;color:inherit;text-align:left;cursor:pointer}
+.quota-trigger:hover,.quota-trigger[aria-expanded=true]{background:var(--codex-hover,rgba(128,128,128,.1))}
+.quota-trigger:focus-visible,.quota-popover-header button:focus-visible{outline:2px solid #668ed2;outline-offset:2px}
+.quota-chip{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;min-height:25px}
+.quota-ring{display:block;flex:0 0 24px;width:24px;height:24px;overflow:visible}
+.dsh-codex-root .model-name-list{max-height:none;overflow:visible}
+.dsh-codex-root .model-name-list .dsh-codex-menu-item{padding-top:7px;padding-bottom:7px}
+.dsh-effort-inline{padding:8px 12px 14px}
+.dsh-codex-menu-cell:has(.dsh-effort-current){position:relative}
+.dsh-effort-current{position:absolute;left:50%;transform:translateX(-50%);font-size:12px;font-weight:600;color:var(--codex-text);pointer-events:none}
+.dsh-effort-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;color:var(--codex-muted)}
+.dsh-effort-heading strong{font-size:13px;font-weight:600;color:var(--codex-text)}
+.dsh-effort-heading button{display:grid;place-items:center;border:0;background:transparent;color:inherit;padding:4px;border-radius:5px;cursor:pointer}
+.dsh-effort-track{position:relative;height:26px;border-radius:20px;background:rgba(128,128,128,.17);margin:0 2px;overflow:hidden}
+.dsh-effort-fill{position:absolute;inset:0 auto 0 0;width:calc(var(--effort-progress) + var(--effort-offset));border-radius:20px 0 0 20px;background:linear-gradient(90deg, hsl(211 78% 43%), var(--effort-color));pointer-events:none}
+.dsh-effort-dots{position:absolute;z-index:1;inset:0 13px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+.dsh-effort-dots i{width:4px;height:4px;flex:none;border-radius:50%;background:rgba(95,101,110,.5)}
+.dsh-effort-dots i.is-active{background:rgba(255,255,255,.75)}
+.dsh-effort-thumb{position:absolute;z-index:2;top:0;left:calc(var(--effort-progress) + var(--effort-offset));transform:translateX(-50%);width:26px;height:26px;box-sizing:border-box;border:1px solid rgba(0,0,0,.1);border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);pointer-events:none}
+.dsh-codex-root .dsh-effort-track input{position:absolute;z-index:3;inset:0;display:block;width:100%;height:26px;min-height:0;margin:0;padding:0;border:0;border-radius:20px;box-sizing:border-box;box-shadow:none;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer;color:transparent}
+.dsh-effort-track input::-webkit-slider-runnable-track{height:26px;background:transparent}
+.dsh-effort-track input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:26px;height:26px;border:0;background:transparent;box-shadow:none;opacity:0}
+.dsh-effort-track input::-moz-range-track{height:26px;background:transparent}
+.dsh-effort-track input::-moz-range-thumb{width:26px;height:26px;border:0;background:transparent;box-shadow:none;opacity:0}
+.dsh-effort-track input:focus-visible{outline:2px solid #758c9a;outline-offset:3px;border-radius:20px}
+.dsh-effort-slider{padding:12px 14px 16px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.dsh-effort-slider>strong{color:#3983ef;font-size:14px}
+.dsh-effort-slider>span{font-size:12px;color:var(--codex-muted)}
+.dsh-effort-slider input{width:100%;height:26px;accent-color:#3983ef;cursor:pointer}
+.dsh-effort-ticks{display:flex;width:100%;justify-content:space-between;font-size:10px;color:var(--codex-muted);gap:4px}
+.quota-ring-track{stroke:rgba(128,145,155,.24)}
+.quota-ring-value{stroke:#758c9a}
+.quota-ring-icon{fill:#758c9a}
+.quota-popover{position:absolute;z-index:60;left:0;bottom:calc(100% + 8px);width:100%;max-height:min(60vh,420px);overflow:auto;box-sizing:border-box;padding:16px;border:1px solid var(--codex-border);border-radius:14px;background:var(--codex-bg);color:var(--codex-text);box-shadow:0 12px 36px rgba(0,0,0,.18)}
+.quota-popover-header,.quota-detail-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.quota-popover-header{font-size:14px;margin-bottom:12px}
+.quota-popover-header button{border:0;background:transparent;color:var(--codex-muted);font-size:20px;line-height:1;cursor:pointer}
+.quota-detail{padding:14px 0 12px;border-top:1px solid var(--codex-border)}
+.quota-detail-heading{font-size:12px}
+.quota-detail-heading strong{font-weight:600}
+.quota-detail-heading span,.quota-detail-date,.quota-detail-extra{color:var(--codex-muted)}
+.quota-progress{height:5px;margin:10px 0 12px;border-radius:4px;background:rgba(128,128,128,.2);overflow:hidden}
+.quota-progress span{display:block;height:100%;border-radius:4px;background:#758c9a}
+.quota-reset-box{display:flex;align-items:flex-start;gap:9px;padding:10px;border-radius:8px;background:var(--codex-panel);font-size:12px;line-height:1.5}
+.quota-reset-box svg{flex:none;margin-top:1px;color:var(--codex-muted)}
+.quota-detail-reset{font-weight:600;color:var(--codex-text)}
+.quota-detail-date{font-size:11px;margin-top:2px}
+.quota-detail-extra{display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 0 0;border-top:1px solid var(--codex-border);font-size:11px;line-height:1.5}
 .dsh-codex-root .dsh-codex-nav-resize{grid-column:2;grid-row:1/3;justify-self:end;width:8px;height:100%;z-index:10;cursor:col-resize;touch-action:none}
 .dsh-codex-root.is-nav-resizing{transition:none;user-select:none;cursor:col-resize}
 .dsh-codex-root.is-nav-collapsed .dsh-codex-nav-resize{display:none}
@@ -137,11 +185,14 @@ export const WORKBENCH_CSS = `
 .dsh-codex-root .dsh-codex-composer-card:focus-within{border-color:var(--codex-accent);box-shadow:0 0 0 2px var(--codex-selected)}
 .dsh-codex-root .dsh-codex-composer-input{font-size:15px;line-height:1.75;min-height:60px;padding:5px 6px;outline:0!important}
 .dsh-codex-root .dsh-codex-composer-bottom{padding:2px 0 0;gap:5px}
+.dsh-codex-root .dsh-codex-permission-pending{margin:0 24px 6px;padding:8px 12px;border-radius:7px;background:var(--codex-warning-bg);color:var(--codex-warning);font-size:12px;line-height:1.5}
 .dsh-codex-root .dsh-codex-composer-row{gap:5px}
 .dsh-codex-root .dsh-codex-attach{width:36px;height:36px}
 .dsh-codex-root .dsh-codex-plus{width:36px;height:36px;background:transparent;color:var(--codex-muted)}
 .dsh-codex-root .dsh-codex-permission-trigger,.dsh-codex-root .dsh-codex-model-trigger{min-height:36px;border-radius:7px;font-size:12px;color:var(--codex-muted)}
-.dsh-codex-root .dsh-codex-send{width:40px;height:40px;border-radius:8px;background:var(--codex-text);color:var(--codex-bg)}
+.dsh-codex-root .dsh-codex-stop,.dsh-codex-root .dsh-codex-send{box-sizing:border-box;width:40px;height:40px;padding:0;border-radius:8px}
+.dsh-codex-root .dsh-codex-stop{border:1px solid var(--codex-border);background:transparent;color:var(--codex-muted)}
+.dsh-codex-root .dsh-codex-send{background:var(--codex-text);color:var(--codex-bg)}
 .dsh-codex-root .dsh-codex-send:disabled{opacity:.35}
 .dsh-codex-root .dsh-codex-attachment{font-size:12px;border-radius:6px;background:var(--codex-panel);padding:4px 6px 4px 9px}
 .dsh-codex-root .dsh-codex-attachment .dsh-codex-attachment-remove{display:grid;place-items:center;min-width:26px;min-height:26px}
@@ -328,7 +379,7 @@ html[data-codex-transition]::view-transition{pointer-events:none}
  .dsh-codex-root .dsh-codex-composer-input{font-size:16px;min-height:64px}
  .dsh-codex-root .dsh-codex-permission-trigger{max-width:44px;padding:0 12px;font-size:0;gap:0}
  .dsh-codex-root .dsh-codex-model-trigger{max-width:105px;font-size:12px;gap:4px}
- .dsh-codex-root .dsh-codex-plus,.dsh-codex-root .dsh-codex-send{width:44px;height:44px}
+ .dsh-codex-root .dsh-codex-plus,.dsh-codex-root .dsh-codex-stop,.dsh-codex-root .dsh-codex-send{width:44px;height:44px}
  .dsh-codex-root .dsh-codex-plus-panel,.dsh-codex-root .dsh-codex-slash{max-height:55dvh;width:calc(100% - 24px)}
  .dsh-codex-root .dsh-codex-plus-hint{display:none}
  .dsh-codex-root .dsh-codex-plus-item,.dsh-codex-root .dsh-codex-permission-option,.dsh-codex-root .dsh-codex-menu-item{min-height:44px}

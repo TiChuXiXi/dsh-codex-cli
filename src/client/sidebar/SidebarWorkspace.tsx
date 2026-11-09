@@ -207,7 +207,14 @@ function Workspace({
           />
         )
       if (record.kind === 'document')
-        return <DocumentPane key={record.contentId} api={api} cwd={cwd} path={record.contentId} />
+        return <DocumentPane key={record.contentId} api={api} cwd={cwd} path={record.contentId} onOpen={(path) =>
+          controller.openContent({
+            kind: 'document',
+            contentId: path,
+            title: path.split('/').at(-1) || path,
+            paneId: findTabPane(controller.getSnapshot().state, record.id).id,
+          })
+        } />
       if (record.kind === 'git') return <GitTab api={api} cwd={cwd} />
       return <TerminalTab api={api} cwd={cwd} />
     },

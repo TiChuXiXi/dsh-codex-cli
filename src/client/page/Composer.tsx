@@ -215,7 +215,9 @@ export function Composer({
   const defaultEffort = currentModel?.defaultReasoningEffort ?? null
   const topEfforts = efforts.slice(0, 4)
   const moreEfforts = efforts.slice(4)
-  const effortLabel = effort === '' ? t('composer.defaultEffort') : labelForEffort(t, effort)
+  const effortIndex = Math.max(0, efforts.findIndex(option => option.reasoningEffort === (effort || defaultEffort)))
+  const effortLabel = labelForEffort(t, efforts[effortIndex]?.reasoningEffort ?? effort)
+  const effortProgress = efforts.length > 1 ? effortIndex / (efforts.length - 1) * 100 : 0
 
   const slashMatch = text.match(/^\/(\w*)$/)
   const slashQuery = slashMatch?.[1]?.toLowerCase() ?? null
@@ -259,7 +261,7 @@ export function Composer({
     setText('')
     if (id === 'skill') {setSkillList(true);setSkillSearch('');setSkillIndex(0)}
     else if (id === 'model') setMenu('model')
-    else if (id === 'effort') setMenu('effort')
+    else if (id === 'effort') setMenu('root')
     else if (id === 'permission') setPermissionOpen(true)
     else if (id === 'plan') onEnterPlan()
     else if (id === 'attach') fileInputRef.current?.click()
@@ -637,21 +639,28 @@ export function Composer({
                 <>
                   <button type="button" className="dsh-codex-menu-cell" onClick={() => setMenu('model')}>
                     <span className="dsh-codex-menu-cell-label">{t('composer.model')}</span>
+                    <strong className="dsh-effort-current" aria-label={t('composer.effort')}>{effortLabel}</strong>
                     <span className="dsh-codex-menu-cell-value">{modelLabel}</span>
                     <ChevronRightGlyph />
                   </button>
-                  <button type="button" className="dsh-codex-menu-cell" onClick={() => setMenu('effort')}>
-                    <span className="dsh-codex-menu-cell-label">{t('composer.effort')}</span>
-                    <span className="dsh-codex-menu-cell-value">{effortLabel}</span>
-                    <ChevronRightGlyph />
-                  </button>
+                  <div className="dsh-effort-inline">
+                    <div className="dsh-effort-track" style={{'--effort-progress': effortProgress + '%', '--effort-offset': (13 - effortProgress * .26) + 'px', '--effort-color': `hsl(211 82% ${42 + effortProgress * .18}%)`} as React.CSSProperties}>
+                      <div className="dsh-effort-fill"/>
+                      <div className="dsh-effort-dots" aria-hidden="true">{efforts.map((option, index) => <i key={option.reasoningEffort} className={index < effortIndex ? 'is-active' : ''}/>)}</div>
+                      <span className="dsh-effort-thumb" aria-hidden="true"/>
+                      <input type="range" min={0} max={Math.max(0, efforts.length - 1)} step={1}
+                        disabled={efforts.length < 2} value={effortIndex}
+                        aria-label={t('composer.effort')} aria-valuetext={effortLabel}
+                        onChange={event => onEffortChange(efforts[Number(event.target.value)].reasoningEffort)}/>
+                    </div>
+                  </div>
                 </>
               ) : null}
 
               {menu === 'model' ? (
                 <>
                   <MenuBack label={t('composer.model')} onClick={() => setMenu('root')} />
-                  <div className="dsh-codex-menu-list">
+                  <div className="dsh-codex-menu-list model-name-list">
                     {models.map((entry) => (
                       <button
                         type="button"
@@ -661,13 +670,13 @@ export function Composer({
                         className={`dsh-codex-menu-item ${entry.id === model ? 'selected' : ''}`}
                         onClick={() => {
                           onModelChange(entry.id)
-                          setMenu(null)
+                          setMenu('root')
                         }}
                       >
                         <span className="dsh-codex-menu-check">{entry.id === model ? <CheckGlyph /> : null}</span>
                         <span className="dsh-codex-menu-meta">
                           <span className="dsh-codex-menu-name">{entry.displayName}</span>
-                          {entry.description ? <span className="dsh-codex-menu-desc">{entry.description}</span> : null}
+
                         </span>
                       </button>
                     ))}
@@ -678,7 +687,7 @@ export function Composer({
                       className={`dsh-codex-menu-item ${model === '' ? 'selected' : ''}`}
                       onClick={() => {
                         onModelChange('')
-                        setMenu(null)
+                        setMenu('root')
                       }}
                     >
                       <span className="dsh-codex-menu-check">{model === '' ? <CheckGlyph /> : null}</span>
@@ -690,51 +699,19 @@ export function Composer({
                 </>
               ) : null}
 
-              {menu === 'effort' ? (
+              {menu === 'effort' || menu === 'more' ? (
                 <>
                   <MenuBack label={t('composer.effort')} onClick={() => setMenu('root')} />
-                  {topEfforts.map((option) => (
-                    <EffortRow
-                      key={option.reasoningEffort}
-                      option={option}
-                      selected={option.reasoningEffort === effort}
-                      isDefault={option.reasoningEffort === defaultEffort}
-                      onSelect={() => {
-                        onEffortChange(option.reasoningEffort)
-                        setMenu(null)
-                      }}
-                    />
-                  ))}
-                  {moreEfforts.length > 0 ? (
-                    <button type="button" className="dsh-codex-menu-item" onClick={() => setMenu('more')}>
-                      <span className="dsh-codex-menu-check" />
-                      <span className="dsh-codex-menu-meta">
-                        <span className="dsh-codex-menu-name">{t('composer.moreReasoning')}</span>
-                        <span className="dsh-codex-menu-desc">{t('composer.moreReasoningHint')}</span>
-                      </span>
-                      <ChevronRightGlyph />
-                    </button>
-                  ) : null}
-                </>
-              ) : null}
-
-              {menu === 'more' ? (
-                <>
-                  <MenuBack label={t('composer.moreReasoning')} onClick={() => setMenu('effort')} />
-                  <div className="dsh-codex-menu-title">{t('composer.advancedReasoning')}</div>
-                  <div className="dsh-codex-menu-warning">⚠ {t('composer.consumesFaster')}</div>
-                  {moreEfforts.map((option) => (
-                    <EffortRow
-                      key={option.reasoningEffort}
-                      option={option}
-                      selected={option.reasoningEffort === effort}
-                      isDefault={option.reasoningEffort === defaultEffort}
-                      onSelect={() => {
-                        onEffortChange(option.reasoningEffort)
-                        setMenu(null)
-                      }}
-                    />
-                  ))}
+                  <div className="dsh-effort-slider">
+                    <strong>{effortLabel}</strong>
+                    <span>{modelLabel}</span>
+                    <input type="range" min={0} max={Math.max(0, efforts.length - 1)} step={1}
+                      disabled={efforts.length < 2}
+                      value={Math.max(0, efforts.findIndex(option => option.reasoningEffort === (effort || defaultEffort)))}
+                      aria-label={t('composer.effort')} aria-valuetext={effortLabel}
+                      onChange={event => onEffortChange(efforts[Number(event.target.value)].reasoningEffort)}/>
+                    <div className="dsh-effort-ticks">{efforts.map(option => <span key={option.reasoningEffort}>{labelForEffort(t, option.reasoningEffort)}</span>)}</div>
+                  </div>
                 </>
               ) : null}
             </div>

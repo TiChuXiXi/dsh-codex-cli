@@ -51,6 +51,24 @@ test('workspace canonical identity, directory metadata and path containment', ()
       (e) => e.code === 'codex-cli/workspace-expired',
     )
   }))
+test('local links distinguish worktree directories and extensionless files within the workspace', () =>
+  fixture(async ({base, root, service, workspaceId}) => {
+    const worktree = '.worktrees/中文 空格'
+    await mkdir(join(root, worktree), {recursive: true})
+    await writeFile(join(root, worktree, 'README'), 'worktree file')
+    await symlink(join(root, worktree), join(root, 'alias'))
+    await symlink(base, join(root, 'outside'))
+    assert.deepEqual(await service.info(workspaceId, join(root, worktree)), {path: worktree, type: 'dir'})
+    assert.deepEqual(await service.info(workspaceId, '.'), {path: '.', type: 'dir'})
+    assert.deepEqual(await service.info(workspaceId, 'alias'), {path: worktree, type: 'dir'})
+    assert.deepEqual(await service.info(workspaceId, worktree + '/README'), {path: worktree + '/README', type: 'file'})
+    assert.equal((await service.list(workspaceId, worktree)).entries[0].path, worktree + '/README')
+    assert.equal((await service.text(workspaceId, worktree + '/README')).content, 'worktree file')
+    await assert.rejects(service.info(workspaceId, worktree + '/removed'), e => e.code === 'ENOENT')
+    for (const path of ['..', 'outside'])
+      await assert.rejects(service.info(workspaceId, path), e => e.code === 'codex-cli/outside-workspace')
+  }))
+
 test('paged text preserves Unicode and binary windows preserve exact original bytes', () =>
   fixture(async ({ root, service, workspaceId }) => {
     await writeFile(join(root, 'text.txt'), '一\r\n二\n三')

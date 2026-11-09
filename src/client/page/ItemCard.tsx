@@ -45,6 +45,8 @@ export function ItemCard({ item, api, cwd = '' }: { item: CodexItem, api: Api, c
       return <Disclosure title={t('item.search')} body={<Json value={item} />} />
     case 'imageView':
       return <ImageView item={item} api={api} />
+    case 'localSettingChange':
+      return <Divider label={typeof item.text === 'string' ? item.text : ''} />
     case 'contextCompaction':
       return <Divider label={t('item.compaction')} />
     case 'enteredReviewMode':
