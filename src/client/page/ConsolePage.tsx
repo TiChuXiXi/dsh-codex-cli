@@ -35,8 +35,8 @@ import { VersionsDialog } from './VersionsDialog'
 
 /** 长会话按回合分页：初始与每页都只取最近/更早的 2 个回合。 */
 const TURN_PAGE = 2
-/** 侧栏会话列表每页 10 条，搜索由宿主用 searchTerm 在服务端完成。 */
-const THREAD_PAGE = 10
+/** 侧栏会话列表每页 5 条，搜索由宿主用 searchTerm 在服务端完成。 */
+const THREAD_PAGE = 5
 /** 记住最后一次打开的会话。 */
 const LAST_THREAD_KEY = 'dsh-codex-last-thread'
 const VIEWED_TURNS_KEY = 'dsh-codex-viewed-turns'
@@ -959,10 +959,10 @@ export function ConsolePage(props: ConsolePageProps) {
           <ThreadView
             provider={detail?.thread.modelProvider ?? provider}
             api={api}
-            detail={detail}
-            loading={detailLoading}
+            detail={detail?.thread.id === selectedId ? detail : null}
+            loading={detailLoading || (selectedId !== null && detail?.thread.id !== selectedId)}
             selectedId={selectedId}
-            activeTurnId={activeTurnId}
+            activeTurnId={detail?.thread.id === selectedId ? activeTurnId : null}
             models={models}
             permissionFromSession={sessionPermission?.threadId === selectedId && detail?.thread.id === selectedId ? sessionPermission.mode : null}
             planMode={planMode}

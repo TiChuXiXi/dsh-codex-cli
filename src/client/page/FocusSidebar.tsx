@@ -11,6 +11,10 @@ import type { StreamState } from '../events'
 import { CodexIcon } from '../components/CodexIcon'
 import { formatDateTime } from '../utils'
 import { ThreadRow } from './ThreadRow'
+import { mergeProjectOrder, moveProject, sortProjects } from './projectOrder'
+
+const PROJECT_ORDER_KEY = 'dsh-codex-project-order-v1'
+const PROJECT_DRAG_TYPE = 'application/x-dsh-codex-project'
 
 export interface FocusSidebarProps {
   provider: string
@@ -78,6 +82,34 @@ export function FocusSidebar({
   onThreadDeleted,
 }: FocusSidebarProps) {
   const t = useT()
+  const [orders, setOrders] = React.useState<Record<string, string[]>>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(PROJECT_ORDER_KEY) || '{}')
+      if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return {}
+      return Object.fromEntries(Object.entries(saved).filter(([, value]) => Array.isArray(value)).map(([key, value]) => [key, mergeProjectOrder(value as string[], [])]))
+    } catch { return {} }
+  })
+  const [drag, setDrag] = React.useState<{ source: string, target: string | null, position: 'before' | 'after' } | null>(null)
+  const dragSource = React.useRef<string | null>(null)
+  React.useEffect(() => {
+    setOrders(previous => {
+      const old = previous[provider] ?? []
+      const next = mergeProjectOrder(old, projects.map(project => project.cwd))
+      return next.length === old.length ? previous : { ...previous, [provider]: next }
+    })
+  }, [provider, projects])
+  React.useEffect(() => {
+    try { localStorage.setItem(PROJECT_ORDER_KEY, JSON.stringify(orders)) } catch {}
+  }, [orders])
+  React.useEffect(() => { dragSource.current = null; setDrag(null) }, [provider, searchingKey(search)])
+  const sortedProjects = sortProjects(projects, orders[provider] ?? [])
+  const reorder = (source: string, target: string, position: 'before' | 'after') => {
+    setOrders(previous => {
+      const old = mergeProjectOrder(previous[provider] ?? [], projects.map(project => project.cwd))
+      const next = moveProject(old, source, target, position)
+      return next === old && previous[provider]?.length === old.length ? previous : { ...previous, [provider]: next }
+    })
+  }
   const [now, setNow] = React.useState(() => Date.now())
   React.useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 60000)
@@ -103,8 +135,8 @@ export function FocusSidebar({
   const treePending = loading || !ownerMatchesTree
   const searchPending = loading || !ownerMatchesSearch
   const matchingProjects = searching
-    ? projects.filter((project) => `${project.name} ${project.cwd}`.toLowerCase().includes(query))
-    : projects
+    ? sortedProjects.filter((project) => `${project.name} ${project.cwd}`.toLowerCase().includes(query))
+    : sortedProjects
 
   return (
     <aside id="dsh-codex-project-nav" className="dsh-codex-focus-sidebar" aria-label="项目与会话">
@@ -223,11 +255,50 @@ export function FocusSidebar({
             {matchingProjects.map((project) => {
               const expanded = selectedCwd === project.cwd
               return (
-                <React.Fragment key={project.cwd}>
+                <div key={project.cwd} className={'dsh-codex-project-group' + (drag?.source === project.cwd ? ' is-dragging' : '') + (drag?.target === project.cwd ? ' drop-' + drag.position : '')}>
                   <button
                     type="button"
                     className={`dsh-codex-tree-project ${expanded ? 'expanded' : ''}`}
                     aria-expanded={expanded}
+                    aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+                    title="拖动调整项目顺序，也可按 Alt+上下方向键调整"
+                    draggable
+                    onDragStart={event => {
+                      dragSource.current = project.cwd
+                      event.dataTransfer.effectAllowed = 'move'
+                      event.dataTransfer.setData(PROJECT_DRAG_TYPE, project.cwd)
+                      setDrag({ source: project.cwd, target: null, position: 'before' })
+                    }}
+                    onDragEnd={() => { dragSource.current = null; setDrag(null) }}
+                    onDragOver={event => {
+                      const source = dragSource.current
+                      if (!source || source === project.cwd || !Array.from(event.dataTransfer.types).includes(PROJECT_DRAG_TYPE)) return
+                      event.preventDefault()
+                      event.dataTransfer.dropEffect = 'move'
+                      const bounds = event.currentTarget.getBoundingClientRect()
+                      const position = event.clientY < bounds.top + bounds.height / 2 ? 'before' : 'after'
+                      setDrag(current => current?.target === project.cwd && current.position === position ? current : { source, target: project.cwd, position })
+                    }}
+                    onDragLeave={event => {
+                      if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                        setDrag(current => current?.target === project.cwd ? { ...current, target: null } : current)
+                      }
+                    }}
+                    onDrop={event => {
+                      const source = dragSource.current
+                      if (!source || !Array.from(event.dataTransfer.types).includes(PROJECT_DRAG_TYPE)) return
+                      event.preventDefault()
+                      const bounds = event.currentTarget.getBoundingClientRect()
+                      reorder(source, project.cwd, event.clientY < bounds.top + bounds.height / 2 ? 'before' : 'after')
+                      dragSource.current = null; setDrag(null)
+                    }}
+                    onKeyDown={event => {
+                      if (!event.altKey || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown')) return
+                      event.preventDefault()
+                      const index = sortedProjects.findIndex(item => item.cwd === project.cwd)
+                      const target = sortedProjects[index + (event.key === 'ArrowUp' ? -1 : 1)]
+                      if (target) reorder(project.cwd, target.cwd, event.key === 'ArrowUp' ? 'before' : 'after')
+                    }}
                     onClick={() => onSelectProject(project.cwd)}
                   >
                     <FolderGlyph open={expanded} />
@@ -261,7 +332,7 @@ export function FocusSidebar({
                       ) : null}
                     </div>
                   </AnimatedSessions>
-                </React.Fragment>
+                </div>
               )
             })}
             {matchingProjects.length === 0 ? (
@@ -282,6 +353,8 @@ export function FocusSidebar({
     </aside>
   )
 }
+
+function searchingKey(search: string): boolean { return search.trim() !== '' }
 
 function AnimatedSessions({expanded, children}: {expanded: boolean, children: React.ReactNode}) {
   const retained = React.useRef(children)

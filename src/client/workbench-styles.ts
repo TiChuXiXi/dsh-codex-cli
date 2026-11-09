@@ -76,6 +76,14 @@ export const WORKBENCH_CSS = `
 .dsh-codex-root .dsh-codex-focus-tree::-webkit-scrollbar-thumb{border-radius:999px;background:transparent}
 .dsh-codex-root .dsh-codex-focus-tree:hover::-webkit-scrollbar-thumb,.dsh-codex-root .dsh-codex-focus-tree:focus-within::-webkit-scrollbar-thumb{background:var(--codex-border)}
 .dsh-codex-root .dsh-codex-tree-project{height:42px;padding:7px 8px;gap:8px;border-radius:7px;font-size:13px}
+.dsh-codex-root .dsh-codex-project-group{position:relative}
+.dsh-codex-root .dsh-codex-project-group.is-dragging{opacity:.5}
+.dsh-codex-root .dsh-codex-project-group.drop-before:before,.dsh-codex-root .dsh-codex-project-group.drop-after:after{content:'';position:absolute;left:4px;right:4px;height:2px;background:var(--codex-accent);z-index:5;pointer-events:none}
+.dsh-codex-root .dsh-codex-project-group.drop-before:before{top:-1px}
+.dsh-codex-root .dsh-codex-project-group.drop-after:after{bottom:-1px}
+.dsh-codex-root .dsh-codex-project-group.drop-before>.dsh-codex-tree-project:before,.dsh-codex-root .dsh-codex-project-group.drop-after>.dsh-codex-tree-project:before{content:'';position:absolute;left:2px;width:6px;height:6px;border:1.5px solid var(--codex-accent);border-radius:50%;background:var(--codex-bg);z-index:6;pointer-events:none}
+.dsh-codex-root .dsh-codex-project-group.drop-before>.dsh-codex-tree-project:before{top:-4px}
+.dsh-codex-root .dsh-codex-project-group.drop-after>.dsh-codex-tree-project:before{bottom:-4px}
 .dsh-codex-root .dsh-codex-tree-project.expanded{background:transparent}
 .dsh-codex-root .dsh-codex-tree-project.expanded:hover{background:var(--codex-soft)}
 .dsh-codex-root .dsh-codex-tree-sessions{padding-left:0}

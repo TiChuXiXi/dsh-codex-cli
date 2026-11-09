@@ -128,8 +128,18 @@ export function ThreadView({
   // Restore before paint: a selection from the previous thread is not a pending edit.
   React.useLayoutEffect(() => {
     if (detail === null) return
-    setModel(detail.thread.model ?? (provider === 'opencode-go' ? 'deepseek-v4.1-flash' : ''))
-    setEffort(detail.thread.reasoningEffort ?? '')
+    let pending: { model: string, effort: string } | null = null
+    try {
+      const stored = threadId === null ? null : JSON.parse(sessionStorage.getItem(`dsh-codex-model-selection-${threadId}`) ?? 'null')
+      if (stored && typeof stored.model === 'string' && typeof stored.effort === 'string') pending = stored
+    } catch {}
+    setModel(pending?.model ?? detail.thread.model ?? (provider === 'opencode-go' ? 'deepseek-v4.1-flash' : ''))
+    setEffort(pending?.effort ?? detail.thread.reasoningEffort ?? '')
+  }, [threadId])
+
+  // Permission can arrive or change independently of the selected model and effort.
+  React.useLayoutEffect(() => {
+    if (detail === null) return
     try {
       const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`)
       if (saved === 'read' || saved === 'full' || saved === 'approve' || saved === 'ask') {
@@ -141,6 +151,11 @@ export function ThreadView({
     }
     setPermission(permissionFromSession ?? 'ask')
   }, [threadId, permissionFromSession])
+
+  const saveModelSelection = (nextModel: string, nextEffort: string) => {
+    if (!threadId) return
+    try { sessionStorage.setItem(`dsh-codex-model-selection-${threadId}`, JSON.stringify({ model: nextModel, effort: nextEffort })) } catch {}
+  }
 
   const changePermission = React.useCallback(
     (mode: PermissionMode) => {
@@ -386,10 +401,12 @@ export function ThreadView({
         onModelChange={(value) => {
           const next = value || (provider === 'opencode-go' ? 'deepseek-v4.1-flash' : '')
           if (next !== model) recordSetting(`模型已切换为 ${models.find(entry => entry.id === next)?.displayName ?? (next || t('composer.defaultModel'))}（下一轮生效）`)
+          const nextEffort = models.find(entry => entry.id === next)?.defaultReasoningEffort ?? ''
           setModel(next)
-          setEffort(models.find(entry => entry.id === next)?.defaultReasoningEffort ?? '')
+          setEffort(nextEffort)
+          saveModelSelection(next, nextEffort)
         }}
-        onEffortChange={setEffort}
+        onEffortChange={(value) => { setEffort(value); saveModelSelection(model, value) }}
         onPermissionChange={changePermission}
         onEnterPlan={onEnterPlan}
         onExitPlan={onExitPlan}
@@ -398,12 +415,17 @@ export function ThreadView({
         onCompact={onCompact}
         onDiff={onDiff}
         onExport={onExport}
-        onSend={(text, options) => {
+        onSend={async (text, options) => {
           atBottomRef.current = true
           setShowJump(false)
           const element = messagesRef.current
           if (element) element.scrollTop = element.scrollHeight
-          return onSend(text, options)
+          await onSend(text, options)
+          if (threadId) try {
+            const key = `dsh-codex-model-selection-${threadId}`
+            const saved = JSON.parse(sessionStorage.getItem(key) ?? 'null')
+            if (saved?.model === model && saved?.effort === effort) sessionStorage.removeItem(key)
+          } catch {}
         }}
         onSteer={onSteer}
         onStop={onStop}

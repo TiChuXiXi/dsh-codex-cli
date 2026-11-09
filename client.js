@@ -16954,8 +16954,26 @@ window.__ModuleLoader__.load({
       );
     }
 
+    // src/client/page/projectOrder.ts
+    function mergeProjectOrder(saved, current) {
+      const seen = /* @__PURE__ */ new Set();
+      return [...saved, ...current].filter((path) => typeof path === "string" && path !== "" && !seen.has(path) && !!seen.add(path));
+    }
+    function moveProject(order, source, target, position) {
+      if (source === target || !order.includes(source) || !order.includes(target)) return order;
+      const next = order.filter((path) => path !== source);
+      next.splice(next.indexOf(target) + (position === "after" ? 1 : 0), 0, source);
+      return next.every((path, index) => path === order[index]) ? order : next;
+    }
+    function sortProjects(projects, order) {
+      const rank = new Map(order.map((path, index) => [path, index]));
+      return [...projects].sort((a, b) => (rank.get(a.cwd) ?? Number.MAX_SAFE_INTEGER) - (rank.get(b.cwd) ?? Number.MAX_SAFE_INTEGER));
+    }
+
     // src/client/page/FocusSidebar.tsx
     var import_jsx_runtime7 = require("react/jsx-runtime");
+    var PROJECT_ORDER_KEY = "dsh-codex-project-order-v1";
+    var PROJECT_DRAG_TYPE = "application/x-dsh-codex-project";
     function FocusSidebar({
       api,
       provider,
@@ -16989,6 +17007,42 @@ window.__ModuleLoader__.load({
       onThreadDeleted
     }) {
       const t = useT();
+      const [orders, setOrders] = React8.useState(() => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(PROJECT_ORDER_KEY) || "{}");
+          if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
+          return Object.fromEntries(Object.entries(saved).filter(([, value]) => Array.isArray(value)).map(([key, value]) => [key, mergeProjectOrder(value, [])]));
+        } catch {
+          return {};
+        }
+      });
+      const [drag, setDrag] = React8.useState(null);
+      const dragSource = React8.useRef(null);
+      React8.useEffect(() => {
+        setOrders((previous) => {
+          const old = previous[provider] ?? [];
+          const next = mergeProjectOrder(old, projects.map((project) => project.cwd));
+          return next.length === old.length ? previous : { ...previous, [provider]: next };
+        });
+      }, [provider, projects]);
+      React8.useEffect(() => {
+        try {
+          localStorage.setItem(PROJECT_ORDER_KEY, JSON.stringify(orders));
+        } catch {
+        }
+      }, [orders]);
+      React8.useEffect(() => {
+        dragSource.current = null;
+        setDrag(null);
+      }, [provider, searchingKey(search)]);
+      const sortedProjects = sortProjects(projects, orders[provider] ?? []);
+      const reorder = (source, target, position) => {
+        setOrders((previous) => {
+          const old = mergeProjectOrder(previous[provider] ?? [], projects.map((project) => project.cwd));
+          const next = moveProject(old, source, target, position);
+          return next === old && previous[provider]?.length === old.length ? previous : { ...previous, [provider]: next };
+        });
+      };
       const [now, setNow] = React8.useState(() => Date.now());
       React8.useEffect(() => {
         const timer = setInterval(() => setNow(Date.now()), 6e4);
@@ -17011,7 +17065,7 @@ window.__ModuleLoader__.load({
       const searchThreads = ownerMatchesSearch ? threads : [];
       const treePending = loading || !ownerMatchesTree;
       const searchPending = loading || !ownerMatchesSearch;
-      const matchingProjects = searching ? projects.filter((project) => `${project.name} ${project.cwd}`.toLowerCase().includes(query)) : projects;
+      const matchingProjects = searching ? sortedProjects.filter((project) => `${project.name} ${project.cwd}`.toLowerCase().includes(query)) : sortedProjects;
       return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("aside", { id: "dsh-codex-project-nav", className: "dsh-codex-focus-sidebar", "aria-label": "项目与会话", children: [
         /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "dsh-codex-focus-brand", children: [
           /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "dsh-codex-focus-logo", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CodexIcon, { size: 20 }) }),
@@ -17109,13 +17163,56 @@ window.__ModuleLoader__.load({
         ] }) : /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
           matchingProjects.map((project) => {
             const expanded = selectedCwd === project.cwd;
-            return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(React8.Fragment, { children: [
+            return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "dsh-codex-project-group" + (drag?.source === project.cwd ? " is-dragging" : "") + (drag?.target === project.cwd ? " drop-" + drag.position : ""), children: [
               /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(
                 "button",
                 {
                   type: "button",
                   className: `dsh-codex-tree-project ${expanded ? "expanded" : ""}`,
                   "aria-expanded": expanded,
+                  "aria-keyshortcuts": "Alt+ArrowUp Alt+ArrowDown",
+                  title: "拖动调整项目顺序，也可按 Alt+上下方向键调整",
+                  draggable: true,
+                  onDragStart: (event) => {
+                    dragSource.current = project.cwd;
+                    event.dataTransfer.effectAllowed = "move";
+                    event.dataTransfer.setData(PROJECT_DRAG_TYPE, project.cwd);
+                    setDrag({ source: project.cwd, target: null, position: "before" });
+                  },
+                  onDragEnd: () => {
+                    dragSource.current = null;
+                    setDrag(null);
+                  },
+                  onDragOver: (event) => {
+                    const source = dragSource.current;
+                    if (!source || source === project.cwd || !Array.from(event.dataTransfer.types).includes(PROJECT_DRAG_TYPE)) return;
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = "move";
+                    const bounds = event.currentTarget.getBoundingClientRect();
+                    const position = event.clientY < bounds.top + bounds.height / 2 ? "before" : "after";
+                    setDrag((current) => current?.target === project.cwd && current.position === position ? current : { source, target: project.cwd, position });
+                  },
+                  onDragLeave: (event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget)) {
+                      setDrag((current) => current?.target === project.cwd ? { ...current, target: null } : current);
+                    }
+                  },
+                  onDrop: (event) => {
+                    const source = dragSource.current;
+                    if (!source || !Array.from(event.dataTransfer.types).includes(PROJECT_DRAG_TYPE)) return;
+                    event.preventDefault();
+                    const bounds = event.currentTarget.getBoundingClientRect();
+                    reorder(source, project.cwd, event.clientY < bounds.top + bounds.height / 2 ? "before" : "after");
+                    dragSource.current = null;
+                    setDrag(null);
+                  },
+                  onKeyDown: (event) => {
+                    if (!event.altKey || event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+                    event.preventDefault();
+                    const index = sortedProjects.findIndex((item) => item.cwd === project.cwd);
+                    const target = sortedProjects[index + (event.key === "ArrowUp" ? -1 : 1)];
+                    if (target) reorder(project.cwd, target.cwd, event.key === "ArrowUp" ? "before" : "after");
+                  },
                   onClick: () => onSelectProject(project.cwd),
                   children: [
                     /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(FolderGlyph, { open: expanded }),
@@ -17165,6 +17262,9 @@ window.__ModuleLoader__.load({
           ] })
         ] })
       ] });
+    }
+    function searchingKey(search) {
+      return search.trim() !== "";
     }
     function AnimatedSessions({ expanded, children }) {
       const retained = React8.useRef(children);
@@ -24196,8 +24296,17 @@ window.__ModuleLoader__.load({
       }, [activeTurnId, runningKey]);
       React26.useLayoutEffect(() => {
         if (detail === null) return;
-        setModel(detail.thread.model ?? (provider === "opencode-go" ? "deepseek-v4.1-flash" : ""));
-        setEffort(detail.thread.reasoningEffort ?? "");
+        let pending3 = null;
+        try {
+          const stored2 = threadId === null ? null : JSON.parse(sessionStorage.getItem(`dsh-codex-model-selection-${threadId}`) ?? "null");
+          if (stored2 && typeof stored2.model === "string" && typeof stored2.effort === "string") pending3 = stored2;
+        } catch {
+        }
+        setModel(pending3?.model ?? detail.thread.model ?? (provider === "opencode-go" ? "deepseek-v4.1-flash" : ""));
+        setEffort(pending3?.effort ?? detail.thread.reasoningEffort ?? "");
+      }, [threadId]);
+      React26.useLayoutEffect(() => {
+        if (detail === null) return;
         try {
           const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`);
           if (saved === "read" || saved === "full" || saved === "approve" || saved === "ask") {
@@ -24208,6 +24317,13 @@ window.__ModuleLoader__.load({
         }
         setPermission(permissionFromSession ?? "ask");
       }, [threadId, permissionFromSession]);
+      const saveModelSelection = (nextModel, nextEffort) => {
+        if (!threadId) return;
+        try {
+          sessionStorage.setItem(`dsh-codex-model-selection-${threadId}`, JSON.stringify({ model: nextModel, effort: nextEffort }));
+        } catch {
+        }
+      };
       const changePermission = React26.useCallback(
         (mode) => {
           if (mode !== permission) recordSetting(`权限已切换为${t("permission." + mode)}（下一轮生效）`);
@@ -24413,10 +24529,15 @@ window.__ModuleLoader__.load({
             onModelChange: (value) => {
               const next = value || (provider === "opencode-go" ? "deepseek-v4.1-flash" : "");
               if (next !== model) recordSetting(`模型已切换为 ${models.find((entry) => entry.id === next)?.displayName ?? (next || t("composer.defaultModel"))}（下一轮生效）`);
+              const nextEffort = models.find((entry) => entry.id === next)?.defaultReasoningEffort ?? "";
               setModel(next);
-              setEffort(models.find((entry) => entry.id === next)?.defaultReasoningEffort ?? "");
+              setEffort(nextEffort);
+              saveModelSelection(next, nextEffort);
             },
-            onEffortChange: setEffort,
+            onEffortChange: (value) => {
+              setEffort(value);
+              saveModelSelection(model, value);
+            },
             onPermissionChange: changePermission,
             onEnterPlan,
             onExitPlan,
@@ -24425,12 +24546,18 @@ window.__ModuleLoader__.load({
             onCompact,
             onDiff,
             onExport,
-            onSend: (text, options) => {
+            onSend: async (text, options) => {
               atBottomRef.current = true;
               setShowJump(false);
               const element = messagesRef.current;
               if (element) element.scrollTop = element.scrollHeight;
-              return onSend(text, options);
+              await onSend(text, options);
+              if (threadId) try {
+                const key = `dsh-codex-model-selection-${threadId}`;
+                const saved = JSON.parse(sessionStorage.getItem(key) ?? "null");
+                if (saved?.model === model && saved?.effort === effort) sessionStorage.removeItem(key);
+              } catch {
+              }
             },
             onSteer,
             onStop
@@ -24902,7 +25029,7 @@ window.__ModuleLoader__.load({
     // src/client/page/ConsolePage.tsx
     var import_jsx_runtime36 = require("react/jsx-runtime");
     var TURN_PAGE = 2;
-    var THREAD_PAGE = 10;
+    var THREAD_PAGE = 5;
     var LAST_THREAD_KEY = "dsh-codex-last-thread";
     var VIEWED_TURNS_KEY = "dsh-codex-viewed-turns";
     function readStored(key) {
@@ -25690,7 +25817,7 @@ window.__ModuleLoader__.load({
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
       }, onDropCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
-      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T07:29:12.282Z", children: [
+      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T07:43:59.184Z", children: [
         /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
           /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
           /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", className: "dsh-codex-workbench-project", title: detail?.thread.cwd ?? selectedCwd ?? "", onClick: () => setPickerOpen(true), children: [
@@ -25830,10 +25957,10 @@ window.__ModuleLoader__.load({
             {
               provider: detail?.thread.modelProvider ?? provider,
               api,
-              detail,
-              loading: detailLoading,
+              detail: detail?.thread.id === selectedId ? detail : null,
+              loading: detailLoading || selectedId !== null && detail?.thread.id !== selectedId,
               selectedId,
-              activeTurnId,
+              activeTurnId: detail?.thread.id === selectedId ? activeTurnId : null,
               models,
               permissionFromSession: sessionPermission?.threadId === selectedId && detail?.thread.id === selectedId ? sessionPermission.mode : null,
               planMode,
@@ -26046,6 +26173,14 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-focus-tree::-webkit-scrollbar-thumb{border-radius:999px;background:transparent}
     .dsh-codex-root .dsh-codex-focus-tree:hover::-webkit-scrollbar-thumb,.dsh-codex-root .dsh-codex-focus-tree:focus-within::-webkit-scrollbar-thumb{background:var(--codex-border)}
     .dsh-codex-root .dsh-codex-tree-project{height:42px;padding:7px 8px;gap:8px;border-radius:7px;font-size:13px}
+    .dsh-codex-root .dsh-codex-project-group{position:relative}
+    .dsh-codex-root .dsh-codex-project-group.is-dragging{opacity:.5}
+    .dsh-codex-root .dsh-codex-project-group.drop-before:before,.dsh-codex-root .dsh-codex-project-group.drop-after:after{content:'';position:absolute;left:4px;right:4px;height:2px;background:var(--codex-accent);z-index:5;pointer-events:none}
+    .dsh-codex-root .dsh-codex-project-group.drop-before:before{top:-1px}
+    .dsh-codex-root .dsh-codex-project-group.drop-after:after{bottom:-1px}
+    .dsh-codex-root .dsh-codex-project-group.drop-before>.dsh-codex-tree-project:before,.dsh-codex-root .dsh-codex-project-group.drop-after>.dsh-codex-tree-project:before{content:'';position:absolute;left:2px;width:6px;height:6px;border:1.5px solid var(--codex-accent);border-radius:50%;background:var(--codex-bg);z-index:6;pointer-events:none}
+    .dsh-codex-root .dsh-codex-project-group.drop-before>.dsh-codex-tree-project:before{top:-4px}
+    .dsh-codex-root .dsh-codex-project-group.drop-after>.dsh-codex-tree-project:before{bottom:-4px}
     .dsh-codex-root .dsh-codex-tree-project.expanded{background:transparent}
     .dsh-codex-root .dsh-codex-tree-project.expanded:hover{background:var(--codex-soft)}
     .dsh-codex-root .dsh-codex-tree-sessions{padding-left:0}
