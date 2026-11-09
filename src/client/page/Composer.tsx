@@ -541,10 +541,12 @@ export function Composer({
               <Icon name="plus" size={16}/>
             </button>
             <button type="button" className="dsh-codex-icon-button dsh-codex-attach" aria-label={t('composer.attachFile')} title={t('composer.attachFile')} disabled={disabled} onClick={() => { closeAll(); fileInputRef.current?.click() }}><Icon name="attachment" size={18}/></button>
-            <button type="button" className="dsh-codex-icon-button dsh-codex-attach" aria-label={t('composer.attachFolder')} title={t('composer.attachFolder')} disabled={disabled} onClick={() => { closeAll(); folderInputRef.current?.click() }}><Icon name="folderPlus" size={18}/></button>
+            <button type="button" className="dsh-codex-icon-button dsh-codex-attach dsh-codex-attach-folder" aria-label={t('composer.attachFolder')} title={t('composer.attachFolder')} disabled={disabled} onClick={() => { closeAll(); folderInputRef.current?.click() }}><Icon name="folderPlus" size={18}/></button>
             <button
               type="button"
               className="dsh-codex-permission-trigger"
+              aria-label={t('permission.title') + '：' + t(`permission.${permission}`)}
+              title={t('permission.title') + '：' + t(`permission.${permission}`)}
               aria-expanded={permissionOpen}
               onClick={() => {
                 setPermissionOpen((previous) => !previous)

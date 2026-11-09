@@ -186,7 +186,15 @@ export const WORKBENCH_CSS = `
 .dsh-codex-root .dsh-codex-composer-input{font-size:15px;line-height:1.75;min-height:60px;padding:5px 6px;outline:0!important}
 .dsh-codex-root .dsh-codex-composer-bottom{padding:2px 0 0;gap:5px}
 .dsh-codex-root .dsh-codex-permission-pending{margin:0 24px 6px;padding:8px 12px;border-radius:7px;background:var(--codex-warning-bg);color:var(--codex-warning);font-size:12px;line-height:1.5}
-.dsh-codex-root .dsh-codex-composer-row{gap:5px}
+.dsh-codex-root .dsh-codex-composer-row{gap:5px;flex-wrap:wrap;container:codex-composer-toolbar / inline-size}
+.dsh-codex-root .dsh-codex-composer-tools{flex:none;gap:6px}
+.dsh-codex-root .dsh-codex-composer-tools>button,.dsh-codex-root .dsh-codex-send,.dsh-codex-root .dsh-codex-stop{flex-shrink:0}
+.dsh-codex-root .dsh-codex-permission-trigger{flex:none;white-space:nowrap}
+.dsh-codex-root .dsh-codex-composer-spacer{min-width:0;flex:1 1 0}
+.dsh-codex-root .dsh-codex-composer-trailing{min-width:0;flex:1 1 160px;gap:6px;justify-content:flex-end}
+.dsh-codex-root .dsh-codex-model-trigger{min-width:0;flex:0 1 auto}
+.dsh-codex-root .dsh-codex-model-trigger>svg{flex:none}
+.dsh-codex-root .dsh-codex-model-label{min-width:0}
 .dsh-codex-root .dsh-codex-attach{width:36px;height:36px}
 .dsh-codex-root .dsh-codex-plus{width:36px;height:36px;background:transparent;color:var(--codex-muted)}
 .dsh-codex-root .dsh-codex-permission-trigger,.dsh-codex-root .dsh-codex-model-trigger{min-height:36px;border-radius:7px;font-size:12px;color:var(--codex-muted)}
@@ -401,6 +409,20 @@ html[data-codex-transition]::view-transition{pointer-events:none}
  .dsh-codex-root .codex-sidebar-control{height:40px}
 }
 @media(prefers-reduced-motion:reduce){.dsh-codex-root *{animation-duration:.01ms!important;transition:none!important}}
+
+/* Respond to the conversation column, including desktop split panels. */
+@container codex-composer-toolbar (max-width:480px){
+ .dsh-codex-root .dsh-codex-permission-trigger{width:36px;max-width:36px;padding:0;gap:0;justify-content:center}
+ .dsh-codex-root .dsh-codex-permission-trigger>span{display:none}
+}
+@container codex-composer-toolbar (max-width:360px){
+ .dsh-codex-root .dsh-codex-composer-tools>.dsh-codex-attach-folder{display:none}
+ .dsh-codex-root .dsh-codex-model-effort{display:none}
+}
+@container codex-composer-toolbar (max-width:300px){
+ .dsh-codex-root .dsh-codex-composer-tools>.dsh-codex-attach{display:none}
+ .dsh-codex-root .dsh-codex-plan-tag{max-width:80px}
+}
 
 /* Messages share a reading column; intrinsic bubble widths do not centre each row. */
 .dsh-codex-root .dsh-codex-messages{gap:22px}
