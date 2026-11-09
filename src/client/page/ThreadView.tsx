@@ -321,7 +321,7 @@ export function ThreadView({
       </div>
       <div className="dsh-codex-messages-wrap">
         <div className="dsh-codex-messages" ref={messagesRef} onScroll={onMessagesScroll}>
-          <div ref={messageContentRef} style={{display: 'flow-root'}}>
+          <div ref={messageContentRef} className="dsh-codex-message-content">
           {hasOlder && hasItems ? (
             <button
               type="button"

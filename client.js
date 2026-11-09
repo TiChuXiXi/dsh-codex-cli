@@ -24353,7 +24353,7 @@ window.__ModuleLoader__.load({
           ] })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-messages-wrap", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll, children: /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { ref: messageContentRef, style: { display: "flow-root" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll, children: /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { ref: messageContentRef, className: "dsh-codex-message-content", children: [
             hasOlder && hasItems ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
               "button",
               {
@@ -25684,7 +25684,7 @@ window.__ModuleLoader__.load({
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
       }, onDropCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
-      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T07:06:53.763Z", children: [
+      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T07:11:26.785Z", children: [
         /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
           /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
           /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", className: "dsh-codex-workbench-project", title: detail?.thread.cwd ?? selectedCwd ?? "", onClick: () => setPickerOpen(true), children: [
@@ -26368,6 +26368,9 @@ window.__ModuleLoader__.load({
 
     /* Messages share a reading column; intrinsic bubble widths do not centre each row. */
     .dsh-codex-root .dsh-codex-messages{gap:22px}
+    .dsh-codex-root .dsh-codex-message-content{display:flex;flex-direction:column;gap:12px;min-width:0}
+    .dsh-codex-root .dsh-codex-message-content>.dsh-codex-tool-group{width:100%;margin:0}
+    .dsh-codex-root .dsh-codex-message-content>.dsh-codex-turn-footer{margin:0}
     .dsh-codex-root .dsh-codex-messages>*{width:min(800px,100%);margin-left:auto;margin-right:auto;flex:none}
     .dsh-codex-root .dsh-codex-message{margin-top:0;margin-bottom:0;gap:8px}
     .dsh-codex-root .dsh-codex-message-head{min-height:26px;font-size:12px;gap:9px}
@@ -26385,6 +26388,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-root[data-codex-theme="dark"] .dsh-codex-tok.number{color:#c8b4df}
     .dsh-codex-root .dsh-codex-markdown table{font-size:13px}
     .dsh-codex-root .dsh-codex-markdown>:first-child{margin-top:0}
+    .dsh-codex-root .dsh-codex-message .dsh-codex-markdown>:last-child{margin-bottom:0}
     .dsh-codex-root .dsh-codex-message.user .dsh-codex-markdown{line-height:1.55}
     .dsh-codex-root .dsh-codex-message.user .dsh-codex-markdown :where(p,ul,ol){margin:2px 0}
     .dsh-codex-root .dsh-codex-message.user .dsh-codex-markdown li{margin:0;padding:0}
