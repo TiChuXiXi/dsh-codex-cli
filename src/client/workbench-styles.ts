@@ -46,10 +46,7 @@ export const WORKBENCH_CSS = `
 .dsh-codex-root .dsh-codex-rail-brand{height:40px;width:44px;display:grid;place-items:center;border:0;background:transparent;color:var(--codex-text);margin-bottom:8px;cursor:pointer}
 .dsh-codex-root .dsh-codex-workbench-header{grid-column:3;grid-row:1;display:flex;align-items:center;gap:6px;padding:0 12px;border-bottom:1px solid var(--codex-border);min-width:0}
 .dsh-codex-root .dsh-codex-workbench-header .dsh-codex-icon-button{width:34px;height:34px}
-.dsh-codex-root .dsh-codex-workbench-header .dsh-codex-workbench-project{min-height:34px}
 .dsh-codex-workbench-header h1{font-size:14px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
-.dsh-codex-workbench-project{display:flex;align-items:center;gap:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;min-height:40px;background:transparent;border:0;color:var(--codex-muted);font-size:13px;cursor:pointer}
-.dsh-codex-workbench-project svg{margin-left:auto}
 .dsh-codex-root .dsh-codex-main{grid-column:3;grid-row:2;min-width:0;width:auto;overflow:hidden}
 .dsh-codex-root .dsh-codex-main.is-file-dragging{outline:2px dashed var(--codex-accent);outline-offset:-6px;background:var(--codex-selected)}
 .dsh-codex-root .dsh-codex-workbench-status{grid-column:1/5;grid-row:3;display:flex;align-items:center;gap:16px;padding:0 14px;border-top:1px solid var(--codex-border);background:var(--codex-panel);font-size:12px;color:var(--codex-muted);min-width:0}
@@ -364,7 +361,6 @@ html[data-codex-transition]::view-transition{pointer-events:none}
 @media(min-width:768px) and (max-width:1150px){
  .dsh-codex-root{grid-template-columns:0 var(--codex-nav-width,280px) minmax(0,1fr) auto}
  .dsh-codex-root.is-nav-collapsed{grid-template-columns:0 0 minmax(0,1fr) auto}
- .dsh-codex-root .dsh-codex-workbench-project{display:none}
  .dsh-codex-root .dsh-codex-messages{padding:22px}
  .dsh-codex-root .dsh-codex-running-bar,.dsh-codex-root .dsh-codex-approvals{width:min(800px,calc(100% - 44px))}
  .dsh-codex-root .codex-sidebar:not(.is-fullscreen){max-width:36vw}
@@ -375,7 +371,6 @@ html[data-codex-transition]::view-transition{pointer-events:none}
  .dsh-codex-root .dsh-codex-rail,.dsh-codex-root .dsh-codex-nav-resize{display:none}
  .dsh-codex-root .dsh-codex-workbench-header{grid-column:1;grid-row:1;padding:0 6px;gap:0}
  .dsh-codex-root .dsh-codex-workbench-header h1{font-size:13px}
- .dsh-codex-root .dsh-codex-workbench-project{display:none}
  .dsh-codex-root .dsh-codex-icon-button,.dsh-codex-root .dsh-codex-workbench-header .dsh-codex-icon-button{width:44px;height:44px}
  .dsh-codex-root .dsh-codex-main{grid-column:1;grid-row:2}
  .dsh-codex-root .dsh-codex-focus-sidebar,.dsh-codex-root.is-nav-collapsed .dsh-codex-focus-sidebar{display:flex;position:absolute;left:0;top:56px;bottom:28px;width:min(300px,85vw);z-index:1301;grid-column:1;grid-row:1/4;box-shadow:var(--dsw-elevation-prominent);transform:translateX(-100%);opacity:0;visibility:hidden;pointer-events:none;transition:transform 220ms ease,opacity 180ms ease,visibility 0s linear 220ms}

@@ -6,7 +6,7 @@ import {Icon} from '../components/Icon'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
 import type { CodexItem, CodexTurn, PendingApproval, ThreadDetail } from '../types'
-import { basename, formatClock, formatDuration, relativeTime, statusKey, threadTitle } from '../utils'
+import { basename, formatClock, formatDuration, itemText, relativeTime, statusKey, threadTitle } from '../utils'
 import { ApprovalStack } from './ApprovalCard'
 import { Composer, type Attachment, type ModelOption, type PermissionMode } from './Composer'
 import { ItemCard } from './ItemCard'
@@ -389,6 +389,7 @@ export function ThreadView({
       <Composer
         key={threadId ?? 'new'}
         threadId={threadId}
+        history={threadId === selectedId ? items.filter(item => item.type === 'userMessage').map(itemText).filter(text => text.trim() !== '') : []}
         api={api}
         cwd={detail.thread.cwd ?? ''}
         disabled={false}

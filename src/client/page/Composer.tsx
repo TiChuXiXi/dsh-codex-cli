@@ -34,6 +34,7 @@ export type PermissionMode = 'ask' | 'approve' | 'full' | 'read'
 
 export interface ComposerProps {
   threadId: string | null
+  history: string[]
   api: Api
   cwd: string
   disabled: boolean
@@ -94,6 +95,7 @@ const FALLBACK_EFFORTS: EffortOption[] = [
 
 export function Composer({
   threadId,
+  history,
   api,
   cwd,
   disabled,
@@ -132,6 +134,7 @@ export function Composer({
   const [slashDismissed, setSlashDismissed] = React.useState(false)
   const slashRef = React.useRef<HTMLDivElement | null>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement | null>(null)
+  const historyNavigation = React.useRef<{ entries: string[], index: number } | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement | null>(null)
   const folderInputRef = React.useRef<HTMLInputElement | null>(null)
   const uploadQueue = React.useRef<Promise<void>>(Promise.resolve())
@@ -373,6 +376,7 @@ export function Composer({
           permission,
         })
       }
+      historyNavigation.current = null
       setText('');setSelectedSkills([]);setSkillDismissed(true)
       if (activeTurnId === null) setAttachments([])
       textareaRef.current?.focus()
@@ -516,6 +520,34 @@ export function Composer({
                 event.preventDefault()
                 setSlashDismissed(true)
                 return
+              }
+            }
+            if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+              const area = event.currentTarget
+              const up = event.key === 'ArrowUp'
+              const atBoundary = area.selectionStart === area.selectionEnd &&
+                (up ? !text.slice(0, area.selectionStart).includes('\n') : !text.slice(area.selectionEnd).includes('\n'))
+              if (atBoundary) {
+                let navigation = historyNavigation.current
+                if (!navigation && up && history.length) {
+                  navigation = { entries: [...history, text], index: history.length }
+                  historyNavigation.current = navigation
+                }
+                if (navigation && (up ? navigation.index > 0 : navigation.index < navigation.entries.length - 1)) {
+                  event.preventDefault()
+                  navigation.entries[navigation.index] = text
+                  navigation.index += up ? -1 : 1
+                  const value = navigation.entries[navigation.index]
+                  setText(value)
+                  setCaret(up ? 0 : value.length)
+                  setSkillDismissed(true)
+                  setSlashDismissed(true)
+                  requestAnimationFrame(() => {
+                    if (textareaRef.current === area) area.setSelectionRange(up ? 0 : value.length, up ? 0 : value.length)
+                  })
+                  if (navigation.index === navigation.entries.length - 1) historyNavigation.current = null
+                  return
+                }
               }
             }
             if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {

@@ -19546,6 +19546,7 @@ window.__ModuleLoader__.load({
     var GIT_CSS = `
     .dsh-codex-root .codex-git{height:100%;min-height:0;min-width:0;display:flex;flex-direction:column;position:relative;color:var(--codex-text);background:var(--codex-bg);font-size:12px;line-height:1.5} .codex-git *{box-sizing:border-box} .codex-git button{cursor:pointer} .codex-git code, .codex-git pre{font-family:var(--dsh-font-family-code);font-size:12px} .codex-git code{overflow-wrap:anywhere} .codex-git p{margin:8px 0} .codex-git h4{margin:12px 14px 4px;font-size:12px;color:var(--codex-muted)} .codex-git .git-toolbar{height:44px;min-height:44px;display:flex;align-items:center;padding:0 10px;gap:7px;border-bottom:1px solid var(--codex-border)} .codex-git .git-toolbar>code{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:30px} .codex-git .git-toolbar>span{white-space:nowrap} .codex-git .git-spacer{flex:1} .codex-git .dsh-codex-icon-button{width:28px;height:28px;flex:none} .codex-git .dsh-codex-icon-button svg{width:15px;height:15px} .codex-git .dsh-codex-button{min-height:28px;padding:4px 9px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:5px} .codex-git .git-tabs{display:flex;overflow:auto;flex:none;border-bottom:1px solid var(--codex-border);padding:0 6px;scrollbar-width:none} .codex-git .git-tabs>button{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;border:0;border-bottom:2px solid transparent;white-space:nowrap;padding:10px 6px;background:transparent;color:var(--codex-muted);font-size:12px} .codex-git .git-tabs>button:hover{background:var(--codex-soft)} .codex-git .git-tabs>button[aria-selected=true]{color:var(--codex-text);border-bottom-color:var(--codex-accent)} .codex-git .git-tabs small{font-size:10px;color:var(--codex-muted)} .codex-git .git-content{overflow:auto;min-height:100px;flex:1} .codex-git .git-section-head{display:flex;align-items:center;gap:7px;min-height:36px;padding:4px 10px;background:var(--codex-panel);border-bottom:1px solid var(--codex-border)} .codex-git .git-section-head>code{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .codex-git .git-section-head>strong{font-size:12px} .codex-git .git-section-head>span, .codex-git .git-section-head small{color:var(--codex-muted);font-size:11px} .codex-git .git-group{display:flex;align-items:center;padding:8px 12px 4px;color:var(--codex-muted);background:var(--codex-panel)} .codex-git label{display:flex;align-items:center;gap:7px} .codex-git input[type=checkbox]{accent-color:var(--codex-accent);width:13px;height:13px;flex:none;margin:0} .codex-git .git-file{display:flex;align-items:center;gap:6px;padding:3px 8px 3px 12px;min-height:32px} .codex-git .git-file:hover{background:var(--codex-soft)} .codex-git .git-file>button:not(.dsh-codex-icon-button){display:flex;flex:1;min-width:0;text-align:left;align-items:center;gap:8px;border:0;background:transparent;color:inherit;padding:2px} .codex-git .git-file code{white-space:nowrap;text-overflow:ellipsis;overflow:hidden;min-width:0} .codex-git .git-file code span{color:var(--codex-muted)} .codex-git .git-file b{color:var(--codex-success);font-size:11px;width:14px;flex:none} .codex-git .git-commit{padding:12px;border-top:1px solid var(--codex-border);position:sticky;bottom:0;background:var(--codex-bg)} .codex-git .git-commit textarea{width:100%;resize:vertical;border:1px solid var(--codex-border);border-radius:6px;padding:8px;margin-bottom:8px;min-height:65px;font-size:12px} .codex-git .git-inline{display:flex;align-items:center;gap:7px;flex-wrap:wrap} .codex-git .git-pad{padding:12px} .codex-git .git-muted{color:var(--codex-muted)} .codex-git .git-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:32px 18px;text-align:center;color:var(--codex-muted);min-height:140px} .codex-git .git-empty h3{font-size:15px;color:var(--codex-text);margin:0} .codex-git .git-error, .codex-git .git-notice{padding:8px 12px;overflow-wrap:anywhere;white-space:pre-wrap;max-height:160px;overflow:auto;flex:none} .codex-git .git-error{display:flex;align-items:center;gap:6px;color:var(--codex-danger);background:color-mix(in srgb,var(--codex-danger) 8%,var(--codex-bg))} .codex-git .git-error>span{flex:1} .codex-git .git-notice{color:var(--codex-success);border-bottom:1px solid var(--codex-border)} .codex-git .git-warning{padding:8px 10px;color:var(--codex-warning);background:var(--codex-warning-bg);white-space:pre-wrap;overflow-wrap:anywhere} .codex-git .git-card{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;border-bottom:1px solid var(--codex-border);padding:12px} .codex-git .git-card>div:first-child{min-width:0} .codex-git .git-card strong, .codex-git .git-card small, .codex-git .git-card code{display:block} .codex-git .git-card small{color:var(--codex-muted);font-size:11px} .codex-git .git-card code{font-size:11px;white-space:pre-wrap} .codex-git .git-card .git-inline{margin-top:8px} .codex-git .git-history-row{display:flex;align-items:stretch;min-width:100%;height:48px;border:0;border-bottom:1px solid color-mix(in srgb,var(--codex-border) 35%,transparent);background:transparent;color:inherit;text-align:left;padding:0 10px 0 2px} .codex-git .git-history-row:hover{background:var(--codex-soft)} .codex-git .git-history-row svg{overflow:visible;stroke-width:1.6;align-self:center} .codex-git .git-history-text{display:flex;flex-direction:column;justify-content:center;min-width:0;padding-left:5px;flex:1} .codex-git .git-history-text strong{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .codex-git .git-history-text small{font-size:11px;color:var(--codex-muted);white-space:nowrap} .codex-git .git-history-text em{font-size:10px;border:1px solid var(--codex-border);border-radius:3px;padding:1px 4px;margin-right:5px;font-style:normal;color:var(--codex-accent)} .codex-git .git-more{margin:12px} .codex-git .git-detail{flex:0 1 40%;min-height:100px;overflow:auto;border-top:1px solid var(--codex-border)} .codex-git .git-detail-file{border:0;border-top:1px solid var(--codex-border);padding:7px 12px;text-align:left;display:flex;gap:10px;background:transparent;width:100%;color:inherit} .codex-git .git-detail-file:hover{background:var(--codex-soft)} .codex-git .git-detail pre{white-space:pre-wrap} .codex-git .git-detail .git-section-head{position:sticky;top:0} .codex-git .git-diff{min-height:120px;flex:1;display:flex;flex-direction:column;border-top:1px solid var(--codex-border)} .codex-git .git-diff-scroll{min-height:0;overflow:auto;flex:1} .codex-git .git-diff-line{display:flex;min-height:19px;line-height:19px;font-family:var(--dsh-font-family-code);font-size:11px} .codex-git .git-diff-line>span{flex:0 0 34px;width:34px;text-align:right;color:var(--codex-muted);padding-right:6px;user-select:none;border-right:1px solid var(--codex-border)} .codex-git .git-diff-line>code{padding-left:8px;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px} .codex-git .git-diff-line.add{background:color-mix(in srgb,var(--codex-success) 13%,transparent)} .codex-git .git-diff-line.del{background:color-mix(in srgb,var(--codex-danger) 13%,transparent)} .codex-git .git-diff-line.hunk{background:var(--codex-selected);color:var(--codex-accent)} .codex-git .git-command{padding:9px 12px;border-bottom:1px solid var(--codex-border)} .codex-git .git-command summary{cursor:pointer;overflow-wrap:anywhere} .codex-git .git-command summary code{font-size:11px} .codex-git .git-command small{display:block;color:var(--codex-muted);padding-left:13px} .codex-git .git-command pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto} .codex-git .git-success{color:var(--codex-success)} .codex-git .git-conflict{color:var(--codex-danger)} .codex-git .git-modal-backdrop{position:fixed;inset:0;background:#0005;z-index:1500;display:flex;align-items:center;justify-content:center;padding:20px} .codex-git .git-modal{background:var(--codex-bg);border:1px solid var(--codex-border);border-radius:10px;box-shadow:var(--dsw-elevation-prominent);padding:20px;width:440px;max-width:100%;max-height:85vh;overflow:auto} .codex-git .git-modal header{font-size:15px;font-weight:600;margin-bottom:14px} .codex-git .git-modal>label{display:flex;flex-direction:column;align-items:stretch;margin:12px 0;gap:5px} .codex-git .git-modal input{width:100%} .codex-git .git-modal footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
     .codex-git .git-detail-branches{display:flex;flex-direction:column;align-items:flex-start;gap:5px;margin-top:8px;font-size:11px} .codex-git .git-detail-branch-group{display:flex;align-items:center;flex-wrap:wrap;gap:5px;max-width:100%} .codex-git .git-branch-badge{display:inline-flex;align-items:center;gap:4px;max-width:100%;overflow-wrap:anywhere;border:1px solid var(--codex-border);border-radius:3px;padding:1px 5px;color:var(--codex-accent)} .codex-git .git-branch-badge svg{flex:none} .codex-git .git-branch-badge small{font-size:10px;color:var(--codex-muted)}
+    .codex-git .git-commit{position:static;flex:none}
     @media(max-width:600px){ .codex-git .git-tabs>button{padding:10px 7px} .codex-git .git-tabs>button svg{display:none} .codex-git .git-section-head{flex-wrap:wrap} .codex-git .git-toolbar{gap:4px}}
     `;
 
@@ -19840,24 +19841,7 @@ window.__ModuleLoader__.load({
                     action(group.staged ? "ban" : "plus", group.staged ? "取消暂存 " + e.path : "暂存 " + e.path, () => void run(group.staged ? "unstage" : "stage", { paths: changePaths([e]) }), !mayWrite)
                   ] }, e.path))
                 ] }, group.label);
-              }),
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-commit", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("textarea", { "aria-label": "提交信息", placeholder: "提交信息", rows: 3, value: message, onChange: (e) => setMessage(e.target.value) }),
-                /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-inline", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("label", { children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("input", { type: "checkbox", checked: amend, onChange: (e) => setAmend(e.target.checked) }),
-                    "修订上次提交"
-                  ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "git-spacer" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { className: "dsh-codex-button", disabled: busy || !mayWrite || !message.trim() || !amend && !data.status.entries.some((e) => e.staged && !e.conflicted) || data.status.entries.some((e) => e.conflicted), onClick: () => confirm(amend ? "修订暂存区提交" : "提交全部暂存", "commit", { message, amend }, "将提交全部已暂存内容，工作区中未暂存的改动会保留。" + (amend ? "这会重写上次提交。" : "")), children: "提交暂存区" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("button", { className: "dsh-codex-button primary", disabled: busy || !mayWrite || !paths.length || !message.trim(), onClick: () => confirm(amend ? "修订上次提交" : "提交勾选文件", "commit", { paths: changePaths(chosen), message, amend }, (amend ? "将重写上次提交。" : "将暂存并提交勾选文件的全部当前内容，其他已暂存文件不纳入本次提交。") + "\n" + paths.join("\n")), children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Icon2, { name: "check", size: 15 }),
-                    "提交 ",
-                    paths.length,
-                    " 项"
-                  ] })
-                ] })
-              ] })
+              })
             ] }),
             tab === "history" && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(import_jsx_runtime18.Fragment, { children: [
               /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-section-head", children: [
@@ -20047,7 +20031,24 @@ window.__ModuleLoader__.load({
             setPreview(null);
             setPreviewBusy(false);
           } }),
-          !preview && previewBusy && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { role: "status", className: "git-muted git-pad", children: "读取提交…" })
+          !preview && previewBusy && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { role: "status", className: "git-muted git-pad", children: "读取提交…" }),
+          tab === "changes" && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-commit", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("textarea", { "aria-label": "提交信息", placeholder: "提交信息", rows: 3, value: message, onChange: (e) => setMessage(e.target.value) }),
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "git-inline", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("label", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("input", { type: "checkbox", checked: amend, onChange: (e) => setAmend(e.target.checked) }),
+                "修订上次提交"
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "git-spacer" }),
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { className: "dsh-codex-button", disabled: busy || !mayWrite || !message.trim() || !amend && !data.status.entries.some((e) => e.staged && !e.conflicted) || data.status.entries.some((e) => e.conflicted), onClick: () => confirm(amend ? "修订暂存区提交" : "提交全部暂存", "commit", { message, amend }, "将提交全部已暂存内容，工作区中未暂存的改动会保留。" + (amend ? "这会重写上次提交。" : "")), children: "提交暂存区" }),
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("button", { className: "dsh-codex-button primary", disabled: busy || !mayWrite || !paths.length || !message.trim(), onClick: () => confirm(amend ? "修订上次提交" : "提交勾选文件", "commit", { paths: changePaths(chosen), message, amend }, (amend ? "将重写上次提交。" : "将暂存并提交勾选文件的全部当前内容，其他已暂存文件不纳入本次提交。") + "\n" + paths.join("\n")), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Icon2, { name: "check", size: 15 }),
+                "提交 ",
+                paths.length,
+                " 项"
+              ] })
+            ] })
+          ] })
         ] }),
         form && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: "git-modal-backdrop", onKeyDown: (e) => {
           if (e.key === "Escape" && !busy) {
@@ -23036,6 +23037,7 @@ window.__ModuleLoader__.load({
     ];
     function Composer({
       threadId,
+      history,
       api,
       cwd,
       disabled,
@@ -23074,6 +23076,7 @@ window.__ModuleLoader__.load({
       const [slashDismissed, setSlashDismissed] = React23.useState(false);
       const slashRef = React23.useRef(null);
       const textareaRef = React23.useRef(null);
+      const historyNavigation = React23.useRef(null);
       const fileInputRef = React23.useRef(null);
       const folderInputRef = React23.useRef(null);
       const uploadQueue = React23.useRef(Promise.resolve());
@@ -23323,6 +23326,7 @@ window.__ModuleLoader__.load({
               permission
             });
           }
+          historyNavigation.current = null;
           setText("");
           setSelectedSkills([]);
           setSkillDismissed(true);
@@ -23493,6 +23497,33 @@ window.__ModuleLoader__.load({
                     event.preventDefault();
                     setSlashDismissed(true);
                     return;
+                  }
+                }
+                if ((event.key === "ArrowUp" || event.key === "ArrowDown") && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+                  const area = event.currentTarget;
+                  const up = event.key === "ArrowUp";
+                  const atBoundary = area.selectionStart === area.selectionEnd && (up ? !text.slice(0, area.selectionStart).includes("\n") : !text.slice(area.selectionEnd).includes("\n"));
+                  if (atBoundary) {
+                    let navigation = historyNavigation.current;
+                    if (!navigation && up && history.length) {
+                      navigation = { entries: [...history, text], index: history.length };
+                      historyNavigation.current = navigation;
+                    }
+                    if (navigation && (up ? navigation.index > 0 : navigation.index < navigation.entries.length - 1)) {
+                      event.preventDefault();
+                      navigation.entries[navigation.index] = text;
+                      navigation.index += up ? -1 : 1;
+                      const value = navigation.entries[navigation.index];
+                      setText(value);
+                      setCaret(up ? 0 : value.length);
+                      setSkillDismissed(true);
+                      setSlashDismissed(true);
+                      requestAnimationFrame(() => {
+                        if (textareaRef.current === area) area.setSelectionRange(up ? 0 : value.length, up ? 0 : value.length);
+                      });
+                      if (navigation.index === navigation.entries.length - 1) historyNavigation.current = null;
+                      return;
+                    }
                   }
                 }
                 if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
@@ -24517,6 +24548,7 @@ window.__ModuleLoader__.load({
           Composer,
           {
             threadId,
+            history: threadId === selectedId ? items.filter((item) => item.type === "userMessage").map(itemText).filter((text) => text.trim() !== "") : [],
             api,
             cwd: detail.thread.cwd ?? "",
             disabled: false,
@@ -25817,13 +25849,9 @@ window.__ModuleLoader__.load({
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
       }, onDropCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
-      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T07:43:59.184Z", children: [
+      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T08:01:05.802Z", children: [
         /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
           /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", className: "dsh-codex-workbench-project", title: detail?.thread.cwd ?? selectedCwd ?? "", onClick: () => setPickerOpen(true), children: [
-            projectNameOf(detail?.thread.cwd ?? selectedCwd ?? "") || "选择项目",
-            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "chevronRight", size: 15 })
-          ] }),
           /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h1", { children: detail ? threadTitle(detail.thread) : "Codex 工作台" }),
           /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-spacer" }),
           detail ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
@@ -26143,10 +26171,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-rail-brand{height:40px;width:44px;display:grid;place-items:center;border:0;background:transparent;color:var(--codex-text);margin-bottom:8px;cursor:pointer}
     .dsh-codex-root .dsh-codex-workbench-header{grid-column:3;grid-row:1;display:flex;align-items:center;gap:6px;padding:0 12px;border-bottom:1px solid var(--codex-border);min-width:0}
     .dsh-codex-root .dsh-codex-workbench-header .dsh-codex-icon-button{width:34px;height:34px}
-    .dsh-codex-root .dsh-codex-workbench-header .dsh-codex-workbench-project{min-height:34px}
     .dsh-codex-workbench-header h1{font-size:14px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
-    .dsh-codex-workbench-project{display:flex;align-items:center;gap:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;min-height:40px;background:transparent;border:0;color:var(--codex-muted);font-size:13px;cursor:pointer}
-    .dsh-codex-workbench-project svg{margin-left:auto}
     .dsh-codex-root .dsh-codex-main{grid-column:3;grid-row:2;min-width:0;width:auto;overflow:hidden}
     .dsh-codex-root .dsh-codex-main.is-file-dragging{outline:2px dashed var(--codex-accent);outline-offset:-6px;background:var(--codex-selected)}
     .dsh-codex-root .dsh-codex-workbench-status{grid-column:1/5;grid-row:3;display:flex;align-items:center;gap:16px;padding:0 14px;border-top:1px solid var(--codex-border);background:var(--codex-panel);font-size:12px;color:var(--codex-muted);min-width:0}
@@ -26461,7 +26486,6 @@ window.__ModuleLoader__.load({
     @media(min-width:768px) and (max-width:1150px){
      .dsh-codex-root{grid-template-columns:0 var(--codex-nav-width,280px) minmax(0,1fr) auto}
      .dsh-codex-root.is-nav-collapsed{grid-template-columns:0 0 minmax(0,1fr) auto}
-     .dsh-codex-root .dsh-codex-workbench-project{display:none}
      .dsh-codex-root .dsh-codex-messages{padding:22px}
      .dsh-codex-root .dsh-codex-running-bar,.dsh-codex-root .dsh-codex-approvals{width:min(800px,calc(100% - 44px))}
      .dsh-codex-root .codex-sidebar:not(.is-fullscreen){max-width:36vw}
@@ -26472,7 +26496,6 @@ window.__ModuleLoader__.load({
      .dsh-codex-root .dsh-codex-rail,.dsh-codex-root .dsh-codex-nav-resize{display:none}
      .dsh-codex-root .dsh-codex-workbench-header{grid-column:1;grid-row:1;padding:0 6px;gap:0}
      .dsh-codex-root .dsh-codex-workbench-header h1{font-size:13px}
-     .dsh-codex-root .dsh-codex-workbench-project{display:none}
      .dsh-codex-root .dsh-codex-icon-button,.dsh-codex-root .dsh-codex-workbench-header .dsh-codex-icon-button{width:44px;height:44px}
      .dsh-codex-root .dsh-codex-main{grid-column:1;grid-row:2}
      .dsh-codex-root .dsh-codex-focus-sidebar,.dsh-codex-root.is-nav-collapsed .dsh-codex-focus-sidebar{display:flex;position:absolute;left:0;top:56px;bottom:28px;width:min(300px,85vw);z-index:1301;grid-column:1;grid-row:1/4;box-shadow:var(--dsw-elevation-prominent);transform:translateX(-100%);opacity:0;visibility:hidden;pointer-events:none;transition:transform 220ms ease,opacity 180ms ease,visibility 0s linear 220ms}

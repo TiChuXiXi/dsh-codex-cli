@@ -880,7 +880,6 @@ export function ConsolePage(props: ConsolePageProps) {
       <div ref={rootRef} onDragOverCapture={event => {if (Array.from(event.dataTransfer.types).includes('Files')) event.preventDefault()}} onDropCapture={event => {if (Array.from(event.dataTransfer.types).includes('Files')) event.preventDefault()}} style={{'--codex-nav-width': navWidth + 'px'} as React.CSSProperties} className={'dsh-codex-root'+(navResizing?' is-nav-resizing':'')+(appearance.collapsed?' is-nav-collapsed':'')+(appearance.navOpen?' is-nav-open':'')+(rightOpen?' has-right':'')} data-codex-theme={appearance.theme} data-client-build={__CODEX_CLIENT_BUILD_ID__}>
         <header className="dsh-codex-workbench-header">
           <IconButton icon="panelLeft" label="展开或折叠项目栏" aria-expanded={appearance.navOpen||!appearance.collapsed} aria-controls="dsh-codex-project-nav" onClick={appearance.toggleNav}/>
-          <button type="button" className="dsh-codex-workbench-project" title={detail?.thread.cwd??selectedCwd??''} onClick={()=>setPickerOpen(true)}>{projectNameOf(detail?.thread.cwd??selectedCwd??'')||'选择项目'}<Icon name="chevronRight" size={15}/></button>
           <h1>{detail?threadTitle(detail.thread):'Codex 工作台'}</h1>
           <span className="dsh-codex-spacer"/>
           {detail ? <TransferAction
