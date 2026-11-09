@@ -3,6 +3,8 @@
  */
 
 import * as React from 'react'
+import type { FollowupSnapshot } from '../types'
+import { FollowupList } from './FollowupList'
 import {SkillPicker} from '../components/SkillPicker'
 import {skillQuery,filterSkills,hasSkill,type Skill,type SkillReference} from '../skills'
 import {Icon} from '../components/Icon'
@@ -49,6 +51,8 @@ export interface ComposerProps {
   onPermissionChange: (mode: PermissionMode) => void
   onEnterPlan: () => void
   onExitPlan: () => void
+  followups?: FollowupSnapshot
+  onFollowups: (snapshot: FollowupSnapshot) => void
   onSend: (text: string, options: {
     model?: string
     effort?: string
@@ -56,7 +60,6 @@ export interface ComposerProps {
     attachments?: Attachment[]
     permission?: PermissionMode
   }) => Promise<void>
-  onSteer: (text: string, skills?:SkillReference[]) => Promise<void>
   onStop: () => Promise<void>
   onPickProject: () => void
   onNew: () => void
@@ -110,8 +113,9 @@ export function Composer({
   onPermissionChange,
   onEnterPlan,
   onExitPlan,
+  followups,
+  onFollowups,
   onSend,
-  onSteer,
   onStop,
   onPickProject,
   onNew,
@@ -362,23 +366,19 @@ export function Composer({
 
   const submit = async () => {
     const value = text.trim()
-    if ((value === '' && attachments.length === 0) || (activeTurnId !== null && value === '') || busy || disabled || pendingUploads.current > 0) return
+    if ((value === '' && attachments.length === 0) || busy || disabled || pendingUploads.current > 0) return
     setBusy(true)
     try {
-      if (activeTurnId !== null) {
-        await onSteer(value,selectedSkills.filter(s=>hasSkill(value,s.name)))
-      } else {
-        await onSend(value, {
-          model: model === '' ? undefined : model,
-          effort: effort === '' ? undefined : effort,
-          attachments,
-          skills:selectedSkills.filter(s=>hasSkill(value,s.name)),
-          permission,
-        })
-      }
+      await onSend(value, {
+        model: model === '' ? undefined : model,
+        effort: effort === '' ? undefined : effort,
+        attachments,
+        skills:selectedSkills.filter(s=>hasSkill(value,s.name)),
+        permission,
+      })
       historyNavigation.current = null
       setText('');setSelectedSkills([]);setSkillDismissed(true)
-      if (activeTurnId === null) setAttachments([])
+      setAttachments([])
       textareaRef.current?.focus()
     } catch {
       // 失败保留草稿。
@@ -399,6 +399,7 @@ export function Composer({
 
   return (
     <div className="dsh-codex-composer-wrap">
+      {followups && <FollowupList snapshot={followups} api={api} onChange={onFollowups} activeTurnId={activeTurnId} />}
       {skillOpen&&<SkillPicker skills={skillResults} query={skillList?skillSearch:skillRange?.query||''} onQuery={skillList?q=>{setSkillSearch(q);setSkillIndex(0)}:undefined} loading={skillLoading} error={skillError} errors={skillErrors} index={skillIndex} onIndex={setSkillIndex} onChoose={chooseSkill} onClose={closeSkills} onRefresh={()=>void loadSkills(true)}/>}
       {slashOpen ? (
         <div className="dsh-codex-slash" role="listbox" ref={slashRef}>
@@ -470,7 +471,7 @@ export function Composer({
           disabled={disabled}
           placeholder={
             activeTurnId !== null
-              ? t('composer.steerPlaceholder')
+              ? t('composer.queuePlaceholder')
               : planMode
                 ? t('composer.planPlaceholder')
                 : t('composer.placeholder')
@@ -632,9 +633,9 @@ export function Composer({
             <button
               type="button"
               className="dsh-codex-send"
-              disabled={disabled || busy || uploading || (text.trim() === '' && (attachments.length === 0 || activeTurnId !== null))}
-              aria-label={activeTurnId === null ? t('composer.send') : t('composer.steer')}
-              title={activeTurnId === null ? t('composer.send') : t('composer.steer')}
+              disabled={disabled || busy || uploading || (text.trim() === '' && attachments.length === 0)}
+              aria-label={activeTurnId === null ? t('composer.send') : t('composer.queue')}
+              title={activeTurnId === null ? t('composer.send') : t('composer.queue')}
               onClick={() => void submit()}
             >
               <SendGlyph />

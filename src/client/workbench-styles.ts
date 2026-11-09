@@ -185,7 +185,7 @@ export const WORKBENCH_CSS = `
 .dsh-codex-root .dsh-codex-tool-group-head{width:100%;min-height:42px;padding:8px 12px;border:1px solid var(--codex-border);border-radius:8px;background:var(--codex-bg);color:var(--codex-muted);font-size:13px}
 .dsh-codex-root .dsh-codex-tool-group-body{margin:12px 0 0 16px;border-left:1px solid var(--codex-border);padding-left:14px}
 .dsh-codex-root .dsh-codex-tool-head,.dsh-codex-root .dsh-codex-turn-footer{font-size:12px;color:var(--codex-muted)}
-.dsh-codex-root .dsh-codex-composer-wrap{padding:10px 26px 16px;background:var(--codex-bg)}
+.dsh-codex-root .dsh-codex-composer-wrap{flex-direction:column;align-items:center;padding:10px 26px 16px;background:var(--codex-bg)}
 .dsh-codex-root .dsh-codex-composer-card{max-width:800px;width:100%;border:1px solid var(--codex-border);border-radius:11px;background:var(--codex-bg);box-shadow:none;padding:10px}
 .dsh-codex-root .dsh-codex-composer-card:focus-within{border-color:var(--codex-accent);box-shadow:0 0 0 2px var(--codex-selected)}
 .dsh-codex-root .dsh-codex-composer-input{font-size:15px;line-height:1.75;min-height:60px;padding:5px 6px;outline:0!important}
@@ -501,4 +501,26 @@ html[data-codex-transition]::view-transition{pointer-events:none}
 .dsh-codex-root .dsh-codex-selected-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
 .dsh-codex-root .dsh-codex-selected-skills>span{display:flex;align-items:center;gap:5px;border:1px solid var(--codex-border);border-radius:5px;padding:3px 6px;font-family:var(--dsh-font-family-code);font-size:11px;background:var(--codex-panel)}
 .dsh-codex-root .dsh-codex-selected-skills button{border:0;background:transparent;color:var(--codex-muted);padding:2px;cursor:pointer}
+.dsh-codex-root .dsh-codex-followups{width:calc(100% - 16px);max-width:784px;flex:none;border:1px solid var(--codex-border);border-radius:12px 12px 0 0;background:var(--codex-bg);margin:0 8px -1px;padding:6px 8px;color:var(--codex-text)}
+.dsh-codex-root .dsh-codex-followups header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 5px 6px;font-size:12px;color:var(--codex-muted)}
+.dsh-codex-root .dsh-codex-followups header .dsh-codex-followup-toggle{gap:5px;flex-shrink:0;min-height:26px;padding:2px 4px}
+.dsh-codex-root .dsh-codex-followups small{font-size:11px;color:var(--codex-muted)}
+.dsh-codex-root .dsh-codex-followup-list[hidden]{display:none}
+.dsh-codex-root .dsh-codex-followup-list{max-height:min(240px,30vh);overflow:auto}
+.dsh-codex-root .dsh-codex-followup-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:38px;padding:3px 5px;border-radius:6px}
+.dsh-codex-root .dsh-codex-followup-row>svg{flex:none;color:var(--codex-muted)}
+.dsh-codex-root .dsh-codex-followup-text{flex:1;min-width:0;font-size:13px}
+.dsh-codex-root .dsh-codex-followup-text>span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;white-space:pre-wrap}
+.dsh-codex-root .dsh-codex-followup-text small{display:flex;align-items:center;gap:4px;overflow-wrap:anywhere}
+.dsh-codex-root .dsh-codex-followup-actions{display:flex;align-items:center;gap:2px;flex:none}
+.dsh-codex-root .dsh-codex-followups button{display:inline-flex;align-items:center;justify-content:center;gap:4px;border:0;background:transparent;color:var(--codex-muted);border-radius:5px;min-height:32px;padding:4px 6px;font-size:12px;cursor:pointer}
+.dsh-codex-root .dsh-codex-followups .dsh-codex-icon-button{height:32px;width:32px;padding:4px}
+.dsh-codex-root .dsh-codex-followups button:hover{background:var(--codex-soft);color:var(--codex-text)}
+.dsh-codex-root .dsh-codex-followups button:disabled{opacity:.45;cursor:default}
+.dsh-codex-root .dsh-codex-followup-edit{width:100%}
+.dsh-codex-root .dsh-codex-followup-edit textarea{display:block;width:100%;resize:vertical;min-height:70px;max-height:180px;padding:8px;border:1px solid var(--codex-border);border-radius:6px;font:inherit;font-size:13px}
+.dsh-codex-root .dsh-codex-followup-edit>div{display:flex;justify-content:flex-end;gap:6px}
+.dsh-codex-root .dsh-codex-followup-error{flex-basis:100%;font-size:12px;color:var(--codex-danger);overflow-wrap:anywhere;padding:3px 5px}
+@media(max-width:600px){.dsh-codex-root .dsh-codex-followups{width:100%;margin-inline:0}.dsh-codex-root .dsh-codex-followups header small{display:none}}
+
 `

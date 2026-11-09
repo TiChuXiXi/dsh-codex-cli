@@ -14531,6 +14531,21 @@ window.__ModuleLoader__.load({
       "composer.planPlaceholder": "描述要规划的任务，Codex 会先给出计划…",
       "plan.tag": "计划",
       "plan.exit": "退出计划模式",
+      "composer.queuePlaceholder": "继续提问，当前回合结束后依次发送…",
+      "composer.queue": "加入队列",
+      "queue.title": "待发送",
+      "queue.collapse": "收起待发送队列",
+      "queue.expand": "展开待发送队列",
+      "queue.auto": "回合结束后依次发送",
+      "queue.resume": "继续队列",
+      "queue.edit": "编辑待发送消息",
+      "queue.delete": "删除待发送消息",
+      "queue.steer": "引导",
+      "queue.steerHint": "将这条消息补充到当前回合",
+      "queue.cancel": "取消",
+      "queue.save": "保存并入队",
+      "queue.attachments": "附件消息",
+      "queue.sending": "正在发送…",
       "composer.steerPlaceholder": "插话到正在运行的回合…",
       "composer.send": "发送",
       "composer.steer": "插话",
@@ -14855,6 +14870,21 @@ window.__ModuleLoader__.load({
       "composer.planPlaceholder": "Describe what to plan; Codex will propose a plan first…",
       "plan.tag": "Plan",
       "plan.exit": "Exit plan mode",
+      "composer.queuePlaceholder": "Add a follow-up for after this turn…",
+      "composer.queue": "Add to queue",
+      "queue.title": "Queued messages",
+      "queue.collapse": "Collapse queued messages",
+      "queue.expand": "Expand queued messages",
+      "queue.auto": "Send in order after each turn",
+      "queue.resume": "Resume queue",
+      "queue.edit": "Edit queued message",
+      "queue.delete": "Delete queued message",
+      "queue.steer": "Steer",
+      "queue.steerHint": "Add this message to the running turn",
+      "queue.cancel": "Cancel",
+      "queue.save": "Save and queue",
+      "queue.attachments": "Attachment message",
+      "queue.sending": "Sending…",
       "composer.steerPlaceholder": "Steer the running turn…",
       "composer.send": "Send",
       "composer.steer": "Steer",
@@ -15017,7 +15047,7 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/ConsolePage.tsx
-    var React29 = __toESM(require("react"), 1);
+    var React30 = __toESM(require("react"), 1);
 
     // node_modules/lucide-react/dist/esm/createLucideIcon.mjs
     var import_react3 = require("react");
@@ -22721,7 +22751,7 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/ThreadView.tsx
-    var React26 = __toESM(require("react"), 1);
+    var React27 = __toESM(require("react"), 1);
 
     // src/client/page/ApprovalCard.tsx
     var React21 = __toESM(require("react"), 1);
@@ -22892,24 +22922,135 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/Composer.tsx
-    var React23 = __toESM(require("react"), 1);
+    var React24 = __toESM(require("react"), 1);
 
-    // src/client/components/SkillPicker.tsx
+    // src/client/page/FollowupList.tsx
     var React22 = __toESM(require("react"), 1);
     var import_jsx_runtime29 = require("react/jsx-runtime");
-    function SkillPicker({ skills, query, onQuery, loading, error, errors, index, onIndex, onChoose, onClose, onRefresh }) {
-      const root = React22.useRef(null);
+    function FollowupList({ snapshot, api, onChange, activeTurnId }) {
+      const t = useT();
+      const collapseKey = "dsh-codex-followups-collapsed:" + snapshot.threadId;
+      const [collapsed, setCollapsed] = React22.useState(() => {
+        try {
+          return localStorage.getItem(collapseKey) === "1";
+        } catch {
+          return false;
+        }
+      });
+      const toggleCollapsed = () => {
+        setCollapsed((value) => {
+          try {
+            localStorage.setItem(collapseKey, value ? "0" : "1");
+          } catch {
+          }
+          return !value;
+        });
+      };
+      const [busy, setBusy] = React22.useState(false);
+      const [error, setError] = React22.useState("");
+      const pending2 = React22.useRef(false);
+      const action = async (action2, id, text) => {
+        if (pending2.current) return;
+        pending2.current = true;
+        setBusy(true);
+        setError("");
+        try {
+          onChange(await api("followups/action", { threadId: snapshot.threadId, action: action2, id, text }));
+        } catch (cause) {
+          setError(cause instanceof Error ? cause.message : String(cause));
+        } finally {
+          pending2.current = false;
+          setBusy(false);
+        }
+      };
+      if (!snapshot.entries.length) return null;
+      return /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("section", { className: "dsh-codex-followups", "aria-label": t("queue.title"), children: [
+        /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("header", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("button", { type: "button", className: "dsh-codex-followup-toggle", "aria-label": t(collapsed ? "queue.expand" : "queue.collapse"), "aria-expanded": !collapsed, "aria-controls": "followups-" + snapshot.threadId, onClick: toggleCollapsed, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Icon2, { name: collapsed ? "chevronRight" : "chevronDown", size: 14 }),
+            t("queue.title"),
+            " · ",
+            snapshot.entries.length
+          ] }),
+          snapshot.paused ? /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", disabled: busy, onClick: () => void action("resume"), children: t("queue.resume") }) : /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("small", { children: t("queue.auto") })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("div", { className: "dsh-codex-followup-list", id: "followups-" + snapshot.threadId, hidden: collapsed, children: snapshot.entries.map((entry) => /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(FollowupRow, { entry, busy, activeTurnId, action }, entry.id)) }),
+        error && /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("div", { className: "dsh-codex-followup-error", role: "alert", children: error })
+      ] });
+    }
+    function FollowupRow({ entry, busy, activeTurnId, action }) {
+      const t = useT();
+      const [text, setText] = React22.useState(entry.params.text);
       React22.useEffect(() => {
+        setText(entry.params.text);
+      }, [entry.params.text, entry.status]);
+      const sending = entry.status === "sending";
+      return /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-followup-row", "data-status": entry.status, children: [
+        entry.status === "editing" ? /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-followup-edit", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(
+            "textarea",
+            {
+              "aria-label": t("queue.edit"),
+              value: text,
+              onChange: (event) => setText(event.target.value),
+              rows: 3,
+              autoFocus: true,
+              onKeyDown: (event) => {
+                if (event.nativeEvent.isComposing) return;
+                if (event.key === "Escape") {
+                  event.preventDefault();
+                  void action("cancel", entry.id);
+                }
+                if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+                  event.preventDefault();
+                  if (text.trim() || entry.params.attachments.length) void action("save", entry.id, text);
+                }
+              }
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", disabled: busy, onClick: () => void action("cancel", entry.id), children: t("queue.cancel") }),
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", disabled: busy || !text.trim() && !entry.params.attachments.length, onClick: () => void action("save", entry.id, text), children: t("queue.save") })
+          ] })
+        ] }) : /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)(import_jsx_runtime29.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Icon2, { name: sending ? "loader" : "message", size: 14 }),
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-followup-text", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("span", { title: entry.params.text, children: entry.params.text || t("queue.attachments") }),
+            entry.params.attachments.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("small", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Icon2, { name: "attachment", size: 12 }),
+              entry.params.attachments.map((item) => item.name).join("、")
+            ] }),
+            sending && /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("small", { children: t("queue.sending") })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-followup-actions", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("button", { type: "button", disabled: busy || sending || !activeTurnId, title: t("queue.steerHint"), onClick: () => void action("steer", entry.id), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Icon2, { name: "arrowRight", size: 14 }),
+              /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("span", { children: t("queue.steer") })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(IconButton, { icon: "pencil", label: t("queue.edit"), disabled: busy || sending, onClick: () => void action("edit", entry.id) }),
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(IconButton, { icon: "trash", label: t("queue.delete"), disabled: busy || sending, onClick: () => void action("delete", entry.id) })
+          ] })
+        ] }),
+        entry.error && /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("div", { className: "dsh-codex-followup-error", role: "alert", children: entry.error })
+      ] });
+    }
+
+    // src/client/components/SkillPicker.tsx
+    var React23 = __toESM(require("react"), 1);
+    var import_jsx_runtime30 = require("react/jsx-runtime");
+    function SkillPicker({ skills, query, onQuery, loading, error, errors, index, onIndex, onChoose, onClose, onRefresh }) {
+      const root = React23.useRef(null);
+      React23.useEffect(() => {
         const close = (e) => {
           if (!root.current?.contains(e.target) && !e.target?.closest?.(".dsh-codex-composer-input")) onClose();
         };
         document.addEventListener("pointerdown", close);
         return () => document.removeEventListener("pointerdown", close);
       }, []);
-      React22.useEffect(() => {
+      React23.useEffect(() => {
         root.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
       }, [index]);
-      return /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-skill-picker", ref: root, onKeyDown: (e) => {
+      return /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-skill-picker", ref: root, onKeyDown: (e) => {
         if (e.key === "Escape") {
           e.preventDefault();
           e.stopPropagation();
@@ -22923,44 +23064,44 @@ window.__ModuleLoader__.load({
           if (skills[index]?.enabled) onChoose(skills[index]);
         }
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("header", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("strong", { children: "Skills · 技能" }),
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("span", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("header", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("strong", { children: "Skills · 技能" }),
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { children: [
             skills.length,
             " 项"
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", title: "刷新技能列表", "aria-label": "刷新技能列表", onClick: onRefresh, children: /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Icon2, { name: "refresh", size: 15 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", title: "关闭技能列表", "aria-label": "关闭技能列表", onClick: onClose, children: /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Icon2, { name: "close", size: 15 }) })
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", title: "刷新技能列表", "aria-label": "刷新技能列表", onClick: onRefresh, children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "refresh", size: 15 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", title: "关闭技能列表", "aria-label": "关闭技能列表", onClick: onClose, children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "close", size: 15 }) })
         ] }),
-        onQuery && /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("input", { autoFocus: true, className: "dsh-codex-search", "aria-label": "搜索技能", placeholder: "搜索名称或说明", value: query, onChange: (e) => onQuery(e.target.value) }),
-        loading && /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("p", { role: "status", children: "正在读取技能…" }),
-        error && /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { role: "alert", children: [
+        onQuery && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("input", { autoFocus: true, className: "dsh-codex-search", "aria-label": "搜索技能", placeholder: "搜索名称或说明", value: query, onChange: (e) => onQuery(e.target.value) }),
+        loading && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("p", { role: "status", children: "正在读取技能…" }),
+        error && /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { role: "alert", children: [
           error,
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", onClick: onRefresh, children: "重试" })
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", onClick: onRefresh, children: "重试" })
         ] }),
-        errors.map((e, i) => /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("p", { className: "dsh-codex-skill-warning", children: [
+        errors.map((e, i) => /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("p", { className: "dsh-codex-skill-warning", children: [
           e.path,
           ": ",
           e.message
         ] }, i)),
-        /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("div", { role: "listbox", id: "codex-skill-options", "aria-label": "技能列表", children: skills.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("button", { type: "button", role: "option", id: "codex-skill-option-" + i, "aria-selected": index === i, "aria-disabled": !s.enabled, onMouseEnter: () => onIndex(i), onMouseDown: (e) => e.preventDefault(), onClick: () => s.enabled && onChoose(s), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("span", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("strong", { children: s.interface?.displayName || s.name }),
-            /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("code", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { role: "listbox", id: "codex-skill-options", "aria-label": "技能列表", children: skills.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", role: "option", id: "codex-skill-option-" + i, "aria-selected": index === i, "aria-disabled": !s.enabled, onMouseEnter: () => onIndex(i), onMouseDown: (e) => e.preventDefault(), onClick: () => s.enabled && onChoose(s), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("strong", { children: s.interface?.displayName || s.name }),
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("code", { children: [
               "$",
               s.name
             ] }),
-            !s.enabled && /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("small", { children: "已禁用" })
+            !s.enabled && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("small", { children: "已禁用" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("p", { children: s.interface?.shortDescription || s.shortDescription || s.description }),
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("small", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("p", { children: s.interface?.shortDescription || s.shortDescription || s.description }),
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("small", { children: [
             s.scope,
             " · ",
             s.path
           ] })
         ] }, s.path)) }),
-        !loading && !error && !skills.length && /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("p", { children: "没有匹配的技能" }),
-        /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("footer", { children: "↑↓ 选择 · Enter / Tab 使用 · Esc 关闭" })
+        !loading && !error && !skills.length && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("p", { children: "没有匹配的技能" }),
+        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("footer", { children: "↑↓ 选择 · Enter / Tab 使用 · Esc 关闭" })
       ] });
     }
 
@@ -23011,7 +23152,7 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/Composer.tsx
-    var import_jsx_runtime30 = require("react/jsx-runtime");
+    var import_jsx_runtime31 = require("react/jsx-runtime");
     var COMMANDS = [
       { id: "skill", label: "cmd.skill", desc: "cmd.skillDesc" },
       { id: "model", label: "cmd.model", desc: "cmd.modelDesc" },
@@ -23052,8 +23193,9 @@ window.__ModuleLoader__.load({
       onPermissionChange,
       onEnterPlan,
       onExitPlan,
+      followups,
+      onFollowups,
       onSend,
-      onSteer,
       onStop,
       onPickProject,
       onNew,
@@ -23062,26 +23204,26 @@ window.__ModuleLoader__.load({
       onExport
     }) {
       const t = useT();
-      const [initialDraft] = React23.useState(() => readDraft(threadId));
-      const [text, setText] = React23.useState(initialDraft.text);
-      const [busy, setBusy] = React23.useState(false);
-      const [menu, setMenu] = React23.useState(null);
-      const [plusOpen, setPlusOpen] = React23.useState(false);
-      const [permissionOpen, setPermissionOpen] = React23.useState(false);
-      const [confirmFull, setConfirmFull] = React23.useState(false);
-      const [attachments, setAttachments] = React23.useState(initialDraft.attachments);
-      const [uploading, setUploading] = React23.useState(false);
-      const [uploadError, setUploadError] = React23.useState(null);
-      const [slashIndex, setSlashIndex] = React23.useState(0);
-      const [slashDismissed, setSlashDismissed] = React23.useState(false);
-      const slashRef = React23.useRef(null);
-      const textareaRef = React23.useRef(null);
-      const historyNavigation = React23.useRef(null);
-      const fileInputRef = React23.useRef(null);
-      const folderInputRef = React23.useRef(null);
-      const uploadQueue = React23.useRef(Promise.resolve());
-      const pendingUploads = React23.useRef(0);
-      React23.useEffect(() => {
+      const [initialDraft] = React24.useState(() => readDraft(threadId));
+      const [text, setText] = React24.useState(initialDraft.text);
+      const [busy, setBusy] = React24.useState(false);
+      const [menu, setMenu] = React24.useState(null);
+      const [plusOpen, setPlusOpen] = React24.useState(false);
+      const [permissionOpen, setPermissionOpen] = React24.useState(false);
+      const [confirmFull, setConfirmFull] = React24.useState(false);
+      const [attachments, setAttachments] = React24.useState(initialDraft.attachments);
+      const [uploading, setUploading] = React24.useState(false);
+      const [uploadError, setUploadError] = React24.useState(null);
+      const [slashIndex, setSlashIndex] = React24.useState(0);
+      const [slashDismissed, setSlashDismissed] = React24.useState(false);
+      const slashRef = React24.useRef(null);
+      const textareaRef = React24.useRef(null);
+      const historyNavigation = React24.useRef(null);
+      const fileInputRef = React24.useRef(null);
+      const folderInputRef = React24.useRef(null);
+      const uploadQueue = React24.useRef(Promise.resolve());
+      const pendingUploads = React24.useRef(0);
+      React24.useEffect(() => {
         const reference = (event) => {
           const detail = event.detail;
           if (detail?.cwd !== cwd || !threadId || disabled || typeof detail.path !== "string") return;
@@ -23092,15 +23234,15 @@ window.__ModuleLoader__.load({
         window.addEventListener("dsh-codex-reference", reference);
         return () => window.removeEventListener("dsh-codex-reference", reference);
       }, [cwd, threadId, disabled]);
-      const [selectedSkills, setSelectedSkills] = React23.useState(initialDraft.skills);
-      const [catalog, setCatalog] = React23.useState(null), [skillLoading, setSkillLoading] = React23.useState(false);
-      const [skillError, setSkillError] = React23.useState(""), [skillErrors, setSkillErrors] = React23.useState([]);
-      const [skillList, setSkillList] = React23.useState(false), [skillSearch, setSkillSearch] = React23.useState(""), [skillIndex, setSkillIndex] = React23.useState(0);
-      const [caret, setCaret] = React23.useState(text.length), [skillDismissed, setSkillDismissed] = React23.useState(false);
+      const [selectedSkills, setSelectedSkills] = React24.useState(initialDraft.skills);
+      const [catalog, setCatalog] = React24.useState(null), [skillLoading, setSkillLoading] = React24.useState(false);
+      const [skillError, setSkillError] = React24.useState(""), [skillErrors, setSkillErrors] = React24.useState([]);
+      const [skillList, setSkillList] = React24.useState(false), [skillSearch, setSkillSearch] = React24.useState(""), [skillIndex, setSkillIndex] = React24.useState(0);
+      const [caret, setCaret] = React24.useState(text.length), [skillDismissed, setSkillDismissed] = React24.useState(false);
       const skillRange = skillQuery(text, caret);
       const skillOpen = skillList || !!skillRange && !skillDismissed;
       const skillResults = filterSkills(catalog || [], skillList ? skillSearch : skillRange?.query || "");
-      const requestGeneration = React23.useRef(0);
+      const requestGeneration = React24.useRef(0);
       const loadSkills = async (forceReload = false) => {
         const generation = ++requestGeneration.current;
         setSkillLoading(true);
@@ -23116,7 +23258,7 @@ window.__ModuleLoader__.load({
           if (generation === requestGeneration.current) setSkillLoading(false);
         }
       };
-      React23.useEffect(() => {
+      React24.useEffect(() => {
         setCatalog(null);
         setSkillError("");
         setSkillLoading(false);
@@ -23125,7 +23267,7 @@ window.__ModuleLoader__.load({
           requestGeneration.current++;
         };
       }, [cwd, threadId]);
-      React23.useEffect(() => {
+      React24.useEffect(() => {
         if (skillOpen && catalog === null && !skillLoading && !skillError) void loadSkills();
       }, [skillOpen, catalog, skillLoading, skillError, cwd, threadId]);
       const closeSkills = () => {
@@ -23151,16 +23293,16 @@ window.__ModuleLoader__.load({
           area?.setSelectionRange(cursor, cursor);
         });
       };
-      React23.useEffect(() => {
+      React24.useEffect(() => {
         saveDraft(threadId, text, attachments, selectedSkills.filter((s) => hasSkill(text, s.name)));
       }, [threadId, text, attachments, selectedSkills]);
-      React23.useEffect(() => {
+      React24.useEffect(() => {
         const element = textareaRef.current;
         if (element === null) return;
         element.style.height = "auto";
         element.style.height = `${Math.min(element.scrollHeight, 200)}px`;
       }, [text]);
-      React23.useEffect(() => {
+      React24.useEffect(() => {
         if (!plusOpen && !permissionOpen && !confirmFull && menu === null) return void 0;
         const onKey = (event) => {
           if (event.key !== "Escape") return;
@@ -23188,7 +23330,7 @@ window.__ModuleLoader__.load({
         return command.id.includes(slashQuery) || command.id === "skill" && slashQuery === "skills" || label.includes(slashQuery);
       });
       const slashOpen = !skillOpen && slashQuery !== null && slashCommands.length > 0 && !slashDismissed;
-      React23.useEffect(() => {
+      React24.useEffect(() => {
         if (!slashOpen) return void 0;
         const onPointer = (event) => {
           const target = event.target;
@@ -23200,7 +23342,7 @@ window.__ModuleLoader__.load({
         document.addEventListener("pointerdown", onPointer, true);
         return () => document.removeEventListener("pointerdown", onPointer, true);
       }, [slashOpen]);
-      React23.useEffect(() => {
+      React24.useEffect(() => {
         if (!slashOpen) return;
         const element = slashRef.current?.querySelector(`[data-slash-index="${slashIndex}"]`);
         if (element instanceof HTMLElement) element.scrollIntoView({ block: "nearest" });
@@ -23278,9 +23420,9 @@ window.__ModuleLoader__.load({
           }
         });
       };
-      const uploadFilesRef = React23.useRef(uploadFiles);
+      const uploadFilesRef = React24.useRef(uploadFiles);
       uploadFilesRef.current = uploadFiles;
-      React23.useEffect(() => {
+      React24.useEffect(() => {
         const area = textareaRef.current?.closest("main");
         if (!area) return;
         const hasFiles = (event) => Array.from(event.dataTransfer?.types ?? []).includes("Files");
@@ -23312,25 +23454,21 @@ window.__ModuleLoader__.load({
       }, []);
       const submit = async () => {
         const value = text.trim();
-        if (value === "" && attachments.length === 0 || activeTurnId !== null && value === "" || busy || disabled || pendingUploads.current > 0) return;
+        if (value === "" && attachments.length === 0 || busy || disabled || pendingUploads.current > 0) return;
         setBusy(true);
         try {
-          if (activeTurnId !== null) {
-            await onSteer(value, selectedSkills.filter((s) => hasSkill(value, s.name)));
-          } else {
-            await onSend(value, {
-              model: model === "" ? void 0 : model,
-              effort: effort === "" ? void 0 : effort,
-              attachments,
-              skills: selectedSkills.filter((s) => hasSkill(value, s.name)),
-              permission
-            });
-          }
+          await onSend(value, {
+            model: model === "" ? void 0 : model,
+            effort: effort === "" ? void 0 : effort,
+            attachments,
+            skills: selectedSkills.filter((s) => hasSkill(value, s.name)),
+            permission
+          });
           historyNavigation.current = null;
           setText("");
           setSelectedSkills([]);
           setSkillDismissed(true);
-          if (activeTurnId === null) setAttachments([]);
+          setAttachments([]);
           textareaRef.current?.focus();
         } catch {
         } finally {
@@ -23346,12 +23484,13 @@ window.__ModuleLoader__.load({
           setBusy(false);
         }
       };
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-composer-wrap", children: [
-        skillOpen && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(SkillPicker, { skills: skillResults, query: skillList ? skillSearch : skillRange?.query || "", onQuery: skillList ? (q) => {
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-composer-wrap", children: [
+        followups && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(FollowupList, { snapshot: followups, api, onChange: onFollowups, activeTurnId }),
+        skillOpen && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(SkillPicker, { skills: skillResults, query: skillList ? skillSearch : skillRange?.query || "", onQuery: skillList ? (q) => {
           setSkillSearch(q);
           setSkillIndex(0);
         } : void 0, loading: skillLoading, error: skillError, errors: skillErrors, index: skillIndex, onIndex: setSkillIndex, onChoose: chooseSkill, onClose: closeSkills, onRefresh: () => void loadSkills(true) }),
-        slashOpen ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-slash", role: "listbox", ref: slashRef, children: slashCommands.map((command, index) => /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(
+        slashOpen ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-slash", role: "listbox", ref: slashRef, children: slashCommands.map((command, index) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
           "button",
           {
             type: "button",
@@ -23362,26 +23501,26 @@ window.__ModuleLoader__.load({
             onMouseEnter: () => setSlashIndex(index),
             onClick: () => runCommand(command.id),
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { className: "dsh-codex-slash-name", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-slash-name", children: [
                 "/",
                 command.id
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-slash-label", children: t(command.label) }),
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-slash-desc", children: t(command.desc) })
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-slash-label", children: t(command.label) }),
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-slash-desc", children: t(command.desc) })
             ]
           },
           command.id
         )) }) : null,
-        plusOpen ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-plus-panel", role: "menu", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-menu-title", children: t("composer.add") }),
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(PlusItem, { icon: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(FolderGlyph3, {}), label: t("cmd.project"), hint: t("cmd.projectDesc"), onClick: () => runCommand("project") }),
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-menu-title", children: t("composer.commands") }),
-            COMMANDS.filter((command) => command.id !== "attach" && command.id !== "project").map((command) => /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+        plusOpen ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-plus-panel", role: "menu", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-title", children: t("composer.add") }),
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(PlusItem, { icon: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(FolderGlyph3, {}), label: t("cmd.project"), hint: t("cmd.projectDesc"), onClick: () => runCommand("project") }),
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-title", children: t("composer.commands") }),
+            COMMANDS.filter((command) => command.id !== "attach" && command.id !== "project").map((command) => /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
               PlusItem,
               {
-                icon: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(CommandGlyph, { id: command.id }),
+                icon: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CommandGlyph, { id: command.id }),
                 label: t(command.label),
                 hint: t(command.desc),
                 onClick: () => runCommand(command.id)
@@ -23390,43 +23529,43 @@ window.__ModuleLoader__.load({
             ))
           ] })
         ] }) : null,
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-composer-card", children: [
-          selectedSkills.filter((s) => hasSkill(text, s.name)).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-selected-skills", children: selectedSkills.filter((s) => hasSkill(text, s.name)).map((s) => /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { title: s.path, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "model", size: 14 }),
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-composer-card", children: [
+          selectedSkills.filter((s) => hasSkill(text, s.name)).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-selected-skills", children: selectedSkills.filter((s) => hasSkill(text, s.name)).map((s) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { title: s.path, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "model", size: 14 }),
             "$",
             s.name,
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", "aria-label": "移除技能 " + s.name, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", "aria-label": "移除技能 " + s.name, onClick: () => {
               setSelectedSkills((old) => old.filter((item) => item.path !== s.path));
               setText((old) => old.replace("$" + s.name, ""));
               setSkillDismissed(true);
-            }, children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "close", size: 12 }) })
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "close", size: 12 }) })
           ] }, s.path)) }),
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("input", { ref: fileInputRef, type: "file", multiple: true, hidden: true, onChange: (event) => {
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("input", { ref: fileInputRef, type: "file", multiple: true, hidden: true, onChange: (event) => {
             uploadFiles(event.target.files);
             event.target.value = "";
           } }),
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("input", { ref: folderInputRef, type: "file", multiple: true, hidden: true, ...{ webkitdirectory: "", directory: "" }, onChange: (event) => {
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("input", { ref: folderInputRef, type: "file", multiple: true, hidden: true, ...{ webkitdirectory: "", directory: "" }, onChange: (event) => {
             uploadFiles(event.target.files);
             event.target.value = "";
           } }),
-          attachments.length > 0 || uploading || uploadError !== null ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-attachments", children: [
-            attachments.map((attachment) => /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { className: "dsh-codex-attachment dsh-codex-attachment-card", title: attachment.name, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(AttachmentPreview, { attachment, api }),
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+          attachments.length > 0 || uploading || uploadError !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-attachments", children: [
+            attachments.map((attachment) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-attachment dsh-codex-attachment-card", title: attachment.name, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(AttachmentPreview, { attachment, api }),
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
                 "button",
                 {
                   type: "button",
                   className: "dsh-codex-attachment-remove",
                   "aria-label": t("composer.removeAttachment") + ": " + attachment.name,
                   onClick: () => setAttachments((previous) => previous.filter((item) => item.path !== attachment.path)),
-                  children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "close", size: 14 })
+                  children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "close", size: 14 })
                 }
               )
             ] }, attachment.path)),
-            uploading ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-attachment uploading", children: t("composer.uploading") }) : null,
-            uploadError !== null ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-attachment error", children: uploadError }) : null
+            uploading ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-attachment uploading", children: t("composer.uploading") }) : null,
+            uploadError !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-attachment error", children: uploadError }) : null
           ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
             "textarea",
             {
               ref: textareaRef,
@@ -23434,7 +23573,7 @@ window.__ModuleLoader__.load({
               rows: 1,
               value: text,
               disabled,
-              placeholder: activeTurnId !== null ? t("composer.steerPlaceholder") : planMode ? t("composer.planPlaceholder") : t("composer.placeholder"),
+              placeholder: activeTurnId !== null ? t("composer.queuePlaceholder") : planMode ? t("composer.planPlaceholder") : t("composer.placeholder"),
               onPaste: (event) => {
                 const files = Array.from(event.clipboardData.files);
                 if (files.length === 0) return;
@@ -23533,9 +23672,9 @@ window.__ModuleLoader__.load({
               }
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-composer-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-composer-tools", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-composer-row", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-composer-tools", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
                 "button",
                 {
                   type: "button",
@@ -23547,18 +23686,18 @@ window.__ModuleLoader__.load({
                     setPermissionOpen(false);
                     setMenu(null);
                   },
-                  children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "plus", size: 16 })
+                  children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "plus", size: 16 })
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", className: "dsh-codex-icon-button dsh-codex-attach", "aria-label": t("composer.attachFile"), title: t("composer.attachFile"), disabled, onClick: () => {
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", className: "dsh-codex-icon-button dsh-codex-attach", "aria-label": t("composer.attachFile"), title: t("composer.attachFile"), disabled, onClick: () => {
                 closeAll();
                 fileInputRef.current?.click();
-              }, children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "attachment", size: 18 }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", className: "dsh-codex-icon-button dsh-codex-attach dsh-codex-attach-folder", "aria-label": t("composer.attachFolder"), title: t("composer.attachFolder"), disabled, onClick: () => {
+              }, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "attachment", size: 18 }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", className: "dsh-codex-icon-button dsh-codex-attach dsh-codex-attach-folder", "aria-label": t("composer.attachFolder"), title: t("composer.attachFolder"), disabled, onClick: () => {
                 closeAll();
                 folderInputRef.current?.click();
-              }, children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "folderPlus", size: 18 }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(
+              }, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "folderPlus", size: 18 }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
                 "button",
                 {
                   type: "button",
@@ -23572,19 +23711,19 @@ window.__ModuleLoader__.load({
                     setMenu(null);
                   },
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(ShieldGlyph, {}),
-                    /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { children: t(`permission.${permission}`) })
+                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ShieldGlyph, {}),
+                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: t(`permission.${permission}`) })
                   ]
                 }
               ),
-              planMode ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { className: "dsh-codex-plan-tag", children: [
+              planMode ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-plan-tag", children: [
                 t("plan.tag"),
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", "aria-label": t("plan.exit"), title: t("plan.exit"), onClick: onExitPlan, children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(CloseGlyph, {}) })
+                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", "aria-label": t("plan.exit"), title: t("plan.exit"), onClick: onExitPlan, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CloseGlyph, {}) })
               ] }) : null
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-composer-spacer" }),
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-composer-trailing", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-composer-spacer" }),
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-composer-trailing", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
                 "button",
                 {
                   type: "button",
@@ -23598,17 +23737,17 @@ window.__ModuleLoader__.load({
                     setPermissionOpen(false);
                   },
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(ModelGlyph, {}),
-                    /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-model-label", children: modelLabel }),
-                    /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { className: "dsh-codex-model-effort", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ModelGlyph, {}),
+                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-model-label", children: modelLabel }),
+                    /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-model-effort", children: [
                       "· ",
                       effortLabel
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(ChevronGlyph2, {})
+                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ChevronGlyph2, {})
                   ]
                 }
               ),
-              activeTurnId !== null ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+              activeTurnId !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
                 "button",
                 {
                   type: "button",
@@ -23617,38 +23756,38 @@ window.__ModuleLoader__.load({
                   "aria-label": t("composer.stop"),
                   title: t("composer.stop"),
                   onClick: () => void stop(),
-                  children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(StopGlyph, {})
+                  children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(StopGlyph, {})
                 }
               ) : null,
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
                 "button",
                 {
                   type: "button",
                   className: "dsh-codex-send",
-                  disabled: disabled || busy || uploading || text.trim() === "" && (attachments.length === 0 || activeTurnId !== null),
-                  "aria-label": activeTurnId === null ? t("composer.send") : t("composer.steer"),
-                  title: activeTurnId === null ? t("composer.send") : t("composer.steer"),
+                  disabled: disabled || busy || uploading || text.trim() === "" && attachments.length === 0,
+                  "aria-label": activeTurnId === null ? t("composer.send") : t("composer.queue"),
+                  title: activeTurnId === null ? t("composer.send") : t("composer.queue"),
                   onClick: () => void submit(),
-                  children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(SendGlyph, {})
+                  children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(SendGlyph, {})
                 }
               )
             ] })
           ] }),
-          permissionOpen ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-permission-menu", role: "menu", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-menu-title", children: t("permission.title") }),
-              ["ask", "approve", "full", "read"].map((mode) => /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(
+          permissionOpen ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-permission-menu", role: "menu", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-title", children: t("permission.title") }),
+              ["ask", "approve", "full", "read"].map((mode) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
                 "button",
                 {
                   type: "button",
                   className: `dsh-codex-permission-option ${permission === mode ? "selected" : ""}`,
                   onClick: () => choosePermission(mode),
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-check", children: permission === mode ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(CheckGlyph, {}) : null }),
-                    /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { className: "dsh-codex-permission-meta", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-name", children: t(`permission.${mode}`) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-desc", children: t(`permission.${mode}Desc`) })
+                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-check", children: permission === mode ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CheckGlyph, {}) : null }),
+                    /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-permission-meta", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-name", children: t(`permission.${mode}`) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-desc", children: t(`permission.${mode}Desc`) })
                     ] })
                   ]
                 },
@@ -23656,21 +23795,21 @@ window.__ModuleLoader__.load({
               ))
             ] })
           ] }) : null,
-          menu !== null ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-menu", role: "menu", children: [
-              menu === "root" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("model"), children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-cell-label", children: t("composer.model") }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("strong", { className: "dsh-effort-current", "aria-label": t("composer.effort"), children: effortLabel }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-cell-value", children: modelLabel }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(ChevronRightGlyph, {})
+          menu !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-menu", role: "menu", children: [
+              menu === "root" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("model"), children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-cell-label", children: t("composer.model") }),
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("strong", { className: "dsh-effort-current", "aria-label": t("composer.effort"), children: effortLabel }),
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-cell-value", children: modelLabel }),
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ChevronRightGlyph, {})
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-effort-inline", children: /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-effort-track", style: { "--effort-progress": effortProgress + "%", "--effort-offset": 13 - effortProgress * 0.26 + "px", "--effort-color": `hsl(211 82% ${42 + effortProgress * 0.18}%)` }, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-effort-fill" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-effort-dots", "aria-hidden": "true", children: efforts.map((option, index) => /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("i", { className: index < effortIndex ? "is-active" : "" }, option.reasoningEffort)) }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-effort-thumb", "aria-hidden": "true" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-effort-inline", children: /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-effort-track", style: { "--effort-progress": effortProgress + "%", "--effort-offset": 13 - effortProgress * 0.26 + "px", "--effort-color": `hsl(211 82% ${42 + effortProgress * 0.18}%)` }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-effort-fill" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-effort-dots", "aria-hidden": "true", children: efforts.map((option, index) => /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("i", { className: index < effortIndex ? "is-active" : "" }, option.reasoningEffort)) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-effort-thumb", "aria-hidden": "true" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
                     "input",
                     {
                       type: "range",
@@ -23686,10 +23825,10 @@ window.__ModuleLoader__.load({
                   )
                 ] }) })
               ] }) : null,
-              menu === "model" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(MenuBack, { label: t("composer.model"), onClick: () => setMenu("root") }),
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-menu-list model-name-list", children: [
-                  models.map((entry) => /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(
+              menu === "model" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(MenuBack, { label: t("composer.model"), onClick: () => setMenu("root") }),
+                /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-menu-list model-name-list", children: [
+                  models.map((entry) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
                     "button",
                     {
                       type: "button",
@@ -23701,13 +23840,13 @@ window.__ModuleLoader__.load({
                         setMenu("root");
                       },
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-check", children: entry.id === model ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(CheckGlyph, {}) : null }),
-                        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-meta", children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-name", children: entry.displayName }) })
+                        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-check", children: entry.id === model ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CheckGlyph, {}) : null }),
+                        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-meta", children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-name", children: entry.displayName }) })
                       ]
                     },
                     entry.id
                   )),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
                     "button",
                     {
                       type: "button",
@@ -23719,19 +23858,19 @@ window.__ModuleLoader__.load({
                         setMenu("root");
                       },
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-check", children: model === "" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(CheckGlyph, {}) : null }),
-                        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-meta", children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-menu-name", children: t("composer.defaultModel") }) })
+                        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-check", children: model === "" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CheckGlyph, {}) : null }),
+                        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-meta", children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-name", children: t("composer.defaultModel") }) })
                       ]
                     }
                   )
                 ] })
               ] }) : null,
-              menu === "effort" || menu === "more" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(MenuBack, { label: t("composer.effort"), onClick: () => setMenu("root") }),
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-effort-slider", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("strong", { children: effortLabel }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { children: modelLabel }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+              menu === "effort" || menu === "more" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(MenuBack, { label: t("composer.effort"), onClick: () => setMenu("root") }),
+                /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-effort-slider", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("strong", { children: effortLabel }),
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: modelLabel }),
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
                     "input",
                     {
                       type: "range",
@@ -23745,24 +23884,24 @@ window.__ModuleLoader__.load({
                       onChange: (event) => onEffortChange(efforts[Number(event.target.value)].reasoningEffort)
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-effort-ticks", children: efforts.map((option) => /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { children: labelForEffort(t, option.reasoningEffort) }, option.reasoningEffort)) })
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-effort-ticks", children: efforts.map((option) => /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: labelForEffort(t, option.reasoningEffort) }, option.reasoningEffort)) })
                 ] })
               ] }) : null
             ] })
           ] }) : null,
-          confirmFull ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+          confirmFull ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
             "div",
             {
               className: "dsh-codex-dialog-backdrop",
               onMouseDown: (event) => {
                 if (event.target === event.currentTarget) setConfirmFull(false);
               },
-              children: /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("header", { className: "dsh-codex-dialog-head", children: t("permission.fullTitle") }),
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-approval-meta", children: t("permission.fullBody") }),
-                /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: () => setConfirmFull(false), children: t("permission.cancel") }),
-                  /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
+              children: /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("header", { className: "dsh-codex-dialog-head", children: t("permission.fullTitle") }),
+                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-approval-meta", children: t("permission.fullBody") }),
+                /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: () => setConfirmFull(false), children: t("permission.cancel") }),
+                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
                     "button",
                     {
                       type: "button",
@@ -23782,16 +23921,16 @@ window.__ModuleLoader__.load({
       ] });
     }
     function PlusItem({ icon, label, hint, onClick }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", role: "menuitem", className: "dsh-codex-plus-item", onClick, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-plus-icon", children: icon }),
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-plus-label", children: label }),
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { className: "dsh-codex-plus-hint", children: hint })
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("button", { type: "button", role: "menuitem", className: "dsh-codex-plus-item", onClick, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-plus-icon", children: icon }),
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-plus-label", children: label }),
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-plus-hint", children: hint })
       ] });
     }
     function MenuBack({ label, onClick }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", className: "dsh-codex-menu-back", onClick, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(ChevronLeftGlyph, {}),
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { children: label })
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("button", { type: "button", className: "dsh-codex-menu-back", onClick, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ChevronLeftGlyph, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: label })
       ] });
     }
     function labelForEffort(t, value) {
@@ -23800,8 +23939,8 @@ window.__ModuleLoader__.load({
       return text === key ? value : text;
     }
     function AttachmentPreview({ attachment, api }) {
-      const [src, setSrc] = React23.useState(null);
-      React23.useEffect(() => {
+      const [src, setSrc] = React24.useState(null);
+      React24.useEffect(() => {
         let active = true;
         setSrc(null);
         if (attachment.kind !== "image") return () => {
@@ -23817,9 +23956,9 @@ window.__ModuleLoader__.load({
       }, [api, attachment.path, attachment.kind]);
       const extension = attachment.name.split(".").pop()?.toLowerCase() ?? "";
       const icon = /^(png|jpe?g|gif|webp|svg|bmp|avif|heic)$/.test(extension) ? "fileImage" : /^(zip|rar|7z|tar|gz)$/.test(extension) ? "fileArchive" : /^(xls|xlsx|csv|ods)$/.test(extension) ? "fileSpreadsheet" : /^(mp3|wav|m4a|ogg|flac)$/.test(extension) ? "fileAudio" : /^(mp4|mov|webm|mkv)$/.test(extension) ? "fileVideo" : /^(js|ts|tsx|jsx|py|c|cpp|h|java|html|css|json|sh|rs|go)$/.test(extension) ? "fileCode" : /^(pdf|doc|docx|ppt|pptx)$/.test(extension) ? "fileType" : "file";
-      return src ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(ImageViewer, { className: "dsh-codex-attachment-preview", src, alt: attachment.name, onError: () => setSrc(null) }) : /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { className: "dsh-codex-attachment-placeholder", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: icon, size: 29 }),
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { children: extension || "FILE" })
+      return src ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ImageViewer, { className: "dsh-codex-attachment-preview", src, alt: attachment.name, onError: () => setSrc(null) }) : /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-attachment-placeholder", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: icon, size: 29 }),
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: extension || "FILE" })
       ] });
     }
     function readAsBase64(file) {
@@ -23835,49 +23974,49 @@ window.__ModuleLoader__.load({
       });
     }
     function CommandGlyph({ id }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { size: 16, name: id === "plan" ? "plan" : id === "permission" ? "shield" : id === "model" ? "model" : id === "effort" ? "brain" : id === "compact" ? "arrowDown" : id === "new" ? "plus" : id === "export" ? "download" : id === "diff" ? "git" : "command" });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { size: 16, name: id === "plan" ? "plan" : id === "permission" ? "shield" : id === "model" ? "model" : id === "effort" ? "brain" : id === "compact" ? "arrowDown" : id === "new" ? "plus" : id === "export" ? "download" : id === "diff" ? "git" : "command" });
     }
     function CloseGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "close", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "close", size: 16 });
     }
     function ShieldGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "shield", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "shield", size: 16 });
     }
     function FolderGlyph3() {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "folder", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "folder", size: 16 });
     }
     function ModelGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "model", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "model", size: 16 });
     }
     function ChevronGlyph2() {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "chevronDown", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "chevronDown", size: 16 });
     }
     function ChevronRightGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "chevronRight", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "chevronRight", size: 16 });
     }
     function ChevronLeftGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "chevronLeft", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "chevronLeft", size: 16 });
     }
     function SendGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "arrowUp", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "arrowUp", size: 16 });
     }
     function StopGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "stop", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "stop", size: 16 });
     }
     function CheckGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "check", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "check", size: 16 });
     }
 
     // src/client/page/ItemCard.tsx
-    var React24 = __toESM(require("react"), 1);
-    var import_jsx_runtime31 = require("react/jsx-runtime");
+    var React25 = __toESM(require("react"), 1);
+    var import_jsx_runtime32 = require("react/jsx-runtime");
     function ItemCard({ item, api, cwd = "" }) {
       const t = useT();
       switch (item.type) {
         case "userMessage":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Message, { cwd, kind: "user", label: t("item.user"), text: itemText(item), time: formatClock(item.startedAtMs), api, attachments: (item.content ?? []).filter((part) => typeof part.path === "string" && (part.type === "localImage" || part.type === "local_image" || part.type === "mention")).map((part) => ({ path: part.path, name: part.name, image: part.type !== "mention" })) });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Message, { cwd, kind: "user", label: t("item.user"), text: itemText(item), time: formatClock(item.startedAtMs), api, attachments: (item.content ?? []).filter((part) => typeof part.path === "string" && (part.type === "localImage" || part.type === "local_image" || part.type === "mention")).map((part) => ({ path: part.path, name: part.name, image: part.type !== "mention" })) });
         case "agentMessage":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
             Message,
             {
               api,
@@ -23890,33 +24029,33 @@ window.__ModuleLoader__.load({
             }
           );
         case "reasoning":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Reasoning, { item });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Reasoning, { item });
         case "commandExecution":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CommandCard, { item });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(CommandCard, { item });
         case "fileChange":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(FileCard, { item });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(FileCard, { item });
         case "mcpToolCall":
         case "dynamicToolCall":
         case "functionCallOutput":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ToolCard, { item });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ToolCard, { item });
         case "plan":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Block, { title: t("item.plan"), body: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-text", children: item.text ?? "" }) });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Block, { title: t("item.plan"), body: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-text", children: item.text ?? "" }) });
         case "webSearch":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Disclosure, { title: t("item.search"), body: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Json, { value: item }) });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Disclosure, { title: t("item.search"), body: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Json, { value: item }) });
         case "imageView":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ImageView, { item, api });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ImageView, { item, api });
         case "localSettingChange":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Divider, { label: typeof item.text === "string" ? item.text : "" });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Divider, { label: typeof item.text === "string" ? item.text : "" });
         case "contextCompaction":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Divider, { label: t("item.compaction") });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Divider, { label: t("item.compaction") });
         case "enteredReviewMode":
         case "exitedReviewMode":
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Divider, { label: t("item.review") });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Divider, { label: t("item.review") });
         case "sleep":
         case "hookPrompt":
           return null;
         default:
-          return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Disclosure, { title: t("item.other", { type: item.type }), body: null });
+          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Disclosure, { title: t("item.other", { type: item.type }), body: null });
       }
     }
     function Message({
@@ -23930,19 +24069,19 @@ window.__ModuleLoader__.load({
       time = ""
     }) {
       if (text.trim() === "" && attachments.length === 0) return null;
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: `dsh-codex-message ${kind}`, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-message-head", children: [
-          kind === "user" && time !== "" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-message-time", children: time }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-message-avatar", children: kind === "assistant" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CodexIcon, { size: 17 }) : /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "message", size: 16 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("strong", { children: label }),
-          kind === "assistant" && time !== "" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-message-time", children: time }) : null
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: `dsh-codex-message ${kind}`, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-message-head", children: [
+          kind === "user" && time !== "" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-message-time", children: time }) : null,
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-message-avatar", children: kind === "assistant" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(CodexIcon, { size: 17 }) : /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "message", size: 16 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("strong", { children: label }),
+          kind === "assistant" && time !== "" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-message-time", children: time }) : null
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-bubble", style: muted ? { opacity: 0.82 } : void 0, children: [
-          attachments.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-message-images", children: attachments.map((attachment, index) => attachment.image ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ImageView, { item: { id: attachment.path, type: "imageView", path: attachment.path }, api, hideCaption: true }, attachment.path + index) : downloadsOnClick(attachment.path) ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(FileDownloadButton, { api, cwd, path: attachment.path, className: "dsh-codex-message-file", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "file", size: 24 }),
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "download", size: 14 })
-          ] }, attachment.path + index) : /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", className: "dsh-codex-message-file", title: attachment.path, "aria-label": "预览 " + (attachment.name || attachment.path.split("/").at(-1)), onClick: () => window.dispatchEvent(new CustomEvent("dsh-codex-open-file", { detail: attachment.path })), children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "file", size: 24 }) }, attachment.path + index)) }),
-          text.trim() !== "" && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Markdown, { text, api, cwd })
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-bubble", style: muted ? { opacity: 0.82 } : void 0, children: [
+          attachments.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-message-images", children: attachments.map((attachment, index) => attachment.image ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ImageView, { item: { id: attachment.path, type: "imageView", path: attachment.path }, api, hideCaption: true }, attachment.path + index) : downloadsOnClick(attachment.path) ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(FileDownloadButton, { api, cwd, path: attachment.path, className: "dsh-codex-message-file", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "file", size: 24 }),
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "download", size: 14 })
+          ] }, attachment.path + index) : /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("button", { type: "button", className: "dsh-codex-message-file", title: attachment.path, "aria-label": "预览 " + (attachment.name || attachment.path.split("/").at(-1)), onClick: () => window.dispatchEvent(new CustomEvent("dsh-codex-open-file", { detail: attachment.path })), children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "file", size: 24 }) }, attachment.path + index)) }),
+          text.trim() !== "" && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Markdown, { text, api, cwd })
         ] })
       ] });
     }
@@ -23951,9 +24090,9 @@ window.__ModuleLoader__.load({
       const summary = Array.isArray(item.summary) ? item.summary.filter((part) => part.trim() !== "") : [];
       const body = summary.join("\n\n");
       if (body === "") return null;
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("details", { className: "dsh-codex-reasoning", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("summary", { children: t("item.reasoning") }),
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-reasoning-body", children: body })
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("details", { className: "dsh-codex-reasoning", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("summary", { children: t("item.reasoning") }),
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-reasoning-body", children: body })
       ] });
     }
     function CommandCard({ item }) {
@@ -23961,18 +24100,18 @@ window.__ModuleLoader__.load({
       const output = typeof item.aggregatedOutput === "string" ? item.aggregatedOutput : "";
       const status = typeof item.status === "string" ? item.status : "";
       const command = item.command ?? "";
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
         Disclosure,
         {
           title: t("item.command"),
-          meta: /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-block-title", children: shorten(command, 120) }),
-            status !== "" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: status }) : null,
-            typeof item.exitCode === "number" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: t("item.exitCode", { code: item.exitCode }) }) : null
+          meta: /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-block-title", children: shorten(command, 120) }),
+            status !== "" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: status }) : null,
+            typeof item.exitCode === "number" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: t("item.exitCode", { code: item.exitCode }) }) : null
           ] }),
-          body: /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-command", children: command }),
-            output !== "" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("pre", { className: "dsh-codex-pre", children: output }) : null
+          body: /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-command", children: command }),
+            output !== "" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("pre", { className: "dsh-codex-pre", children: output }) : null
           ] })
         }
       );
@@ -23980,14 +24119,14 @@ window.__ModuleLoader__.load({
     function FileCard({ item }) {
       const t = useT();
       const changes = Array.isArray(item.changes) ? item.changes : [];
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
         Disclosure,
         {
           title: t("item.files"),
-          meta: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: t("item.files.changed", { count: changes.length }) }),
-          body: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-files", children: changes.map((change, index) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("details", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("summary", { className: "dsh-codex-file-path", children: change.path }),
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("pre", { className: "dsh-codex-pre", children: change.diff })
+          meta: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: t("item.files.changed", { count: changes.length }) }),
+          body: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-files", children: changes.map((change, index) => /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("details", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("summary", { className: "dsh-codex-file-path", children: change.path }),
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("pre", { className: "dsh-codex-pre", children: change.diff })
           ] }, `${change.path}-${index}`)) })
         }
       );
@@ -23995,15 +24134,15 @@ window.__ModuleLoader__.load({
     function ToolCard({ item }) {
       const t = useT();
       const title = item.type === "mcpToolCall" ? `${item.server ?? "mcp"} / ${item.tool ?? ""}` : item.type === "dynamicToolCall" ? `tool / ${item.tool ?? ""}` : item.type;
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
         Disclosure,
         {
           title: t("item.tool"),
-          meta: /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-block-title", children: title }),
-            typeof item.status === "string" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: item.status }) : null
+          meta: /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-block-title", children: title }),
+            typeof item.status === "string" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: item.status }) : null
           ] }),
-          body: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Json, { value: { arguments: item.arguments, result: item.result, error: item.error } })
+          body: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Json, { value: { arguments: item.arguments, result: item.result, error: item.error } })
         }
       );
     }
@@ -24017,39 +24156,39 @@ window.__ModuleLoader__.load({
       if (text.trim() === "" || text === "{}") return null;
       if (text.length > 4e3) text = `${text.slice(0, 4e3)}
     …`;
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("pre", { className: "dsh-codex-pre", children: text });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("pre", { className: "dsh-codex-pre", children: text });
     }
     function Disclosure({ title, meta, body }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("details", { className: "dsh-codex-block", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("summary", { className: "dsh-codex-block-head", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-caret" }),
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: title }),
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("details", { className: "dsh-codex-block", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("summary", { className: "dsh-codex-block-head", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-caret" }),
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: title }),
           meta
         ] }),
-        body !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-block-body", children: body }) : null
+        body !== null ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-block-body", children: body }) : null
       ] });
     }
     function Block({ title, meta, body }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("section", { className: "dsh-codex-block", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("header", { className: "dsh-codex-block-head", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: title }),
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("section", { className: "dsh-codex-block", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("header", { className: "dsh-codex-block-head", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: title }),
           meta
         ] }),
-        body !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-block-body", children: body }) : null
+        body !== null ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-block-body", children: body }) : null
       ] });
     }
     function Divider({ label }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-divider", children: label });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-divider", children: label });
     }
     var imageCache = /* @__PURE__ */ new Map();
     function ImageView({ item, api, hideCaption = false }) {
       const t = useT();
       const path = typeof item.path === "string" ? item.path : "";
-      const holderRef = React24.useRef(null);
-      const [visible, setVisible] = React24.useState(false);
-      const [src, setSrc] = React24.useState(path === "" ? null : imageCache.get(path) ?? null);
-      const [failed, setFailed] = React24.useState(false);
-      React24.useEffect(() => {
+      const holderRef = React25.useRef(null);
+      const [visible, setVisible] = React25.useState(false);
+      const [src, setSrc] = React25.useState(path === "" ? null : imageCache.get(path) ?? null);
+      const [failed, setFailed] = React25.useState(false);
+      React25.useEffect(() => {
         if (path === "") return void 0;
         const cached = imageCache.get(path);
         if (cached !== void 0) {
@@ -24073,7 +24212,7 @@ window.__ModuleLoader__.load({
         observer.observe(element);
         return () => observer.disconnect();
       }, [path]);
-      React24.useEffect(() => {
+      React25.useEffect(() => {
         if (!visible || path === "" || src !== null) return void 0;
         let alive = true;
         setFailed(false);
@@ -24088,9 +24227,9 @@ window.__ModuleLoader__.load({
         };
       }, [api, path, visible, src]);
       if (path === "") return null;
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("figure", { className: "dsh-codex-image", ref: holderRef, children: [
-        src !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ImageViewer, { src, alt: basenameOf(path) }) : /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-image-placeholder", children: failed ? t("item.imageFailed") : t("item.imageLoading") }),
-        !hideCaption && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("figcaption", { children: basenameOf(path) })
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("figure", { className: "dsh-codex-image", ref: holderRef, children: [
+        src !== null ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ImageViewer, { src, alt: basenameOf(path) }) : /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-image-placeholder", children: failed ? t("item.imageFailed") : t("item.imageLoading") }),
+        !hideCaption && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("figcaption", { children: basenameOf(path) })
       ] });
     }
     function basenameOf(value) {
@@ -24104,8 +24243,8 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/ToolGroup.tsx
-    var React25 = __toESM(require("react"), 1);
-    var import_jsx_runtime32 = require("react/jsx-runtime");
+    var React26 = __toESM(require("react"), 1);
+    var import_jsx_runtime33 = require("react/jsx-runtime");
     var ACTIVITY_TYPES = /* @__PURE__ */ new Set(["commandExecution", "fileChange", "mcpToolCall", "dynamicToolCall", "webSearch"]);
     function isActivity(item) {
       return ACTIVITY_TYPES.has(item.type);
@@ -24145,10 +24284,10 @@ window.__ModuleLoader__.load({
     }
     function ToolGroup({ items, api }) {
       const t = useT();
-      const [open, setOpen] = React25.useState(false);
+      const [open, setOpen] = React26.useState(false);
       const summary = summarize(items, t);
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-tool-group", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-tool-group", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(
           "button",
           {
             type: "button",
@@ -24156,12 +24295,12 @@ window.__ModuleLoader__.load({
             "aria-expanded": open,
             onClick: () => setOpen(!open),
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: `dsh-codex-tool-group-chevron ${open ? "open" : ""}`, children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "chevronDown", size: 16 }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-tool-group-title", children: summary })
+              /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: `dsh-codex-tool-group-chevron ${open ? "open" : ""}`, children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Icon2, { name: "chevronDown", size: 16 }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: "dsh-codex-tool-group-title", children: summary })
             ]
           }
         ),
-        open ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-tool-group-body", children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ItemCard, { item, api }, item.id)) }) : null
+        open ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-tool-group-body", children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ItemCard, { item, api }, item.id)) }) : null
       ] });
     }
     function summarize(items, t) {
@@ -24242,7 +24381,7 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/ThreadView.tsx
-    var import_jsx_runtime33 = require("react/jsx-runtime");
+    var import_jsx_runtime34 = require("react/jsx-runtime");
     function ThreadView({
       api,
       provider,
@@ -24260,8 +24399,9 @@ window.__ModuleLoader__.load({
       onLoadOlder,
       pending: pending2,
       onRespond,
+      followups,
+      onFollowups,
       onSend,
-      onSteer,
       onStop,
       onPickProject,
       onNew,
@@ -24271,14 +24411,14 @@ window.__ModuleLoader__.load({
       actions
     }) {
       const t = useT();
-      const messagesRef = React26.useRef(null);
-      const messageContentRef = React26.useRef(null);
+      const messagesRef = React27.useRef(null);
+      const messageContentRef = React27.useRef(null);
       const threadId = detail?.thread.id ?? null;
-      const [model, setModel] = React26.useState("");
-      const [effort, setEffort] = React26.useState("");
-      const [permission, setPermission] = React26.useState("ask");
-      const settingEvents = React26.useRef({});
-      const [, refreshSettingEvents] = React26.useReducer((value) => value + 1, 0);
+      const [model, setModel] = React27.useState("");
+      const [effort, setEffort] = React27.useState("");
+      const [permission, setPermission] = React27.useState("ask");
+      const settingEvents = React27.useRef({});
+      const [, refreshSettingEvents] = React27.useReducer((value) => value + 1, 0);
       const eventsFor = (id) => {
         if (settingEvents.current[id]) return settingEvents.current[id];
         try {
@@ -24303,8 +24443,8 @@ window.__ModuleLoader__.load({
         }
         refreshSettingEvents();
       };
-      const [, setTick] = React26.useState(0);
-      const runningSinceRef = React26.useRef({ key: "", time: Date.now() });
+      const [, setTick] = React27.useState(0);
+      const runningSinceRef = React27.useRef({ key: "", time: Date.now() });
       const runningKey = threadId && activeTurnId ? `dsh-codex-running:${threadId}` : "";
       const runningIdentity = runningKey && activeTurnId ? `${runningKey}:${activeTurnId}` : "";
       if (runningSinceRef.current.key !== runningIdentity) {
@@ -24316,7 +24456,7 @@ window.__ModuleLoader__.load({
         }
         runningSinceRef.current = { key: runningIdentity, time };
       }
-      React26.useEffect(() => {
+      React27.useEffect(() => {
         if (activeTurnId === null) return void 0;
         if (runningKey) try {
           sessionStorage.setItem(runningKey, JSON.stringify({ turnId: activeTurnId, time: runningSinceRef.current.time }));
@@ -24325,7 +24465,7 @@ window.__ModuleLoader__.load({
         const timer = window.setInterval(() => setTick((value) => value + 1), 1e3);
         return () => window.clearInterval(timer);
       }, [activeTurnId, runningKey]);
-      React26.useLayoutEffect(() => {
+      React27.useLayoutEffect(() => {
         if (detail === null) return;
         let pending3 = null;
         try {
@@ -24336,7 +24476,7 @@ window.__ModuleLoader__.load({
         setModel(pending3?.model ?? detail.thread.model ?? (provider === "opencode-go" ? "deepseek-v4.1-flash" : ""));
         setEffort(pending3?.effort ?? detail.thread.reasoningEffort ?? "");
       }, [threadId]);
-      React26.useLayoutEffect(() => {
+      React27.useLayoutEffect(() => {
         if (detail === null) return;
         try {
           const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`);
@@ -24355,7 +24495,7 @@ window.__ModuleLoader__.load({
         } catch {
         }
       };
-      const changePermission = React26.useCallback(
+      const changePermission = React27.useCallback(
         (mode) => {
           if (mode !== permission) recordSetting(`权限已切换为${t("permission." + mode)}（下一轮生效）`);
           setPermission(mode);
@@ -24367,18 +24507,18 @@ window.__ModuleLoader__.load({
         },
         [threadId, permission, detail, t]
       );
-      const atBottomRef = React26.useRef(true);
-      const [showJump, setShowJump] = React26.useState(false);
-      const pendingPrependRef = React26.useRef(null);
+      const atBottomRef = React27.useRef(true);
+      const [showJump, setShowJump] = React27.useState(false);
+      const pendingPrependRef = React27.useRef(null);
       const BOTTOM_THRESHOLD = 32;
-      React26.useLayoutEffect(() => {
+      React27.useLayoutEffect(() => {
         const element = messagesRef.current;
         if (element === null) return;
         atBottomRef.current = true;
         setShowJump(false);
         element.scrollTop = element.scrollHeight;
       }, [threadId, loading]);
-      React26.useLayoutEffect(() => {
+      React27.useLayoutEffect(() => {
         const element = messagesRef.current;
         if (element === null) return;
         const pending3 = pendingPrependRef.current;
@@ -24390,7 +24530,7 @@ window.__ModuleLoader__.load({
         if (!atBottomRef.current) return;
         element.scrollTop = element.scrollHeight;
       }, [detail]);
-      React26.useLayoutEffect(() => {
+      React27.useLayoutEffect(() => {
         const element = messagesRef.current;
         const content = messageContentRef.current;
         if (!element || !content) return;
@@ -24408,16 +24548,16 @@ window.__ModuleLoader__.load({
           content.removeEventListener("load", follow, true);
         };
       }, [threadId, loading]);
-      React26.useEffect(() => {
+      React27.useEffect(() => {
         if (!loadingOlder) pendingPrependRef.current = null;
       }, [loadingOlder]);
-      const triggerOlder = React26.useCallback(() => {
+      const triggerOlder = React27.useCallback(() => {
         const element = messagesRef.current;
         if (element === null || !hasOlder || loadingOlder) return;
         pendingPrependRef.current = { height: element.scrollHeight, top: element.scrollTop };
         void onLoadOlder();
       }, [hasOlder, loadingOlder, onLoadOlder]);
-      const onMessagesScroll = React26.useCallback(() => {
+      const onMessagesScroll = React27.useCallback(() => {
         const element = messagesRef.current;
         if (element === null) return;
         const atBottom = element.scrollHeight - element.scrollTop - element.clientHeight <= BOTTOM_THRESHOLD;
@@ -24425,7 +24565,7 @@ window.__ModuleLoader__.load({
         setShowJump((previous) => previous === !atBottom ? previous : !atBottom);
         if (element.scrollTop < 240) triggerOlder();
       }, [triggerOlder]);
-      const jumpToBottom = React26.useCallback(() => {
+      const jumpToBottom = React27.useCallback(() => {
         const element = messagesRef.current;
         if (element === null) return;
         atBottomRef.current = true;
@@ -24433,13 +24573,13 @@ window.__ModuleLoader__.load({
         element.scrollTo({ top: element.scrollHeight, behavior: "smooth" });
       }, []);
       if (selectedId === null) {
-        return /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-empty", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("strong", { children: t("thread.select") }),
-          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("small", { children: t("thread.selectHint") })
+        return /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-empty", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("strong", { children: t("thread.select") }),
+          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("small", { children: t("thread.selectHint") })
         ] });
       }
       if (loading && detail === null) {
-        return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-empty", children: t("thread.loading") });
+        return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-empty", children: t("thread.loading") });
       }
       if (detail === null) return null;
       const thread = detail.thread;
@@ -24465,49 +24605,49 @@ window.__ModuleLoader__.load({
       const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null;
       const now = Date.now();
       const runningMs = Math.max(0, Math.floor((now - runningStartedAt(activeTurn, runningSinceRef.current.time, now)) / 1e3) * 1e3);
-      return /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(import_jsx_runtime33.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-thread-header", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-thread-header-top", hidden: true, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-thread-title", title: thread.id, children: threadTitle(thread) }),
+      return /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)(import_jsx_runtime34.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-thread-header", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-thread-header-top", hidden: true, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-thread-title", title: thread.id, children: threadTitle(thread) }),
             actions
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-chips", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "status", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-chips", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "status", children: [
               t("thread.status"),
               ": ",
               t(statusKey(thread.status))
             ] }),
-            thread.cwd ? /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "cwd", title: thread.cwd, children: [
+            thread.cwd ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "cwd", title: thread.cwd, children: [
               t("thread.cwd"),
               ": ",
-              /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("code", { children: basename(thread.cwd) })
+              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("code", { children: basename(thread.cwd) })
             ] }) : null,
-            thread.model ? /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "model", children: [
+            thread.model ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "model", children: [
               t("thread.model"),
               ": ",
               thread.model
             ] }) : null,
-            thread.reasoningEffort ? /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "effort", children: [
+            thread.reasoningEffort ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "effort", children: [
               t("thread.effort"),
               ": ",
               thread.reasoningEffort
             ] }) : null,
-            typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "branch", children: [
+            typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "branch", children: [
               t("thread.git"),
               ": ",
               thread.gitInfo.branch
             ] }) : null,
-            thread.updatedAt ? /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "updated", children: [
+            thread.updatedAt ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "updated", children: [
               t("thread.updated"),
               ": ",
               relativeTime(thread.updatedAt, t)
             ] }) : null,
-            /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: "dsh-codex-chip", children: hasOlder ? t("thread.messagesPlus", { count: items.length }) : t("thread.messages", { count: items.length }) })
+            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("span", { className: "dsh-codex-chip", children: hasOlder ? t("thread.messagesPlus", { count: items.length }) : t("thread.messages", { count: items.length }) })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-messages-wrap", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll, children: /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { ref: messageContentRef, className: "dsh-codex-message-content", children: [
-            hasOlder && hasItems ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-messages-wrap", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll, children: /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { ref: messageContentRef, className: "dsh-codex-message-content", children: [
+            hasOlder && hasItems ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
               "button",
               {
                 type: "button",
@@ -24517,16 +24657,16 @@ window.__ModuleLoader__.load({
                 children: loadingOlder ? t("thread.loadingOlder") : t("thread.loadOlder")
               }
             ) : null,
-            changes.filter((event) => event.turnId === null).map((event) => /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ItemCard, { item: { id: event.id, type: "localSettingChange", text: event.text }, api }, event.id)),
-            !hasItems && changes.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-empty", children: t("thread.noMessages") }),
-            orderedTurns.map((turn) => /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(React26.Fragment, { children: [
+            changes.filter((event) => event.turnId === null).map((event) => /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ItemCard, { item: { id: event.id, type: "localSettingChange", text: event.text }, api }, event.id)),
+            !hasItems && changes.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-empty", children: t("thread.noMessages") }),
+            orderedTurns.map((turn) => /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)(React27.Fragment, { children: [
               groupActivity(insertChanges(turn).filter((item) => provider !== "openai" || item.type !== "reasoning")).map(
-                (entry) => entry.kind === "group" ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ToolGroup, { items: entry.items, api }, entry.key) : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ItemCard, { item: entry.item, api, cwd: detail.thread.cwd ?? "" }, entry.item.id)
+                (entry) => entry.kind === "group" ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ToolGroup, { items: entry.items, api }, entry.key) : /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ItemCard, { item: entry.item, api, cwd: detail.thread.cwd ?? "" }, entry.item.id)
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(TurnFooter, { turn })
+              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(TurnFooter, { turn })
             ] }, turn.id))
           ] }) }),
-          showJump ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
+          showJump ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
             "button",
             {
               type: "button",
@@ -24534,17 +24674,17 @@ window.__ModuleLoader__.load({
               "aria-label": t("thread.jumpToBottom"),
               title: t("thread.jumpToBottom"),
               onClick: jumpToBottom,
-              children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ChevronDownGlyph, {})
+              children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ChevronDownGlyph, {})
             }
           ) : null
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ApprovalStack, { approvals: pending2, onRespond }),
-        activeTurnId !== null ? /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-running-bar", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Icon2, { name: "loader", size: 16, className: "dsh-codex-running-spinner" }),
-          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { children: t("thread.runningElapsed", { duration: formatDuration(runningMs, t) }) })
+        /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ApprovalStack, { approvals: pending2, onRespond }),
+        activeTurnId !== null ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-running-bar", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "loader", size: 16, className: "dsh-codex-running-spinner" }),
+          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("span", { children: t("thread.runningElapsed", { duration: formatDuration(runningMs, t) }) })
         ] }) : null,
-        threadId === selectedId && activeTurnId !== null && permissionFromSession != null && permission !== permissionFromSession && /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-permission-pending", role: "status", children: "权限更改将在下一轮生效；当前回合和待处理的审批仍使用原权限。" }),
-        /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
+        threadId === selectedId && activeTurnId !== null && permissionFromSession != null && permission !== permissionFromSession && /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-permission-pending", role: "status", children: "权限更改将在下一轮生效；当前回合和待处理的审批仍使用原权限。" }),
+        /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
           Composer,
           {
             threadId,
@@ -24591,7 +24731,8 @@ window.__ModuleLoader__.load({
               } catch {
               }
             },
-            onSteer,
+            followups,
+            onFollowups,
             onStop
           },
           threadId ?? "new"
@@ -24616,30 +24757,30 @@ window.__ModuleLoader__.load({
       if (duration === "" && clock === "") return null;
       const label = duration === "" ? "" : turn.status === "interrupted" ? t("turn.interrupted", { duration }) : turn.status === "failed" ? t("turn.failed", { duration }) : t("turn.workedFor", { duration });
       const text = label === "" ? clock : clock === "" ? label : `${label} · ${clock}`;
-      return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-turn-footer", children: text });
+      return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-turn-footer", children: text });
     }
     function ChevronDownGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Icon2, { name: "chevronDown", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "chevronDown", size: 16 });
     }
 
     // src/client/page/ThreadActions.tsx
-    var React27 = __toESM(require("react"), 1);
-    var import_jsx_runtime34 = require("react/jsx-runtime");
+    var React28 = __toESM(require("react"), 1);
+    var import_jsx_runtime35 = require("react/jsx-runtime");
     function ThreadActions({ api, thread, onRenamed, onArchived, onForked, onDeleted }) {
       const t = useT();
-      const [menu, setMenu] = React27.useState(false);
-      const anchor = React27.useRef(null);
-      const menuRef = React27.useRef(null);
-      const previousDialog = React27.useRef(null);
-      const [dialog, setDialog] = React27.useState(null);
-      const [name, setName] = React27.useState(thread.name ?? "");
-      const [busy, setBusy] = React27.useState(false);
-      const [error, setError] = React27.useState(null);
-      React27.useEffect(() => {
+      const [menu, setMenu] = React28.useState(false);
+      const anchor = React28.useRef(null);
+      const menuRef = React28.useRef(null);
+      const previousDialog = React28.useRef(null);
+      const [dialog, setDialog] = React28.useState(null);
+      const [name, setName] = React28.useState(thread.name ?? "");
+      const [busy, setBusy] = React28.useState(false);
+      const [error, setError] = React28.useState(null);
+      React28.useEffect(() => {
         if (previousDialog.current && !dialog) anchor.current?.focus();
         previousDialog.current = dialog;
       }, [dialog]);
-      React27.useEffect(() => {
+      React28.useEffect(() => {
         if (menu) menuRef.current?.querySelector("button")?.focus();
         const escape = (event) => {
           if (event.key !== "Escape") return;
@@ -24705,11 +24846,11 @@ window.__ModuleLoader__.load({
         onDeleted();
         setDialog(null);
       });
-      return /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-thread-actions", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("button", { ref: anchor, type: "button", className: "dsh-codex-icon-button", "aria-label": t("actions.menu"), title: t("actions.menu"), "aria-haspopup": "menu", "aria-expanded": menu, onClick: () => setMenu((value) => !value), children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "more" }) }),
-        menu && /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)(import_jsx_runtime34.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-action-backdrop", onPointerDown: () => setMenu(false) }),
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { ref: menuRef, className: "dsh-codex-action-menu", role: "menu", "aria-label": t("actions.menu"), onKeyDown: (event) => {
+      return /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-thread-actions", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { ref: anchor, type: "button", className: "dsh-codex-icon-button", "aria-label": t("actions.menu"), title: t("actions.menu"), "aria-haspopup": "menu", "aria-expanded": menu, onClick: () => setMenu((value) => !value), children: /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "more" }) }),
+        menu && /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)(import_jsx_runtime35.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-action-backdrop", onPointerDown: () => setMenu(false) }),
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { ref: menuRef, className: "dsh-codex-action-menu", role: "menu", "aria-label": t("actions.menu"), onKeyDown: (event) => {
             const items = [...event.currentTarget.querySelectorAll("button:not(:disabled)")];
             const index = items.indexOf(document.activeElement);
             if (event.key === "ArrowDown" || event.key === "ArrowUp") {
@@ -24726,51 +24867,51 @@ window.__ModuleLoader__.load({
             }
             if (event.key === "Tab") setMenu(false);
           }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
               setMenu(false);
               openRename();
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "pencil" }),
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "pencil" }),
               t("actions.rename")
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
               setMenu(false);
               void archive();
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "archive" }),
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "archive" }),
               t("actions.archive")
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
               setMenu(false);
               void fork();
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "fork" }),
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "fork" }),
               t("actions.fork")
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
               setMenu(false);
               void exportMarkdown();
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "download" }),
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "download" }),
               t("actions.export")
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-menu-divider" }),
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("button", { type: "button", role: "menuitem", className: "danger", disabled: busy, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-menu-divider" }),
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("button", { type: "button", role: "menuitem", className: "danger", disabled: busy, onClick: () => {
               setMenu(false);
               setError(null);
               setDialog("delete");
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "trash" }),
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "trash" }),
               t("actions.delete")
             ] })
           ] })
         ] }),
-        error !== null && dialog === null ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("span", { className: "dsh-codex-action-error", children: error }) : null,
-        dialog === "rename" ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
+        error !== null && dialog === null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { className: "dsh-codex-action-error", children: error }) : null,
+        dialog === "rename" ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
           if (event.target === event.currentTarget && !busy) setDialog(null);
-        }, children: /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("header", { className: "dsh-codex-dialog-head", children: t("actions.renameTitle") }),
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("header", { className: "dsh-codex-dialog-head", children: t("actions.renameTitle") }),
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
             "input",
             {
               className: "dsh-codex-search",
@@ -24782,42 +24923,42 @@ window.__ModuleLoader__.load({
               }
             }
           ),
-          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-dialog-error", children: error }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null), children: t("actions.cancel") }),
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void saveRename(), children: t("actions.save") })
+          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-dialog-error", children: error }) : null,
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null), children: t("actions.cancel") }),
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void saveRename(), children: t("actions.save") })
           ] })
         ] }) }) : null,
-        dialog === "delete" ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
+        dialog === "delete" ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
           if (event.target === event.currentTarget && !busy) setDialog(null);
-        }, children: /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("header", { className: "dsh-codex-dialog-head", children: t("actions.deleteTitle") }),
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-approval-meta", children: t("actions.deleteBody", { name: threadTitle(thread) }) }),
-          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-dialog-error", children: error }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null), children: t("actions.cancel") }),
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("button", { type: "button", className: "dsh-codex-button danger", disabled: busy, onClick: () => void remove(), children: t("actions.confirmDelete") })
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("header", { className: "dsh-codex-dialog-head", children: t("actions.deleteTitle") }),
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-approval-meta", children: t("actions.deleteBody", { name: threadTitle(thread) }) }),
+          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-dialog-error", children: error }) : null,
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null), children: t("actions.cancel") }),
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button danger", disabled: busy, onClick: () => void remove(), children: t("actions.confirmDelete") })
           ] })
         ] }) }) : null
       ] });
     }
 
     // src/client/page/VersionsDialog.tsx
-    var React28 = __toESM(require("react"), 1);
-    var import_jsx_runtime35 = require("react/jsx-runtime");
+    var React29 = __toESM(require("react"), 1);
+    var import_jsx_runtime36 = require("react/jsx-runtime");
     function VersionsDialog({ open, onClose, api }) {
       const t = useT();
-      const [check, setCheck] = React28.useState(null);
-      const [loading, setLoading] = React28.useState(false);
-      const [error, setError] = React28.useState(null);
-      const [activeTurns, setActiveTurns] = React28.useState([]);
-      const [job, setJob] = React28.useState(null);
-      const [rollbackVersion, setRollbackVersion] = React28.useState("");
-      const [pendingDaemon, setPendingDaemon] = React28.useState(null);
-      const [lastAction, setLastAction] = React28.useState(null);
-      const pollRef = React28.useRef(null);
-      const logRef = React28.useRef(null);
-      const load = React28.useCallback(
+      const [check, setCheck] = React29.useState(null);
+      const [loading, setLoading] = React29.useState(false);
+      const [error, setError] = React29.useState(null);
+      const [activeTurns, setActiveTurns] = React29.useState([]);
+      const [job, setJob] = React29.useState(null);
+      const [rollbackVersion, setRollbackVersion] = React29.useState("");
+      const [pendingDaemon, setPendingDaemon] = React29.useState(null);
+      const [lastAction, setLastAction] = React29.useState(null);
+      const pollRef = React29.useRef(null);
+      const logRef = React29.useRef(null);
+      const load = React29.useCallback(
         async (refresh = false) => {
           setLoading(true);
           setError(null);
@@ -24832,16 +24973,16 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      React28.useEffect(() => {
+      React29.useEffect(() => {
         if (open) void load(false);
       }, [open, load]);
-      React28.useEffect(
+      React29.useEffect(
         () => () => {
           if (pollRef.current !== null) window.clearInterval(pollRef.current);
         },
         []
       );
-      const pollJob = React28.useCallback(
+      const pollJob = React29.useCallback(
         (jobId) => {
           if (pollRef.current !== null) window.clearInterval(pollRef.current);
           pollRef.current = window.setInterval(async () => {
@@ -24861,7 +25002,7 @@ window.__ModuleLoader__.load({
         },
         [api, load]
       );
-      const startJob = React28.useCallback(
+      const startJob = React29.useCallback(
         async (endpoint, payload) => {
           setError(null);
           setActiveTurns([]);
@@ -24880,7 +25021,7 @@ window.__ModuleLoader__.load({
         },
         [api, pollJob]
       );
-      React28.useEffect(() => {
+      React29.useEffect(() => {
         const element = logRef.current;
         if (element !== null) element.scrollTop = element.scrollHeight;
       }, [job?.lines.length]);
@@ -24888,21 +25029,21 @@ window.__ModuleLoader__.load({
       const doctor = check?.doctor ?? null;
       const problems = doctor?.checks.filter((entry) => entry.status !== "ok") ?? [];
       const daemonVersion = check?.daemon?.appServerVersion ?? check?.daemon?.cliVersion ?? null;
-      return /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
         "div",
         {
           className: "dsh-codex-dialog-backdrop",
           onMouseDown: (event) => {
             if (event.target === event.currentTarget) onClose();
           },
-          children: /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-dialog dsh-codex-versions", role: "dialog", "aria-modal": "true", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("header", { className: "dsh-codex-dialog-head", children: t("versions.title") }),
-            loading && check === null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-loading", children: t("versions.checking") }) : null,
-            error !== null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-dialog-error", children: [
+          children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-dialog dsh-codex-versions", role: "dialog", "aria-modal": "true", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("header", { className: "dsh-codex-dialog-head", children: t("versions.title") }),
+            loading && check === null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-loading", children: t("versions.checking") }) : null,
+            error !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-dialog-error", children: [
               error,
-              activeTurns.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
+              activeTurns.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
                 t("versions.activeTurns", { count: activeTurns.length }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
                   "button",
                   {
                     type: "button",
@@ -24918,20 +25059,20 @@ window.__ModuleLoader__.load({
                 )
               ] }) : null
             ] }) : null,
-            check !== null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)(import_jsx_runtime35.Fragment, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-version-grid", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { children: t("versions.cli") }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("strong", { children: check.cli.version ?? "—" }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { children: t("versions.daemon") }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("strong", { children: daemonVersion ?? "—" }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { children: t("versions.latest") }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("strong", { children: check.latest?.version ?? "—" }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { children: t("versions.channel") }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("strong", { title: check.install?.context ?? void 0, children: installLabel(check.install?.context) })
+            check !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(import_jsx_runtime36.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-version-grid", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { children: t("versions.cli") }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("strong", { children: check.cli.version ?? "—" }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { children: t("versions.daemon") }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("strong", { children: daemonVersion ?? "—" }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { children: t("versions.latest") }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("strong", { children: check.latest?.version ?? "—" }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { children: t("versions.channel") }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("strong", { title: check.install?.context ?? void 0, children: installLabel(check.install?.context) })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-version-actions", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: loading, onClick: () => void load(true), children: loading ? t("versions.checking") : t("versions.check") }),
-                check.updateAvailable ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)(
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-version-actions", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: loading, onClick: () => void load(true), children: loading ? t("versions.checking") : t("versions.check") }),
+                check.updateAvailable ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(
                   "button",
                   {
                     type: "button",
@@ -24941,15 +25082,15 @@ window.__ModuleLoader__.load({
                     children: [
                       t("versions.update"),
                       " ",
-                      /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "arrowRight", size: 14 }),
+                      /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "arrowRight", size: 14 }),
                       " ",
                       check.latest?.version
                     ]
                   }
-                ) : /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { className: "dsh-codex-hint", children: t("versions.upToDate") })
+                ) : /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-hint", children: t("versions.upToDate") })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-version-actions", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-version-actions", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
                   "input",
                   {
                     className: "dsh-codex-search",
@@ -24959,7 +25100,7 @@ window.__ModuleLoader__.load({
                     onChange: (event) => setRollbackVersion(event.target.value)
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
                   "button",
                   {
                     type: "button",
@@ -24970,9 +25111,9 @@ window.__ModuleLoader__.load({
                   }
                 )
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-version-daemon", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { className: "dsh-codex-section-title", style: { padding: 0 }, children: t("versions.daemonActions") }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-version-daemon", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-section-title", style: { padding: 0 }, children: t("versions.daemonActions") }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
                   "button",
                   {
                     type: "button",
@@ -24982,7 +25123,7 @@ window.__ModuleLoader__.load({
                     children: t("versions.restart")
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
                   "button",
                   {
                     type: "button",
@@ -24992,7 +25133,7 @@ window.__ModuleLoader__.load({
                     children: t("versions.daemonUpdate")
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
                   "button",
                   {
                     type: "button",
@@ -25003,11 +25144,11 @@ window.__ModuleLoader__.load({
                   }
                 )
               ] }),
-              pendingDaemon !== null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-approval", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-approval-meta", children: pendingDaemon === "restart" ? t("versions.confirmRestart") : pendingDaemon === "update" ? t("versions.confirmUpdate") : t("versions.confirmStop") }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-approval-actions", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: () => setPendingDaemon(null), children: t("versions.cancel") }),
-                  /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+              pendingDaemon !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-approval", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-approval-meta", children: pendingDaemon === "restart" ? t("versions.confirmRestart") : pendingDaemon === "update" ? t("versions.confirmUpdate") : t("versions.confirmStop") }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-approval-actions", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: () => setPendingDaemon(null), children: t("versions.cancel") }),
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
                     "button",
                     {
                       type: "button",
@@ -25022,30 +25163,30 @@ window.__ModuleLoader__.load({
                   )
                 ] })
               ] }) : null,
-              /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-version-doctor", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-section-title", style: { padding: 0 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-version-doctor", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-section-title", style: { padding: 0 }, children: [
                   t("versions.doctor"),
-                  doctor !== null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 }, children: doctor.overallStatus === "ok" ? t("versions.doctorOk") : doctor.overallStatus === "warning" ? t("versions.doctorWarn") : t("versions.doctorError") }) : null
+                  doctor !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 }, children: doctor.overallStatus === "ok" ? t("versions.doctorOk") : doctor.overallStatus === "warning" ? t("versions.doctorWarn") : t("versions.doctorError") }) : null
                 ] }),
-                problems.slice(0, 8).map((entry) => /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-doctor-row", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { className: `dsh-codex-dot ${entry.status === "error" ? "error" : "warn"}` }),
-                  /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { className: "dsh-codex-doctor-id", children: entry.id }),
-                  /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { className: "dsh-codex-doctor-summary", children: entry.summary })
+                problems.slice(0, 8).map((entry) => /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-doctor-row", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: `dsh-codex-dot ${entry.status === "error" ? "error" : "warn"}` }),
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-doctor-id", children: entry.id }),
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-doctor-summary", children: entry.summary })
                 ] }, entry.id)),
-                doctor !== null && problems.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-hint", children: [
+                doctor !== null && problems.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-hint", children: [
                   doctor.checks.length,
                   " checks ok"
                 ] }) : null
               ] }),
-              job !== null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-job", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-section-title", style: { padding: 0 }, children: [
+              job !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-job", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-section-title", style: { padding: 0 }, children: [
                   t("versions.job"),
-                  /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 }, children: job.status === "running" ? t("versions.running") : job.status === "done" ? t("versions.done") : t("versions.failed", { code: job.exitCode ?? "?" }) })
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 }, children: job.status === "running" ? t("versions.running") : job.status === "done" ? t("versions.done") : t("versions.failed", { code: job.exitCode ?? "?" }) })
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("pre", { className: "dsh-codex-pre dsh-codex-job-log", ref: logRef, children: job.lines.join("\n") })
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("pre", { className: "dsh-codex-pre dsh-codex-job-log", ref: logRef, children: job.lines.join("\n") })
               ] }) : null
             ] }) : null,
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-dialog-actions", children: /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: onClose, children: t("versions.close") }) })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-dialog-actions", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: onClose, children: t("versions.close") }) })
           ] })
         }
       );
@@ -25059,7 +25200,7 @@ window.__ModuleLoader__.load({
     }
 
     // src/client/page/ConsolePage.tsx
-    var import_jsx_runtime36 = require("react/jsx-runtime");
+    var import_jsx_runtime37 = require("react/jsx-runtime");
     var TURN_PAGE = 2;
     var THREAD_PAGE = 5;
     var LAST_THREAD_KEY = "dsh-codex-last-thread";
@@ -25110,13 +25251,13 @@ window.__ModuleLoader__.load({
     }
     function ConsolePage(props) {
       const t = props.t ?? fallbackTranslate;
-      const api = React29.useMemo(() => props.api, []);
+      const api = React30.useMemo(() => props.api, []);
       const onExit = props.onExit ?? (() => {
       });
       useCodexTab();
-      const rootRef = React29.useRef(null);
+      const rootRef = React30.useRef(null);
       const appearance = useAppearance(rootRef);
-      const [navWidth, setNavWidth] = React29.useState(() => {
+      const [navWidth, setNavWidth] = React30.useState(() => {
         try {
           const value = Number(localStorage.getItem("dsh-codex-nav-width"));
           return value >= 260 && value <= 420 ? value : 280;
@@ -25124,8 +25265,8 @@ window.__ModuleLoader__.load({
           return 280;
         }
       });
-      const [navResizing, setNavResizing] = React29.useState(false);
-      const navDrag = React29.useRef(null);
+      const [navResizing, setNavResizing] = React30.useState(false);
+      const navDrag = React30.useRef(null);
       const updateNavWidth = (value) => {
         const width = Math.round(Math.min(420, Math.max(260, value)));
         setNavWidth(width);
@@ -25135,24 +25276,24 @@ window.__ModuleLoader__.load({
         }
       };
       useDialogFocus(rootRef);
-      const [status, setStatus] = React29.useState(null);
-      const [projects, setProjects] = React29.useState([]);
-      const [threads, setThreads] = React29.useState([]);
-      const [nextCursor, setNextCursor] = React29.useState(null);
-      const [selectedCwd, setSelectedCwd] = React29.useState(null);
-      const [selectedId, setSelectedId] = React29.useState(() => readStored(LAST_THREAD_KEY));
-      const [detail, setDetail] = React29.useState(null);
-      const [detailLoading, setDetailLoading] = React29.useState(false);
-      const [detailReload, setDetailReload] = React29.useState(0);
-      const [olderCursor, setOlderCursor] = React29.useState(null);
-      const [loadingOlder, setLoadingOlder] = React29.useState(false);
-      const loadingOlderRef = React29.useRef(false);
-      const [loadingThreads, setLoadingThreads] = React29.useState(false);
-      const [threadsOwner, setThreadsOwner] = React29.useState(null);
-      const [unread, setUnread] = React29.useState(() => /* @__PURE__ */ new Set());
-      const latestCompletedTurn = React29.useRef({});
-      const completedEvents = React29.useRef(/* @__PURE__ */ new Map());
-      const rejectedTurns = React29.useRef(null);
+      const [status, setStatus] = React30.useState(null);
+      const [projects, setProjects] = React30.useState([]);
+      const [threads, setThreads] = React30.useState([]);
+      const [nextCursor, setNextCursor] = React30.useState(null);
+      const [selectedCwd, setSelectedCwd] = React30.useState(null);
+      const [selectedId, setSelectedId] = React30.useState(() => readStored(LAST_THREAD_KEY));
+      const [detail, setDetail] = React30.useState(null);
+      const [detailLoading, setDetailLoading] = React30.useState(false);
+      const [detailReload, setDetailReload] = React30.useState(0);
+      const [olderCursor, setOlderCursor] = React30.useState(null);
+      const [loadingOlder, setLoadingOlder] = React30.useState(false);
+      const loadingOlderRef = React30.useRef(false);
+      const [loadingThreads, setLoadingThreads] = React30.useState(false);
+      const [threadsOwner, setThreadsOwner] = React30.useState(null);
+      const [unread, setUnread] = React30.useState(() => /* @__PURE__ */ new Set());
+      const latestCompletedTurn = React30.useRef({});
+      const completedEvents = React30.useRef(/* @__PURE__ */ new Map());
+      const rejectedTurns = React30.useRef(null);
       if (rejectedTurns.current === null) {
         try {
           const saved = JSON.parse(sessionStorage.getItem("dsh-codex-inactive-turns") ?? "[]");
@@ -25161,7 +25302,7 @@ window.__ModuleLoader__.load({
           rejectedTurns.current = /* @__PURE__ */ new Set();
         }
       }
-      const viewedTurns = React29.useRef(null);
+      const viewedTurns = React30.useRef(null);
       if (viewedTurns.current === null) {
         try {
           const saved = JSON.parse(window.localStorage.getItem(VIEWED_TURNS_KEY) ?? "[]");
@@ -25170,49 +25311,69 @@ window.__ModuleLoader__.load({
           viewedTurns.current = /* @__PURE__ */ new Set();
         }
       }
-      const [error, setError] = React29.useState(null);
-      const [streamState, setStreamState] = React29.useState("connecting");
-      const [search, setSearch] = React29.useState("");
-      const [pending2, setPending] = React29.useState([]);
-      const [provider, setProvider] = React29.useState(() => readStored("dsh-codex-provider") === "opencode-go" ? "opencode-go" : "openai");
-      const providerRef = React29.useRef(provider);
+      const [error, setError] = React30.useState(null);
+      const [streamState, setStreamState] = React30.useState("connecting");
+      const [followups, setFollowups] = React30.useState({});
+      const updateFollowups = React30.useCallback((snapshot) => {
+        setFollowups((previous) => {
+          const current = previous[snapshot.threadId];
+          if (current?.instanceId === snapshot.instanceId && current.revision > snapshot.revision) return previous;
+          return { ...previous, [snapshot.threadId]: snapshot };
+        });
+      }, []);
+      React30.useEffect(() => {
+        if (!selectedId || streamState !== "open") return;
+        let cancelled = false;
+        void api("followups/list", { threadId: selectedId }).then((snapshot) => {
+          if (!cancelled) updateFollowups(snapshot);
+        }).catch((cause) => {
+          if (!cancelled) setError(messageOf(cause));
+        });
+        return () => {
+          cancelled = true;
+        };
+      }, [api, selectedId, streamState, updateFollowups]);
+      const [search, setSearch] = React30.useState("");
+      const [pending2, setPending] = React30.useState([]);
+      const [provider, setProvider] = React30.useState(() => readStored("dsh-codex-provider") === "opencode-go" ? "opencode-go" : "openai");
+      const providerRef = React30.useRef(provider);
       providerRef.current = provider;
-      const [models, setModels] = React29.useState([]);
-      const [quota, setQuota] = React29.useState(null);
-      const [sessionPermission, setSessionPermission] = React29.useState(null);
-      const [planMode, setPlanMode] = React29.useState(false);
-      const [quotaLoading, setQuotaLoading] = React29.useState(true);
-      const quotaRef = React29.useRef(null);
+      const [models, setModels] = React30.useState([]);
+      const [quota, setQuota] = React30.useState(null);
+      const [sessionPermission, setSessionPermission] = React30.useState(null);
+      const [planMode, setPlanMode] = React30.useState(false);
+      const [quotaLoading, setQuotaLoading] = React30.useState(true);
+      const quotaRef = React30.useRef(null);
       quotaRef.current = quota;
-      const [pickerOpen, setPickerOpen] = React29.useState(false);
-      const [rightTab, setRightTab] = React29.useState("files");
-      const [rightRequest, setRightRequest] = React29.useState(0);
-      React29.useEffect(() => {
+      const [pickerOpen, setPickerOpen] = React30.useState(false);
+      const [rightTab, setRightTab] = React30.useState("files");
+      const [rightRequest, setRightRequest] = React30.useState(0);
+      React30.useEffect(() => {
         const openFile = () => setRightOpen(true);
         window.addEventListener("dsh-codex-open-file", openFile);
         return () => window.removeEventListener("dsh-codex-open-file", openFile);
       }, []);
-      const [rightOpen, setRightOpen] = React29.useState(() => {
+      const [rightOpen, setRightOpen] = React30.useState(() => {
         try {
           return window.localStorage.getItem("dsh-codex-right-open") === "1";
         } catch {
           return false;
         }
       });
-      const [dirPickerOpen, setDirPickerOpen] = React29.useState(false);
-      const [versionsOpen, setVersionsOpen] = React29.useState(false);
-      const restoredRef = React29.useRef(selectedId !== null);
-      const createThreadRef = React29.useRef(async () => {
+      const [dirPickerOpen, setDirPickerOpen] = React30.useState(false);
+      const [versionsOpen, setVersionsOpen] = React30.useState(false);
+      const restoredRef = React30.useRef(selectedId !== null);
+      const createThreadRef = React30.useRef(async () => {
       });
-      const searchTimer = React29.useRef(null);
-      const listGeneration = React29.useRef(0);
-      const queryRef = React29.useRef({ search: "", cwd: null });
+      const searchTimer = React30.useRef(null);
+      const listGeneration = React30.useRef(0);
+      const queryRef = React30.useRef({ search: "", cwd: null });
       queryRef.current = { search: search.trim(), cwd: selectedCwd };
-      const selectedIdRef = React29.useRef(null);
+      const selectedIdRef = React30.useRef(null);
       selectedIdRef.current = selectedId;
-      const threadsRef = React29.useRef([]);
+      const threadsRef = React30.useRef([]);
       threadsRef.current = threads;
-      const loadThreads = React29.useCallback(
+      const loadThreads = React30.useCallback(
         async (cursor, override = {}) => {
           const searchValue = override.search !== void 0 ? override.search : queryRef.current.search;
           const cwd = override.cwd !== void 0 ? override.cwd : queryRef.current.cwd;
@@ -25244,7 +25405,7 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      const handleSearch = React29.useCallback(
+      const handleSearch = React30.useCallback(
         (value) => {
           setSearch(value);
           if (searchTimer.current !== null) clearTimeout(searchTimer.current);
@@ -25256,10 +25417,10 @@ window.__ModuleLoader__.load({
         },
         [loadThreads]
       );
-      React29.useEffect(() => () => {
+      React30.useEffect(() => () => {
         if (searchTimer.current !== null) clearTimeout(searchTimer.current);
       }, []);
-      const loadQuota = React29.useCallback(async () => {
+      const loadQuota = React30.useCallback(async () => {
         const owner = providerRef.current;
         if (quotaRef.current === null) setQuotaLoading(true);
         try {
@@ -25271,14 +25432,14 @@ window.__ModuleLoader__.load({
           if (providerRef.current === owner) setQuotaLoading(false);
         }
       }, [api]);
-      const refreshPending = React29.useCallback(async () => {
+      const refreshPending = React30.useCallback(async () => {
         try {
           const result = await api("approvals/pending");
           setPending(result.pending ?? []);
         } catch {
         }
       }, [api]);
-      const refresh = React29.useCallback(async () => {
+      const refresh = React30.useCallback(async () => {
         setError(null);
         try {
           const [nextStatus, nextProjects] = await Promise.all([
@@ -25294,7 +25455,7 @@ window.__ModuleLoader__.load({
         await loadThreads(null);
         await loadQuota();
       }, [api, loadThreads, loadQuota, provider]);
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         const consume = () => {
           const request = takePending();
           if (request === null) return;
@@ -25307,7 +25468,7 @@ window.__ModuleLoader__.load({
         consume();
         return subscribePending(consume);
       }, []);
-      const markViewed = React29.useCallback((id) => {
+      const markViewed = React30.useCallback((id) => {
         const turnId = latestCompletedTurn.current[id];
         if (turnId) {
           viewedTurns.current.add(turnId);
@@ -25323,7 +25484,7 @@ window.__ModuleLoader__.load({
           return next;
         });
       }, []);
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         if (selectedId === null) return;
         markViewed(selectedId);
         try {
@@ -25331,7 +25492,7 @@ window.__ModuleLoader__.load({
         } catch {
         }
       }, [selectedId]);
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         void refresh();
         void refreshPending();
         let cancelled = false;
@@ -25346,13 +25507,13 @@ window.__ModuleLoader__.load({
           clearInterval(quotaTimer);
         };
       }, [api, refresh, refreshPending, loadQuota, provider]);
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         const timer = setInterval(() => {
           void loadThreads(null, { limit: Math.max(THREAD_PAGE, threadsRef.current.length), silent: true });
         }, 2e4);
         return () => clearInterval(timer);
       }, [loadThreads]);
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         const close = openEventStream({
           onState: setStreamState,
           onEvent: (event) => {
@@ -25372,6 +25533,9 @@ window.__ModuleLoader__.load({
                 if (thread !== null && thread !== void 0 && (thread.modelProvider ?? "openai") === providerRef.current) setThreads((previous) => upsertThread(previous, thread));
                 break;
               }
+              case "followups/changed":
+                updateFollowups(event.payload);
+                break;
               case "thread/status":
                 setThreads(
                   (previous) => previous.map(
@@ -25414,6 +25578,7 @@ window.__ModuleLoader__.load({
                 break;
               }
               case "resync":
+                if (selectedIdRef.current) void api("followups/list", { threadId: selectedIdRef.current }).then(updateFollowups).catch((cause) => setError(messageOf(cause)));
                 void refresh();
                 void refreshPending();
                 void loadQuota();
@@ -25467,7 +25632,7 @@ window.__ModuleLoader__.load({
         });
         return close;
       }, [refresh, refreshPending, loadThreads, loadQuota, markViewed]);
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         if (selectedId === null) {
           setDetail(null);
           return void 0;
@@ -25522,7 +25687,7 @@ window.__ModuleLoader__.load({
           cancelled = true;
         };
       }, [api, selectedId, detailReload]);
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         if (selectedId === null) return void 0;
         let cancelled = false;
         let opened = false;
@@ -25552,20 +25717,20 @@ window.__ModuleLoader__.load({
         };
       }, [api, selectedId]);
       const detailThreadId = detail?.thread.id ?? null;
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         if (detailThreadId === null || detail === null) return;
         setThreads(
           (previous) => previous.some((thread) => thread.id === detailThreadId) ? previous : upsertThread(previous, detail.thread)
         );
       }, [detailThreadId]);
-      const activeTurnId = React29.useMemo(() => {
+      const activeTurnId = React30.useMemo(() => {
         if (detail === null) return null;
         const latest = detail.turns[detail.turns.length - 1];
         if (!latest || latest.status !== "inProgress" || rejectedTurns.current.has(latest.id)) return null;
         if (detail.thread.status?.type === "idle") return null;
         return latest.id;
       }, [detail]);
-      const loadOlder = React29.useCallback(async () => {
+      const loadOlder = React30.useCallback(async () => {
         if (selectedId === null || olderCursor === null || loadingOlderRef.current) return;
         loadingOlderRef.current = true;
         setLoadingOlder(true);
@@ -25591,7 +25756,7 @@ window.__ModuleLoader__.load({
           setLoadingOlder(false);
         }
       }, [api, selectedId, olderCursor]);
-      const send = React29.useCallback(
+      const send = React30.useCallback(
         async (text, options = {}) => {
           if (selectedId === null) return;
           setError(null);
@@ -25623,7 +25788,7 @@ window.__ModuleLoader__.load({
             sandboxPolicy: workspaceWrite(false)
           };
           try {
-            await api("turns/start", {
+            const snapshot = await api("turns/submit", {
               threadId: selectedId,
               text,
               model: options.model,
@@ -25633,6 +25798,7 @@ window.__ModuleLoader__.load({
               ...collaborationMode === void 0 ? {} : { collaborationMode },
               ...permissionPayload
             });
+            updateFollowups(snapshot);
             if (selectedIdRef.current === selectedId) setSessionPermission({ threadId: selectedId, mode: permission });
             window.setTimeout(() => {
               void loadThreads(null);
@@ -25642,32 +25808,9 @@ window.__ModuleLoader__.load({
             throw cause;
           }
         },
-        [api, selectedId, loadThreads, planMode, detail]
+        [api, selectedId, loadThreads, planMode, detail, updateFollowups]
       );
-      const steer = React29.useCallback(
-        async (text, skills = []) => {
-          if (selectedId === null || activeTurnId === null) return;
-          setError(null);
-          try {
-            await api("turns/steer", { threadId: selectedId, turnId: activeTurnId, text, skills });
-          } catch (cause) {
-            if (/no active turn to steer/i.test(messageOf(cause))) {
-              rejectedTurns.current.add(activeTurnId);
-              try {
-                sessionStorage.setItem("dsh-codex-inactive-turns", JSON.stringify([...rejectedTurns.current]));
-              } catch {
-              }
-              setDetail((previous) => previous?.thread.id === selectedId ? { ...previous } : previous);
-              setError("该任务已结束，消息已保留，请重新发送。");
-            } else {
-              setError(messageOf(cause));
-            }
-            throw cause;
-          }
-        },
-        [api, selectedId, activeTurnId]
-      );
-      const stop = React29.useCallback(async () => {
+      const stop = React30.useCallback(async () => {
         if (selectedId === null || activeTurnId === null) return;
         setError(null);
         try {
@@ -25676,7 +25819,7 @@ window.__ModuleLoader__.load({
           setError(messageOf(cause));
         }
       }, [api, selectedId, activeTurnId]);
-      const respond = React29.useCallback(
+      const respond = React30.useCallback(
         async (requestId, response) => {
           setError(null);
           try {
@@ -25689,7 +25832,7 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      const createThread = React29.useCallback(
+      const createThread = React30.useCallback(
         async (request) => {
           const thread = await api("threads/new", { ...request, provider: providerRef.current });
           if (thread !== null && thread !== void 0) {
@@ -25747,24 +25890,24 @@ window.__ModuleLoader__.load({
         }
       };
       const currentCwd = detail?.thread.cwd ?? selectedCwd;
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         try {
           window.localStorage.setItem("dsh-codex-right-open", rightOpen ? "1" : "0");
         } catch {
         }
       }, [rightOpen]);
-      const handleNew = React29.useCallback(() => {
+      const handleNew = React30.useCallback(() => {
         if (currentCwd !== null && currentCwd !== "") {
           void createThread({ cwd: currentCwd }).catch((cause) => setError(messageOf(cause)));
           return;
         }
         setPickerOpen(true);
       }, [currentCwd, createThread]);
-      const openNewProject = React29.useCallback(() => {
+      const openNewProject = React30.useCallback(() => {
         setPickerOpen(false);
         setDirPickerOpen(true);
       }, []);
-      const exportThread = React29.useCallback(async () => {
+      const exportThread = React30.useCallback(async () => {
         if (selectedId === null) return;
         try {
           const result = await api("threads/export", { threadId: selectedId });
@@ -25779,7 +25922,7 @@ window.__ModuleLoader__.load({
           setError(messageOf(cause));
         }
       }, [api, selectedId]);
-      const compactThread = React29.useCallback(async () => {
+      const compactThread = React30.useCallback(async () => {
         if (selectedId === null) return;
         try {
           await api("threads/compact", { threadId: selectedId });
@@ -25787,17 +25930,17 @@ window.__ModuleLoader__.load({
           setError(messageOf(cause));
         }
       }, [api, selectedId]);
-      const pickProject = React29.useCallback(
+      const pickProject = React30.useCallback(
         async (cwd) => {
           await createThread({ cwd });
         },
         [createThread]
       );
-      const visibleThreads = React29.useMemo(
+      const visibleThreads = React30.useMemo(
         () => [...threads].sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
         [threads]
       );
-      const handleProjectToggle = React29.useCallback(
+      const handleProjectToggle = React30.useCallback(
         (cwd) => {
           if (selectedCwd === cwd) {
             setSelectedCwd(null);
@@ -25816,45 +25959,45 @@ window.__ModuleLoader__.load({
         [selectedCwd, loadThreads]
       );
       const detailCwd = detail?.thread.cwd ?? null;
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         if (detailCwd === null || detailCwd === "" || search.trim() !== "") return;
         if (selectedCwd === detailCwd) return;
         setSelectedCwd(detailCwd);
         queryRef.current = { cwd: detailCwd, search: "" };
         void loadThreads(null, { cwd: detailCwd, search: "" });
       }, [detailCwd, search]);
-      const handleThreadRenamed = React29.useCallback((id, name) => {
+      const handleThreadRenamed = React30.useCallback((id, name) => {
         setThreads((previous) => previous.map((thread) => thread.id === id ? { ...thread, name } : thread));
         setDetail(
           (previous) => previous !== null && previous.thread.id === id ? { ...previous, thread: { ...previous.thread, name } } : previous
         );
       }, []);
-      const handleThreadChanged = React29.useCallback(() => {
+      const handleThreadChanged = React30.useCallback(() => {
         void loadThreads(null);
       }, [loadThreads]);
-      const handleThreadDeleted = React29.useCallback((id) => {
+      const handleThreadDeleted = React30.useCallback((id) => {
         setThreads((previous) => previous.filter((thread) => thread.id !== id));
         if (selectedIdRef.current === id) {
           setSelectedId(null);
           setDetail(null);
         }
       }, []);
-      const visiblePending = React29.useMemo(
+      const visiblePending = React30.useMemo(
         () => selectedId === null ? [] : pending2.filter((entry) => entry.params?.threadId === void 0 || entry.params.threadId === selectedId),
         [pending2, selectedId]
       );
       const totalThreads = projects.reduce((sum, project) => sum + project.threadCount, 0);
       const runningCount = projects.reduce((sum, project) => sum + project.activeCount, 0);
-      return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(I18nContext.Provider, { value: t, children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { ref: rootRef, onDragOverCapture: (event) => {
+      return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(I18nContext.Provider, { value: t, children: /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { ref: rootRef, onDragOverCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
       }, onDropCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
-      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T08:01:05.802Z", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h1", { children: detail ? threadTitle(detail.thread) : "Codex 工作台" }),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-spacer" }),
-          detail ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T10:50:23.348Z", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("h1", { children: detail ? threadTitle(detail.thread) : "Codex 工作台" }),
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-spacer" }),
+          detail ? /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
             TransferAction,
             {
               provider: detail.thread.modelProvider ?? provider,
@@ -25862,8 +26005,8 @@ window.__ModuleLoader__.load({
               onTransfer: transferThread
             }
           ) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(IconButton, { icon: appearance.theme === "dark" ? "sun" : "moon", label: appearance.theme === "dark" ? "切换浅色模式" : "切换深色模式", "aria-disabled": appearance.busy, onClick: appearance.toggleTheme }),
-          detail && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(IconButton, { icon: appearance.theme === "dark" ? "sun" : "moon", label: appearance.theme === "dark" ? "切换浅色模式" : "切换深色模式", "aria-disabled": appearance.busy, onClick: appearance.toggleTheme }),
+          detail && /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
             ThreadActions,
             {
               api,
@@ -25879,10 +26022,10 @@ window.__ModuleLoader__.load({
               onDeleted: () => handleThreadDeleted(detail.thread.id)
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(IconButton, { icon: "panelRight", label: rightOpen ? t("right.hide") : t("right.show"), "aria-expanded": rightOpen, className: rightOpen ? "is-selected" : "", onClick: () => setRightOpen((value) => !value) })
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(IconButton, { icon: "panelRight", label: rightOpen ? t("right.hide") : t("right.show"), "aria-expanded": rightOpen, className: rightOpen ? "is-selected" : "", onClick: () => setRightOpen((value) => !value) })
         ] }),
-        appearance.navOpen && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-nav-backdrop", "aria-label": "关闭项目导航", onClick: appearance.closeNav }),
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+        appearance.navOpen && /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", className: "dsh-codex-nav-backdrop", "aria-label": "关闭项目导航", onClick: appearance.closeNav }),
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
           "div",
           {
             className: "dsh-codex-nav-resize",
@@ -25924,7 +26067,7 @@ window.__ModuleLoader__.load({
             }
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
           FocusSidebar,
           {
             provider,
@@ -25962,10 +26105,10 @@ window.__ModuleLoader__.load({
             onThreadDeleted: handleThreadDeleted
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("main", { className: "dsh-codex-main", children: [
-          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-error", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("main", { className: "dsh-codex-main", children: [
+          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-error", children: [
             error,
-            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
               "button",
               {
                 type: "button",
@@ -25980,7 +26123,7 @@ window.__ModuleLoader__.load({
               }
             )
           ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
             ThreadView,
             {
               provider: detail?.thread.modelProvider ?? provider,
@@ -25999,8 +26142,9 @@ window.__ModuleLoader__.load({
               onLoadOlder: loadOlder,
               pending: visiblePending,
               onRespond: respond,
+              followups: selectedId ? followups[selectedId] : void 0,
+              onFollowups: updateFollowups,
               onSend: send,
-              onSteer: steer,
               onStop: stop,
               onPickProject: () => setPickerOpen(true),
               onNew: handleNew,
@@ -26014,7 +26158,7 @@ window.__ModuleLoader__.load({
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
           SidebarWorkspace,
           {
             api,
@@ -26026,7 +26170,7 @@ window.__ModuleLoader__.load({
             onClose: () => setRightOpen(false)
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
           ProjectPickerDialog,
           {
             open: pickerOpen,
@@ -26036,7 +26180,7 @@ window.__ModuleLoader__.load({
             onClose: () => setPickerOpen(false)
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
           DirectoryPickerDialog,
           {
             open: dirPickerOpen,
@@ -26045,42 +26189,42 @@ window.__ModuleLoader__.load({
             onClose: () => setDirPickerOpen(false)
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("footer", { className: "dsh-codex-workbench-status", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("span", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("i", { className: "dsh-codex-dot " + (streamState === "open" ? "ok" : "warn") }),
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("footer", { className: "dsh-codex-workbench-status", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("span", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("i", { className: "dsh-codex-dot " + (streamState === "open" ? "ok" : "warn") }),
             t("status.events." + streamState)
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("span", { className: "dsh-codex-status-branch", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "git", size: 13 }),
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("span", { className: "dsh-codex-status-branch", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(Icon2, { name: "git", size: 13 }),
             detail?.thread.gitInfo?.branch || "工作区"
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-spacer" }),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { children: t("projects.count", { count: totalThreads }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", onClick: () => setVersionsOpen(true), children: "版本与连接" })
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-spacer" }),
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { children: t("projects.count", { count: totalThreads }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", onClick: () => setVersionsOpen(true), children: "版本与连接" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(VersionsDialog, { open: versionsOpen, api, onClose: () => setVersionsOpen(false) })
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(VersionsDialog, { open: versionsOpen, api, onClose: () => setVersionsOpen(false) })
       ] }) });
     }
     function TransferAction({ provider, disabled, onTransfer }) {
-      const [open, setOpen] = React29.useState(false);
-      const [busy, setBusy] = React29.useState(false);
+      const [open, setOpen] = React30.useState(false);
+      const [busy, setBusy] = React30.useState(false);
       const target = provider === "opencode-go" ? "ChatGPT" : "OpenCode Go";
-      return /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-header-transfer", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", className: "dsh-codex-button dsh-codex-transfer-trigger", "aria-expanded": open, disabled, onClick: () => setOpen((value) => !value), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("span", { className: "dsh-codex-transfer-label", children: [
+      return /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-header-transfer", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("button", { type: "button", className: "dsh-codex-button dsh-codex-transfer-trigger", "aria-expanded": open, disabled, onClick: () => setOpen((value) => !value), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("span", { className: "dsh-codex-transfer-label", children: [
             "携带历史转交至 ",
             target
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-transfer-label-short", children: "转交" })
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-transfer-label-short", children: "转交" })
         ] }),
-        open ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-transfer-confirm", role: "dialog", "aria-label": `转交至 ${target}`, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("strong", { children: [
+        open ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-transfer-confirm", role: "dialog", "aria-label": `转交至 ${target}`, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("strong", { children: [
             "转交至 ",
             target
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { children: "将复制此会话历史创建新分支，后续消息会携带历史发送给目标提供商。" }),
-          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-transfer-actions", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: async () => {
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("p", { children: "将复制此会话历史创建新分支，后续消息会携带历史发送给目标提供商。" }),
+          /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-transfer-actions", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: async () => {
               setBusy(true);
               try {
                 await onTransfer();
@@ -26090,7 +26234,7 @@ window.__ModuleLoader__.load({
                 setBusy(false);
               }
             }, children: busy ? "正在创建…" : "创建历史分支" }),
-            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setOpen(false), children: "取消" })
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setOpen(false), children: "取消" })
           ] })
         ] }) : null
       ] });
@@ -26310,7 +26454,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-tool-group-head{width:100%;min-height:42px;padding:8px 12px;border:1px solid var(--codex-border);border-radius:8px;background:var(--codex-bg);color:var(--codex-muted);font-size:13px}
     .dsh-codex-root .dsh-codex-tool-group-body{margin:12px 0 0 16px;border-left:1px solid var(--codex-border);padding-left:14px}
     .dsh-codex-root .dsh-codex-tool-head,.dsh-codex-root .dsh-codex-turn-footer{font-size:12px;color:var(--codex-muted)}
-    .dsh-codex-root .dsh-codex-composer-wrap{padding:10px 26px 16px;background:var(--codex-bg)}
+    .dsh-codex-root .dsh-codex-composer-wrap{flex-direction:column;align-items:center;padding:10px 26px 16px;background:var(--codex-bg)}
     .dsh-codex-root .dsh-codex-composer-card{max-width:800px;width:100%;border:1px solid var(--codex-border);border-radius:11px;background:var(--codex-bg);box-shadow:none;padding:10px}
     .dsh-codex-root .dsh-codex-composer-card:focus-within{border-color:var(--codex-accent);box-shadow:0 0 0 2px var(--codex-selected)}
     .dsh-codex-root .dsh-codex-composer-input{font-size:15px;line-height:1.75;min-height:60px;padding:5px 6px;outline:0!important}
@@ -26626,6 +26770,28 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-selected-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
     .dsh-codex-root .dsh-codex-selected-skills>span{display:flex;align-items:center;gap:5px;border:1px solid var(--codex-border);border-radius:5px;padding:3px 6px;font-family:var(--dsh-font-family-code);font-size:11px;background:var(--codex-panel)}
     .dsh-codex-root .dsh-codex-selected-skills button{border:0;background:transparent;color:var(--codex-muted);padding:2px;cursor:pointer}
+    .dsh-codex-root .dsh-codex-followups{width:calc(100% - 16px);max-width:784px;flex:none;border:1px solid var(--codex-border);border-radius:12px 12px 0 0;background:var(--codex-bg);margin:0 8px -1px;padding:6px 8px;color:var(--codex-text)}
+    .dsh-codex-root .dsh-codex-followups header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 5px 6px;font-size:12px;color:var(--codex-muted)}
+    .dsh-codex-root .dsh-codex-followups header .dsh-codex-followup-toggle{gap:5px;flex-shrink:0;min-height:26px;padding:2px 4px}
+    .dsh-codex-root .dsh-codex-followups small{font-size:11px;color:var(--codex-muted)}
+    .dsh-codex-root .dsh-codex-followup-list[hidden]{display:none}
+    .dsh-codex-root .dsh-codex-followup-list{max-height:min(240px,30vh);overflow:auto}
+    .dsh-codex-root .dsh-codex-followup-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:38px;padding:3px 5px;border-radius:6px}
+    .dsh-codex-root .dsh-codex-followup-row>svg{flex:none;color:var(--codex-muted)}
+    .dsh-codex-root .dsh-codex-followup-text{flex:1;min-width:0;font-size:13px}
+    .dsh-codex-root .dsh-codex-followup-text>span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;white-space:pre-wrap}
+    .dsh-codex-root .dsh-codex-followup-text small{display:flex;align-items:center;gap:4px;overflow-wrap:anywhere}
+    .dsh-codex-root .dsh-codex-followup-actions{display:flex;align-items:center;gap:2px;flex:none}
+    .dsh-codex-root .dsh-codex-followups button{display:inline-flex;align-items:center;justify-content:center;gap:4px;border:0;background:transparent;color:var(--codex-muted);border-radius:5px;min-height:32px;padding:4px 6px;font-size:12px;cursor:pointer}
+    .dsh-codex-root .dsh-codex-followups .dsh-codex-icon-button{height:32px;width:32px;padding:4px}
+    .dsh-codex-root .dsh-codex-followups button:hover{background:var(--codex-soft);color:var(--codex-text)}
+    .dsh-codex-root .dsh-codex-followups button:disabled{opacity:.45;cursor:default}
+    .dsh-codex-root .dsh-codex-followup-edit{width:100%}
+    .dsh-codex-root .dsh-codex-followup-edit textarea{display:block;width:100%;resize:vertical;min-height:70px;max-height:180px;padding:8px;border:1px solid var(--codex-border);border-radius:6px;font:inherit;font-size:13px}
+    .dsh-codex-root .dsh-codex-followup-edit>div{display:flex;justify-content:flex-end;gap:6px}
+    .dsh-codex-root .dsh-codex-followup-error{flex-basis:100%;font-size:12px;color:var(--codex-danger);overflow-wrap:anywhere;padding:3px 5px}
+    @media(max-width:600px){.dsh-codex-root .dsh-codex-followups{width:100%;margin-inline:0}.dsh-codex-root .dsh-codex-followups header small{display:none}}
+
     `;
 
     // src/client/styles.ts

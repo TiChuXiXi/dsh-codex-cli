@@ -16,6 +16,7 @@ import type {
   Project,
   RateLimits,
   ThreadDetail,
+  FollowupSnapshot,
   ThreadPage,
 } from '../types'
 import { useCodexTab } from '../hooks'
@@ -153,6 +154,22 @@ export function ConsolePage(props: ConsolePageProps) {
   }
   const [error, setError] = React.useState<string | null>(null)
   const [streamState, setStreamState] = React.useState<StreamState>('connecting')
+  const [followups, setFollowups] = React.useState<Record<string, FollowupSnapshot>>({})
+  const updateFollowups = React.useCallback((snapshot: FollowupSnapshot) => {
+    setFollowups(previous => {
+      const current = previous[snapshot.threadId]
+      if (current?.instanceId === snapshot.instanceId && current.revision > snapshot.revision) return previous
+      return { ...previous, [snapshot.threadId]: snapshot }
+    })
+  }, [])
+  React.useEffect(() => {
+    if (!selectedId || streamState !== 'open') return
+    let cancelled = false
+    void api<FollowupSnapshot>('followups/list', { threadId: selectedId })
+      .then(snapshot => { if (!cancelled) updateFollowups(snapshot) })
+      .catch(cause => { if (!cancelled) setError(messageOf(cause)) })
+    return () => { cancelled = true }
+  }, [api, selectedId, streamState, updateFollowups])
   const [search, setSearch] = React.useState('')
   const [pending, setPending] = React.useState<PendingApproval[]>([])
   const [provider, setProvider] = React.useState(() => readStored('dsh-codex-provider') === 'opencode-go' ? 'opencode-go' : 'openai')
@@ -366,6 +383,9 @@ export function ConsolePage(props: ConsolePageProps) {
             if (thread !== null && thread !== undefined && (thread.modelProvider ?? 'openai') === providerRef.current) setThreads((previous) => upsertThread(previous, thread))
             break
           }
+          case 'followups/changed':
+            updateFollowups(event.payload)
+            break
           case 'thread/status':
             setThreads((previous) =>
               previous.map((thread) =>
@@ -413,6 +433,7 @@ export function ConsolePage(props: ConsolePageProps) {
             break
           }
           case 'resync':
+            if (selectedIdRef.current) void api<FollowupSnapshot>('followups/list', { threadId: selectedIdRef.current }).then(updateFollowups).catch(cause => setError(messageOf(cause)))
             void refresh()
             void refreshPending()
             void loadQuota()
@@ -642,7 +663,7 @@ export function ConsolePage(props: ConsolePageProps) {
                   sandboxPolicy: workspaceWrite(false),
                 }
       try {
-        await api('turns/start', {
+        const snapshot = await api<FollowupSnapshot>('turns/submit', {
           threadId: selectedId,
           text,
           model: options.model,
@@ -652,6 +673,7 @@ export function ConsolePage(props: ConsolePageProps) {
           ...(collaborationMode === undefined ? {} : { collaborationMode }),
           ...permissionPayload,
         })
+        updateFollowups(snapshot)
         if (selectedIdRef.current === selectedId) setSessionPermission({ threadId: selectedId, mode: permission })
         // 首条消息落盘后线程才会出现在 thread/list：稍后补一次列表。
         window.setTimeout(() => {
@@ -662,28 +684,7 @@ export function ConsolePage(props: ConsolePageProps) {
         throw cause
       }
     },
-    [api, selectedId, loadThreads, planMode, detail],
-  )
-
-  const steer = React.useCallback(
-    async (text: string, skills:SkillReference[] = []) => {
-      if (selectedId === null || activeTurnId === null) return
-      setError(null)
-      try {
-        await api('turns/steer', { threadId: selectedId, turnId: activeTurnId, text, skills })
-      } catch (cause) {
-        if (/no active turn to steer/i.test(messageOf(cause))) {
-          rejectedTurns.current!.add(activeTurnId)
-          try { sessionStorage.setItem('dsh-codex-inactive-turns', JSON.stringify([...rejectedTurns.current!])) } catch {}
-          setDetail((previous) => previous?.thread.id === selectedId ? { ...previous } : previous)
-          setError('该任务已结束，消息已保留，请重新发送。')
-        } else {
-          setError(messageOf(cause))
-        }
-        throw cause
-      }
-    },
-    [api, selectedId, activeTurnId],
+    [api, selectedId, loadThreads, planMode, detail, updateFollowups],
   )
 
   const stop = React.useCallback(async () => {
@@ -972,8 +973,9 @@ export function ConsolePage(props: ConsolePageProps) {
             onLoadOlder={loadOlder}
             pending={visiblePending}
             onRespond={respond}
+            followups={selectedId ? followups[selectedId] : undefined}
+            onFollowups={updateFollowups}
             onSend={send}
-            onSteer={steer}
             onStop={stop}
             onPickProject={() => setPickerOpen(true)}
             onNew={handleNew}

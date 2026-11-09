@@ -5,6 +5,7 @@
  * 所有 codex 协议细节在 lib/hub.js 与 lib/transport/*。
  */
 
+import { FollowupQueue } from './lib/followups.js'
 import { EventBus } from './lib/events.js'
 import { ProviderHub as CodexHub } from './lib/provider-hub.js'
 import { createRoutes } from './lib/routes.js'
@@ -31,6 +32,7 @@ export function apply(ctx, rawConfig) {
   const logger = ctx.logger ?? console
   const bus = new EventBus({ capacity: config.eventBufferSize })
   const hub = new CodexHub({ config, logger, bus })
+  const followups = new FollowupQueue({ hub, bus })
   const workspace = new WorkspaceService(bus)
   const git = createGitService(rawConfig?.git)
   ctx.effect(() => () => git.dispose(), 'codex-cli: Git services')
@@ -48,6 +50,7 @@ export function apply(ctx, rawConfig) {
     () => {
       hub.start()
       return () => {
+        followups.dispose()
         void hub.stop()
         bus.dispose()
       }
@@ -57,7 +60,7 @@ export function apply(ctx, rawConfig) {
 
   ctx.effect(
     () => {
-      const handler = createRoutes({ hub, bus, connection, config, logger, versions, runtime, workspace, git })
+      const handler = createRoutes({ hub, bus, connection, config, logger, versions, runtime, workspace, git, followups })
       const unregister = webServer.register({ kind: 'prefix', path: '/codex-cli', handler })
       return () => { handler.dispose(); unregister() }
     },

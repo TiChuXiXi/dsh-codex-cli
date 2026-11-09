@@ -56,6 +56,24 @@ export interface CodexTurn {
   error?: unknown
 }
 
+export interface FollowupEntry {
+  id: string
+  status: 'queued' | 'editing' | 'sending' | 'failed'
+  params: {
+    text: string
+    attachments: Array<{ name: string, path: string, kind: 'file' | 'image' }>
+  }
+  error: string | null
+}
+
+export interface FollowupSnapshot {
+  instanceId: string
+  threadId: string
+  revision: number
+  paused: boolean
+  entries: FollowupEntry[]
+}
+
 export interface ThreadDetail {
   thread: CodexThread
   turns: CodexTurn[]

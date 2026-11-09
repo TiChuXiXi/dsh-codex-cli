@@ -1,6 +1,7 @@
 /** 会话详情：标题、元信息、消息流、审批与输入区。 */
 
 import * as React from 'react'
+import type { FollowupSnapshot } from '../types'
 import type {SkillReference} from '../skills'
 import {Icon} from '../components/Icon'
 import { useT } from '../i18n'
@@ -32,13 +33,14 @@ export interface ThreadViewProps {
   onLoadOlder: () => Promise<void> | void
   pending: PendingApproval[]
   onRespond: (requestId: string | number, response: any) => Promise<void>
+  followups?: FollowupSnapshot
+  onFollowups: (snapshot: FollowupSnapshot) => void
   onSend: (text: string, options: {
     model?: string
     effort?: string
     attachments?: Attachment[], skills?:SkillReference[]
     permission?: PermissionMode
   }) => Promise<void>
-  onSteer: (text: string, skills?:SkillReference[]) => Promise<void>
   onStop: () => Promise<void>
   onPickProject: () => void
   onNew: () => void
@@ -65,8 +67,9 @@ export function ThreadView({
   onLoadOlder,
   pending,
   onRespond,
+  followups,
+  onFollowups,
   onSend,
-  onSteer,
   onStop,
   onPickProject,
   onNew,
@@ -428,7 +431,8 @@ export function ThreadView({
             if (saved?.model === model && saved?.effort === effort) sessionStorage.removeItem(key)
           } catch {}
         }}
-        onSteer={onSteer}
+        followups={followups}
+        onFollowups={onFollowups}
         onStop={onStop}
       />
     </>
