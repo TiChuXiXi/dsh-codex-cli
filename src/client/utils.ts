@@ -133,12 +133,15 @@ export function applyDetailEvent(detail: ThreadDetail | null, event: CodexEvent)
     case 'item/upsert': {
       const item = event.payload?.item
       if (item === null || item === undefined) return detail
-      return upsertItem(detail, event.turnId ?? '', item)
+      return upsertItem(detail, event.turnId ?? '', event.payload?.completed === true ? { ...item, streaming: false } : item)
     }
     case 'item/delta': {
       const delta = event.payload?.delta
       if (event.itemId === undefined || typeof delta !== 'string' || delta === '') return detail
+      const turn = detail.turns.find((candidate) => candidate.id === event.turnId)
+      if (turn?.status && turn.status !== 'inProgress') return detail
       return patchItem(detail, event.itemId, (item) => {
+        if (item.streaming === false) return item
         switch (event.channel) {
           case 'agentMessage':
             return { ...item, text: `${item.text ?? ''}${delta}` }
@@ -182,6 +185,8 @@ function upsertItem(detail: ThreadDetail, turnId: string, item: CodexItem): Thre
   const turn = turns[turnIndex]
   const items = [...(turn.items ?? [])]
   const itemIndex = items.findIndex((candidate) => candidate.id === item.id)
+  // Replayed item/started must not reopen an already finalized message.
+  if (item.streaming === true && (items[itemIndex]?.streaming === false || (turn.status && turn.status !== 'inProgress'))) return detail
   if (itemIndex === -1) items.push(item)
   else items[itemIndex] = {
     ...items[itemIndex], ...item,

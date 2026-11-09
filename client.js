@@ -16496,12 +16496,15 @@ window.__ModuleLoader__.load({
         case "item/upsert": {
           const item = event.payload?.item;
           if (item === null || item === void 0) return detail;
-          return upsertItem(detail, event.turnId ?? "", item);
+          return upsertItem(detail, event.turnId ?? "", event.payload?.completed === true ? { ...item, streaming: false } : item);
         }
         case "item/delta": {
           const delta = event.payload?.delta;
           if (event.itemId === void 0 || typeof delta !== "string" || delta === "") return detail;
+          const turn = detail.turns.find((candidate) => candidate.id === event.turnId);
+          if (turn?.status && turn.status !== "inProgress") return detail;
           return patchItem(detail, event.itemId, (item) => {
+            if (item.streaming === false) return item;
             switch (event.channel) {
               case "agentMessage":
                 return { ...item, text: `${item.text ?? ""}${delta}` };
@@ -16544,6 +16547,7 @@ window.__ModuleLoader__.load({
       const turn = turns[turnIndex];
       const items = [...turn.items ?? []];
       const itemIndex = items.findIndex((candidate) => candidate.id === item.id);
+      if (item.streaming === true && (items[itemIndex]?.streaming === false || turn.status && turn.status !== "inProgress")) return detail;
       if (itemIndex === -1) items.push(item);
       else items[itemIndex] = {
         ...items[itemIndex],
@@ -25684,7 +25688,7 @@ window.__ModuleLoader__.load({
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
       }, onDropCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
-      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T07:11:26.785Z", children: [
+      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T07:17:45.693Z", children: [
         /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
           /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
           /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", className: "dsh-codex-workbench-project", title: detail?.thread.cwd ?? selectedCwd ?? "", onClick: () => setPickerOpen(true), children: [
