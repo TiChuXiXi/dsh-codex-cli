@@ -26314,7 +26314,7 @@ window.__ModuleLoader__.load({
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
       }, onDropCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
-      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-10T08:01:27.964Z", children: [
+      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-10T08:07:08.302Z", children: [
         /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(ToastHost, {}),
         /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
           /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
@@ -26790,7 +26790,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-composer-card:focus-within{border-color:var(--codex-accent);box-shadow:0 0 0 2px var(--codex-selected)}
     .dsh-codex-root .dsh-codex-composer-input{font-size:15px;line-height:1.75;min-height:60px;padding:5px 6px;outline:0!important}
     .dsh-codex-root .dsh-codex-composer-bottom{padding:2px 0 0;gap:5px}
-    .dsh-codex-root .dsh-codex-permission-pending{margin:0 24px 6px;padding:8px 12px;border-radius:7px;background:var(--codex-warning-bg);color:var(--codex-warning);font-size:12px;line-height:1.5}
+    .dsh-codex-root .dsh-codex-permission-pending{box-sizing:border-box;width:min(800px,calc(100% - 52px));margin:0 auto 6px;padding:8px 12px;border-radius:7px;background:var(--codex-warning-bg);color:var(--codex-warning);font-size:12px;line-height:1.5}
     .dsh-codex-root .dsh-codex-composer-row{gap:5px;flex-wrap:wrap;container:codex-composer-toolbar / inline-size}
     .dsh-codex-root .dsh-codex-composer-tools{flex:none;gap:6px}
     .dsh-codex-root .dsh-codex-composer-tools>button,.dsh-codex-root .dsh-codex-send,.dsh-codex-root .dsh-codex-stop{flex-shrink:0}
@@ -27010,6 +27010,7 @@ window.__ModuleLoader__.load({
      .dsh-codex-root .dsh-codex-running-bar,.dsh-codex-root .dsh-codex-approvals{width:min(800px,calc(100% - 36px))}
      .dsh-codex-root .dsh-codex-message-text,.dsh-codex-root .dsh-codex-markdown{font-size:16px;line-height:1.8}
      .dsh-codex-root .dsh-codex-composer-wrap{padding:8px 12px 12px}
+     .dsh-codex-root .dsh-codex-permission-pending{width:min(800px,calc(100% - 24px))}
      .dsh-codex-root .dsh-codex-composer-card{padding:8px;border-radius:10px}
      .dsh-codex-root .dsh-codex-composer-input{font-size:16px;min-height:64px}
      .dsh-codex-root .dsh-codex-permission-trigger{max-width:44px;padding:0 12px;font-size:0;gap:0}
