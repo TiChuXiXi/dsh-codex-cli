@@ -20,7 +20,7 @@ function isInvisible(item: CodexItem): boolean {
     return summary.every((part) => typeof part !== 'string' || part.trim() === '')
   }
   if (item.type === 'agentMessage') {
-    return typeof item.text !== 'string' || item.text.trim() === ''
+    return !item.questions?.length && (typeof item.text !== 'string' || item.text.trim() === '')
   }
   return false
 }

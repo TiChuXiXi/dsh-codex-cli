@@ -6,5 +6,6 @@ shots/*
 !shots/skills-redacted.png
 !shots/84-plan-mode.png
 research/
+.research/
 /test/
 *.log

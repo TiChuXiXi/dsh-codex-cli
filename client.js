@@ -2,7 +2,7 @@
 window.__ModuleLoader__.load({
   id: 'dsh-codex-cli',
   factory: (require) => {
-    const __CODEX_BUNDLE_CSS__ = "/* vendor/dsh-dockkit/components/dockkit.module.css */\n.dockkit_split {\n  display: flex;\n  flex: 1 1 auto;\n  min-width: 0;\n  min-height: 0;\n}\n.dockkit_splitRow {\n  flex-direction: row;\n}\n.dockkit_splitColumn {\n  flex-direction: column;\n}\n.dockkit_splitCell {\n  display: flex;\n  flex-basis: 0;\n  min-width: 0;\n  min-height: 0;\n}\n.dockkit_divider {\n  position: relative;\n  z-index: 1;\n  flex: none;\n  touch-action: none;\n}\n.dockkit_divider::before,\n.dockkit_divider::after {\n  content: \"\";\n  position: absolute;\n}\n.dockkit_divider::before {\n  background: var(--dsw-alias-border-l4);\n}\n.dockkit_splitRow > .dockkit_divider {\n  width: 0;\n  cursor: col-resize;\n}\n.dockkit_splitRow > .dockkit_divider::before {\n  top: 0;\n  bottom: 0;\n  left: -0.25px;\n  width: 0.5px;\n}\n.dockkit_splitRow > .dockkit_divider::after {\n  top: 0;\n  bottom: 0;\n  left: -4px;\n  right: -4px;\n}\n.dockkit_splitColumn > .dockkit_divider {\n  height: 0;\n  cursor: row-resize;\n}\n.dockkit_splitColumn > .dockkit_divider::before {\n  left: 0;\n  right: 0;\n  top: -0.25px;\n  height: 0.5px;\n}\n.dockkit_splitColumn > .dockkit_divider::after {\n  left: 0;\n  right: 0;\n  top: -4px;\n  bottom: -4px;\n}\n.dockkit_divider::after {\n  opacity: 0;\n  transition: opacity 120ms ease-out;\n}\n@media (hover: hover) {\n  .dockkit_divider:hover::after {\n    opacity: 1;\n  }\n}\n.dockkit_splitRow > .dockkit_divider::after {\n  background:\n    linear-gradient(\n      to bottom,\n      transparent,\n      var(--dsw-alias-label-caption) 50%,\n      transparent) center / 1px 100% no-repeat;\n}\n.dockkit_splitColumn > .dockkit_divider::after {\n  background:\n    linear-gradient(\n      to right,\n      transparent,\n      var(--dsw-alias-label-caption) 50%,\n      transparent) center / 100% 1px no-repeat;\n}\n.dockkit_surface {\n  display: flex;\n  flex: 1 1 auto;\n  min-width: 0;\n  min-height: 0;\n}\n.dockkit_tabLayout {\n  display: grid;\n  flex: 1 1 auto;\n  grid-template-rows: minmax(0, 1fr);\n  min-width: 0;\n  min-height: 0;\n}\n.dockkit_tabCell,\n.dockkit_emptyTabHost {\n  display: flex;\n  min-width: 0;\n  min-height: 0;\n  z-index: var(--dsh-dockkit-dock-layer, 10);\n}\n.dockkit_tabCell[hidden] {\n  display: none;\n}\n.dockkit_floatingCell {\n  width: 0;\n  height: 0;\n  z-index: var(--dsh-dockkit-float-layer, 60);\n}\n.dockkit_tabHost {\n  min-width: 0;\n  min-height: 0;\n  pointer-events: auto;\n}\n.dockkit_tabHost:not(.dockkit_float),\n.dockkit_emptyTabHost {\n  background: var(--dsw-alias-bg-base);\n}\n.dockkit_tabCell[data-dockkit-host=dock][data-dockkit-column=\"0\"] > .dockkit_tabHost {\n  border-left: 0.5px solid var(--dsw-alias-border-l4);\n}\n.dockkit_tabHostHeader {\n  flex: none;\n}\n.dockkit_tabHostBody {\n  position: relative;\n  min-width: 0;\n}\n.dockkit_tabLayoutDivider {\n  width: 0;\n  cursor: col-resize;\n  z-index: calc(var(--dsh-dockkit-dock-layer, 10) + 1);\n  pointer-events: auto;\n}\n.dockkit_tabLayoutDivider::before {\n  top: 0;\n  bottom: 0;\n  left: -0.25px;\n  width: 0.5px;\n}\n.dockkit_tabLayoutDivider::after {\n  top: 0;\n  bottom: 0;\n  left: -4px;\n  right: -4px;\n  background:\n    linear-gradient(\n      to bottom,\n      transparent,\n      var(--dsw-alias-label-caption) 50%,\n      transparent) center / 1px 100% no-repeat;\n}\n.dockkit_pane {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  min-width: 0;\n  min-height: 0;\n  overflow: hidden;\n}\n.dockkit_pane:focus,\n.dockkit_float:focus {\n  outline: none;\n}\n.dockkit_tabStrip {\n  display: flex;\n  flex: none;\n  gap: 4px;\n  align-items: center;\n  height: 28px;\n  padding: 10px 6px 0 var(--dsh-dockkit-strip-inline-start, 10px);\n  touch-action: none;\n}\n.dockkit_stripTabs {\n  display: flex;\n  flex: 0 1 auto;\n  align-items: center;\n  min-width: 0;\n  overflow-x: auto;\n  overflow-y: hidden;\n  scroll-behavior: smooth;\n  scrollbar-width: none;\n  touch-action: none;\n}\n.dockkit_stripTabs::-webkit-scrollbar {\n  display: none;\n}\n.dockkit_stripTabs[data-dockkit-strip-scroll=end] {\n  mask-image:\n    linear-gradient(\n      to right,\n      black calc(100% - 24px),\n      transparent);\n}\n.dockkit_stripTabs[data-dockkit-strip-scroll=start] {\n  mask-image:\n    linear-gradient(\n      to right,\n      transparent,\n      black 24px);\n}\n.dockkit_stripTabs[data-dockkit-strip-scroll=\"start end\"] {\n  mask-image:\n    linear-gradient(\n      to right,\n      transparent,\n      black 24px,\n      black calc(100% - 24px),\n      transparent);\n}\n.dockkit_stripFill {\n  flex: 1 1 0;\n  min-width: 0;\n}\n.dockkit_stripChrome {\n  display: flex;\n  flex: none;\n  gap: 8px;\n  align-items: center;\n  height: 28px;\n  margin-left: 4px;\n}\nhtml[data-platform=darwin] .dockkit_stripTabs,\nhtml[data-platform=darwin] .dockkit_stripChrome,\nhtml[data-platform=darwin] .dockkit_paneBody,\nhtml[data-platform=darwin] .dockkit_float,\nhtml[data-platform=darwin] .dockkit_divider {\n  -webkit-app-region: no-drag;\n}\n.dockkit_slot {\n  display: flex;\n  flex: none;\n  align-items: center;\n  justify-content: center;\n  width: 10px;\n  height: 28px;\n}\n.dockkit_slot::before {\n  content: \"\";\n  width: 0.5px;\n  height: 14px;\n  background: var(--dsw-alias-border-l4);\n}\n.dockkit_tabActive + .dockkit_slot:not(.dockkit_slotCaret)::before,\n.dockkit_slot:not(.dockkit_slotCaret):has(+ .dockkit_tabActive)::before {\n  background: transparent;\n}\n.dockkit_slotCaret::before {\n  width: 2px;\n  height: 20px;\n  background: var(--dsw-alias-brand-primary-new-colorprimary-new-color);\n}\n.dockkit_tab {\n  position: relative;\n  display: flex;\n  flex: 0 1 auto;\n  align-items: center;\n  min-width: 80px;\n  max-width: 170px;\n  height: 28px;\n  padding: 0 10px;\n  color: var(--dsw-alias-label-secondary);\n  font-size: var(--dsh-content-font-size-secondary, 13px);\n  line-height: 1;\n  white-space: nowrap;\n  border-radius: var(--dsw-radius-sm);\n  cursor: pointer;\n  touch-action: none;\n  user-select: none;\n}\n.dockkit_tabTitle {\n  display: flex;\n  flex: 1 1 auto;\n  gap: 5px;\n  align-items: center;\n  min-width: 0;\n  overflow: hidden;\n  line-height: 1.4;\n}\n.dockkit_tabTitle[data-dockkit-tab-clipped] {\n  mask-image:\n    linear-gradient(\n      to right,\n      black calc(100% - 16px),\n      transparent);\n}\n.dockkit_tab:not(.dockkit_floatTitle):focus-within .dockkit_tabTitle,\n.dockkit_tabActive .dockkit_tabTitle {\n  mask-image:\n    linear-gradient(\n      to right,\n      black calc(100% - 30px),\n      transparent calc(100% - 14px));\n}\n@media (hover: hover) {\n  .dockkit_tab:not(.dockkit_floatTitle):hover .dockkit_tabTitle {\n    mask-image:\n      linear-gradient(\n        to right,\n        black calc(100% - 30px),\n        transparent calc(100% - 14px));\n  }\n}\n.dockkit_tabClose {\n  position: absolute;\n  top: 4px;\n  right: 4px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 20px;\n  height: 20px;\n  padding: 0;\n  color: var(--dsw-alias-label-tertiary);\n  line-height: 1;\n  background: transparent;\n  border: none;\n  border-radius: var(--dsw-radius-sm);\n  cursor: pointer;\n  opacity: 0;\n  pointer-events: none;\n}\n.dockkit_tab:focus-within .dockkit_tabClose,\n.dockkit_tabActive .dockkit_tabClose {\n  opacity: 1;\n  pointer-events: auto;\n}\n@media (hover: hover) {\n  .dockkit_tab:hover .dockkit_tabClose {\n    opacity: 1;\n    pointer-events: auto;\n  }\n}\n.dockkit_addTab {\n  display: flex;\n  flex: none;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  padding: 0;\n  color: var(--dsw-alias-label-secondary);\n  line-height: 1;\n  background: transparent;\n  border: none;\n  border-radius: var(--dsw-radius-sm);\n  cursor: pointer;\n}\n@media (hover: hover) {\n  .dockkit_addTab:hover {\n    color: var(--dsw-alias-label-primary);\n    background: var(--dsw-alias-interactive-bg-hover);\n  }\n  .dockkit_tabClose:hover {\n    color: var(--dsw-alias-label-primary);\n    background: var(--dsw-alias-interactive-bg-hover);\n  }\n  .dockkit_tab:hover {\n    background: var(--dsw-alias-interactive-bg-hover);\n  }\n}\n.dockkit_tabActive {\n  color: var(--dsw-alias-label-primary);\n  background: var(--dsw-alias-markdown-tag);\n}\n.dockkit_tab.dockkit_tabQuiet {\n  color: var(--dsw-alias-label-primary);\n  background: transparent;\n  cursor: default;\n}\n@media (hover: hover) {\n  .dockkit_tab.dockkit_tabQuiet:hover {\n    color: var(--dsw-alias-label-primary);\n    background: transparent;\n    cursor: default;\n  }\n}\n.dockkit_tab.dockkit_tabQuiet .dockkit_tabTitle,\n.dockkit_tab.dockkit_tabQuiet:focus-within .dockkit_tabTitle {\n  mask-image: none;\n}\n@media (hover: hover) {\n  .dockkit_tab.dockkit_tabQuiet:hover .dockkit_tabTitle {\n    mask-image: none;\n  }\n}\n.dockkit_tab.dockkit_tabQuiet .dockkit_tabTitle[data-dockkit-tab-clipped] {\n  mask-image:\n    linear-gradient(\n      to right,\n      black calc(100% - 16px),\n      transparent);\n}\n.dockkit_tabDragging {\n  opacity: 0.5;\n}\n.dockkit_iconButton {\n  display: inline-flex;\n  flex: none;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  padding: 6px;\n  color: var(--dsw-alias-label-secondary);\n  line-height: 1;\n  background: transparent;\n  border: none;\n  border-radius: var(--dsw-radius-sm);\n  cursor: pointer;\n}\n.dockkit_iconButton svg {\n  width: 15px;\n  height: 15px;\n}\n@media (hover: hover) {\n  .dockkit_iconButton:hover:not(:disabled) {\n    background: var(--dsw-alias-interactive-bg-hover);\n  }\n}\n.dockkit_iconButton:disabled {\n  opacity: 0.4;\n  cursor: default;\n}\n.dockkit_iconButton[data-dockkit-split-blocked] {\n  pointer-events: none;\n}\n.dockkit_menu {\n  position: fixed;\n  z-index: 70;\n  display: flex;\n  flex-direction: column;\n  min-width: 96px;\n  padding: 4px;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n}\n.dockkit_menu:not(:has([role=menuitem], [role=menuitemcheckbox], [role=menuitemradio])) {\n  display: none;\n}\n.dockkit_menuItem {\n  padding: 4px 7px;\n  color: var(--dsw-alias-label-primary);\n  font-size: calc(var(--dsh-content-font-size-secondary, 13px) - 1px);\n  text-align: left;\n  background: transparent;\n  border: none;\n  border-radius: var(--dsw-radius-md);\n  cursor: pointer;\n}\n@media (hover: hover) {\n  .dockkit_menuItem:hover {\n    background: var(--dsw-alias-interactive-bg-hover);\n  }\n}\n.dockkit_paneBody {\n  position: relative;\n  flex: 1 1 auto;\n  min-width: 0;\n  min-height: 0;\n  overflow: auto;\n  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);\n  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);\n}\n.dockkit_empty {\n  margin: 0;\n  padding: 12px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: var(--dsh-content-font-size-secondary, 13px);\n}\n.dockkit_dockScrim {\n  position: absolute;\n  inset: 0;\n  z-index: 10;\n  pointer-events: none;\n  background: color-mix(in srgb, var(--dsw-alias-bg-base) 72%, transparent);\n  backdrop-filter: blur(6px);\n  animation: dockkit_dockScrimIn 140ms ease-out;\n}\n.dockkit_dockHint {\n  position: absolute;\n  z-index: 10;\n  display: flex;\n  box-sizing: border-box;\n  padding: 8px;\n  pointer-events: none;\n}\n.dockkit_dockHint[data-dockkit-dock-zone=center] {\n  inset: 0;\n}\n.dockkit_dockHint[data-dockkit-dock-zone=left] {\n  top: 0;\n  bottom: 0;\n  left: 0;\n  width: 40%;\n}\n.dockkit_dockHint[data-dockkit-dock-zone=right] {\n  top: 0;\n  right: 0;\n  bottom: 0;\n  width: 40%;\n}\n[data-dockkit-drop-zones=horizontal] .dockkit_dockHint[data-dockkit-dock-zone=left] {\n  width: 50%;\n  padding-right: 4px;\n}\n[data-dockkit-drop-zones=horizontal] .dockkit_dockHint[data-dockkit-dock-zone=right] {\n  width: 50%;\n  padding-left: 4px;\n}\n.dockkit_dockHintCard {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  gap: 8px;\n  align-items: center;\n  justify-content: center;\n  min-width: 0;\n  min-height: 0;\n  padding: 12px;\n  overflow: hidden;\n  color: var(--dsw-alias-label-tertiary);\n  border: 1.5px dashed var(--dsw-alias-border-l2);\n  border-radius: var(--dsw-radius-lg);\n  transition:\n    color 120ms ease-out,\n    background-color 120ms ease-out,\n    border-color 120ms ease-out;\n  animation: dockkit_dockHintIn 140ms ease-out;\n}\n.dockkit_dockHint[data-dockkit-drop-active] .dockkit_dockHintCard {\n  color: var(--dsw-alias-label-secondary);\n  background: color-mix(in srgb, var(--dsw-alias-brand-primary-new-colorprimary-new-color) 8%, transparent);\n  border-color: var(--dsw-alias-brand-primary-new-colorprimary-new-color);\n}\n.dockkit_dockHintCard svg {\n  flex: none;\n  width: 20px;\n  height: 20px;\n}\n.dockkit_dockHintLabel {\n  max-width: 100%;\n  overflow: hidden;\n  font-size: var(--dsh-content-font-size-secondary, 13px);\n  font-weight: 500;\n  line-height: 1.4;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n@keyframes dockkit_dockHintIn {\n  from {\n    opacity: 0;\n    transform: scale(0.98);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes dockkit_dockScrimIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.dockkit_dockHint[data-dockkit-dock-zone=top] {\n  top: 0;\n  right: 0;\n  left: 0;\n  height: 40%;\n}\n.dockkit_dockHint[data-dockkit-dock-zone=bottom] {\n  right: 0;\n  bottom: 0;\n  left: 0;\n  height: 40%;\n}\nhtml[data-windows-titlebar] .dockkit_float {\n  --dsh-dockkit-float-top: calc(var(--dsh-windows-titlebar-height) + 20px);\n}\nhtml[data-windows-titlebar][data-fullscreen] .dockkit_float {\n  --dsh-dockkit-float-top: 20px;\n}\n.dockkit_float {\n  position: fixed;\n  left: max(0px, min(var(--dsh-dockkit-float-x), 100vw - var(--dsh-dockkit-float-width)));\n  top: max(var(--dsh-dockkit-float-top, 0px), min(var(--dsh-dockkit-float-y), 100dvh - var(--dsh-dockkit-float-height)));\n  width: min(var(--dsh-dockkit-float-width), 100vw);\n  height: min(var(--dsh-dockkit-float-height), 100dvh - var(--dsh-dockkit-float-top, 0px));\n  display: flex;\n  flex-direction: column;\n  overflow: hidden;\n  background: var(--dsw-alias-bg-layer-2);\n  border-radius: var(--dsw-radius-panel);\n  --dsw-elevation-stroke-color: var(--dsw-alias-border-l2);\n  box-shadow: var(--dsw-elevation-prominent);\n  pointer-events: auto;\n}\n.dockkit_floatHeader {\n  cursor: move;\n  user-select: none;\n}\n.dockkit_floatTitle {\n  flex: 0 1 auto;\n  cursor: inherit;\n}\n@media (hover: hover) {\n  .dockkit_tab.dockkit_floatTitle:hover {\n    background: transparent;\n  }\n}\n.dockkit_dockGlyph {\n  transform: scaleX(-1);\n}\n.dockkit_floatBody {\n  flex: 1 1 auto;\n  min-height: 0;\n  overflow: auto;\n  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);\n  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);\n}\n.dockkit_floatResize {\n  position: absolute;\n  right: 0;\n  bottom: 0;\n  width: 20px;\n  height: 20px;\n  cursor: nwse-resize;\n  touch-action: none;\n}\n.dockkit_floatResize::after {\n  content: \"\";\n  position: absolute;\n  right: 4px;\n  bottom: 4px;\n  width: calc(var(--dsw-radius-panel) - 4px);\n  height: calc(var(--dsw-radius-panel) - 4px);\n  border-right: 1.5px solid var(--dsw-alias-label-caption);\n  border-bottom: 1.5px solid var(--dsw-alias-label-caption);\n  border-bottom-right-radius: calc(var(--dsw-radius-panel) - 4px);\n  opacity: 0;\n  transition: opacity 120ms ease-out;\n}\n.dockkit_floatResize:active::after {\n  opacity: 1;\n}\n@media (hover: hover) {\n  .dockkit_float:hover .dockkit_floatResize::after {\n    opacity: 1;\n  }\n  .dockkit_floatResize:hover::after {\n    border-color: var(--dsw-alias-label-tertiary);\n  }\n}\n\n/* src/client/sidebar/sidebar.css */\n.codex-sidebar {\n  position: relative;\n  flex: none;\n  height: 100%;\n  min-width: 0;\n  min-height: 0;\n  border-left: 1px solid var(--dsw-alias-border-l3, #ddd);\n  background: var(--dsw-alias-bg-base, #fff);\n  color: var(--dsw-alias-label-primary, #222);\n}\n.codex-sidebar[hidden] {\n  display: none;\n}\n.codex-sidebar.is-fullscreen {\n  position: fixed;\n  inset: 0;\n  width: auto;\n  z-index: 1100;\n}\n.codex-sidebar [data-dockkit-surface] {\n  height: 100%;\n  min-width: 0;\n}\n.codex-sidebar-control {\n  display: inline-grid;\n  place-items: center;\n  border: 0;\n  border-radius: 6px;\n  background: transparent;\n  color: inherit;\n  width: 28px;\n  height: 28px;\n  cursor: pointer;\n  font-size: 18px;\n}\n.codex-sidebar-control:hover {\n  background: var(--dsw-alias-interactive-bg-hover, #eee);\n}\n.codex-sidebar-resize {\n  position: absolute;\n  left: -4px;\n  top: 0;\n  width: 8px;\n  height: 100%;\n  z-index: 5;\n  cursor: col-resize;\n  touch-action: none;\n}\n.codex-sidebar-guide {\n  height: 100%;\n  overflow: auto;\n  padding: 24px;\n}\n.codex-sidebar-guide h3 {\n  font-size: 16px;\n  font-weight: 500;\n}\n.codex-sidebar-guide p {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 12px;\n  opacity: 0.65;\n}\n.codex-sidebar-guide > button {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n  width: 100%;\n  text-align: left;\n  padding: 14px 16px;\n  margin: 12px 0;\n  border: 1px solid var(--dsw-alias-border-l3, #ddd);\n  border-radius: 12px;\n  background: transparent;\n  color: inherit;\n  cursor: pointer;\n}\n.codex-sidebar-guide > button:hover {\n  background: var(--dsw-alias-interactive-bg-hover, #eee);\n}\n.codex-sidebar-guide > button span {\n  font-size: 12px;\n  opacity: 0.65;\n}\n[data-codex-sidebar-menu] {\n  z-index: 1600 !important;\n  background: var(--dsw-alias-bg-base, #fff);\n  color: var(--dsw-alias-label-primary, #222);\n  box-shadow: 0 4px 24px #0003;\n  border-radius: 10px;\n  padding: 5px;\n}\n[data-codex-sidebar-menu] > button {\n  display: block;\n  width: 100%;\n  border: 0;\n  background: transparent;\n  color: inherit;\n  padding: 8px 12px;\n  text-align: left;\n  border-radius: 6px;\n  cursor: pointer;\n}\n[data-codex-sidebar-menu] > button:hover {\n  background: var(--dsw-alias-interactive-bg-hover, #eee);\n}\n.codex-sidebar-browser {\n  display: flex;\n  flex-direction: column;\n  min-height: 0;\n  height: 100%;\n}\n.codex-sidebar-browser form {\n  display: flex;\n  gap: 4px;\n  padding: 8px;\n  border-bottom: 1px solid var(--dsw-alias-border-l3, #ddd);\n}\n.codex-sidebar-browser input {\n  flex: 1;\n  min-width: 30px;\n  border: 1px solid var(--dsw-alias-border-l3, #ddd);\n  border-radius: 6px;\n  padding: 5px;\n  background: transparent;\n  color: inherit;\n}\n.codex-sidebar-browser button {\n  border: 0;\n  border-radius: 5px;\n  background: transparent;\n  color: inherit;\n  cursor: pointer;\n}\n.codex-sidebar-browser iframe {\n  flex: 1;\n  width: 100%;\n  min-height: 0;\n  border: 0;\n  background: #fff;\n}\n.codex-sidebar .dsh-codex-right-body {\n  height: 100%;\n  min-height: 0;\n}\n.codex-sidebar-files {\n  height: 100%;\n  overflow: auto;\n  min-height: 0;\n}\n.codex-sidebar-file-toolbar {\n  position: sticky;\n  top: 0;\n  display: flex;\n  gap: 6px;\n  align-items: center;\n  padding: 8px;\n  background: var(--dsw-alias-bg-base, #fff);\n  border-bottom: 1px solid var(--dsw-alias-border-l3, #ddd);\n  z-index: 1;\n}\n.codex-sidebar-file-toolbar code {\n  flex: 1;\n  min-width: 0;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 11px;\n}\n.codex-sidebar-file-toolbar button,\n.codex-sidebar-file-toolbar label {\n  flex: none;\n  font-size: 11px;\n}\n.codex-sidebar-file-row {\n  display: flex;\n  align-items: center;\n  gap: 7px;\n  width: 100%;\n  height: 30px;\n  border: 0;\n  background: transparent;\n  color: inherit;\n  text-align: left;\n  cursor: pointer;\n  font: inherit;\n  font-size: 12px;\n}\n.codex-sidebar-file-row:hover {\n  background: var(--dsw-alias-interactive-bg-hover, #eee);\n}\n.codex-sidebar-file-row > span:nth-child(2) {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.codex-sidebar-file-row small {\n  margin-left: auto;\n  padding-right: 10px;\n  opacity: 0.5;\n  white-space: nowrap;\n}\n.codex-sidebar-document {\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  min-height: 0;\n}\n.codex-sidebar-document header,\n.codex-sidebar-document footer {\n  display: flex;\n  gap: 6px;\n  align-items: center;\n  padding: 8px;\n  border-bottom: 1px solid var(--dsw-alias-border-l3, #ddd);\n  font-size: 11px;\n}\n.codex-sidebar-document header code {\n  flex: 1;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.codex-sidebar-document button,\n.codex-sidebar-document select {\n  border: 1px solid var(--dsw-alias-border-l3, #ddd);\n  border-radius: 5px;\n  background: transparent;\n  color: inherit;\n  padding: 3px 6px;\n  cursor: pointer;\n}\n.codex-sidebar-document-body {\n  flex: 1;\n  min-height: 0;\n  overflow: auto;\n}\n.codex-sidebar-document-body .dsh-codex-markdown {\n  padding: 16px;\n}\n.codex-sidebar-document-body pre {\n  padding: 10px;\n  font-size: 12px;\n  line-height: 1.6;\n}\n.codex-sidebar-line-number {\n  display: inline-block;\n  width: 44px;\n  text-align: right;\n  padding-right: 12px;\n  opacity: 0.4;\n  user-select: none;\n}\n.codex-sidebar-document footer {\n  justify-content: space-between;\n  border-top: 1px solid var(--dsw-alias-border-l3, #ddd);\n}\n.dsh-codex-root .codex-file-context-menu {\n  z-index: 1600;\n  min-width: 210px;\n  padding: 5px;\n  background: var(--codex-bg);\n  border: 1px solid var(--codex-border);\n  border-radius: 8px;\n  box-shadow: var(--dsw-elevation-prominent);\n  max-height: calc(100vh - 16px);\n  overflow: auto;\n}\n.dsh-codex-root .codex-file-context-menu button {\n  display: flex;\n  width: 100%;\n  align-items: center;\n  gap: 9px;\n  border: 0;\n  border-radius: 4px;\n  padding: 7px 10px;\n  background: transparent;\n  color: var(--codex-text);\n  text-align: left;\n  font-size: 12px;\n  cursor: pointer;\n}\n.dsh-codex-root .codex-file-context-menu button:hover,\n.dsh-codex-root .codex-file-context-menu button:focus {\n  background: var(--codex-soft);\n}\n.dsh-codex-root .codex-file-context-menu button.danger {\n  color: var(--codex-danger);\n  border-top: 1px solid var(--codex-border);\n  margin-top: 4px;\n}\n.dsh-codex-root .codex-file-modal-backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1700;\n  background: #0005;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding: 20px;\n}\n.dsh-codex-root .codex-file-modal {\n  width: 420px;\n  max-width: 100%;\n  padding: 20px;\n  border: 1px solid var(--codex-border);\n  border-radius: 10px;\n  background: var(--codex-bg);\n  color: var(--codex-text);\n  box-shadow: var(--dsw-elevation-prominent);\n}\n.dsh-codex-root .codex-file-modal code {\n  overflow-wrap: anywhere;\n  font-family: var(--dsh-font-family-code);\n}\n.dsh-codex-root .codex-file-modal footer {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n.dsh-codex-root .dsh-codex-download {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  vertical-align: middle;\n  max-width: 100%;\n  flex-wrap: wrap;\n}\n.dsh-codex-root .dsh-codex-download-button {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  border: 0;\n  border-radius: 4px;\n  background: transparent;\n  color: var(--codex-muted);\n  padding: 3px;\n  cursor: pointer;\n}\n.dsh-codex-root .dsh-codex-download-button:hover {\n  background: var(--codex-soft);\n  color: var(--codex-text);\n}\n.dsh-codex-root .dsh-codex-download-error {\n  color: var(--codex-danger);\n  font-size: 12px;\n  overflow-wrap: anywhere;\n}\n.dsh-codex-root button.dsh-codex-message-file {\n  cursor: pointer;\n  color: var(--codex-text);\n  font: inherit;\n}\n"
+    const __CODEX_BUNDLE_CSS__ = "/* ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/dockkit.module.css */\n.dockkit_split {\n  display: flex;\n  flex: 1 1 auto;\n  min-width: 0;\n  min-height: 0;\n}\n.dockkit_splitRow {\n  flex-direction: row;\n}\n.dockkit_splitColumn {\n  flex-direction: column;\n}\n.dockkit_splitCell {\n  display: flex;\n  flex-basis: 0;\n  min-width: 0;\n  min-height: 0;\n}\n.dockkit_divider {\n  position: relative;\n  z-index: 1;\n  flex: none;\n  touch-action: none;\n}\n.dockkit_divider::before,\n.dockkit_divider::after {\n  content: \"\";\n  position: absolute;\n}\n.dockkit_divider::before {\n  background: var(--dsw-alias-border-l4);\n}\n.dockkit_splitRow > .dockkit_divider {\n  width: 0;\n  cursor: col-resize;\n}\n.dockkit_splitRow > .dockkit_divider::before {\n  top: 0;\n  bottom: 0;\n  left: -0.25px;\n  width: 0.5px;\n}\n.dockkit_splitRow > .dockkit_divider::after {\n  top: 0;\n  bottom: 0;\n  left: -4px;\n  right: -4px;\n}\n.dockkit_splitColumn > .dockkit_divider {\n  height: 0;\n  cursor: row-resize;\n}\n.dockkit_splitColumn > .dockkit_divider::before {\n  left: 0;\n  right: 0;\n  top: -0.25px;\n  height: 0.5px;\n}\n.dockkit_splitColumn > .dockkit_divider::after {\n  left: 0;\n  right: 0;\n  top: -4px;\n  bottom: -4px;\n}\n.dockkit_divider::after {\n  opacity: 0;\n  transition: opacity 120ms ease-out;\n}\n@media (hover: hover) {\n  .dockkit_divider:hover::after {\n    opacity: 1;\n  }\n}\n.dockkit_splitRow > .dockkit_divider::after {\n  background:\n    linear-gradient(\n      to bottom,\n      transparent,\n      var(--dsw-alias-label-caption) 50%,\n      transparent) center / 1px 100% no-repeat;\n}\n.dockkit_splitColumn > .dockkit_divider::after {\n  background:\n    linear-gradient(\n      to right,\n      transparent,\n      var(--dsw-alias-label-caption) 50%,\n      transparent) center / 100% 1px no-repeat;\n}\n.dockkit_surface {\n  display: flex;\n  flex: 1 1 auto;\n  min-width: 0;\n  min-height: 0;\n}\n.dockkit_tabLayout {\n  display: grid;\n  flex: 1 1 auto;\n  grid-template-rows: minmax(0, 1fr);\n  min-width: 0;\n  min-height: 0;\n}\n.dockkit_tabCell,\n.dockkit_emptyTabHost {\n  display: flex;\n  min-width: 0;\n  min-height: 0;\n  z-index: var(--dsh-dockkit-dock-layer, 10);\n}\n.dockkit_tabCell[hidden] {\n  display: none;\n}\n.dockkit_floatingCell {\n  width: 0;\n  height: 0;\n  z-index: var(--dsh-dockkit-float-layer, 60);\n}\n.dockkit_tabHost {\n  min-width: 0;\n  min-height: 0;\n  pointer-events: auto;\n}\n.dockkit_tabHost:not(.dockkit_float),\n.dockkit_emptyTabHost {\n  background: var(--dsw-alias-bg-base);\n}\n.dockkit_tabCell[data-dockkit-host=dock][data-dockkit-column=\"0\"] > .dockkit_tabHost {\n  border-left: 0.5px solid var(--dsw-alias-border-l4);\n}\n.dockkit_tabHostHeader {\n  flex: none;\n}\n.dockkit_tabHostBody {\n  position: relative;\n  min-width: 0;\n}\n.dockkit_tabLayoutDivider {\n  width: 0;\n  cursor: col-resize;\n  z-index: calc(var(--dsh-dockkit-dock-layer, 10) + 1);\n  pointer-events: auto;\n}\n.dockkit_tabLayoutDivider::before {\n  top: 0;\n  bottom: 0;\n  left: -0.25px;\n  width: 0.5px;\n}\n.dockkit_tabLayoutDivider::after {\n  top: 0;\n  bottom: 0;\n  left: -4px;\n  right: -4px;\n  background:\n    linear-gradient(\n      to bottom,\n      transparent,\n      var(--dsw-alias-label-caption) 50%,\n      transparent) center / 1px 100% no-repeat;\n}\n.dockkit_pane {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  min-width: 0;\n  min-height: 0;\n  overflow: hidden;\n}\n.dockkit_pane:focus,\n.dockkit_float:focus {\n  outline: none;\n}\n.dockkit_tabStrip {\n  display: flex;\n  flex: none;\n  gap: 4px;\n  align-items: center;\n  height: 28px;\n  padding: 10px 6px 0 var(--dsh-dockkit-strip-inline-start, 10px);\n  touch-action: none;\n}\n.dockkit_stripTabs {\n  display: flex;\n  flex: 0 1 auto;\n  align-items: center;\n  min-width: 0;\n  overflow-x: auto;\n  overflow-y: hidden;\n  scroll-behavior: smooth;\n  scrollbar-width: none;\n  touch-action: none;\n}\n.dockkit_stripTabs::-webkit-scrollbar {\n  display: none;\n}\n.dockkit_stripTabs[data-dockkit-strip-scroll=end] {\n  mask-image:\n    linear-gradient(\n      to right,\n      black calc(100% - 24px),\n      transparent);\n}\n.dockkit_stripTabs[data-dockkit-strip-scroll=start] {\n  mask-image:\n    linear-gradient(\n      to right,\n      transparent,\n      black 24px);\n}\n.dockkit_stripTabs[data-dockkit-strip-scroll=\"start end\"] {\n  mask-image:\n    linear-gradient(\n      to right,\n      transparent,\n      black 24px,\n      black calc(100% - 24px),\n      transparent);\n}\n.dockkit_stripFill {\n  flex: 1 1 0;\n  min-width: 0;\n}\n.dockkit_stripChrome {\n  display: flex;\n  flex: none;\n  gap: 8px;\n  align-items: center;\n  height: 28px;\n  margin-left: 4px;\n}\nhtml[data-platform=darwin] .dockkit_stripTabs,\nhtml[data-platform=darwin] .dockkit_stripChrome,\nhtml[data-platform=darwin] .dockkit_paneBody,\nhtml[data-platform=darwin] .dockkit_float,\nhtml[data-platform=darwin] .dockkit_divider {\n  -webkit-app-region: no-drag;\n}\n.dockkit_slot {\n  display: flex;\n  flex: none;\n  align-items: center;\n  justify-content: center;\n  width: 10px;\n  height: 28px;\n}\n.dockkit_slot::before {\n  content: \"\";\n  width: 0.5px;\n  height: 14px;\n  background: var(--dsw-alias-border-l4);\n}\n.dockkit_tabActive + .dockkit_slot:not(.dockkit_slotCaret)::before,\n.dockkit_slot:not(.dockkit_slotCaret):has(+ .dockkit_tabActive)::before {\n  background: transparent;\n}\n.dockkit_slotCaret::before {\n  width: 2px;\n  height: 20px;\n  background: var(--dsw-alias-brand-primary-new-colorprimary-new-color);\n}\n.dockkit_tab {\n  position: relative;\n  display: flex;\n  flex: 0 1 auto;\n  align-items: center;\n  min-width: 80px;\n  max-width: 170px;\n  height: 28px;\n  padding: 0 10px;\n  color: var(--dsw-alias-label-secondary);\n  font-size: var(--dsh-content-font-size-secondary, 13px);\n  line-height: 1;\n  white-space: nowrap;\n  border-radius: var(--dsw-radius-sm);\n  cursor: pointer;\n  touch-action: none;\n  user-select: none;\n}\n.dockkit_tabTitle {\n  display: flex;\n  flex: 1 1 auto;\n  gap: 5px;\n  align-items: center;\n  min-width: 0;\n  overflow: hidden;\n  line-height: 1.4;\n}\n.dockkit_tabTitle[data-dockkit-tab-clipped] {\n  mask-image:\n    linear-gradient(\n      to right,\n      black calc(100% - 16px),\n      transparent);\n}\n.dockkit_tab:not(.dockkit_floatTitle):focus-within .dockkit_tabTitle,\n.dockkit_tabActive .dockkit_tabTitle {\n  mask-image:\n    linear-gradient(\n      to right,\n      black calc(100% - 30px),\n      transparent calc(100% - 14px));\n}\n@media (hover: hover) {\n  .dockkit_tab:not(.dockkit_floatTitle):hover .dockkit_tabTitle {\n    mask-image:\n      linear-gradient(\n        to right,\n        black calc(100% - 30px),\n        transparent calc(100% - 14px));\n  }\n}\n.dockkit_tabClose {\n  position: absolute;\n  top: 4px;\n  right: 4px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 20px;\n  height: 20px;\n  padding: 0;\n  color: var(--dsw-alias-label-tertiary);\n  line-height: 1;\n  background: transparent;\n  border: none;\n  border-radius: var(--dsw-radius-sm);\n  cursor: pointer;\n  opacity: 0;\n  pointer-events: none;\n}\n.dockkit_tab:focus-within .dockkit_tabClose,\n.dockkit_tabActive .dockkit_tabClose {\n  opacity: 1;\n  pointer-events: auto;\n}\n@media (hover: hover) {\n  .dockkit_tab:hover .dockkit_tabClose {\n    opacity: 1;\n    pointer-events: auto;\n  }\n}\n.dockkit_addTab {\n  display: flex;\n  flex: none;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  padding: 0;\n  color: var(--dsw-alias-label-secondary);\n  line-height: 1;\n  background: transparent;\n  border: none;\n  border-radius: var(--dsw-radius-sm);\n  cursor: pointer;\n}\n@media (hover: hover) {\n  .dockkit_addTab:hover {\n    color: var(--dsw-alias-label-primary);\n    background: var(--dsw-alias-interactive-bg-hover);\n  }\n  .dockkit_tabClose:hover {\n    color: var(--dsw-alias-label-primary);\n    background: var(--dsw-alias-interactive-bg-hover);\n  }\n  .dockkit_tab:hover {\n    background: var(--dsw-alias-interactive-bg-hover);\n  }\n}\n.dockkit_tabActive {\n  color: var(--dsw-alias-label-primary);\n  background: var(--dsw-alias-markdown-tag);\n}\n.dockkit_tab.dockkit_tabQuiet {\n  color: var(--dsw-alias-label-primary);\n  background: transparent;\n  cursor: default;\n}\n@media (hover: hover) {\n  .dockkit_tab.dockkit_tabQuiet:hover {\n    color: var(--dsw-alias-label-primary);\n    background: transparent;\n    cursor: default;\n  }\n}\n.dockkit_tab.dockkit_tabQuiet .dockkit_tabTitle,\n.dockkit_tab.dockkit_tabQuiet:focus-within .dockkit_tabTitle {\n  mask-image: none;\n}\n@media (hover: hover) {\n  .dockkit_tab.dockkit_tabQuiet:hover .dockkit_tabTitle {\n    mask-image: none;\n  }\n}\n.dockkit_tab.dockkit_tabQuiet .dockkit_tabTitle[data-dockkit-tab-clipped] {\n  mask-image:\n    linear-gradient(\n      to right,\n      black calc(100% - 16px),\n      transparent);\n}\n.dockkit_tabDragging {\n  opacity: 0.5;\n}\n.dockkit_iconButton {\n  display: inline-flex;\n  flex: none;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  padding: 6px;\n  color: var(--dsw-alias-label-secondary);\n  line-height: 1;\n  background: transparent;\n  border: none;\n  border-radius: var(--dsw-radius-sm);\n  cursor: pointer;\n}\n.dockkit_iconButton svg {\n  width: 15px;\n  height: 15px;\n}\n@media (hover: hover) {\n  .dockkit_iconButton:hover:not(:disabled) {\n    background: var(--dsw-alias-interactive-bg-hover);\n  }\n}\n.dockkit_iconButton:disabled {\n  opacity: 0.4;\n  cursor: default;\n}\n.dockkit_iconButton[data-dockkit-split-blocked] {\n  pointer-events: none;\n}\n.dockkit_menu {\n  position: fixed;\n  z-index: 70;\n  display: flex;\n  flex-direction: column;\n  min-width: 96px;\n  padding: 4px;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n}\n.dockkit_menu:not(:has([role=menuitem], [role=menuitemcheckbox], [role=menuitemradio])) {\n  display: none;\n}\n.dockkit_menuItem {\n  padding: 4px 7px;\n  color: var(--dsw-alias-label-primary);\n  font-size: calc(var(--dsh-content-font-size-secondary, 13px) - 1px);\n  text-align: left;\n  background: transparent;\n  border: none;\n  border-radius: var(--dsw-radius-md);\n  cursor: pointer;\n}\n@media (hover: hover) {\n  .dockkit_menuItem:hover {\n    background: var(--dsw-alias-interactive-bg-hover);\n  }\n}\n.dockkit_paneBody {\n  position: relative;\n  flex: 1 1 auto;\n  min-width: 0;\n  min-height: 0;\n  overflow: auto;\n  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);\n  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);\n}\n.dockkit_empty {\n  margin: 0;\n  padding: 12px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: var(--dsh-content-font-size-secondary, 13px);\n}\n.dockkit_dockScrim {\n  position: absolute;\n  inset: 0;\n  z-index: 10;\n  pointer-events: none;\n  background: color-mix(in srgb, var(--dsw-alias-bg-base) 72%, transparent);\n  backdrop-filter: blur(6px);\n  animation: dockkit_dockScrimIn 140ms ease-out;\n}\n.dockkit_dockHint {\n  position: absolute;\n  z-index: 10;\n  display: flex;\n  box-sizing: border-box;\n  padding: 8px;\n  pointer-events: none;\n}\n.dockkit_dockHint[data-dockkit-dock-zone=center] {\n  inset: 0;\n}\n.dockkit_dockHint[data-dockkit-dock-zone=left] {\n  top: 0;\n  bottom: 0;\n  left: 0;\n  width: 40%;\n}\n.dockkit_dockHint[data-dockkit-dock-zone=right] {\n  top: 0;\n  right: 0;\n  bottom: 0;\n  width: 40%;\n}\n[data-dockkit-drop-zones=horizontal] .dockkit_dockHint[data-dockkit-dock-zone=left] {\n  width: 50%;\n  padding-right: 4px;\n}\n[data-dockkit-drop-zones=horizontal] .dockkit_dockHint[data-dockkit-dock-zone=right] {\n  width: 50%;\n  padding-left: 4px;\n}\n.dockkit_dockHintCard {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  gap: 8px;\n  align-items: center;\n  justify-content: center;\n  min-width: 0;\n  min-height: 0;\n  padding: 12px;\n  overflow: hidden;\n  color: var(--dsw-alias-label-tertiary);\n  border: 1.5px dashed var(--dsw-alias-border-l2);\n  border-radius: var(--dsw-radius-lg);\n  transition:\n    color 120ms ease-out,\n    background-color 120ms ease-out,\n    border-color 120ms ease-out;\n  animation: dockkit_dockHintIn 140ms ease-out;\n}\n.dockkit_dockHint[data-dockkit-drop-active] .dockkit_dockHintCard {\n  color: var(--dsw-alias-label-secondary);\n  background: color-mix(in srgb, var(--dsw-alias-brand-primary-new-colorprimary-new-color) 8%, transparent);\n  border-color: var(--dsw-alias-brand-primary-new-colorprimary-new-color);\n}\n.dockkit_dockHintCard svg {\n  flex: none;\n  width: 20px;\n  height: 20px;\n}\n.dockkit_dockHintLabel {\n  max-width: 100%;\n  overflow: hidden;\n  font-size: var(--dsh-content-font-size-secondary, 13px);\n  font-weight: 500;\n  line-height: 1.4;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n@keyframes dockkit_dockHintIn {\n  from {\n    opacity: 0;\n    transform: scale(0.98);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes dockkit_dockScrimIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.dockkit_dockHint[data-dockkit-dock-zone=top] {\n  top: 0;\n  right: 0;\n  left: 0;\n  height: 40%;\n}\n.dockkit_dockHint[data-dockkit-dock-zone=bottom] {\n  right: 0;\n  bottom: 0;\n  left: 0;\n  height: 40%;\n}\nhtml[data-windows-titlebar] .dockkit_float {\n  --dsh-dockkit-float-top: calc(var(--dsh-windows-titlebar-height) + 20px);\n}\nhtml[data-windows-titlebar][data-fullscreen] .dockkit_float {\n  --dsh-dockkit-float-top: 20px;\n}\n.dockkit_float {\n  position: fixed;\n  left: max(0px, min(var(--dsh-dockkit-float-x), 100vw - var(--dsh-dockkit-float-width)));\n  top: max(var(--dsh-dockkit-float-top, 0px), min(var(--dsh-dockkit-float-y), 100dvh - var(--dsh-dockkit-float-height)));\n  width: min(var(--dsh-dockkit-float-width), 100vw);\n  height: min(var(--dsh-dockkit-float-height), 100dvh - var(--dsh-dockkit-float-top, 0px));\n  display: flex;\n  flex-direction: column;\n  overflow: hidden;\n  background: var(--dsw-alias-bg-layer-2);\n  border-radius: var(--dsw-radius-panel);\n  --dsw-elevation-stroke-color: var(--dsw-alias-border-l2);\n  box-shadow: var(--dsw-elevation-prominent);\n  pointer-events: auto;\n}\n.dockkit_floatHeader {\n  cursor: move;\n  user-select: none;\n}\n.dockkit_floatTitle {\n  flex: 0 1 auto;\n  cursor: inherit;\n}\n@media (hover: hover) {\n  .dockkit_tab.dockkit_floatTitle:hover {\n    background: transparent;\n  }\n}\n.dockkit_dockGlyph {\n  transform: scaleX(-1);\n}\n.dockkit_floatBody {\n  flex: 1 1 auto;\n  min-height: 0;\n  overflow: auto;\n  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);\n  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);\n}\n.dockkit_floatResize {\n  position: absolute;\n  right: 0;\n  bottom: 0;\n  width: 20px;\n  height: 20px;\n  cursor: nwse-resize;\n  touch-action: none;\n}\n.dockkit_floatResize::after {\n  content: \"\";\n  position: absolute;\n  right: 4px;\n  bottom: 4px;\n  width: calc(var(--dsw-radius-panel) - 4px);\n  height: calc(var(--dsw-radius-panel) - 4px);\n  border-right: 1.5px solid var(--dsw-alias-label-caption);\n  border-bottom: 1.5px solid var(--dsw-alias-label-caption);\n  border-bottom-right-radius: calc(var(--dsw-radius-panel) - 4px);\n  opacity: 0;\n  transition: opacity 120ms ease-out;\n}\n.dockkit_floatResize:active::after {\n  opacity: 1;\n}\n@media (hover: hover) {\n  .dockkit_float:hover .dockkit_floatResize::after {\n    opacity: 1;\n  }\n  .dockkit_floatResize:hover::after {\n    border-color: var(--dsw-alias-label-tertiary);\n  }\n}\n\n/* ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/sidebar.css */\n.codex-sidebar {\n  position: relative;\n  flex: none;\n  height: 100%;\n  min-width: 0;\n  min-height: 0;\n  border-left: 1px solid var(--dsw-alias-border-l3, #ddd);\n  background: var(--dsw-alias-bg-base, #fff);\n  color: var(--dsw-alias-label-primary, #222);\n}\n.codex-sidebar[hidden] {\n  display: none;\n}\n.codex-sidebar.is-fullscreen {\n  position: fixed;\n  inset: 0;\n  width: auto;\n  z-index: 1100;\n}\n.codex-sidebar [data-dockkit-surface] {\n  height: 100%;\n  min-width: 0;\n}\n.codex-sidebar-control {\n  display: inline-grid;\n  place-items: center;\n  border: 0;\n  border-radius: 6px;\n  background: transparent;\n  color: inherit;\n  width: 28px;\n  height: 28px;\n  cursor: pointer;\n  font-size: 18px;\n}\n.codex-sidebar-control:hover {\n  background: var(--dsw-alias-interactive-bg-hover, #eee);\n}\n.codex-sidebar-resize {\n  position: absolute;\n  left: -4px;\n  top: 0;\n  width: 8px;\n  height: 100%;\n  z-index: 5;\n  cursor: col-resize;\n  touch-action: none;\n}\n.codex-sidebar-guide {\n  height: 100%;\n  overflow: auto;\n  padding: 24px;\n}\n.codex-sidebar-guide h3 {\n  font-size: 16px;\n  font-weight: 500;\n}\n.codex-sidebar-guide p {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 12px;\n  opacity: 0.65;\n}\n.codex-sidebar-guide > button {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n  width: 100%;\n  text-align: left;\n  padding: 14px 16px;\n  margin: 12px 0;\n  border: 1px solid var(--dsw-alias-border-l3, #ddd);\n  border-radius: 12px;\n  background: transparent;\n  color: inherit;\n  cursor: pointer;\n}\n.codex-sidebar-guide > button:hover {\n  background: var(--dsw-alias-interactive-bg-hover, #eee);\n}\n.codex-sidebar-guide > button span {\n  font-size: 12px;\n  opacity: 0.65;\n}\n[data-codex-sidebar-menu] {\n  z-index: 1600 !important;\n  background: var(--dsw-alias-bg-base, #fff);\n  color: var(--dsw-alias-label-primary, #222);\n  box-shadow: 0 4px 24px #0003;\n  border-radius: 10px;\n  padding: 5px;\n}\n[data-codex-sidebar-menu] > button {\n  display: block;\n  width: 100%;\n  border: 0;\n  background: transparent;\n  color: inherit;\n  padding: 8px 12px;\n  text-align: left;\n  border-radius: 6px;\n  cursor: pointer;\n}\n[data-codex-sidebar-menu] > button:hover {\n  background: var(--dsw-alias-interactive-bg-hover, #eee);\n}\n.codex-sidebar-browser {\n  display: flex;\n  flex-direction: column;\n  min-height: 0;\n  height: 100%;\n}\n.codex-sidebar-browser form {\n  display: flex;\n  gap: 4px;\n  padding: 8px;\n  border-bottom: 1px solid var(--dsw-alias-border-l3, #ddd);\n}\n.codex-sidebar-browser input {\n  flex: 1;\n  min-width: 30px;\n  border: 1px solid var(--dsw-alias-border-l3, #ddd);\n  border-radius: 6px;\n  padding: 5px;\n  background: transparent;\n  color: inherit;\n}\n.codex-sidebar-browser button {\n  border: 0;\n  border-radius: 5px;\n  background: transparent;\n  color: inherit;\n  cursor: pointer;\n}\n.codex-sidebar-browser iframe {\n  flex: 1;\n  width: 100%;\n  min-height: 0;\n  border: 0;\n  background: #fff;\n}\n.codex-sidebar .dsh-codex-right-body {\n  height: 100%;\n  min-height: 0;\n}\n.codex-sidebar-files {\n  height: 100%;\n  overflow: auto;\n  min-height: 0;\n}\n.codex-sidebar-file-toolbar {\n  position: sticky;\n  top: 0;\n  display: flex;\n  gap: 6px;\n  align-items: center;\n  padding: 8px;\n  background: var(--dsw-alias-bg-base, #fff);\n  border-bottom: 1px solid var(--dsw-alias-border-l3, #ddd);\n  z-index: 1;\n}\n.codex-sidebar-file-toolbar code {\n  flex: 1;\n  min-width: 0;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 11px;\n}\n.codex-sidebar-file-toolbar button,\n.codex-sidebar-file-toolbar label {\n  flex: none;\n  font-size: 11px;\n}\n.codex-sidebar-file-row {\n  display: flex;\n  align-items: center;\n  gap: 7px;\n  width: 100%;\n  height: 30px;\n  border: 0;\n  background: transparent;\n  color: inherit;\n  text-align: left;\n  cursor: pointer;\n  font: inherit;\n  font-size: 12px;\n}\n.codex-sidebar-file-row:hover {\n  background: var(--dsw-alias-interactive-bg-hover, #eee);\n}\n.codex-sidebar-file-row > span:nth-child(2) {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.codex-sidebar-file-row small {\n  margin-left: auto;\n  padding-right: 10px;\n  opacity: 0.5;\n  white-space: nowrap;\n}\n.codex-sidebar-document {\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  min-height: 0;\n}\n.codex-sidebar-document header,\n.codex-sidebar-document footer {\n  display: flex;\n  gap: 6px;\n  align-items: center;\n  padding: 8px;\n  border-bottom: 1px solid var(--dsw-alias-border-l3, #ddd);\n  font-size: 11px;\n}\n.codex-sidebar-document header code {\n  flex: 1;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.codex-sidebar-document button,\n.codex-sidebar-document select {\n  border: 1px solid var(--dsw-alias-border-l3, #ddd);\n  border-radius: 5px;\n  background: transparent;\n  color: inherit;\n  padding: 3px 6px;\n  cursor: pointer;\n}\n.codex-sidebar-document-body {\n  flex: 1;\n  min-height: 0;\n  overflow: auto;\n}\n.codex-sidebar-document-body .dsh-codex-markdown {\n  padding: 16px;\n}\n.codex-sidebar-document-body pre {\n  padding: 10px;\n  font-size: 12px;\n  line-height: 1.6;\n}\n.codex-sidebar-line-number {\n  display: inline-block;\n  width: 44px;\n  text-align: right;\n  padding-right: 12px;\n  opacity: 0.4;\n  user-select: none;\n}\n.codex-sidebar-document footer {\n  justify-content: space-between;\n  border-top: 1px solid var(--dsw-alias-border-l3, #ddd);\n}\n.dsh-codex-root .codex-file-context-menu {\n  z-index: 1600;\n  min-width: 210px;\n  padding: 5px;\n  background: var(--codex-bg);\n  border: 1px solid var(--codex-border);\n  border-radius: 8px;\n  box-shadow: var(--dsw-elevation-prominent);\n  max-height: calc(100vh - 16px);\n  overflow: auto;\n}\n.dsh-codex-root .codex-file-context-menu button {\n  display: flex;\n  width: 100%;\n  align-items: center;\n  gap: 9px;\n  border: 0;\n  border-radius: 4px;\n  padding: 7px 10px;\n  background: transparent;\n  color: var(--codex-text);\n  text-align: left;\n  font-size: 12px;\n  cursor: pointer;\n}\n.dsh-codex-root .codex-file-context-menu button:hover,\n.dsh-codex-root .codex-file-context-menu button:focus {\n  background: var(--codex-soft);\n}\n.dsh-codex-root .codex-file-context-menu button.danger {\n  color: var(--codex-danger);\n  border-top: 1px solid var(--codex-border);\n  margin-top: 4px;\n}\n.dsh-codex-root .codex-file-modal-backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1700;\n  background: #0005;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding: 20px;\n}\n.dsh-codex-root .codex-file-modal {\n  width: 420px;\n  max-width: 100%;\n  padding: 20px;\n  border: 1px solid var(--codex-border);\n  border-radius: 10px;\n  background: var(--codex-bg);\n  color: var(--codex-text);\n  box-shadow: var(--dsw-elevation-prominent);\n}\n.dsh-codex-root .codex-file-modal code {\n  overflow-wrap: anywhere;\n  font-family: var(--dsh-font-family-code);\n}\n.dsh-codex-root .codex-file-modal footer {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n.dsh-codex-root .dsh-codex-download {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  vertical-align: middle;\n  max-width: 100%;\n  flex-wrap: wrap;\n}\n.dsh-codex-root .dsh-codex-download-button {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  border: 0;\n  border-radius: 4px;\n  background: transparent;\n  color: var(--codex-muted);\n  padding: 3px;\n  cursor: pointer;\n}\n.dsh-codex-root .dsh-codex-download-button:hover {\n  background: var(--codex-soft);\n  color: var(--codex-text);\n}\n.dsh-codex-root .dsh-codex-download-error {\n  color: var(--codex-danger);\n  font-size: 12px;\n  overflow-wrap: anywhere;\n}\n.dsh-codex-root button.dsh-codex-message-file {\n  cursor: pointer;\n  color: var(--codex-text);\n  font: inherit;\n}\n"
     var module = { exports: {} }
     var exports = module.exports
     var __create = Object.create;
@@ -14323,7 +14323,7 @@ window.__ModuleLoader__.load({
       }
     });
 
-    // src/client/index.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/index.tsx
     var index_exports = {};
     __export(index_exports, {
       apply: () => apply,
@@ -14331,14 +14331,14 @@ window.__ModuleLoader__.load({
     });
     module.exports = __toCommonJS(index_exports);
 
-    // src/client/components/codexLogo.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/components/codexLogo.ts
     var CODEX_LOGO_PATH = "M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z";
     function codexFavicon(color) {
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="${color}" d="${CODEX_LOGO_PATH}"/></svg>`;
       return `data:image/svg+xml,${encodeURIComponent(svg)}`;
     }
 
-    // src/client/components/CodexIcon.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/components/CodexIcon.tsx
     var import_jsx_runtime = require("react/jsx-runtime");
     function CodexIcon({ size = 16 }) {
       return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -14354,7 +14354,7 @@ window.__ModuleLoader__.load({
       );
     }
 
-    // src/client/i18n.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/i18n.ts
     var React = __toESM(require("react"), 1);
     var NS = "codexCli";
     var zh = {
@@ -14567,6 +14567,17 @@ window.__ModuleLoader__.load({
       "approval.cwd": "目录",
       "approval.grantRoot": "授权目录",
       "approval.other": "其他",
+      "question.navigation": "问题导航",
+      "question.number": "问题 {number}",
+      "question.custom": "其他，自由填写",
+      "question.secret": "私密回答",
+      "question.answer": "你的回答",
+      "question.placeholder": "输入你的回答…",
+      "question.progress": "{current} / {total}",
+      "question.previous": "上一题",
+      "question.next": "下一题",
+      "question.sending": "提交中…",
+      "question.closed": "此提问已结束",
       "tab.title": "Codex",
       "tab.hint": "打开一个 DSH 会话后，这里显示该项目的 Codex 会话。",
       "tab.count": "{count} 个会话",
@@ -14906,6 +14917,17 @@ window.__ModuleLoader__.load({
       "approval.cwd": "Directory",
       "approval.grantRoot": "Grant root",
       "approval.other": "Other",
+      "question.navigation": "Question navigation",
+      "question.number": "Question {number}",
+      "question.custom": "Other, write your own",
+      "question.secret": "Private answer",
+      "question.answer": "Your answer",
+      "question.placeholder": "Type your answer…",
+      "question.progress": "{current} / {total}",
+      "question.previous": "Previous",
+      "question.next": "Next",
+      "question.sending": "Submitting…",
+      "question.closed": "This question is closed",
       "tab.title": "Codex",
       "tab.hint": "Open a DSH session to see its project’s Codex sessions here.",
       "tab.count": "{count} sessions",
@@ -15046,8 +15068,8 @@ window.__ModuleLoader__.load({
       return React.useContext(I18nContext);
     }
 
-    // src/client/page/ConsolePage.tsx
-    var React30 = __toESM(require("react"), 1);
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ConsolePage.tsx
+    var React31 = __toESM(require("react"), 1);
 
     // node_modules/lucide-react/dist/esm/createLucideIcon.mjs
     var import_react3 = require("react");
@@ -16100,7 +16122,7 @@ window.__ModuleLoader__.load({
     __iconData55.node;
     var X = createLucideIcon(__iconData55);
 
-    // src/client/components/Icon.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/components/Icon.tsx
     var import_jsx_runtime2 = require("react/jsx-runtime");
     var icons = {
       activity: Activity,
@@ -16167,10 +16189,10 @@ window.__ModuleLoader__.load({
       return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", className: "dsh-codex-icon-button " + className, "aria-label": label, title: label, ...props, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Icon2, { name: icon }) });
     }
 
-    // src/client/useAppearance.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/useAppearance.ts
     var React2 = __toESM(require("react"), 1);
 
-    // src/client/appearance.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/appearance.ts
     var THEME_KEY = "dsh-codex-theme";
     var NAV_KEY = "dsh-codex-nav-collapsed";
     function stored(key) {
@@ -16195,7 +16217,7 @@ window.__ModuleLoader__.load({
       return { x: cx, y: cy, radius: Math.ceil(Math.hypot(Math.max(cx, width - cx), Math.max(cy, height - cy))) + 1 };
     }
 
-    // src/client/useAppearance.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/useAppearance.ts
     function useAppearance(root) {
       const [theme, setTheme] = React2.useState(initialTheme);
       const [collapsed, setCollapsed] = React2.useState(() => stored(NAV_KEY) === "1");
@@ -16295,7 +16317,7 @@ window.__ModuleLoader__.load({
       return { theme, collapsed, navOpen, busy, toggleTheme, toggleNav, closeNav: () => setNavOpen(false) };
     }
 
-    // src/client/components/DialogFocus.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/components/DialogFocus.ts
     var React3 = __toESM(require("react"), 1);
     function useDialogFocus(root) {
       React3.useEffect(() => {
@@ -16347,7 +16369,7 @@ window.__ModuleLoader__.load({
       }, [root]);
     }
 
-    // src/client/events.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/events.ts
     function openEventStream({ onEvent, onState }) {
       let closed = false;
       let source = null;
@@ -16377,7 +16399,7 @@ window.__ModuleLoader__.load({
       };
     }
 
-    // src/client/hooks.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/hooks.ts
     var React4 = __toESM(require("react"), 1);
     function useCodexTab(title = "Codex CLI") {
       React4.useEffect(() => {
@@ -16414,7 +16436,7 @@ window.__ModuleLoader__.load({
       }, [title]);
     }
 
-    // src/client/store.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/store.ts
     var pending = null;
     var listeners = /* @__PURE__ */ new Set();
     function takePending() {
@@ -16427,7 +16449,7 @@ window.__ModuleLoader__.load({
       return () => listeners.delete(listener);
     }
 
-    // src/client/utils.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/utils.ts
     function basename(path) {
       if (typeof path !== "string" || path === "") return "";
       const trimmed = path.replace(/[/\\]+$/u, "");
@@ -16611,10 +16633,10 @@ window.__ModuleLoader__.load({
       return typeof item.text === "string" ? item.text : "";
     }
 
-    // src/client/page/FocusSidebar.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/FocusSidebar.tsx
     var React8 = __toESM(require("react"), 1);
 
-    // src/client/components/OverflowLabel.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/components/OverflowLabel.tsx
     var React5 = __toESM(require("react"), 1);
     var import_jsx_runtime3 = require("react/jsx-runtime");
     function OverflowLabel({ text, className }) {
@@ -16666,7 +16688,7 @@ window.__ModuleLoader__.load({
       return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { ref, className, children: text });
     }
 
-    // src/client/components/SelectMenu.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/components/SelectMenu.tsx
     var React6 = __toESM(require("react"), 1);
     var import_jsx_runtime4 = require("react/jsx-runtime");
     function SelectMenu({ label, value, options, onChange, direction = "down" }) {
@@ -16729,7 +16751,7 @@ window.__ModuleLoader__.load({
       ] });
     }
 
-    // src/client/page/ThreadRowMenu.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ThreadRowMenu.tsx
     var React7 = __toESM(require("react"), 1);
     var import_jsx_runtime5 = require("react/jsx-runtime");
     var MENU_WIDTH = 110;
@@ -16931,7 +16953,7 @@ window.__ModuleLoader__.load({
       ] });
     }
 
-    // src/client/page/ThreadRow.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ThreadRow.tsx
     var import_jsx_runtime6 = require("react/jsx-runtime");
     function ThreadRow({
       api,
@@ -16984,7 +17006,7 @@ window.__ModuleLoader__.load({
       );
     }
 
-    // src/client/page/projectOrder.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/projectOrder.ts
     function mergeProjectOrder(saved, current) {
       const seen = /* @__PURE__ */ new Set();
       return [...saved, ...current].filter((path) => typeof path === "string" && path !== "" && !seen.has(path) && !!seen.add(path));
@@ -17000,7 +17022,7 @@ window.__ModuleLoader__.load({
       return [...projects].sort((a, b) => (rank.get(a.cwd) ?? Number.MAX_SAFE_INTEGER) - (rank.get(b.cwd) ?? Number.MAX_SAFE_INTEGER));
     }
 
-    // src/client/page/FocusSidebar.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/FocusSidebar.tsx
     var import_jsx_runtime7 = require("react/jsx-runtime");
     var PROJECT_ORDER_KEY = "dsh-codex-project-order-v1";
     var PROJECT_DRAG_TYPE = "application/x-dsh-codex-project";
@@ -17421,7 +17443,7 @@ window.__ModuleLoader__.load({
       return t("quota.window.minutes", { count: Math.round(minutes) });
     }
 
-    // src/client/page/ProjectPickerDialog.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ProjectPickerDialog.tsx
     var React9 = __toESM(require("react"), 1);
     var import_jsx_runtime8 = require("react/jsx-runtime");
     function ProjectPickerDialog({ open, projects, onPick, onNewProject, onClose }) {
@@ -17490,7 +17512,7 @@ window.__ModuleLoader__.load({
       return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Icon2, { name: "plus", size: 16 });
     }
 
-    // src/client/page/DirectoryPickerDialog.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/DirectoryPickerDialog.tsx
     var React10 = __toESM(require("react"), 1);
     var import_jsx_runtime9 = require("react/jsx-runtime");
     function messageOf2(cause) {
@@ -17926,13 +17948,13 @@ window.__ModuleLoader__.load({
       return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Icon2, { name: "arrowUp", size: 16 });
     }
 
-    // src/client/sidebar/SidebarWorkspace.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/SidebarWorkspace.tsx
     var React20 = __toESM(require("react"), 1);
 
-    // vendor/dsh-dockkit/components/DockSurface.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/DockSurface.tsx
     var import_react12 = require("react");
 
-    // vendor/dsh-dockkit/engine/tree.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/engine/tree.ts
     function assertNever(value, what) {
       throw new Error(`${what}: unhandled ${JSON.stringify(value)}`);
     }
@@ -18067,7 +18089,7 @@ window.__ModuleLoader__.load({
       return descend(state, (split) => split.axis === "row" ? split.children.at(-1) : split.children[0]);
     }
 
-    // vendor/dsh-dockkit/engine/constraints.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/engine/constraints.ts
     var MAX_DOCK_PANES = 4;
     var MIN_PANE_FRACTION = 0.12;
     var FLOAT_DEFAULT_SIZE = { width: 380, height: 300 };
@@ -18130,7 +18152,7 @@ window.__ModuleLoader__.load({
       }
     }
 
-    // vendor/dsh-dockkit/engine/geometry.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/engine/geometry.ts
     function containsPoint(rect, x, y) {
       return x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height;
     }
@@ -18224,7 +18246,7 @@ window.__ModuleLoader__.load({
     }
     var GRAB_OFFSET = { x: 60, y: 14 };
 
-    // vendor/dsh-dockkit/components/measure.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/measure.ts
     var NO_RECT = { x: 0, y: 0, width: 0, height: 0 };
     var UNMEASURED = { row: true, column: true };
     function rectOf(element) {
@@ -18293,7 +18315,7 @@ window.__ModuleLoader__.load({
       return true;
     }
 
-    // vendor/dsh-dockkit/components/pointer.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/pointer.ts
     var import_react4 = require("react");
     function capturePointer(element, pointerId) {
       if (typeof element.setPointerCapture !== "function") return;
@@ -18354,7 +18376,7 @@ window.__ModuleLoader__.load({
       };
     }
 
-    // vendor/dsh-dockkit/components/PaneTree.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/PaneTree.tsx
     var import_react9 = require("react");
 
     // node_modules/clsx/dist/clsx.mjs
@@ -18373,13 +18395,13 @@ window.__ModuleLoader__.load({
     }
     var clsx_default = clsx;
 
-    // vendor/dsh-dockkit/components/TabPanel.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/TabPanel.tsx
     var import_react8 = require("react");
 
-    // src/client/sidebar/primitives.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/primitives.tsx
     var React11 = __toESM(require("react"), 1);
 
-    // src/client/sidebar/focus.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/focus.ts
     var releases = /* @__PURE__ */ new WeakMap();
     var navigationKeys = /* @__PURE__ */ new Set([
       "Tab",
@@ -18410,7 +18432,7 @@ window.__ModuleLoader__.load({
       if (!element.matches(":focus")) release();
     }
 
-    // src/client/sidebar/composition.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/composition.ts
     function observeComposition(document2) {
       let composing = false;
       let ended = false;
@@ -18447,7 +18469,7 @@ window.__ModuleLoader__.load({
       };
     }
 
-    // src/client/sidebar/primitives.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/primitives.tsx
     var import_jsx_runtime10 = require("react/jsx-runtime");
     var modalSelector = '[role="dialog"],[role="menu"],[aria-modal="true"]';
     var MenuSurface = React11.forwardRef(function MenuSurface2(props, ref) {
@@ -18468,17 +18490,17 @@ window.__ModuleLoader__.load({
     var IconPlusOutlineRegular = (props) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Icon2, { name: "plus", size: 16, ...props });
     var IconPanelLeftOutlineRegular = (props) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Icon2, { name: "panelLeft", size: 16, ...props });
 
-    // vendor/dsh-dockkit/components/TabBody.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/TabBody.tsx
     var import_react5 = require("react");
     var TabBody = (0, import_react5.memo)(function TabBody2({ tab, renderTab }) {
       return renderTab(tab);
     });
 
-    // vendor/dsh-dockkit/components/TabMenu.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/TabMenu.tsx
     var import_react6 = require("react");
     var import_react_dom = require("react-dom");
 
-    // vendor/dsh-dockkit/components/dockkit.module.css
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/dockkit.module.css
     var dockkit_default = {
       split: "dockkit_split",
       splitRow: "dockkit_splitRow",
@@ -18527,7 +18549,7 @@ window.__ModuleLoader__.load({
       floatResize: "dockkit_floatResize"
     };
 
-    // vendor/dsh-dockkit/components/TabMenu.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/TabMenu.tsx
     var import_jsx_runtime11 = require("react/jsx-runtime");
     var MENU_GAP = 4;
     function placeMenu(anchor, menu) {
@@ -18600,7 +18622,7 @@ window.__ModuleLoader__.load({
       );
     }
 
-    // vendor/dsh-dockkit/components/TabTitle.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/TabTitle.tsx
     var import_react7 = require("react");
     var import_jsx_runtime12 = require("react/jsx-runtime");
     function markClipped(element) {
@@ -18626,7 +18648,7 @@ window.__ModuleLoader__.load({
       return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { ref: span, className: dockkit_default.tabTitle, "data-dockkit-tab-title": true, children });
     }
 
-    // vendor/dsh-dockkit/components/TabPanel.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/TabPanel.tsx
     var import_jsx_runtime13 = require("react/jsx-runtime");
     function SplitGlyph() {
       return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icon2, { name: "columns", size: 16 });
@@ -18971,16 +18993,16 @@ window.__ModuleLoader__.load({
       );
     }
 
-    // vendor/dsh-dockkit/components/PaneTree.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/PaneTree.tsx
     var import_jsx_runtime14 = require("react/jsx-runtime");
 
-    // vendor/dsh-dockkit/components/TabLayout.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/TabLayout.tsx
     var import_react11 = require("react");
 
-    // vendor/dsh-dockkit/components/FloatLayer.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/FloatLayer.tsx
     var import_react10 = require("react");
 
-    // vendor/dsh-dockkit/engine/spring.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/engine/spring.ts
     var RESPONSE = 0.32;
     var DAMPING_RATIO = 0.72;
     var OMEGA = 2 * Math.PI / RESPONSE;
@@ -19011,7 +19033,7 @@ window.__ModuleLoader__.load({
       return Math.abs(axis.position - target) <= REST_DISTANCE && Math.abs(axis.velocity) <= REST_SPEED;
     }
 
-    // vendor/dsh-dockkit/components/FloatLayer.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/FloatLayer.tsx
     var import_jsx_runtime15 = require("react/jsx-runtime");
     function draggedRect(drag, x, y) {
       const dx = x - drag.originX;
@@ -19211,7 +19233,7 @@ window.__ModuleLoader__.load({
       );
     }
 
-    // vendor/dsh-dockkit/components/TabLayout.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/TabLayout.tsx
     var import_jsx_runtime16 = require("react/jsx-runtime");
     function TabHost({
       state,
@@ -19384,7 +19406,7 @@ window.__ModuleLoader__.load({
       );
     }
 
-    // vendor/dsh-dockkit/components/DockSurface.tsx
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/components/DockSurface.tsx
     var import_jsx_runtime17 = require("react/jsx-runtime");
     var NO_PREVIEW = { draggingTabId: void 0, dropTarget: void 0, sizes: void 0 };
     var NO_FITS = /* @__PURE__ */ new Map();
@@ -19566,13 +19588,13 @@ window.__ModuleLoader__.load({
       return /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Surface, { ...props, draw: (callbacks, preview) => /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(TabLayout, { ...props, callbacks, preview }) });
     }
 
-    // src/client/page/RightPanel.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/RightPanel.tsx
     var React13 = __toESM(require("react"), 1);
 
-    // src/client/sidebar/GitPane.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/GitPane.tsx
     var React12 = __toESM(require("react"), 1);
 
-    // src/client/sidebar/gitStyles.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/gitStyles.ts
     var GIT_CSS = `
     .dsh-codex-root .codex-git{height:100%;min-height:0;min-width:0;display:flex;flex-direction:column;position:relative;color:var(--codex-text);background:var(--codex-bg);font-size:12px;line-height:1.5} .codex-git *{box-sizing:border-box} .codex-git button{cursor:pointer} .codex-git code, .codex-git pre{font-family:var(--dsh-font-family-code);font-size:12px} .codex-git code{overflow-wrap:anywhere} .codex-git p{margin:8px 0} .codex-git h4{margin:12px 14px 4px;font-size:12px;color:var(--codex-muted)} .codex-git .git-toolbar{height:44px;min-height:44px;display:flex;align-items:center;padding:0 10px;gap:7px;border-bottom:1px solid var(--codex-border)} .codex-git .git-toolbar>code{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:30px} .codex-git .git-toolbar>span{white-space:nowrap} .codex-git .git-spacer{flex:1} .codex-git .dsh-codex-icon-button{width:28px;height:28px;flex:none} .codex-git .dsh-codex-icon-button svg{width:15px;height:15px} .codex-git .dsh-codex-button{min-height:28px;padding:4px 9px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:5px} .codex-git .git-tabs{display:flex;overflow:auto;flex:none;border-bottom:1px solid var(--codex-border);padding:0 6px;scrollbar-width:none} .codex-git .git-tabs>button{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;border:0;border-bottom:2px solid transparent;white-space:nowrap;padding:10px 6px;background:transparent;color:var(--codex-muted);font-size:12px} .codex-git .git-tabs>button:hover{background:var(--codex-soft)} .codex-git .git-tabs>button[aria-selected=true]{color:var(--codex-text);border-bottom-color:var(--codex-accent)} .codex-git .git-tabs small{font-size:10px;color:var(--codex-muted)} .codex-git .git-content{overflow:auto;min-height:100px;flex:1} .codex-git .git-section-head{display:flex;align-items:center;gap:7px;min-height:36px;padding:4px 10px;background:var(--codex-panel);border-bottom:1px solid var(--codex-border)} .codex-git .git-section-head>code{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .codex-git .git-section-head>strong{font-size:12px} .codex-git .git-section-head>span, .codex-git .git-section-head small{color:var(--codex-muted);font-size:11px} .codex-git .git-group{display:flex;align-items:center;padding:8px 12px 4px;color:var(--codex-muted);background:var(--codex-panel)} .codex-git label{display:flex;align-items:center;gap:7px} .codex-git input[type=checkbox]{accent-color:var(--codex-accent);width:13px;height:13px;flex:none;margin:0} .codex-git .git-file{display:flex;align-items:center;gap:6px;padding:3px 8px 3px 12px;min-height:32px} .codex-git .git-file:hover{background:var(--codex-soft)} .codex-git .git-file>button:not(.dsh-codex-icon-button){display:flex;flex:1;min-width:0;text-align:left;align-items:center;gap:8px;border:0;background:transparent;color:inherit;padding:2px} .codex-git .git-file code{white-space:nowrap;text-overflow:ellipsis;overflow:hidden;min-width:0} .codex-git .git-file code span{color:var(--codex-muted)} .codex-git .git-file b{color:var(--codex-success);font-size:11px;width:14px;flex:none} .codex-git .git-commit{padding:12px;border-top:1px solid var(--codex-border);position:sticky;bottom:0;background:var(--codex-bg)} .codex-git .git-commit textarea{width:100%;resize:vertical;border:1px solid var(--codex-border);border-radius:6px;padding:8px;margin-bottom:8px;min-height:65px;font-size:12px} .codex-git .git-inline{display:flex;align-items:center;gap:7px;flex-wrap:wrap} .codex-git .git-pad{padding:12px} .codex-git .git-muted{color:var(--codex-muted)} .codex-git .git-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:32px 18px;text-align:center;color:var(--codex-muted);min-height:140px} .codex-git .git-empty h3{font-size:15px;color:var(--codex-text);margin:0} .codex-git .git-error, .codex-git .git-notice{padding:8px 12px;overflow-wrap:anywhere;white-space:pre-wrap;max-height:160px;overflow:auto;flex:none} .codex-git .git-error{display:flex;align-items:center;gap:6px;color:var(--codex-danger);background:color-mix(in srgb,var(--codex-danger) 8%,var(--codex-bg))} .codex-git .git-error>span{flex:1} .codex-git .git-notice{color:var(--codex-success);border-bottom:1px solid var(--codex-border)} .codex-git .git-warning{padding:8px 10px;color:var(--codex-warning);background:var(--codex-warning-bg);white-space:pre-wrap;overflow-wrap:anywhere} .codex-git .git-card{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;border-bottom:1px solid var(--codex-border);padding:12px} .codex-git .git-card>div:first-child{min-width:0} .codex-git .git-card strong, .codex-git .git-card small, .codex-git .git-card code{display:block} .codex-git .git-card small{color:var(--codex-muted);font-size:11px} .codex-git .git-card code{font-size:11px;white-space:pre-wrap} .codex-git .git-card .git-inline{margin-top:8px} .codex-git .git-history-row{display:flex;align-items:stretch;min-width:100%;height:48px;border:0;border-bottom:1px solid color-mix(in srgb,var(--codex-border) 35%,transparent);background:transparent;color:inherit;text-align:left;padding:0 10px 0 2px} .codex-git .git-history-row:hover{background:var(--codex-soft)} .codex-git .git-history-row svg{overflow:visible;stroke-width:1.6;align-self:center} .codex-git .git-history-text{display:flex;flex-direction:column;justify-content:center;min-width:0;padding-left:5px;flex:1} .codex-git .git-history-text strong{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .codex-git .git-history-text small{font-size:11px;color:var(--codex-muted);white-space:nowrap} .codex-git .git-history-text em{font-size:10px;border:1px solid var(--codex-border);border-radius:3px;padding:1px 4px;margin-right:5px;font-style:normal;color:var(--codex-accent)} .codex-git .git-more{margin:12px} .codex-git .git-detail{flex:0 1 40%;min-height:100px;overflow:auto;border-top:1px solid var(--codex-border)} .codex-git .git-detail-file{border:0;border-top:1px solid var(--codex-border);padding:7px 12px;text-align:left;display:flex;gap:10px;background:transparent;width:100%;color:inherit} .codex-git .git-detail-file:hover{background:var(--codex-soft)} .codex-git .git-detail pre{white-space:pre-wrap} .codex-git .git-detail .git-section-head{position:sticky;top:0} .codex-git .git-diff{min-height:120px;flex:1;display:flex;flex-direction:column;border-top:1px solid var(--codex-border)} .codex-git .git-diff-scroll{min-height:0;overflow:auto;flex:1} .codex-git .git-diff-line{display:flex;min-height:19px;line-height:19px;font-family:var(--dsh-font-family-code);font-size:11px} .codex-git .git-diff-line>span{flex:0 0 34px;width:34px;text-align:right;color:var(--codex-muted);padding-right:6px;user-select:none;border-right:1px solid var(--codex-border)} .codex-git .git-diff-line>code{padding-left:8px;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px} .codex-git .git-diff-line.add{background:color-mix(in srgb,var(--codex-success) 13%,transparent)} .codex-git .git-diff-line.del{background:color-mix(in srgb,var(--codex-danger) 13%,transparent)} .codex-git .git-diff-line.hunk{background:var(--codex-selected);color:var(--codex-accent)} .codex-git .git-command{padding:9px 12px;border-bottom:1px solid var(--codex-border)} .codex-git .git-command summary{cursor:pointer;overflow-wrap:anywhere} .codex-git .git-command summary code{font-size:11px} .codex-git .git-command small{display:block;color:var(--codex-muted);padding-left:13px} .codex-git .git-command pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto} .codex-git .git-success{color:var(--codex-success)} .codex-git .git-conflict{color:var(--codex-danger)} .codex-git .git-modal-backdrop{position:fixed;inset:0;background:#0005;z-index:1500;display:flex;align-items:center;justify-content:center;padding:20px} .codex-git .git-modal{background:var(--codex-bg);border:1px solid var(--codex-border);border-radius:10px;box-shadow:var(--dsw-elevation-prominent);padding:20px;width:440px;max-width:100%;max-height:85vh;overflow:auto} .codex-git .git-modal header{font-size:15px;font-weight:600;margin-bottom:14px} .codex-git .git-modal>label{display:flex;flex-direction:column;align-items:stretch;margin:12px 0;gap:5px} .codex-git .git-modal input{width:100%} .codex-git .git-modal footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
     .codex-git .git-detail-branches{display:flex;flex-direction:column;align-items:flex-start;gap:5px;margin-top:8px;font-size:11px} .codex-git .git-detail-branch-group{display:flex;align-items:center;flex-wrap:wrap;gap:5px;max-width:100%} .codex-git .git-branch-badge{display:inline-flex;align-items:center;gap:4px;max-width:100%;overflow-wrap:anywhere;border:1px solid var(--codex-border);border-radius:3px;padding:1px 5px;color:var(--codex-accent)} .codex-git .git-branch-badge svg{flex:none} .codex-git .git-branch-badge small{font-size:10px;color:var(--codex-muted)}
@@ -19580,7 +19602,7 @@ window.__ModuleLoader__.load({
     @media(max-width:600px){ .codex-git .git-tabs>button{padding:10px 7px} .codex-git .git-tabs>button svg{display:none} .codex-git .git-section-head{flex-wrap:wrap} .codex-git .git-toolbar{gap:4px}}
     `;
 
-    // src/client/sidebar/gitGraph.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/gitGraph.ts
     function graphRows(commits) {
       let lanes = [];
       return commits.map((c) => {
@@ -19608,7 +19630,7 @@ window.__ModuleLoader__.load({
       });
     }
 
-    // src/client/sidebar/gitPush.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/gitPush.ts
     function branchPushState(branch, remote, remoteBranches) {
       if (!remote) return { disabled: true, target: "", publish: false, reason: "先在远程页添加远程仓库" };
       if (!branch) return { disabled: true, target: "", publish: false, reason: "请先切换或创建本地分支" };
@@ -19623,7 +19645,7 @@ window.__ModuleLoader__.load({
       return { disabled: false, target, publish: false, reason: "推送 " + branch.name + " 到 " + destination };
     }
 
-    // src/client/sidebar/GitPane.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/GitPane.tsx
     var import_jsx_runtime18 = require("react/jsx-runtime");
     var tabs = [{ id: "changes", label: "变更", icon: "fileCode" }, { id: "history", label: "历史", icon: "history" }, { id: "branches", label: "分支", icon: "git" }, { id: "remotes", label: "远程", icon: "globe" }, { id: "stash", label: "贮藏", icon: "archive" }, { id: "console", label: "命令", icon: "terminal" }];
     var operationLabels = { "commit": "提交完成", "stage": "文件已暂存", "unstage": "已取消暂存", "discard": "工作区改动已丢弃", "checkout": "已切换分支", "branch/create": "分支已创建", "branch/delete": "分支已删除", "merge": "合并完成", "remote/add": "远程仓库已添加", "remote/remove": "远程仓库已移除", "push": "推送完成", "pull": "拉取完成", "fetch": "获取完成", "stash": "贮藏操作完成", "revert": "已创建反向提交", "cherry-pick": "拣选完成", "reset": "重置完成", "console/clear": "命令记录已清空", "credential/approve": "认证信息已处理，请重试远程操作" };
@@ -20192,7 +20214,7 @@ window.__ModuleLoader__.load({
       }) });
     }
 
-    // src/client/page/RightPanel.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/RightPanel.tsx
     var import_jsx_runtime19 = require("react/jsx-runtime");
     function TerminalTab({ api, cwd }) {
       const t = useT();
@@ -20239,10 +20261,10 @@ window.__ModuleLoader__.load({
       ] });
     }
 
-    // src/client/sidebar/FilesPane.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/FilesPane.tsx
     var React15 = __toESM(require("react"), 1);
 
-    // src/client/sidebar/FileContextMenu.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/FileContextMenu.tsx
     var React14 = __toESM(require("react"), 1);
     var import_jsx_runtime20 = require("react/jsx-runtime");
     function FileContextMenu({ context, onClose, onAction }) {
@@ -20303,7 +20325,7 @@ window.__ModuleLoader__.load({
       ] }, item.id)) });
     }
 
-    // src/client/sidebar/workspace-events.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/workspace-events.ts
     var listeners2 = /* @__PURE__ */ new Set();
     function notifyWorkspace(change) {
       for (const listener of listeners2) listener(change);
@@ -20315,7 +20337,7 @@ window.__ModuleLoader__.load({
       };
     }
 
-    // src/client/sidebar/FilesPane.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/FilesPane.tsx
     var import_jsx_runtime21 = require("react/jsx-runtime");
     function FilesPane({
       api,
@@ -20656,21 +20678,21 @@ window.__ModuleLoader__.load({
       return value < 1024 ? value + " B" : value < 1048576 ? (value / 1024).toFixed(1) + " KB" : (value / 1048576).toFixed(1) + " MB";
     }
 
-    // src/client/sidebar/DocumentPane.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/DocumentPane.tsx
     var React19 = __toESM(require("react"), 1);
 
-    // src/client/markdown.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/markdown.tsx
     var React18 = __toESM(require("react"), 1);
 
-    // src/client/markdownTokens.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/markdownTokens.ts
     var INLINE = /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\n]+\*)|(!?\[[^\]\n]+\]\(\s*(?:<[^>\n]+>|[^)\s]+)\s*\))/gu;
 
-    // src/client/fileTypes.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/fileTypes.ts
     function downloadsOnClick(path) {
       return /\.(?:zip|7z|rar|tar|gz|bz2|xz|tgz|tbz2|zst|deb|rpm|exe|msi|apk|dmg|iso|bin|dll|so|dylib|wasm|db|sqlite|sqlite3|pkl|pickle|parquet|feather|npy|npz|mp3|mp4|wav|flac|ogg|webm|mov|avi)$/i.test(path);
     }
 
-    // src/client/components/FileDownloadButton.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/components/FileDownloadButton.tsx
     var React16 = __toESM(require("react"), 1);
     var import_jsx_runtime22 = require("react/jsx-runtime");
     async function downloadWorkspaceFile(api, cwd, path) {
@@ -20701,7 +20723,7 @@ window.__ModuleLoader__.load({
       ] });
     }
 
-    // src/client/components/ImageViewer.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/components/ImageViewer.tsx
     var React17 = __toESM(require("react"), 1);
     var import_react_dom2 = require("react-dom");
     var import_jsx_runtime23 = require("react/jsx-runtime");
@@ -20745,7 +20767,7 @@ window.__ModuleLoader__.load({
       ] });
     }
 
-    // src/client/markdown.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/markdown.tsx
     var import_jsx_runtime24 = require("react/jsx-runtime");
     var FileCwd = React18.createContext("");
     function LocalFileLink({ href, label }) {
@@ -20999,7 +21021,7 @@ window.__ModuleLoader__.load({
     var import_common = __toESM(require_common(), 1);
     var common_default = import_common.default;
 
-    // src/client/sidebar/codeHighlight.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/codeHighlight.tsx
     var import_jsx_runtime25 = require("react/jsx-runtime");
     var languages = {
       c: "c",
@@ -21067,7 +21089,7 @@ window.__ModuleLoader__.load({
       return lines.map((line) => line.length ? line : [" "]);
     }
 
-    // src/client/sidebar/DocumentPane.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/DocumentPane.tsx
     var import_jsx_runtime26 = require("react/jsx-runtime");
     var imageTypes = {
       png: "image/png",
@@ -21281,7 +21303,7 @@ window.__ModuleLoader__.load({
       ] });
     }
 
-    // vendor/dsh-dockkit/engine/initial.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/engine/initial.ts
     function createIdMinter(seed = 0) {
       let counter = seed;
       const next = ((prefix) => {
@@ -21313,7 +21335,7 @@ window.__ModuleLoader__.load({
       };
     }
 
-    // vendor/dsh-dockkit/engine/operations.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/engine/operations.ts
     function focusSnapshot(state, paneIds) {
       const paneActiveTabs = {};
       for (const id of paneIds) paneActiveTabs[id] = getPane(state, id).activeTabId;
@@ -21696,7 +21718,7 @@ window.__ModuleLoader__.load({
       }
     }
 
-    // vendor/dsh-dockkit/engine/planner.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/engine/planner.ts
     var FLOAT_CASCADE_STEP = 24;
     var FLOAT_ORIGIN = { x: 160, y: 120 };
     var NOTHING = [];
@@ -21836,7 +21858,7 @@ window.__ModuleLoader__.load({
       return [{ type: "resize", splitId, sizes: clampSizes(sizes, minimum) }];
     }
 
-    // vendor/dsh-dockkit/engine/sequence.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/engine/sequence.ts
     var EMPTY_HISTORY = { entries: [], cursor: 0 };
     var FOCUS_OP_TYPES = /* @__PURE__ */ new Set(["focusTab", "focusPane", "restoreFocus"]);
     function isFocusOp(op) {
@@ -21972,7 +21994,7 @@ window.__ModuleLoader__.load({
       }
     };
 
-    // vendor/dsh-dockkit/engine/controller.ts
+    // ../../../tmp/dsh-agent-questions-commit/vendor/dsh-dockkit/engine/controller.ts
     var DockController = class {
       minter;
       sequencer;
@@ -22216,7 +22238,7 @@ window.__ModuleLoader__.load({
       }
     };
 
-    // src/client/sidebar/state.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/state.ts
     var STORAGE_VERSION = 1;
     var KINDS = /* @__PURE__ */ new Set([
       "guide",
@@ -22324,7 +22346,7 @@ window.__ModuleLoader__.load({
       return JSON.stringify({ version: STORAGE_VERSION, state, width });
     }
 
-    // src/client/sidebar/SidebarWorkspace.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/sidebar/SidebarWorkspace.tsx
     var import_jsx_runtime27 = require("react/jsx-runtime");
     var labels = {
       emptyPane: "从 + 新建标签页",
@@ -22750,89 +22772,197 @@ window.__ModuleLoader__.load({
       ] });
     }
 
-    // src/client/page/ThreadView.tsx
-    var React27 = __toESM(require("react"), 1);
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ThreadView.tsx
+    var React28 = __toESM(require("react"), 1);
 
-    // src/client/page/ApprovalCard.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ApprovalCard.tsx
+    var React22 = __toESM(require("react"), 1);
+
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/QuestionForm.tsx
     var React21 = __toESM(require("react"), 1);
     var import_jsx_runtime28 = require("react/jsx-runtime");
+    function QuestionForm({ questions, defaultFirst = false, onSubmit }) {
+      const t = useT();
+      const group = React21.useId();
+      const [index, setIndex] = React21.useState(0);
+      const [values, setValues] = React21.useState(() => Object.fromEntries(questions.map((question2) => [question2.id, defaultFirst && !question2.isSecret ? question2.options?.[0]?.label ?? "" : ""])));
+      const [other, setOther] = React21.useState({});
+      const [busy, setBusy] = React21.useState(false);
+      const sending = React21.useRef(false);
+      const [error, setError] = React21.useState("");
+      const question = questions[index];
+      if (!question) return null;
+      const options = question.isSecret ? [] : question.options ?? [];
+      const freeform = options.length === 0 || other[question.id] === true;
+      const current = values[question.id] ?? "";
+      const complete = questions.every((entry) => (values[entry.id] ?? "").trim() !== "");
+      const setValue = (value) => setValues((previous) => ({ ...previous, [question.id]: value }));
+      const submit = async (event) => {
+        event.preventDefault();
+        if (sending.current || !complete) return;
+        sending.current = true;
+        setBusy(true);
+        setError("");
+        try {
+          await onSubmit(Object.fromEntries(questions.map((entry) => [entry.id, entry.isSecret ? values[entry.id] : values[entry.id].trim()])));
+        } catch (cause) {
+          setError(cause instanceof Error ? cause.message : String(cause));
+        } finally {
+          sending.current = false;
+          setBusy(false);
+        }
+      };
+      return /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("form", { className: "dsh-codex-question-form", onSubmit: (event) => void submit(event), "aria-busy": busy, children: [
+        questions.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("nav", { className: "dsh-codex-question-tabs", "aria-label": t("question.navigation"), children: questions.map((entry, position) => /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(
+          "button",
+          {
+            type: "button",
+            disabled: busy,
+            "aria-current": position === index ? "step" : void 0,
+            className: position === index ? "selected" : "",
+            onClick: () => setIndex(position),
+            children: [
+              position + 1,
+              ". ",
+              entry.header || t("question.number", { number: position + 1 }),
+              (values[entry.id] ?? "").trim() !== "" ? " ✓" : ""
+            ]
+          },
+          entry.id
+        )) }),
+        /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("fieldset", { disabled: busy, className: "dsh-codex-question", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("legend", { className: "dsh-codex-question-title", children: question.question }),
+          /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("div", { className: "dsh-codex-question-choices", children: [
+            options.map((option, position) => /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("label", { className: "dsh-codex-question-choice" + (!freeform && current === option.label ? " selected" : ""), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(
+                "input",
+                {
+                  type: "radio",
+                  name: group + question.id,
+                  checked: !freeform && current === option.label,
+                  onChange: () => {
+                    setOther((previous) => ({ ...previous, [question.id]: false }));
+                    setValue(option.label);
+                  }
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("span", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("strong", { children: option.label }),
+                option.description && /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("small", { children: option.description })
+              ] })
+            ] }, position)),
+            options.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("label", { className: "dsh-codex-question-choice" + (freeform ? " selected" : ""), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(
+                "input",
+                {
+                  type: "radio",
+                  name: group + question.id,
+                  checked: freeform,
+                  onChange: () => {
+                    setOther((previous) => ({ ...previous, [question.id]: true }));
+                    setValue("");
+                  }
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("span", { children: t("question.custom") })
+            ] })
+          ] }),
+          freeform && /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("label", { className: "dsh-codex-question-freeform", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("span", { children: question.isSecret ? t("question.secret") : t("question.answer") }),
+            question.isSecret ? /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("input", { className: "dsh-codex-search", type: "password", autoComplete: "off", value: current, onChange: (event) => setValue(event.target.value) }) : /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("textarea", { className: "dsh-codex-search", rows: 2, value: current, placeholder: t("question.placeholder"), onChange: (event) => setValue(event.target.value) })
+          ] })
+        ] }),
+        error && /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("div", { className: "dsh-codex-question-error", role: "alert", children: error }),
+        /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("div", { className: "dsh-codex-question-footer", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("span", { children: t("question.progress", { current: index + 1, total: questions.length }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("div", { className: "dsh-codex-approval-actions", children: [
+            index > 0 && /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { className: "dsh-codex-button", type: "button", disabled: busy, onClick: () => setIndex(index - 1), children: t("question.previous") }),
+            index < questions.length - 1 ? /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { className: "dsh-codex-button primary", type: "button", disabled: busy || current.trim() === "", onClick: () => setIndex(index + 1), children: t("question.next") }) : /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { className: "dsh-codex-button primary", type: "submit", disabled: busy || !complete, children: busy ? t("question.sending") : t("approval.submit") })
+          ] })
+        ] })
+      ] });
+    }
+
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ApprovalCard.tsx
+    var import_jsx_runtime29 = require("react/jsx-runtime");
     function ApprovalStack({ approvals, onRespond }) {
       if (approvals.length === 0) return null;
-      return /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("div", { className: "dsh-codex-approvals", children: approvals.map((approval) => /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(ApprovalCard, { approval, onRespond }, String(approval.requestId))) });
+      return /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("div", { className: "dsh-codex-approvals", children: approvals.map((approval) => /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(ApprovalCard, { approval, onRespond }, JSON.stringify([approval.params?.threadId, approval.method, approval.requestId]))) });
     }
     function ApprovalCard({
       approval,
       onRespond
     }) {
       const t = useT();
-      const [busy, setBusy] = React21.useState(false);
+      const [busy, setBusy] = React22.useState(false);
       const params = approval.params ?? {};
       const respond = async (response) => {
         if (busy) return;
         setBusy(true);
         try {
           await onRespond(approval.requestId, response);
+        } catch {
         } finally {
           setBusy(false);
         }
       };
       if (approval.method === "item/tool/requestUserInput") {
-        return /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(InputCard, { approval, busy, onRespond: respond });
+        return /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(InputCard, { approval, onRespond: (response) => onRespond(approval.requestId, response) });
       }
       if (approval.method === "item/commandExecution/requestApproval") {
-        return /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(Shell, { title: t("approval.command"), busy, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("pre", { className: "dsh-codex-command", children: params.command ?? "" }),
-          params.cwd ? /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
+        return /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)(Shell, { title: t("approval.command"), busy, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("pre", { className: "dsh-codex-command", children: params.command ?? "" }),
+          params.cwd ? /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
             t("approval.cwd"),
             ": ",
             params.cwd
           ] }) : null,
-          params.reason ? /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
+          params.reason ? /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
             t("approval.reason"),
             ": ",
             params.reason
           ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(Actions, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void respond({ decision: "accept" }), children: t("approval.allow") }),
-            /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "acceptForSession" }), children: t("approval.allowSession") }),
-            /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "decline" }), children: t("approval.deny") })
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)(Actions, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void respond({ decision: "accept" }), children: t("approval.allow") }),
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "acceptForSession" }), children: t("approval.allowSession") }),
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "decline" }), children: t("approval.deny") })
           ] })
         ] });
       }
       if (approval.method === "item/fileChange/requestApproval") {
-        return /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(Shell, { title: t("approval.file"), busy, children: [
-          params.grantRoot ? /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
+        return /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)(Shell, { title: t("approval.file"), busy, children: [
+          params.grantRoot ? /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
             t("approval.grantRoot"),
             ": ",
             params.grantRoot
           ] }) : null,
-          params.reason ? /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
+          params.reason ? /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
             t("approval.reason"),
             ": ",
             params.reason
           ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(Actions, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void respond({ decision: "accept" }), children: t("approval.allow") }),
-            /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "acceptForSession" }), children: t("approval.allowSession") }),
-            /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "decline" }), children: t("approval.deny") })
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)(Actions, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void respond({ decision: "accept" }), children: t("approval.allow") }),
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "acceptForSession" }), children: t("approval.allowSession") }),
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ decision: "decline" }), children: t("approval.deny") })
           ] })
         ] });
       }
       if (approval.method === "item/permissions/requestApproval") {
-        return /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(Shell, { title: t("approval.permissions"), busy, children: [
-          params.cwd ? /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
+        return /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)(Shell, { title: t("approval.permissions"), busy, children: [
+          params.cwd ? /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
             t("approval.cwd"),
             ": ",
             params.cwd
           ] }) : null,
-          params.reason ? /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
+          params.reason ? /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
             t("approval.reason"),
             ": ",
             params.reason
           ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("pre", { className: "dsh-codex-pre", children: JSON.stringify(params.permissions ?? {}, null, 2) }),
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(Actions, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("pre", { className: "dsh-codex-pre", children: JSON.stringify(params.permissions ?? {}, null, 2) }),
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)(Actions, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(
               "button",
               {
                 type: "button",
@@ -22842,7 +22972,7 @@ window.__ModuleLoader__.load({
                 children: t("approval.allowTurn")
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(
               "button",
               {
                 type: "button",
@@ -22852,85 +22982,48 @@ window.__ModuleLoader__.load({
                 children: t("approval.allowSession")
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ permissions: {}, scope: "turn" }), children: t("approval.deny") })
+            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ permissions: {}, scope: "turn" }), children: t("approval.deny") })
           ] })
         ] });
       }
-      return /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(Shell, { title: t("approval.elicitation"), busy, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("pre", { className: "dsh-codex-pre", children: JSON.stringify(params, null, 2) }),
-        /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(Actions, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ action: "decline", content: null, _meta: null }), children: t("approval.deny") }),
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ action: "cancel", content: null, _meta: null }), children: t("approval.cancel") })
+      return /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)(Shell, { title: t("approval.elicitation"), busy, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("pre", { className: "dsh-codex-pre", children: JSON.stringify(params, null, 2) }),
+        /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)(Actions, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ action: "decline", content: null, _meta: null }), children: t("approval.deny") }),
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => void respond({ action: "cancel", content: null, _meta: null }), children: t("approval.cancel") })
         ] })
       ] });
     }
-    function InputCard({
-      approval,
-      busy,
-      onRespond
-    }) {
+    function InputCard({ approval, onRespond }) {
       const t = useT();
       const questions = Array.isArray(approval.params?.questions) ? approval.params.questions : [];
-      const [values, setValues] = React21.useState({});
-      const submit = () => {
-        const answers = {};
-        for (const [key, value] of Object.entries(values)) {
-          if (value.trim() !== "") answers[key] = { answers: [value.trim()] };
-        }
-        void onRespond({ answers });
-      };
-      return /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(Shell, { title: t("approval.input"), busy, children: [
-        questions.map((question) => /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("div", { className: "dsh-codex-question", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("div", { className: "dsh-codex-question-title", children: question.header || question.question }),
-          question.header && question.question !== question.header ? /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("div", { className: "dsh-codex-question-body", children: question.question }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("div", { className: "dsh-codex-options", children: (Array.isArray(question.options) ? question.options : []).map((option) => /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(
-            "button",
-            {
-              type: "button",
-              className: `dsh-codex-option ${values[question.id] === option.label ? "selected" : ""}`,
-              title: option.description ?? void 0,
-              onClick: () => setValues((previous) => ({ ...previous, [question.id]: option.label })),
-              children: option.label
-            },
-            option.label
-          )) }),
-          question.isOther || (question.options ?? []).length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(
-            "input",
-            {
-              className: "dsh-codex-search",
-              type: question.isSecret ? "password" : "text",
-              value: values[question.id] ?? "",
-              placeholder: t("approval.other"),
-              onChange: (event) => setValues((previous) => ({ ...previous, [question.id]: event.target.value }))
-            }
-          ) : null
-        ] }, question.id)),
-        /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(Actions, { children: /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: submit, children: t("approval.submit") }) })
-      ] });
+      return /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Shell, { title: t("approval.input"), busy: false, children: /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(QuestionForm, { questions, onSubmit: (values) => onRespond({
+        answers: Object.fromEntries(Object.entries(values).map(([id, value]) => [id, { answers: [value] }]))
+      }) }) });
     }
     function Shell({ title, busy, children }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("section", { className: `dsh-codex-approval ${busy ? "busy" : ""}`, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)("header", { className: "dsh-codex-approval-head", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("span", { className: "dsh-codex-dot warn pulse" }),
-          /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("strong", { children: title })
+      return /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("section", { className: `dsh-codex-approval ${busy ? "busy" : ""}`, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("header", { className: "dsh-codex-approval-head", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("span", { className: "dsh-codex-dot warn pulse" }),
+          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("strong", { children: title })
         ] }),
         children
       ] });
     }
     function Actions({ children }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("div", { className: "dsh-codex-approval-actions", children });
+      return /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("div", { className: "dsh-codex-approval-actions", children });
     }
 
-    // src/client/page/Composer.tsx
-    var React24 = __toESM(require("react"), 1);
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/Composer.tsx
+    var React25 = __toESM(require("react"), 1);
 
-    // src/client/page/FollowupList.tsx
-    var React22 = __toESM(require("react"), 1);
-    var import_jsx_runtime29 = require("react/jsx-runtime");
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/FollowupList.tsx
+    var React23 = __toESM(require("react"), 1);
+    var import_jsx_runtime30 = require("react/jsx-runtime");
     function FollowupList({ snapshot, api, onChange, activeTurnId }) {
       const t = useT();
       const collapseKey = "dsh-codex-followups-collapsed:" + snapshot.threadId;
-      const [collapsed, setCollapsed] = React22.useState(() => {
+      const [collapsed, setCollapsed] = React23.useState(() => {
         try {
           return localStorage.getItem(collapseKey) === "1";
         } catch {
@@ -22946,9 +23039,9 @@ window.__ModuleLoader__.load({
           return !value;
         });
       };
-      const [busy, setBusy] = React22.useState(false);
-      const [error, setError] = React22.useState("");
-      const pending2 = React22.useRef(false);
+      const [busy, setBusy] = React23.useState(false);
+      const [error, setError] = React23.useState("");
+      const pending2 = React23.useRef(false);
       const action = async (action2, id, text) => {
         if (pending2.current) return;
         pending2.current = true;
@@ -22964,30 +23057,30 @@ window.__ModuleLoader__.load({
         }
       };
       if (!snapshot.entries.length) return null;
-      return /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("section", { className: "dsh-codex-followups", "aria-label": t("queue.title"), children: [
-        /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("header", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("button", { type: "button", className: "dsh-codex-followup-toggle", "aria-label": t(collapsed ? "queue.expand" : "queue.collapse"), "aria-expanded": !collapsed, "aria-controls": "followups-" + snapshot.threadId, onClick: toggleCollapsed, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Icon2, { name: collapsed ? "chevronRight" : "chevronDown", size: 14 }),
+      return /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("section", { className: "dsh-codex-followups", "aria-label": t("queue.title"), children: [
+        /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("header", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", className: "dsh-codex-followup-toggle", "aria-label": t(collapsed ? "queue.expand" : "queue.collapse"), "aria-expanded": !collapsed, "aria-controls": "followups-" + snapshot.threadId, onClick: toggleCollapsed, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: collapsed ? "chevronRight" : "chevronDown", size: 14 }),
             t("queue.title"),
             " · ",
             snapshot.entries.length
           ] }),
-          snapshot.paused ? /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", disabled: busy, onClick: () => void action("resume"), children: t("queue.resume") }) : /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("small", { children: t("queue.auto") })
+          snapshot.paused ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", disabled: busy, onClick: () => void action("resume"), children: t("queue.resume") }) : /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("small", { children: t("queue.auto") })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("div", { className: "dsh-codex-followup-list", id: "followups-" + snapshot.threadId, hidden: collapsed, children: snapshot.entries.map((entry) => /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(FollowupRow, { entry, busy, activeTurnId, action }, entry.id)) }),
-        error && /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("div", { className: "dsh-codex-followup-error", role: "alert", children: error })
+        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-followup-list", id: "followups-" + snapshot.threadId, hidden: collapsed, children: snapshot.entries.map((entry) => /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(FollowupRow, { entry, busy, activeTurnId, action }, entry.id)) }),
+        error && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-followup-error", role: "alert", children: error })
       ] });
     }
     function FollowupRow({ entry, busy, activeTurnId, action }) {
       const t = useT();
-      const [text, setText] = React22.useState(entry.params.text);
-      React22.useEffect(() => {
+      const [text, setText] = React23.useState(entry.params.text);
+      React23.useEffect(() => {
         setText(entry.params.text);
       }, [entry.params.text, entry.status]);
       const sending = entry.status === "sending";
-      return /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-followup-row", "data-status": entry.status, children: [
-        entry.status === "editing" ? /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-followup-edit", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-followup-row", "data-status": entry.status, children: [
+        entry.status === "editing" ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-followup-edit", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
             "textarea",
             {
               "aria-label": t("queue.edit"),
@@ -23008,49 +23101,49 @@ window.__ModuleLoader__.load({
               }
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", disabled: busy, onClick: () => void action("cancel", entry.id), children: t("queue.cancel") }),
-            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("button", { type: "button", disabled: busy || !text.trim() && !entry.params.attachments.length, onClick: () => void action("save", entry.id, text), children: t("queue.save") })
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", disabled: busy, onClick: () => void action("cancel", entry.id), children: t("queue.cancel") }),
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", disabled: busy || !text.trim() && !entry.params.attachments.length, onClick: () => void action("save", entry.id, text), children: t("queue.save") })
           ] })
-        ] }) : /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)(import_jsx_runtime29.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Icon2, { name: sending ? "loader" : "message", size: 14 }),
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-followup-text", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("span", { title: entry.params.text, children: entry.params.text || t("queue.attachments") }),
-            entry.params.attachments.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("small", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Icon2, { name: "attachment", size: 12 }),
+        ] }) : /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: sending ? "loader" : "message", size: 14 }),
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-followup-text", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { title: entry.params.text, children: entry.params.text || t("queue.attachments") }),
+            entry.params.attachments.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("small", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "attachment", size: 12 }),
               entry.params.attachments.map((item) => item.name).join("、")
             ] }),
-            sending && /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("small", { children: t("queue.sending") })
+            sending && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("small", { children: t("queue.sending") })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("div", { className: "dsh-codex-followup-actions", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime29.jsxs)("button", { type: "button", disabled: busy || sending || !activeTurnId, title: t("queue.steerHint"), onClick: () => void action("steer", entry.id), children: [
-              /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(Icon2, { name: "arrowRight", size: 14 }),
-              /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("span", { children: t("queue.steer") })
+          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-followup-actions", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", disabled: busy || sending || !activeTurnId, title: t("queue.steerHint"), onClick: () => void action("steer", entry.id), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "arrowRight", size: 14 }),
+              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("span", { children: t("queue.steer") })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(IconButton, { icon: "pencil", label: t("queue.edit"), disabled: busy || sending, onClick: () => void action("edit", entry.id) }),
-            /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(IconButton, { icon: "trash", label: t("queue.delete"), disabled: busy || sending, onClick: () => void action("delete", entry.id) })
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(IconButton, { icon: "pencil", label: t("queue.edit"), disabled: busy || sending, onClick: () => void action("edit", entry.id) }),
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(IconButton, { icon: "trash", label: t("queue.delete"), disabled: busy || sending, onClick: () => void action("delete", entry.id) })
           ] })
         ] }),
-        entry.error && /* @__PURE__ */ (0, import_jsx_runtime29.jsx)("div", { className: "dsh-codex-followup-error", role: "alert", children: entry.error })
+        entry.error && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { className: "dsh-codex-followup-error", role: "alert", children: entry.error })
       ] });
     }
 
-    // src/client/components/SkillPicker.tsx
-    var React23 = __toESM(require("react"), 1);
-    var import_jsx_runtime30 = require("react/jsx-runtime");
+    // ../../../tmp/dsh-agent-questions-commit/src/client/components/SkillPicker.tsx
+    var React24 = __toESM(require("react"), 1);
+    var import_jsx_runtime31 = require("react/jsx-runtime");
     function SkillPicker({ skills, query, onQuery, loading, error, errors, index, onIndex, onChoose, onClose, onRefresh }) {
-      const root = React23.useRef(null);
-      React23.useEffect(() => {
+      const root = React24.useRef(null);
+      React24.useEffect(() => {
         const close = (e) => {
           if (!root.current?.contains(e.target) && !e.target?.closest?.(".dsh-codex-composer-input")) onClose();
         };
         document.addEventListener("pointerdown", close);
         return () => document.removeEventListener("pointerdown", close);
       }, []);
-      React23.useEffect(() => {
+      React24.useEffect(() => {
         root.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
       }, [index]);
-      return /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { className: "dsh-codex-skill-picker", ref: root, onKeyDown: (e) => {
+      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-skill-picker", ref: root, onKeyDown: (e) => {
         if (e.key === "Escape") {
           e.preventDefault();
           e.stopPropagation();
@@ -23064,48 +23157,48 @@ window.__ModuleLoader__.load({
           if (skills[index]?.enabled) onChoose(skills[index]);
         }
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("header", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("strong", { children: "Skills · 技能" }),
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("header", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("strong", { children: "Skills · 技能" }),
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { children: [
             skills.length,
             " 项"
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", title: "刷新技能列表", "aria-label": "刷新技能列表", onClick: onRefresh, children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "refresh", size: 15 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", title: "关闭技能列表", "aria-label": "关闭技能列表", onClick: onClose, children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Icon2, { name: "close", size: 15 }) })
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", title: "刷新技能列表", "aria-label": "刷新技能列表", onClick: onRefresh, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "refresh", size: 15 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", title: "关闭技能列表", "aria-label": "关闭技能列表", onClick: onClose, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "close", size: 15 }) })
         ] }),
-        onQuery && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("input", { autoFocus: true, className: "dsh-codex-search", "aria-label": "搜索技能", placeholder: "搜索名称或说明", value: query, onChange: (e) => onQuery(e.target.value) }),
-        loading && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("p", { role: "status", children: "正在读取技能…" }),
-        error && /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("div", { role: "alert", children: [
+        onQuery && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("input", { autoFocus: true, className: "dsh-codex-search", "aria-label": "搜索技能", placeholder: "搜索名称或说明", value: query, onChange: (e) => onQuery(e.target.value) }),
+        loading && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("p", { role: "status", children: "正在读取技能…" }),
+        error && /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { role: "alert", children: [
           error,
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("button", { type: "button", onClick: onRefresh, children: "重试" })
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", onClick: onRefresh, children: "重试" })
         ] }),
-        errors.map((e, i) => /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("p", { className: "dsh-codex-skill-warning", children: [
+        errors.map((e, i) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("p", { className: "dsh-codex-skill-warning", children: [
           e.path,
           ": ",
           e.message
         ] }, i)),
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("div", { role: "listbox", id: "codex-skill-options", "aria-label": "技能列表", children: skills.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("button", { type: "button", role: "option", id: "codex-skill-option-" + i, "aria-selected": index === i, "aria-disabled": !s.enabled, onMouseEnter: () => onIndex(i), onMouseDown: (e) => e.preventDefault(), onClick: () => s.enabled && onChoose(s), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("span", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("strong", { children: s.interface?.displayName || s.name }),
-            /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("code", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { role: "listbox", id: "codex-skill-options", "aria-label": "技能列表", children: skills.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("button", { type: "button", role: "option", id: "codex-skill-option-" + i, "aria-selected": index === i, "aria-disabled": !s.enabled, onMouseEnter: () => onIndex(i), onMouseDown: (e) => e.preventDefault(), onClick: () => s.enabled && onChoose(s), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("strong", { children: s.interface?.displayName || s.name }),
+            /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("code", { children: [
               "$",
               s.name
             ] }),
-            !s.enabled && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("small", { children: "已禁用" })
+            !s.enabled && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("small", { children: "已禁用" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("p", { children: s.interface?.shortDescription || s.shortDescription || s.description }),
-          /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)("small", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("p", { children: s.interface?.shortDescription || s.shortDescription || s.description }),
+          /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("small", { children: [
             s.scope,
             " · ",
             s.path
           ] })
         ] }, s.path)) }),
-        !loading && !error && !skills.length && /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("p", { children: "没有匹配的技能" }),
-        /* @__PURE__ */ (0, import_jsx_runtime30.jsx)("footer", { children: "↑↓ 选择 · Enter / Tab 使用 · Esc 关闭" })
+        !loading && !error && !skills.length && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("p", { children: "没有匹配的技能" }),
+        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("footer", { children: "↑↓ 选择 · Enter / Tab 使用 · Esc 关闭" })
       ] });
     }
 
-    // src/client/skills.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/skills.ts
     function skillQuery(text, caret) {
       const before = text.slice(0, caret);
       const match = /(?:^|\s)\$([^\s$]*)$/.exec(before);
@@ -23123,7 +23216,7 @@ window.__ModuleLoader__.load({
       return skills.filter((s) => [s.name, s.description, s.shortDescription, s.interface?.displayName, s.interface?.shortDescription].some((v) => v?.toLocaleLowerCase().includes(q)));
     }
 
-    // src/client/drafts.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/drafts.ts
     function readDraft(threadId) {
       try {
         const parsed = threadId ? JSON.parse(
@@ -23151,8 +23244,8 @@ window.__ModuleLoader__.load({
       }
     }
 
-    // src/client/page/Composer.tsx
-    var import_jsx_runtime31 = require("react/jsx-runtime");
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/Composer.tsx
+    var import_jsx_runtime32 = require("react/jsx-runtime");
     var COMMANDS = [
       { id: "skill", label: "cmd.skill", desc: "cmd.skillDesc" },
       { id: "model", label: "cmd.model", desc: "cmd.modelDesc" },
@@ -23204,26 +23297,26 @@ window.__ModuleLoader__.load({
       onExport
     }) {
       const t = useT();
-      const [initialDraft] = React24.useState(() => readDraft(threadId));
-      const [text, setText] = React24.useState(initialDraft.text);
-      const [busy, setBusy] = React24.useState(false);
-      const [menu, setMenu] = React24.useState(null);
-      const [plusOpen, setPlusOpen] = React24.useState(false);
-      const [permissionOpen, setPermissionOpen] = React24.useState(false);
-      const [confirmFull, setConfirmFull] = React24.useState(false);
-      const [attachments, setAttachments] = React24.useState(initialDraft.attachments);
-      const [uploading, setUploading] = React24.useState(false);
-      const [uploadError, setUploadError] = React24.useState(null);
-      const [slashIndex, setSlashIndex] = React24.useState(0);
-      const [slashDismissed, setSlashDismissed] = React24.useState(false);
-      const slashRef = React24.useRef(null);
-      const textareaRef = React24.useRef(null);
-      const historyNavigation = React24.useRef(null);
-      const fileInputRef = React24.useRef(null);
-      const folderInputRef = React24.useRef(null);
-      const uploadQueue = React24.useRef(Promise.resolve());
-      const pendingUploads = React24.useRef(0);
-      React24.useEffect(() => {
+      const [initialDraft] = React25.useState(() => readDraft(threadId));
+      const [text, setText] = React25.useState(initialDraft.text);
+      const [busy, setBusy] = React25.useState(false);
+      const [menu, setMenu] = React25.useState(null);
+      const [plusOpen, setPlusOpen] = React25.useState(false);
+      const [permissionOpen, setPermissionOpen] = React25.useState(false);
+      const [confirmFull, setConfirmFull] = React25.useState(false);
+      const [attachments, setAttachments] = React25.useState(initialDraft.attachments);
+      const [uploading, setUploading] = React25.useState(false);
+      const [uploadError, setUploadError] = React25.useState(null);
+      const [slashIndex, setSlashIndex] = React25.useState(0);
+      const [slashDismissed, setSlashDismissed] = React25.useState(false);
+      const slashRef = React25.useRef(null);
+      const textareaRef = React25.useRef(null);
+      const historyNavigation = React25.useRef(null);
+      const fileInputRef = React25.useRef(null);
+      const folderInputRef = React25.useRef(null);
+      const uploadQueue = React25.useRef(Promise.resolve());
+      const pendingUploads = React25.useRef(0);
+      React25.useEffect(() => {
         const reference = (event) => {
           const detail = event.detail;
           if (detail?.cwd !== cwd || !threadId || disabled || typeof detail.path !== "string") return;
@@ -23234,15 +23327,15 @@ window.__ModuleLoader__.load({
         window.addEventListener("dsh-codex-reference", reference);
         return () => window.removeEventListener("dsh-codex-reference", reference);
       }, [cwd, threadId, disabled]);
-      const [selectedSkills, setSelectedSkills] = React24.useState(initialDraft.skills);
-      const [catalog, setCatalog] = React24.useState(null), [skillLoading, setSkillLoading] = React24.useState(false);
-      const [skillError, setSkillError] = React24.useState(""), [skillErrors, setSkillErrors] = React24.useState([]);
-      const [skillList, setSkillList] = React24.useState(false), [skillSearch, setSkillSearch] = React24.useState(""), [skillIndex, setSkillIndex] = React24.useState(0);
-      const [caret, setCaret] = React24.useState(text.length), [skillDismissed, setSkillDismissed] = React24.useState(false);
+      const [selectedSkills, setSelectedSkills] = React25.useState(initialDraft.skills);
+      const [catalog, setCatalog] = React25.useState(null), [skillLoading, setSkillLoading] = React25.useState(false);
+      const [skillError, setSkillError] = React25.useState(""), [skillErrors, setSkillErrors] = React25.useState([]);
+      const [skillList, setSkillList] = React25.useState(false), [skillSearch, setSkillSearch] = React25.useState(""), [skillIndex, setSkillIndex] = React25.useState(0);
+      const [caret, setCaret] = React25.useState(text.length), [skillDismissed, setSkillDismissed] = React25.useState(false);
       const skillRange = skillQuery(text, caret);
       const skillOpen = skillList || !!skillRange && !skillDismissed;
       const skillResults = filterSkills(catalog || [], skillList ? skillSearch : skillRange?.query || "");
-      const requestGeneration = React24.useRef(0);
+      const requestGeneration = React25.useRef(0);
       const loadSkills = async (forceReload = false) => {
         const generation = ++requestGeneration.current;
         setSkillLoading(true);
@@ -23258,7 +23351,7 @@ window.__ModuleLoader__.load({
           if (generation === requestGeneration.current) setSkillLoading(false);
         }
       };
-      React24.useEffect(() => {
+      React25.useEffect(() => {
         setCatalog(null);
         setSkillError("");
         setSkillLoading(false);
@@ -23267,7 +23360,7 @@ window.__ModuleLoader__.load({
           requestGeneration.current++;
         };
       }, [cwd, threadId]);
-      React24.useEffect(() => {
+      React25.useEffect(() => {
         if (skillOpen && catalog === null && !skillLoading && !skillError) void loadSkills();
       }, [skillOpen, catalog, skillLoading, skillError, cwd, threadId]);
       const closeSkills = () => {
@@ -23293,16 +23386,16 @@ window.__ModuleLoader__.load({
           area?.setSelectionRange(cursor, cursor);
         });
       };
-      React24.useEffect(() => {
+      React25.useEffect(() => {
         saveDraft(threadId, text, attachments, selectedSkills.filter((s) => hasSkill(text, s.name)));
       }, [threadId, text, attachments, selectedSkills]);
-      React24.useEffect(() => {
+      React25.useEffect(() => {
         const element = textareaRef.current;
         if (element === null) return;
         element.style.height = "auto";
         element.style.height = `${Math.min(element.scrollHeight, 200)}px`;
       }, [text]);
-      React24.useEffect(() => {
+      React25.useEffect(() => {
         if (!plusOpen && !permissionOpen && !confirmFull && menu === null) return void 0;
         const onKey = (event) => {
           if (event.key !== "Escape") return;
@@ -23330,7 +23423,7 @@ window.__ModuleLoader__.load({
         return command.id.includes(slashQuery) || command.id === "skill" && slashQuery === "skills" || label.includes(slashQuery);
       });
       const slashOpen = !skillOpen && slashQuery !== null && slashCommands.length > 0 && !slashDismissed;
-      React24.useEffect(() => {
+      React25.useEffect(() => {
         if (!slashOpen) return void 0;
         const onPointer = (event) => {
           const target = event.target;
@@ -23342,7 +23435,7 @@ window.__ModuleLoader__.load({
         document.addEventListener("pointerdown", onPointer, true);
         return () => document.removeEventListener("pointerdown", onPointer, true);
       }, [slashOpen]);
-      React24.useEffect(() => {
+      React25.useEffect(() => {
         if (!slashOpen) return;
         const element = slashRef.current?.querySelector(`[data-slash-index="${slashIndex}"]`);
         if (element instanceof HTMLElement) element.scrollIntoView({ block: "nearest" });
@@ -23420,9 +23513,9 @@ window.__ModuleLoader__.load({
           }
         });
       };
-      const uploadFilesRef = React24.useRef(uploadFiles);
+      const uploadFilesRef = React25.useRef(uploadFiles);
       uploadFilesRef.current = uploadFiles;
-      React24.useEffect(() => {
+      React25.useEffect(() => {
         const area = textareaRef.current?.closest("main");
         if (!area) return;
         const hasFiles = (event) => Array.from(event.dataTransfer?.types ?? []).includes("Files");
@@ -23484,13 +23577,13 @@ window.__ModuleLoader__.load({
           setBusy(false);
         }
       };
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-composer-wrap", children: [
-        followups && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(FollowupList, { snapshot: followups, api, onChange: onFollowups, activeTurnId }),
-        skillOpen && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(SkillPicker, { skills: skillResults, query: skillList ? skillSearch : skillRange?.query || "", onQuery: skillList ? (q) => {
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-composer-wrap", children: [
+        followups && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(FollowupList, { snapshot: followups, api, onChange: onFollowups, activeTurnId }),
+        skillOpen && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(SkillPicker, { skills: skillResults, query: skillList ? skillSearch : skillRange?.query || "", onQuery: skillList ? (q) => {
           setSkillSearch(q);
           setSkillIndex(0);
         } : void 0, loading: skillLoading, error: skillError, errors: skillErrors, index: skillIndex, onIndex: setSkillIndex, onChoose: chooseSkill, onClose: closeSkills, onRefresh: () => void loadSkills(true) }),
-        slashOpen ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-slash", role: "listbox", ref: slashRef, children: slashCommands.map((command, index) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
+        slashOpen ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-slash", role: "listbox", ref: slashRef, children: slashCommands.map((command, index) => /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(
           "button",
           {
             type: "button",
@@ -23501,26 +23594,26 @@ window.__ModuleLoader__.load({
             onMouseEnter: () => setSlashIndex(index),
             onClick: () => runCommand(command.id),
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-slash-name", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("span", { className: "dsh-codex-slash-name", children: [
                 "/",
                 command.id
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-slash-label", children: t(command.label) }),
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-slash-desc", children: t(command.desc) })
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-slash-label", children: t(command.label) }),
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-slash-desc", children: t(command.desc) })
             ]
           },
           command.id
         )) }) : null,
-        plusOpen ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-plus-panel", role: "menu", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-title", children: t("composer.add") }),
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(PlusItem, { icon: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(FolderGlyph3, {}), label: t("cmd.project"), hint: t("cmd.projectDesc"), onClick: () => runCommand("project") }),
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-title", children: t("composer.commands") }),
-            COMMANDS.filter((command) => command.id !== "attach" && command.id !== "project").map((command) => /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+        plusOpen ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-plus-panel", role: "menu", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-menu-title", children: t("composer.add") }),
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(PlusItem, { icon: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(FolderGlyph3, {}), label: t("cmd.project"), hint: t("cmd.projectDesc"), onClick: () => runCommand("project") }),
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-menu-title", children: t("composer.commands") }),
+            COMMANDS.filter((command) => command.id !== "attach" && command.id !== "project").map((command) => /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
               PlusItem,
               {
-                icon: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CommandGlyph, { id: command.id }),
+                icon: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(CommandGlyph, { id: command.id }),
                 label: t(command.label),
                 hint: t(command.desc),
                 onClick: () => runCommand(command.id)
@@ -23529,43 +23622,43 @@ window.__ModuleLoader__.load({
             ))
           ] })
         ] }) : null,
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-composer-card", children: [
-          selectedSkills.filter((s) => hasSkill(text, s.name)).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-selected-skills", children: selectedSkills.filter((s) => hasSkill(text, s.name)).map((s) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { title: s.path, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "model", size: 14 }),
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-composer-card", children: [
+          selectedSkills.filter((s) => hasSkill(text, s.name)).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-selected-skills", children: selectedSkills.filter((s) => hasSkill(text, s.name)).map((s) => /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("span", { title: s.path, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "model", size: 14 }),
             "$",
             s.name,
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", "aria-label": "移除技能 " + s.name, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("button", { type: "button", "aria-label": "移除技能 " + s.name, onClick: () => {
               setSelectedSkills((old) => old.filter((item) => item.path !== s.path));
               setText((old) => old.replace("$" + s.name, ""));
               setSkillDismissed(true);
-            }, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "close", size: 12 }) })
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "close", size: 12 }) })
           ] }, s.path)) }),
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("input", { ref: fileInputRef, type: "file", multiple: true, hidden: true, onChange: (event) => {
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("input", { ref: fileInputRef, type: "file", multiple: true, hidden: true, onChange: (event) => {
             uploadFiles(event.target.files);
             event.target.value = "";
           } }),
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("input", { ref: folderInputRef, type: "file", multiple: true, hidden: true, ...{ webkitdirectory: "", directory: "" }, onChange: (event) => {
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("input", { ref: folderInputRef, type: "file", multiple: true, hidden: true, ...{ webkitdirectory: "", directory: "" }, onChange: (event) => {
             uploadFiles(event.target.files);
             event.target.value = "";
           } }),
-          attachments.length > 0 || uploading || uploadError !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-attachments", children: [
-            attachments.map((attachment) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-attachment dsh-codex-attachment-card", title: attachment.name, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(AttachmentPreview, { attachment, api }),
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+          attachments.length > 0 || uploading || uploadError !== null ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-attachments", children: [
+            attachments.map((attachment) => /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("span", { className: "dsh-codex-attachment dsh-codex-attachment-card", title: attachment.name, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(AttachmentPreview, { attachment, api }),
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
                 "button",
                 {
                   type: "button",
                   className: "dsh-codex-attachment-remove",
                   "aria-label": t("composer.removeAttachment") + ": " + attachment.name,
                   onClick: () => setAttachments((previous) => previous.filter((item) => item.path !== attachment.path)),
-                  children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "close", size: 14 })
+                  children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "close", size: 14 })
                 }
               )
             ] }, attachment.path)),
-            uploading ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-attachment uploading", children: t("composer.uploading") }) : null,
-            uploadError !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-attachment error", children: uploadError }) : null
+            uploading ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-attachment uploading", children: t("composer.uploading") }) : null,
+            uploadError !== null ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-attachment error", children: uploadError }) : null
           ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
             "textarea",
             {
               ref: textareaRef,
@@ -23672,9 +23765,9 @@ window.__ModuleLoader__.load({
               }
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-composer-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-composer-tools", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-composer-row", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-composer-tools", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
                 "button",
                 {
                   type: "button",
@@ -23686,18 +23779,18 @@ window.__ModuleLoader__.load({
                     setPermissionOpen(false);
                     setMenu(null);
                   },
-                  children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "plus", size: 16 })
+                  children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "plus", size: 16 })
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", className: "dsh-codex-icon-button dsh-codex-attach", "aria-label": t("composer.attachFile"), title: t("composer.attachFile"), disabled, onClick: () => {
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("button", { type: "button", className: "dsh-codex-icon-button dsh-codex-attach", "aria-label": t("composer.attachFile"), title: t("composer.attachFile"), disabled, onClick: () => {
                 closeAll();
                 fileInputRef.current?.click();
-              }, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "attachment", size: 18 }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", className: "dsh-codex-icon-button dsh-codex-attach dsh-codex-attach-folder", "aria-label": t("composer.attachFolder"), title: t("composer.attachFolder"), disabled, onClick: () => {
+              }, children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "attachment", size: 18 }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("button", { type: "button", className: "dsh-codex-icon-button dsh-codex-attach dsh-codex-attach-folder", "aria-label": t("composer.attachFolder"), title: t("composer.attachFolder"), disabled, onClick: () => {
                 closeAll();
                 folderInputRef.current?.click();
-              }, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "folderPlus", size: 18 }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
+              }, children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "folderPlus", size: 18 }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(
                 "button",
                 {
                   type: "button",
@@ -23711,19 +23804,19 @@ window.__ModuleLoader__.load({
                     setMenu(null);
                   },
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ShieldGlyph, {}),
-                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: t(`permission.${permission}`) })
+                    /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ShieldGlyph, {}),
+                    /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: t(`permission.${permission}`) })
                   ]
                 }
               ),
-              planMode ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-plan-tag", children: [
+              planMode ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("span", { className: "dsh-codex-plan-tag", children: [
                 t("plan.tag"),
-                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", "aria-label": t("plan.exit"), title: t("plan.exit"), onClick: onExitPlan, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CloseGlyph, {}) })
+                /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("button", { type: "button", "aria-label": t("plan.exit"), title: t("plan.exit"), onClick: onExitPlan, children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(CloseGlyph, {}) })
               ] }) : null
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-composer-spacer" }),
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-composer-trailing", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-composer-spacer" }),
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-composer-trailing", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(
                 "button",
                 {
                   type: "button",
@@ -23737,17 +23830,17 @@ window.__ModuleLoader__.load({
                     setPermissionOpen(false);
                   },
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ModelGlyph, {}),
-                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-model-label", children: modelLabel }),
-                    /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-model-effort", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ModelGlyph, {}),
+                    /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-model-label", children: modelLabel }),
+                    /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("span", { className: "dsh-codex-model-effort", children: [
                       "· ",
                       effortLabel
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ChevronGlyph2, {})
+                    /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ChevronGlyph2, {})
                   ]
                 }
               ),
-              activeTurnId !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+              activeTurnId !== null ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
                 "button",
                 {
                   type: "button",
@@ -23756,10 +23849,10 @@ window.__ModuleLoader__.load({
                   "aria-label": t("composer.stop"),
                   title: t("composer.stop"),
                   onClick: () => void stop(),
-                  children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(StopGlyph, {})
+                  children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(StopGlyph, {})
                 }
               ) : null,
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
                 "button",
                 {
                   type: "button",
@@ -23768,26 +23861,26 @@ window.__ModuleLoader__.load({
                   "aria-label": activeTurnId === null ? t("composer.send") : t("composer.queue"),
                   title: activeTurnId === null ? t("composer.send") : t("composer.queue"),
                   onClick: () => void submit(),
-                  children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(SendGlyph, {})
+                  children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(SendGlyph, {})
                 }
               )
             ] })
           ] }),
-          permissionOpen ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-permission-menu", role: "menu", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-title", children: t("permission.title") }),
-              ["ask", "approve", "full", "read"].map((mode) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
+          permissionOpen ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-permission-menu", role: "menu", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-menu-title", children: t("permission.title") }),
+              ["ask", "approve", "full", "read"].map((mode) => /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(
                 "button",
                 {
                   type: "button",
                   className: `dsh-codex-permission-option ${permission === mode ? "selected" : ""}`,
                   onClick: () => choosePermission(mode),
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-check", children: permission === mode ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CheckGlyph, {}) : null }),
-                    /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-permission-meta", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-name", children: t(`permission.${mode}`) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-desc", children: t(`permission.${mode}Desc`) })
+                    /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-check", children: permission === mode ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(CheckGlyph, {}) : null }),
+                    /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("span", { className: "dsh-codex-permission-meta", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-name", children: t(`permission.${mode}`) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-desc", children: t(`permission.${mode}Desc`) })
                     ] })
                   ]
                 },
@@ -23795,21 +23888,21 @@ window.__ModuleLoader__.load({
               ))
             ] })
           ] }) : null,
-          menu !== null ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
-            /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-menu", role: "menu", children: [
-              menu === "root" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("model"), children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-cell-label", children: t("composer.model") }),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("strong", { className: "dsh-effort-current", "aria-label": t("composer.effort"), children: effortLabel }),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-cell-value", children: modelLabel }),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ChevronRightGlyph, {})
+          menu !== null ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-menu-backdrop", onPointerDown: closeAll }),
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-menu", role: "menu", children: [
+              menu === "root" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("button", { type: "button", className: "dsh-codex-menu-cell", onClick: () => setMenu("model"), children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-cell-label", children: t("composer.model") }),
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("strong", { className: "dsh-effort-current", "aria-label": t("composer.effort"), children: effortLabel }),
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-cell-value", children: modelLabel }),
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ChevronRightGlyph, {})
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-effort-inline", children: /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-effort-track", style: { "--effort-progress": effortProgress + "%", "--effort-offset": 13 - effortProgress * 0.26 + "px", "--effort-color": `hsl(211 82% ${42 + effortProgress * 0.18}%)` }, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-effort-fill" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-effort-dots", "aria-hidden": "true", children: efforts.map((option, index) => /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("i", { className: index < effortIndex ? "is-active" : "" }, option.reasoningEffort)) }),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-effort-thumb", "aria-hidden": "true" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-effort-inline", children: /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-effort-track", style: { "--effort-progress": effortProgress + "%", "--effort-offset": 13 - effortProgress * 0.26 + "px", "--effort-color": `hsl(211 82% ${42 + effortProgress * 0.18}%)` }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-effort-fill" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-effort-dots", "aria-hidden": "true", children: efforts.map((option, index) => /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("i", { className: index < effortIndex ? "is-active" : "" }, option.reasoningEffort)) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-effort-thumb", "aria-hidden": "true" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
                     "input",
                     {
                       type: "range",
@@ -23825,10 +23918,10 @@ window.__ModuleLoader__.load({
                   )
                 ] }) })
               ] }) : null,
-              menu === "model" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(MenuBack, { label: t("composer.model"), onClick: () => setMenu("root") }),
-                /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-menu-list model-name-list", children: [
-                  models.map((entry) => /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
+              menu === "model" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(MenuBack, { label: t("composer.model"), onClick: () => setMenu("root") }),
+                /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-menu-list model-name-list", children: [
+                  models.map((entry) => /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(
                     "button",
                     {
                       type: "button",
@@ -23840,13 +23933,13 @@ window.__ModuleLoader__.load({
                         setMenu("root");
                       },
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-check", children: entry.id === model ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CheckGlyph, {}) : null }),
-                        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-meta", children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-name", children: entry.displayName }) })
+                        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-check", children: entry.id === model ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(CheckGlyph, {}) : null }),
+                        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-meta", children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-name", children: entry.displayName }) })
                       ]
                     },
                     entry.id
                   )),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(
                     "button",
                     {
                       type: "button",
@@ -23858,19 +23951,19 @@ window.__ModuleLoader__.load({
                         setMenu("root");
                       },
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-check", children: model === "" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(CheckGlyph, {}) : null }),
-                        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-meta", children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-menu-name", children: t("composer.defaultModel") }) })
+                        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-check", children: model === "" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(CheckGlyph, {}) : null }),
+                        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-meta", children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-menu-name", children: t("composer.defaultModel") }) })
                       ]
                     }
                   )
                 ] })
               ] }) : null,
-              menu === "effort" || menu === "more" ? /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(import_jsx_runtime31.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(MenuBack, { label: t("composer.effort"), onClick: () => setMenu("root") }),
-                /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-effort-slider", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("strong", { children: effortLabel }),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: modelLabel }),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+              menu === "effort" || menu === "more" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(MenuBack, { label: t("composer.effort"), onClick: () => setMenu("root") }),
+                /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-effort-slider", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("strong", { children: effortLabel }),
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: modelLabel }),
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
                     "input",
                     {
                       type: "range",
@@ -23884,24 +23977,24 @@ window.__ModuleLoader__.load({
                       onChange: (event) => onEffortChange(efforts[Number(event.target.value)].reasoningEffort)
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-effort-ticks", children: efforts.map((option) => /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: labelForEffort(t, option.reasoningEffort) }, option.reasoningEffort)) })
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-effort-ticks", children: efforts.map((option) => /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: labelForEffort(t, option.reasoningEffort) }, option.reasoningEffort)) })
                 ] })
               ] }) : null
             ] })
           ] }) : null,
-          confirmFull ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+          confirmFull ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
             "div",
             {
               className: "dsh-codex-dialog-backdrop",
               onMouseDown: (event) => {
                 if (event.target === event.currentTarget) setConfirmFull(false);
               },
-              children: /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("header", { className: "dsh-codex-dialog-head", children: t("permission.fullTitle") }),
-                /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("div", { className: "dsh-codex-approval-meta", children: t("permission.fullBody") }),
-                /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: () => setConfirmFull(false), children: t("permission.cancel") }),
-                  /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
+              children: /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("header", { className: "dsh-codex-dialog-head", children: t("permission.fullTitle") }),
+                /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-approval-meta", children: t("permission.fullBody") }),
+                /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: () => setConfirmFull(false), children: t("permission.cancel") }),
+                  /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
                     "button",
                     {
                       type: "button",
@@ -23921,16 +24014,16 @@ window.__ModuleLoader__.load({
       ] });
     }
     function PlusItem({ icon, label, hint, onClick }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("button", { type: "button", role: "menuitem", className: "dsh-codex-plus-item", onClick, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-plus-icon", children: icon }),
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-plus-label", children: label }),
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { className: "dsh-codex-plus-hint", children: hint })
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("button", { type: "button", role: "menuitem", className: "dsh-codex-plus-item", onClick, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-plus-icon", children: icon }),
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-plus-label", children: label }),
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-plus-hint", children: hint })
       ] });
     }
     function MenuBack({ label, onClick }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("button", { type: "button", className: "dsh-codex-menu-back", onClick, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ChevronLeftGlyph, {}),
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: label })
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("button", { type: "button", className: "dsh-codex-menu-back", onClick, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ChevronLeftGlyph, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: label })
       ] });
     }
     function labelForEffort(t, value) {
@@ -23939,8 +24032,8 @@ window.__ModuleLoader__.load({
       return text === key ? value : text;
     }
     function AttachmentPreview({ attachment, api }) {
-      const [src, setSrc] = React24.useState(null);
-      React24.useEffect(() => {
+      const [src, setSrc] = React25.useState(null);
+      React25.useEffect(() => {
         let active = true;
         setSrc(null);
         if (attachment.kind !== "image") return () => {
@@ -23956,9 +24049,9 @@ window.__ModuleLoader__.load({
       }, [api, attachment.path, attachment.kind]);
       const extension = attachment.name.split(".").pop()?.toLowerCase() ?? "";
       const icon = /^(png|jpe?g|gif|webp|svg|bmp|avif|heic)$/.test(extension) ? "fileImage" : /^(zip|rar|7z|tar|gz)$/.test(extension) ? "fileArchive" : /^(xls|xlsx|csv|ods)$/.test(extension) ? "fileSpreadsheet" : /^(mp3|wav|m4a|ogg|flac)$/.test(extension) ? "fileAudio" : /^(mp4|mov|webm|mkv)$/.test(extension) ? "fileVideo" : /^(js|ts|tsx|jsx|py|c|cpp|h|java|html|css|json|sh|rs|go)$/.test(extension) ? "fileCode" : /^(pdf|doc|docx|ppt|pptx)$/.test(extension) ? "fileType" : "file";
-      return src ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ImageViewer, { className: "dsh-codex-attachment-preview", src, alt: attachment.name, onError: () => setSrc(null) }) : /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("span", { className: "dsh-codex-attachment-placeholder", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: icon, size: 29 }),
-        /* @__PURE__ */ (0, import_jsx_runtime31.jsx)("span", { children: extension || "FILE" })
+      return src ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ImageViewer, { className: "dsh-codex-attachment-preview", src, alt: attachment.name, onError: () => setSrc(null) }) : /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("span", { className: "dsh-codex-attachment-placeholder", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: icon, size: 29 }),
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: extension || "FILE" })
       ] });
     }
     function readAsBase64(file) {
@@ -23974,89 +24067,108 @@ window.__ModuleLoader__.load({
       });
     }
     function CommandGlyph({ id }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { size: 16, name: id === "plan" ? "plan" : id === "permission" ? "shield" : id === "model" ? "model" : id === "effort" ? "brain" : id === "compact" ? "arrowDown" : id === "new" ? "plus" : id === "export" ? "download" : id === "diff" ? "git" : "command" });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { size: 16, name: id === "plan" ? "plan" : id === "permission" ? "shield" : id === "model" ? "model" : id === "effort" ? "brain" : id === "compact" ? "arrowDown" : id === "new" ? "plus" : id === "export" ? "download" : id === "diff" ? "git" : "command" });
     }
     function CloseGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "close", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "close", size: 16 });
     }
     function ShieldGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "shield", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "shield", size: 16 });
     }
     function FolderGlyph3() {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "folder", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "folder", size: 16 });
     }
     function ModelGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "model", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "model", size: 16 });
     }
     function ChevronGlyph2() {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "chevronDown", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "chevronDown", size: 16 });
     }
     function ChevronRightGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "chevronRight", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "chevronRight", size: 16 });
     }
     function ChevronLeftGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "chevronLeft", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "chevronLeft", size: 16 });
     }
     function SendGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "arrowUp", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "arrowUp", size: 16 });
     }
     function StopGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "stop", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "stop", size: 16 });
     }
     function CheckGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { name: "check", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "check", size: 16 });
     }
 
-    // src/client/page/ItemCard.tsx
-    var React25 = __toESM(require("react"), 1);
-    var import_jsx_runtime32 = require("react/jsx-runtime");
-    function ItemCard({ item, api, cwd = "" }) {
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ItemCard.tsx
+    var React26 = __toESM(require("react"), 1);
+    var import_jsx_runtime33 = require("react/jsx-runtime");
+    function ItemCard({ item, api, cwd = "", onAnswer }) {
       const t = useT();
       switch (item.type) {
         case "userMessage":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Message, { cwd, kind: "user", label: t("item.user"), text: itemText(item), time: formatClock(item.startedAtMs), api, attachments: (item.content ?? []).filter((part) => typeof part.path === "string" && (part.type === "localImage" || part.type === "local_image" || part.type === "mention")).map((part) => ({ path: part.path, name: part.name, image: part.type !== "mention" })) });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Message, { cwd, kind: "user", label: t("item.user"), text: itemText(item), time: formatClock(item.startedAtMs), api, attachments: (item.content ?? []).filter((part) => typeof part.path === "string" && (part.type === "localImage" || part.type === "local_image" || part.type === "mention")).map((part) => ({ path: part.path, name: part.name, image: part.type !== "mention" })) });
         case "agentMessage":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
-            Message,
-            {
-              api,
-              cwd,
-              kind: "assistant",
-              label: t("item.assistant"),
-              text: typeof item.text === "string" ? item.text : "",
-              muted: item.phase === "commentary",
-              time: formatClock(item.startedAtMs)
-            }
-          );
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(import_jsx_runtime33.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
+              Message,
+              {
+                api,
+                cwd,
+                kind: "assistant",
+                label: t("item.assistant"),
+                text: typeof item.text === "string" ? item.text : "",
+                muted: item.phase === "commentary",
+                time: formatClock(item.startedAtMs)
+              }
+            ),
+            item.questions?.length ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(AsyncQuestions, { item, onAnswer }) : null
+          ] });
         case "reasoning":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Reasoning, { item });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Reasoning, { item });
         case "commandExecution":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(CommandCard, { item });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(CommandCard, { item });
         case "fileChange":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(FileCard, { item });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(FileCard, { item });
         case "mcpToolCall":
         case "dynamicToolCall":
         case "functionCallOutput":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ToolCard, { item });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ToolCard, { item });
         case "plan":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Block, { title: t("item.plan"), body: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-text", children: item.text ?? "" }) });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Block, { title: t("item.plan"), body: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-text", children: item.text ?? "" }) });
         case "webSearch":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Disclosure, { title: t("item.search"), body: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Json, { value: item }) });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Disclosure, { title: t("item.search"), body: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Json, { value: item }) });
         case "imageView":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ImageView, { item, api });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ImageView, { item, api });
         case "localSettingChange":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Divider, { label: typeof item.text === "string" ? item.text : "" });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Divider, { label: typeof item.text === "string" ? item.text : "" });
         case "contextCompaction":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Divider, { label: t("item.compaction") });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Divider, { label: t("item.compaction") });
         case "enteredReviewMode":
         case "exitedReviewMode":
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Divider, { label: t("item.review") });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Divider, { label: t("item.review") });
         case "sleep":
         case "hookPrompt":
           return null;
         default:
-          return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Disclosure, { title: t("item.other", { type: item.type }), body: null });
+          return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Disclosure, { title: t("item.other", { type: item.type }), body: null });
       }
+    }
+    function AsyncQuestions({ item, onAnswer }) {
+      const t = useT();
+      const [submitted, setSubmitted] = React26.useState(false);
+      const questions = (item.questions ?? []).map((question, index) => ({
+        id: String(index),
+        question: question.title,
+        options: question.options?.map((label) => ({ label }))
+      }));
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("section", { className: "dsh-codex-agent-questions", children: submitted || !onAnswer ? /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-question-status", children: [
+        questions.map((question) => /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { children: question.question }, question.id)),
+        /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("small", { children: t("question.closed") })
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(QuestionForm, { questions, defaultFirst: true, onSubmit: async (answers) => {
+        await onAnswer(questions.map((question) => question.question + "\n" + answers[question.id]).join("\n\n"));
+        setSubmitted(true);
+      } }) });
     }
     function Message({
       api,
@@ -24069,19 +24181,19 @@ window.__ModuleLoader__.load({
       time = ""
     }) {
       if (text.trim() === "" && attachments.length === 0) return null;
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: `dsh-codex-message ${kind}`, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-message-head", children: [
-          kind === "user" && time !== "" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-message-time", children: time }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-message-avatar", children: kind === "assistant" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(CodexIcon, { size: 17 }) : /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "message", size: 16 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("strong", { children: label }),
-          kind === "assistant" && time !== "" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-message-time", children: time }) : null
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: `dsh-codex-message ${kind}`, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-message-head", children: [
+          kind === "user" && time !== "" ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: "dsh-codex-message-time", children: time }) : null,
+          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: "dsh-codex-message-avatar", children: kind === "assistant" ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(CodexIcon, { size: 17 }) : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Icon2, { name: "message", size: 16 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("strong", { children: label }),
+          kind === "assistant" && time !== "" ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: "dsh-codex-message-time", children: time }) : null
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-bubble", style: muted ? { opacity: 0.82 } : void 0, children: [
-          attachments.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-message-images", children: attachments.map((attachment, index) => attachment.image ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ImageView, { item: { id: attachment.path, type: "imageView", path: attachment.path }, api, hideCaption: true }, attachment.path + index) : downloadsOnClick(attachment.path) ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(FileDownloadButton, { api, cwd, path: attachment.path, className: "dsh-codex-message-file", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "file", size: 24 }),
-            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "download", size: 14 })
-          ] }, attachment.path + index) : /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("button", { type: "button", className: "dsh-codex-message-file", title: attachment.path, "aria-label": "预览 " + (attachment.name || attachment.path.split("/").at(-1)), onClick: () => window.dispatchEvent(new CustomEvent("dsh-codex-open-file", { detail: attachment.path })), children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "file", size: 24 }) }, attachment.path + index)) }),
-          text.trim() !== "" && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Markdown, { text, api, cwd })
+        /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-bubble", style: muted ? { opacity: 0.82 } : void 0, children: [
+          attachments.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-message-images", children: attachments.map((attachment, index) => attachment.image ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ImageView, { item: { id: attachment.path, type: "imageView", path: attachment.path }, api, hideCaption: true }, attachment.path + index) : downloadsOnClick(attachment.path) ? /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(FileDownloadButton, { api, cwd, path: attachment.path, className: "dsh-codex-message-file", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Icon2, { name: "file", size: 24 }),
+            /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Icon2, { name: "download", size: 14 })
+          ] }, attachment.path + index) : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("button", { type: "button", className: "dsh-codex-message-file", title: attachment.path, "aria-label": "预览 " + (attachment.name || attachment.path.split("/").at(-1)), onClick: () => window.dispatchEvent(new CustomEvent("dsh-codex-open-file", { detail: attachment.path })), children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Icon2, { name: "file", size: 24 }) }, attachment.path + index)) }),
+          text.trim() !== "" && /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Markdown, { text, api, cwd })
         ] })
       ] });
     }
@@ -24090,9 +24202,9 @@ window.__ModuleLoader__.load({
       const summary = Array.isArray(item.summary) ? item.summary.filter((part) => part.trim() !== "") : [];
       const body = summary.join("\n\n");
       if (body === "") return null;
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("details", { className: "dsh-codex-reasoning", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("summary", { children: t("item.reasoning") }),
-        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-reasoning-body", children: body })
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("details", { className: "dsh-codex-reasoning", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("summary", { children: t("item.reasoning") }),
+        /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-reasoning-body", children: body })
       ] });
     }
     function CommandCard({ item }) {
@@ -24100,18 +24212,18 @@ window.__ModuleLoader__.load({
       const output = typeof item.aggregatedOutput === "string" ? item.aggregatedOutput : "";
       const status = typeof item.status === "string" ? item.status : "";
       const command = item.command ?? "";
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
         Disclosure,
         {
           title: t("item.command"),
-          meta: /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-block-title", children: shorten(command, 120) }),
-            status !== "" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: status }) : null,
-            typeof item.exitCode === "number" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: t("item.exitCode", { code: item.exitCode }) }) : null
+          meta: /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(import_jsx_runtime33.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: "dsh-codex-block-title", children: shorten(command, 120) }),
+            status !== "" ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { children: status }) : null,
+            typeof item.exitCode === "number" ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { children: t("item.exitCode", { code: item.exitCode }) }) : null
           ] }),
-          body: /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-command", children: command }),
-            output !== "" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("pre", { className: "dsh-codex-pre", children: output }) : null
+          body: /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(import_jsx_runtime33.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-command", children: command }),
+            output !== "" ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("pre", { className: "dsh-codex-pre", children: output }) : null
           ] })
         }
       );
@@ -24119,14 +24231,14 @@ window.__ModuleLoader__.load({
     function FileCard({ item }) {
       const t = useT();
       const changes = Array.isArray(item.changes) ? item.changes : [];
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
         Disclosure,
         {
           title: t("item.files"),
-          meta: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: t("item.files.changed", { count: changes.length }) }),
-          body: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-files", children: changes.map((change, index) => /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("details", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("summary", { className: "dsh-codex-file-path", children: change.path }),
-            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("pre", { className: "dsh-codex-pre", children: change.diff })
+          meta: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { children: t("item.files.changed", { count: changes.length }) }),
+          body: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-files", children: changes.map((change, index) => /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("details", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("summary", { className: "dsh-codex-file-path", children: change.path }),
+            /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("pre", { className: "dsh-codex-pre", children: change.diff })
           ] }, `${change.path}-${index}`)) })
         }
       );
@@ -24134,15 +24246,15 @@ window.__ModuleLoader__.load({
     function ToolCard({ item }) {
       const t = useT();
       const title = item.type === "mcpToolCall" ? `${item.server ?? "mcp"} / ${item.tool ?? ""}` : item.type === "dynamicToolCall" ? `tool / ${item.tool ?? ""}` : item.type;
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(
         Disclosure,
         {
           title: t("item.tool"),
-          meta: /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-block-title", children: title }),
-            typeof item.status === "string" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: item.status }) : null
+          meta: /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(import_jsx_runtime33.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: "dsh-codex-block-title", children: title }),
+            typeof item.status === "string" ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { children: item.status }) : null
           ] }),
-          body: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Json, { value: { arguments: item.arguments, result: item.result, error: item.error } })
+          body: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Json, { value: { arguments: item.arguments, result: item.result, error: item.error } })
         }
       );
     }
@@ -24156,39 +24268,39 @@ window.__ModuleLoader__.load({
       if (text.trim() === "" || text === "{}") return null;
       if (text.length > 4e3) text = `${text.slice(0, 4e3)}
     …`;
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("pre", { className: "dsh-codex-pre", children: text });
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("pre", { className: "dsh-codex-pre", children: text });
     }
     function Disclosure({ title, meta, body }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("details", { className: "dsh-codex-block", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("summary", { className: "dsh-codex-block-head", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-caret" }),
-          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: title }),
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("details", { className: "dsh-codex-block", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("summary", { className: "dsh-codex-block-head", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: "dsh-codex-caret" }),
+          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { children: title }),
           meta
         ] }),
-        body !== null ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-block-body", children: body }) : null
+        body !== null ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-block-body", children: body }) : null
       ] });
     }
     function Block({ title, meta, body }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("section", { className: "dsh-codex-block", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("header", { className: "dsh-codex-block-head", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: title }),
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("section", { className: "dsh-codex-block", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("header", { className: "dsh-codex-block-head", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { children: title }),
           meta
         ] }),
-        body !== null ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-block-body", children: body }) : null
+        body !== null ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-block-body", children: body }) : null
       ] });
     }
     function Divider({ label }) {
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-divider", children: label });
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-divider", children: label });
     }
     var imageCache = /* @__PURE__ */ new Map();
     function ImageView({ item, api, hideCaption = false }) {
       const t = useT();
       const path = typeof item.path === "string" ? item.path : "";
-      const holderRef = React25.useRef(null);
-      const [visible, setVisible] = React25.useState(false);
-      const [src, setSrc] = React25.useState(path === "" ? null : imageCache.get(path) ?? null);
-      const [failed, setFailed] = React25.useState(false);
-      React25.useEffect(() => {
+      const holderRef = React26.useRef(null);
+      const [visible, setVisible] = React26.useState(false);
+      const [src, setSrc] = React26.useState(path === "" ? null : imageCache.get(path) ?? null);
+      const [failed, setFailed] = React26.useState(false);
+      React26.useEffect(() => {
         if (path === "") return void 0;
         const cached = imageCache.get(path);
         if (cached !== void 0) {
@@ -24212,7 +24324,7 @@ window.__ModuleLoader__.load({
         observer.observe(element);
         return () => observer.disconnect();
       }, [path]);
-      React25.useEffect(() => {
+      React26.useEffect(() => {
         if (!visible || path === "" || src !== null) return void 0;
         let alive = true;
         setFailed(false);
@@ -24227,9 +24339,9 @@ window.__ModuleLoader__.load({
         };
       }, [api, path, visible, src]);
       if (path === "") return null;
-      return /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("figure", { className: "dsh-codex-image", ref: holderRef, children: [
-        src !== null ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ImageViewer, { src, alt: basenameOf(path) }) : /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-image-placeholder", children: failed ? t("item.imageFailed") : t("item.imageLoading") }),
-        !hideCaption && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("figcaption", { children: basenameOf(path) })
+      return /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("figure", { className: "dsh-codex-image", ref: holderRef, children: [
+        src !== null ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ImageViewer, { src, alt: basenameOf(path) }) : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-image-placeholder", children: failed ? t("item.imageFailed") : t("item.imageLoading") }),
+        !hideCaption && /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("figcaption", { children: basenameOf(path) })
       ] });
     }
     function basenameOf(value) {
@@ -24242,9 +24354,9 @@ window.__ModuleLoader__.load({
       return single.length > max ? `${single.slice(0, max)}…` : single;
     }
 
-    // src/client/page/ToolGroup.tsx
-    var React26 = __toESM(require("react"), 1);
-    var import_jsx_runtime33 = require("react/jsx-runtime");
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ToolGroup.tsx
+    var React27 = __toESM(require("react"), 1);
+    var import_jsx_runtime34 = require("react/jsx-runtime");
     var ACTIVITY_TYPES = /* @__PURE__ */ new Set(["commandExecution", "fileChange", "mcpToolCall", "dynamicToolCall", "webSearch"]);
     function isActivity(item) {
       return ACTIVITY_TYPES.has(item.type);
@@ -24255,7 +24367,7 @@ window.__ModuleLoader__.load({
         return summary.every((part) => typeof part !== "string" || part.trim() === "");
       }
       if (item.type === "agentMessage") {
-        return typeof item.text !== "string" || item.text.trim() === "";
+        return !item.questions?.length && (typeof item.text !== "string" || item.text.trim() === "");
       }
       return false;
     }
@@ -24284,10 +24396,10 @@ window.__ModuleLoader__.load({
     }
     function ToolGroup({ items, api }) {
       const t = useT();
-      const [open, setOpen] = React26.useState(false);
+      const [open, setOpen] = React27.useState(false);
       const summary = summarize(items, t);
-      return /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)("div", { className: "dsh-codex-tool-group", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(
+      return /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-tool-group", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)(
           "button",
           {
             type: "button",
@@ -24295,12 +24407,12 @@ window.__ModuleLoader__.load({
             "aria-expanded": open,
             onClick: () => setOpen(!open),
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: `dsh-codex-tool-group-chevron ${open ? "open" : ""}`, children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Icon2, { name: "chevronDown", size: 16 }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("span", { className: "dsh-codex-tool-group-title", children: summary })
+              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("span", { className: `dsh-codex-tool-group-chevron ${open ? "open" : ""}`, children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "chevronDown", size: 16 }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("span", { className: "dsh-codex-tool-group-title", children: summary })
             ]
           }
         ),
-        open ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", { className: "dsh-codex-tool-group-body", children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ItemCard, { item, api }, item.id)) }) : null
+        open ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-tool-group-body", children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ItemCard, { item, api }, item.id)) }) : null
       ] });
     }
     function summarize(items, t) {
@@ -24363,7 +24475,7 @@ window.__ModuleLoader__.load({
       return null;
     }
 
-    // src/client/running-time.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/running-time.ts
     function runningStartedAt(turn, observedAt, now) {
       const valid = (value) => typeof value === "number" && Number.isFinite(value) && value > 0 && value <= now;
       if (valid(turn?.startedAt)) {
@@ -24380,8 +24492,8 @@ window.__ModuleLoader__.load({
       return valid(observedAt) ? observedAt : now;
     }
 
-    // src/client/page/ThreadView.tsx
-    var import_jsx_runtime34 = require("react/jsx-runtime");
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ThreadView.tsx
+    var import_jsx_runtime35 = require("react/jsx-runtime");
     function ThreadView({
       api,
       provider,
@@ -24411,14 +24523,14 @@ window.__ModuleLoader__.load({
       actions
     }) {
       const t = useT();
-      const messagesRef = React27.useRef(null);
-      const messageContentRef = React27.useRef(null);
+      const messagesRef = React28.useRef(null);
+      const messageContentRef = React28.useRef(null);
       const threadId = detail?.thread.id ?? null;
-      const [model, setModel] = React27.useState("");
-      const [effort, setEffort] = React27.useState("");
-      const [permission, setPermission] = React27.useState("ask");
-      const settingEvents = React27.useRef({});
-      const [, refreshSettingEvents] = React27.useReducer((value) => value + 1, 0);
+      const [model, setModel] = React28.useState("");
+      const [effort, setEffort] = React28.useState("");
+      const [permission, setPermission] = React28.useState("ask");
+      const settingEvents = React28.useRef({});
+      const [, refreshSettingEvents] = React28.useReducer((value) => value + 1, 0);
       const eventsFor = (id) => {
         if (settingEvents.current[id]) return settingEvents.current[id];
         try {
@@ -24443,8 +24555,8 @@ window.__ModuleLoader__.load({
         }
         refreshSettingEvents();
       };
-      const [, setTick] = React27.useState(0);
-      const runningSinceRef = React27.useRef({ key: "", time: Date.now() });
+      const [, setTick] = React28.useState(0);
+      const runningSinceRef = React28.useRef({ key: "", time: Date.now() });
       const runningKey = threadId && activeTurnId ? `dsh-codex-running:${threadId}` : "";
       const runningIdentity = runningKey && activeTurnId ? `${runningKey}:${activeTurnId}` : "";
       if (runningSinceRef.current.key !== runningIdentity) {
@@ -24456,7 +24568,7 @@ window.__ModuleLoader__.load({
         }
         runningSinceRef.current = { key: runningIdentity, time };
       }
-      React27.useEffect(() => {
+      React28.useEffect(() => {
         if (activeTurnId === null) return void 0;
         if (runningKey) try {
           sessionStorage.setItem(runningKey, JSON.stringify({ turnId: activeTurnId, time: runningSinceRef.current.time }));
@@ -24465,7 +24577,7 @@ window.__ModuleLoader__.load({
         const timer = window.setInterval(() => setTick((value) => value + 1), 1e3);
         return () => window.clearInterval(timer);
       }, [activeTurnId, runningKey]);
-      React27.useLayoutEffect(() => {
+      React28.useLayoutEffect(() => {
         if (detail === null) return;
         let pending3 = null;
         try {
@@ -24476,7 +24588,7 @@ window.__ModuleLoader__.load({
         setModel(pending3?.model ?? detail.thread.model ?? (provider === "opencode-go" ? "deepseek-v4.1-flash" : ""));
         setEffort(pending3?.effort ?? detail.thread.reasoningEffort ?? "");
       }, [threadId]);
-      React27.useLayoutEffect(() => {
+      React28.useLayoutEffect(() => {
         if (detail === null) return;
         try {
           const saved = threadId === null ? null : window.localStorage.getItem(`dsh-codex-permission-${threadId}`);
@@ -24495,7 +24607,7 @@ window.__ModuleLoader__.load({
         } catch {
         }
       };
-      const changePermission = React27.useCallback(
+      const changePermission = React28.useCallback(
         (mode) => {
           if (mode !== permission) recordSetting(`权限已切换为${t("permission." + mode)}（下一轮生效）`);
           setPermission(mode);
@@ -24507,18 +24619,18 @@ window.__ModuleLoader__.load({
         },
         [threadId, permission, detail, t]
       );
-      const atBottomRef = React27.useRef(true);
-      const [showJump, setShowJump] = React27.useState(false);
-      const pendingPrependRef = React27.useRef(null);
+      const atBottomRef = React28.useRef(true);
+      const [showJump, setShowJump] = React28.useState(false);
+      const pendingPrependRef = React28.useRef(null);
       const BOTTOM_THRESHOLD = 32;
-      React27.useLayoutEffect(() => {
+      React28.useLayoutEffect(() => {
         const element = messagesRef.current;
         if (element === null) return;
         atBottomRef.current = true;
         setShowJump(false);
         element.scrollTop = element.scrollHeight;
       }, [threadId, loading]);
-      React27.useLayoutEffect(() => {
+      React28.useLayoutEffect(() => {
         const element = messagesRef.current;
         if (element === null) return;
         const pending3 = pendingPrependRef.current;
@@ -24530,7 +24642,7 @@ window.__ModuleLoader__.load({
         if (!atBottomRef.current) return;
         element.scrollTop = element.scrollHeight;
       }, [detail]);
-      React27.useLayoutEffect(() => {
+      React28.useLayoutEffect(() => {
         const element = messagesRef.current;
         const content = messageContentRef.current;
         if (!element || !content) return;
@@ -24548,16 +24660,16 @@ window.__ModuleLoader__.load({
           content.removeEventListener("load", follow, true);
         };
       }, [threadId, loading]);
-      React27.useEffect(() => {
+      React28.useEffect(() => {
         if (!loadingOlder) pendingPrependRef.current = null;
       }, [loadingOlder]);
-      const triggerOlder = React27.useCallback(() => {
+      const triggerOlder = React28.useCallback(() => {
         const element = messagesRef.current;
         if (element === null || !hasOlder || loadingOlder) return;
         pendingPrependRef.current = { height: element.scrollHeight, top: element.scrollTop };
         void onLoadOlder();
       }, [hasOlder, loadingOlder, onLoadOlder]);
-      const onMessagesScroll = React27.useCallback(() => {
+      const onMessagesScroll = React28.useCallback(() => {
         const element = messagesRef.current;
         if (element === null) return;
         const atBottom = element.scrollHeight - element.scrollTop - element.clientHeight <= BOTTOM_THRESHOLD;
@@ -24565,7 +24677,7 @@ window.__ModuleLoader__.load({
         setShowJump((previous) => previous === !atBottom ? previous : !atBottom);
         if (element.scrollTop < 240) triggerOlder();
       }, [triggerOlder]);
-      const jumpToBottom = React27.useCallback(() => {
+      const jumpToBottom = React28.useCallback(() => {
         const element = messagesRef.current;
         if (element === null) return;
         atBottomRef.current = true;
@@ -24573,13 +24685,13 @@ window.__ModuleLoader__.load({
         element.scrollTo({ top: element.scrollHeight, behavior: "smooth" });
       }, []);
       if (selectedId === null) {
-        return /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-empty", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("strong", { children: t("thread.select") }),
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("small", { children: t("thread.selectHint") })
+        return /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-empty", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("strong", { children: t("thread.select") }),
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("small", { children: t("thread.selectHint") })
         ] });
       }
       if (loading && detail === null) {
-        return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-empty", children: t("thread.loading") });
+        return /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-empty", children: t("thread.loading") });
       }
       if (detail === null) return null;
       const thread = detail.thread;
@@ -24602,52 +24714,58 @@ window.__ModuleLoader__.load({
       };
       const items = orderedTurns.flatMap((turn) => turn.items ?? []);
       const hasItems = items.length > 0;
+      const lastUserIndex = items.reduce((last, item, index) => item.type === "userMessage" ? index : last, -1);
+      const openQuestionIds = new Set(items.slice(lastUserIndex + 1).filter((item) => item.type === "agentMessage" && item.questions?.length).map((item) => item.id));
+      const answerQuestion = async (text) => {
+        if (activeTurnId !== null) await api("turns/steer", { threadId: thread.id, turnId: activeTurnId, text });
+        else await onSend(text, { model, effort, permission });
+      };
       const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null;
       const now = Date.now();
       const runningMs = Math.max(0, Math.floor((now - runningStartedAt(activeTurn, runningSinceRef.current.time, now)) / 1e3) * 1e3);
-      return /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)(import_jsx_runtime34.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-thread-header", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-thread-header-top", hidden: true, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-thread-title", title: thread.id, children: threadTitle(thread) }),
+      return /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)(import_jsx_runtime35.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-thread-header", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-thread-header-top", hidden: true, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-thread-title", title: thread.id, children: threadTitle(thread) }),
             actions
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-chips", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "status", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-chips", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "status", children: [
               t("thread.status"),
               ": ",
               t(statusKey(thread.status))
             ] }),
-            thread.cwd ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "cwd", title: thread.cwd, children: [
+            thread.cwd ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "cwd", title: thread.cwd, children: [
               t("thread.cwd"),
               ": ",
-              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("code", { children: basename(thread.cwd) })
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("code", { children: basename(thread.cwd) })
             ] }) : null,
-            thread.model ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "model", children: [
+            thread.model ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "model", children: [
               t("thread.model"),
               ": ",
               thread.model
             ] }) : null,
-            thread.reasoningEffort ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "effort", children: [
+            thread.reasoningEffort ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "effort", children: [
               t("thread.effort"),
               ": ",
               thread.reasoningEffort
             ] }) : null,
-            typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "branch", children: [
+            typeof thread.gitInfo?.branch === "string" && thread.gitInfo.branch !== "" ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "branch", children: [
               t("thread.git"),
               ": ",
               thread.gitInfo.branch
             ] }) : null,
-            thread.updatedAt ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "updated", children: [
+            thread.updatedAt ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("span", { className: "dsh-codex-chip", "data-meta": "updated", children: [
               t("thread.updated"),
               ": ",
               relativeTime(thread.updatedAt, t)
             ] }) : null,
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("span", { className: "dsh-codex-chip", children: hasOlder ? t("thread.messagesPlus", { count: items.length }) : t("thread.messages", { count: items.length }) })
+            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { className: "dsh-codex-chip", children: hasOlder ? t("thread.messagesPlus", { count: items.length }) : t("thread.messages", { count: items.length }) })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-messages-wrap", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll, children: /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { ref: messageContentRef, className: "dsh-codex-message-content", children: [
-            hasOlder && hasItems ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-messages-wrap", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-messages", ref: messagesRef, onScroll: onMessagesScroll, children: /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { ref: messageContentRef, className: "dsh-codex-message-content", children: [
+            hasOlder && hasItems ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
               "button",
               {
                 type: "button",
@@ -24657,16 +24775,16 @@ window.__ModuleLoader__.load({
                 children: loadingOlder ? t("thread.loadingOlder") : t("thread.loadOlder")
               }
             ) : null,
-            changes.filter((event) => event.turnId === null).map((event) => /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ItemCard, { item: { id: event.id, type: "localSettingChange", text: event.text }, api }, event.id)),
-            !hasItems && changes.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-empty", children: t("thread.noMessages") }),
-            orderedTurns.map((turn) => /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)(React27.Fragment, { children: [
+            changes.filter((event) => event.turnId === null).map((event) => /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(ItemCard, { item: { id: event.id, type: "localSettingChange", text: event.text }, api }, event.id)),
+            !hasItems && changes.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-empty", children: t("thread.noMessages") }),
+            orderedTurns.map((turn) => /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)(React28.Fragment, { children: [
               groupActivity(insertChanges(turn).filter((item) => provider !== "openai" || item.type !== "reasoning")).map(
-                (entry) => entry.kind === "group" ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ToolGroup, { items: entry.items, api }, entry.key) : /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ItemCard, { item: entry.item, api, cwd: detail.thread.cwd ?? "" }, entry.item.id)
+                (entry) => entry.kind === "group" ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(ToolGroup, { items: entry.items, api }, entry.key) : /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(ItemCard, { item: entry.item, api, cwd: detail.thread.cwd ?? "", onAnswer: thread.id === selectedId && openQuestionIds.has(entry.item.id) ? answerQuestion : void 0 }, thread.id + ":" + entry.item.id)
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(TurnFooter, { turn })
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(TurnFooter, { turn })
             ] }, turn.id))
           ] }) }),
-          showJump ? /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
+          showJump ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
             "button",
             {
               type: "button",
@@ -24674,17 +24792,17 @@ window.__ModuleLoader__.load({
               "aria-label": t("thread.jumpToBottom"),
               title: t("thread.jumpToBottom"),
               onClick: jumpToBottom,
-              children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ChevronDownGlyph, {})
+              children: /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(ChevronDownGlyph, {})
             }
           ) : null
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ApprovalStack, { approvals: pending2, onRespond }),
-        activeTurnId !== null ? /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-running-bar", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "loader", size: 16, className: "dsh-codex-running-spinner" }),
-          /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("span", { children: t("thread.runningElapsed", { duration: formatDuration(runningMs, t) }) })
+        /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(ApprovalStack, { approvals: pending2, onRespond }),
+        activeTurnId !== null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-running-bar", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "loader", size: 16, className: "dsh-codex-running-spinner" }),
+          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { children: t("thread.runningElapsed", { duration: formatDuration(runningMs, t) }) })
         ] }) : null,
-        threadId === selectedId && activeTurnId !== null && permissionFromSession != null && permission !== permissionFromSession && /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-permission-pending", role: "status", children: "权限更改将在下一轮生效；当前回合和待处理的审批仍使用原权限。" }),
-        /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
+        threadId === selectedId && activeTurnId !== null && permissionFromSession != null && permission !== permissionFromSession && /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-permission-pending", role: "status", children: "权限更改将在下一轮生效；当前回合和待处理的审批仍使用原权限。" }),
+        /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
           Composer,
           {
             threadId,
@@ -24757,30 +24875,30 @@ window.__ModuleLoader__.load({
       if (duration === "" && clock === "") return null;
       const label = duration === "" ? "" : turn.status === "interrupted" ? t("turn.interrupted", { duration }) : turn.status === "failed" ? t("turn.failed", { duration }) : t("turn.workedFor", { duration });
       const text = label === "" ? clock : clock === "" ? label : `${label} · ${clock}`;
-      return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-turn-footer", children: text });
+      return /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-turn-footer", children: text });
     }
     function ChevronDownGlyph() {
-      return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "chevronDown", size: 16 });
+      return /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "chevronDown", size: 16 });
     }
 
-    // src/client/page/ThreadActions.tsx
-    var React28 = __toESM(require("react"), 1);
-    var import_jsx_runtime35 = require("react/jsx-runtime");
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ThreadActions.tsx
+    var React29 = __toESM(require("react"), 1);
+    var import_jsx_runtime36 = require("react/jsx-runtime");
     function ThreadActions({ api, thread, onRenamed, onArchived, onForked, onDeleted }) {
       const t = useT();
-      const [menu, setMenu] = React28.useState(false);
-      const anchor = React28.useRef(null);
-      const menuRef = React28.useRef(null);
-      const previousDialog = React28.useRef(null);
-      const [dialog, setDialog] = React28.useState(null);
-      const [name, setName] = React28.useState(thread.name ?? "");
-      const [busy, setBusy] = React28.useState(false);
-      const [error, setError] = React28.useState(null);
-      React28.useEffect(() => {
+      const [menu, setMenu] = React29.useState(false);
+      const anchor = React29.useRef(null);
+      const menuRef = React29.useRef(null);
+      const previousDialog = React29.useRef(null);
+      const [dialog, setDialog] = React29.useState(null);
+      const [name, setName] = React29.useState(thread.name ?? "");
+      const [busy, setBusy] = React29.useState(false);
+      const [error, setError] = React29.useState(null);
+      React29.useEffect(() => {
         if (previousDialog.current && !dialog) anchor.current?.focus();
         previousDialog.current = dialog;
       }, [dialog]);
-      React28.useEffect(() => {
+      React29.useEffect(() => {
         if (menu) menuRef.current?.querySelector("button")?.focus();
         const escape = (event) => {
           if (event.key !== "Escape") return;
@@ -24846,11 +24964,11 @@ window.__ModuleLoader__.load({
         onDeleted();
         setDialog(null);
       });
-      return /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-thread-actions", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { ref: anchor, type: "button", className: "dsh-codex-icon-button", "aria-label": t("actions.menu"), title: t("actions.menu"), "aria-haspopup": "menu", "aria-expanded": menu, onClick: () => setMenu((value) => !value), children: /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "more" }) }),
-        menu && /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)(import_jsx_runtime35.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-action-backdrop", onPointerDown: () => setMenu(false) }),
-          /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { ref: menuRef, className: "dsh-codex-action-menu", role: "menu", "aria-label": t("actions.menu"), onKeyDown: (event) => {
+      return /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-thread-actions", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { ref: anchor, type: "button", className: "dsh-codex-icon-button", "aria-label": t("actions.menu"), title: t("actions.menu"), "aria-haspopup": "menu", "aria-expanded": menu, onClick: () => setMenu((value) => !value), children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "more" }) }),
+        menu && /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(import_jsx_runtime36.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-action-backdrop", onPointerDown: () => setMenu(false) }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { ref: menuRef, className: "dsh-codex-action-menu", role: "menu", "aria-label": t("actions.menu"), onKeyDown: (event) => {
             const items = [...event.currentTarget.querySelectorAll("button:not(:disabled)")];
             const index = items.indexOf(document.activeElement);
             if (event.key === "ArrowDown" || event.key === "ArrowUp") {
@@ -24867,51 +24985,51 @@ window.__ModuleLoader__.load({
             }
             if (event.key === "Tab") setMenu(false);
           }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
               setMenu(false);
               openRename();
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "pencil" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "pencil" }),
               t("actions.rename")
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
               setMenu(false);
               void archive();
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "archive" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "archive" }),
               t("actions.archive")
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
               setMenu(false);
               void fork();
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "fork" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "fork" }),
               t("actions.fork")
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", role: "menuitem", disabled: busy, onClick: () => {
               setMenu(false);
               void exportMarkdown();
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "download" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "download" }),
               t("actions.export")
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-menu-divider" }),
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("button", { type: "button", role: "menuitem", className: "danger", disabled: busy, onClick: () => {
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-menu-divider" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("button", { type: "button", role: "menuitem", className: "danger", disabled: busy, onClick: () => {
               setMenu(false);
               setError(null);
               setDialog("delete");
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(Icon2, { name: "trash" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "trash" }),
               t("actions.delete")
             ] })
           ] })
         ] }),
-        error !== null && dialog === null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("span", { className: "dsh-codex-action-error", children: error }) : null,
-        dialog === "rename" ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
+        error !== null && dialog === null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-action-error", children: error }) : null,
+        dialog === "rename" ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
           if (event.target === event.currentTarget && !busy) setDialog(null);
-        }, children: /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("header", { className: "dsh-codex-dialog-head", children: t("actions.renameTitle") }),
-          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("header", { className: "dsh-codex-dialog-head", children: t("actions.renameTitle") }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             "input",
             {
               className: "dsh-codex-search",
@@ -24923,42 +25041,42 @@ window.__ModuleLoader__.load({
               }
             }
           ),
-          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-dialog-error", children: error }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null), children: t("actions.cancel") }),
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void saveRename(), children: t("actions.save") })
+          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-dialog-error", children: error }) : null,
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null), children: t("actions.cancel") }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: () => void saveRename(), children: t("actions.save") })
           ] })
         ] }) }) : null,
-        dialog === "delete" ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
+        dialog === "delete" ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-dialog-backdrop", onMouseDown: (event) => {
           if (event.target === event.currentTarget && !busy) setDialog(null);
-        }, children: /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("header", { className: "dsh-codex-dialog-head", children: t("actions.deleteTitle") }),
-          /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-approval-meta", children: t("actions.deleteBody", { name: threadTitle(thread) }) }),
-          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { className: "dsh-codex-dialog-error", children: error }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null), children: t("actions.cancel") }),
-            /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("button", { type: "button", className: "dsh-codex-button danger", disabled: busy, onClick: () => void remove(), children: t("actions.confirmDelete") })
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-dialog", role: "dialog", "aria-modal": "true", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("header", { className: "dsh-codex-dialog-head", children: t("actions.deleteTitle") }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-approval-meta", children: t("actions.deleteBody", { name: threadTitle(thread) }) }),
+          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-dialog-error", children: error }) : null,
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-dialog-actions", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setDialog(null), children: t("actions.cancel") }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button danger", disabled: busy, onClick: () => void remove(), children: t("actions.confirmDelete") })
           ] })
         ] }) }) : null
       ] });
     }
 
-    // src/client/page/VersionsDialog.tsx
-    var React29 = __toESM(require("react"), 1);
-    var import_jsx_runtime36 = require("react/jsx-runtime");
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/VersionsDialog.tsx
+    var React30 = __toESM(require("react"), 1);
+    var import_jsx_runtime37 = require("react/jsx-runtime");
     function VersionsDialog({ open, onClose, api }) {
       const t = useT();
-      const [check, setCheck] = React29.useState(null);
-      const [loading, setLoading] = React29.useState(false);
-      const [error, setError] = React29.useState(null);
-      const [activeTurns, setActiveTurns] = React29.useState([]);
-      const [job, setJob] = React29.useState(null);
-      const [rollbackVersion, setRollbackVersion] = React29.useState("");
-      const [pendingDaemon, setPendingDaemon] = React29.useState(null);
-      const [lastAction, setLastAction] = React29.useState(null);
-      const pollRef = React29.useRef(null);
-      const logRef = React29.useRef(null);
-      const load = React29.useCallback(
+      const [check, setCheck] = React30.useState(null);
+      const [loading, setLoading] = React30.useState(false);
+      const [error, setError] = React30.useState(null);
+      const [activeTurns, setActiveTurns] = React30.useState([]);
+      const [job, setJob] = React30.useState(null);
+      const [rollbackVersion, setRollbackVersion] = React30.useState("");
+      const [pendingDaemon, setPendingDaemon] = React30.useState(null);
+      const [lastAction, setLastAction] = React30.useState(null);
+      const pollRef = React30.useRef(null);
+      const logRef = React30.useRef(null);
+      const load = React30.useCallback(
         async (refresh = false) => {
           setLoading(true);
           setError(null);
@@ -24973,16 +25091,16 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         if (open) void load(false);
       }, [open, load]);
-      React29.useEffect(
+      React30.useEffect(
         () => () => {
           if (pollRef.current !== null) window.clearInterval(pollRef.current);
         },
         []
       );
-      const pollJob = React29.useCallback(
+      const pollJob = React30.useCallback(
         (jobId) => {
           if (pollRef.current !== null) window.clearInterval(pollRef.current);
           pollRef.current = window.setInterval(async () => {
@@ -25002,7 +25120,7 @@ window.__ModuleLoader__.load({
         },
         [api, load]
       );
-      const startJob = React29.useCallback(
+      const startJob = React30.useCallback(
         async (endpoint, payload) => {
           setError(null);
           setActiveTurns([]);
@@ -25021,7 +25139,7 @@ window.__ModuleLoader__.load({
         },
         [api, pollJob]
       );
-      React29.useEffect(() => {
+      React30.useEffect(() => {
         const element = logRef.current;
         if (element !== null) element.scrollTop = element.scrollHeight;
       }, [job?.lines.length]);
@@ -25029,21 +25147,21 @@ window.__ModuleLoader__.load({
       const doctor = check?.doctor ?? null;
       const problems = doctor?.checks.filter((entry) => entry.status !== "ok") ?? [];
       const daemonVersion = check?.daemon?.appServerVersion ?? check?.daemon?.cliVersion ?? null;
-      return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
         "div",
         {
           className: "dsh-codex-dialog-backdrop",
           onMouseDown: (event) => {
             if (event.target === event.currentTarget) onClose();
           },
-          children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-dialog dsh-codex-versions", role: "dialog", "aria-modal": "true", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("header", { className: "dsh-codex-dialog-head", children: t("versions.title") }),
-            loading && check === null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-loading", children: t("versions.checking") }) : null,
-            error !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-dialog-error", children: [
+          children: /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-dialog dsh-codex-versions", role: "dialog", "aria-modal": "true", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("header", { className: "dsh-codex-dialog-head", children: t("versions.title") }),
+            loading && check === null ? /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("div", { className: "dsh-codex-loading", children: t("versions.checking") }) : null,
+            error !== null ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-dialog-error", children: [
               error,
-              activeTurns.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
+              activeTurns.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-approval-meta", children: [
                 t("versions.activeTurns", { count: activeTurns.length }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
                   "button",
                   {
                     type: "button",
@@ -25059,20 +25177,20 @@ window.__ModuleLoader__.load({
                 )
               ] }) : null
             ] }) : null,
-            check !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(import_jsx_runtime36.Fragment, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-version-grid", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { children: t("versions.cli") }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("strong", { children: check.cli.version ?? "—" }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { children: t("versions.daemon") }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("strong", { children: daemonVersion ?? "—" }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { children: t("versions.latest") }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("strong", { children: check.latest?.version ?? "—" }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { children: t("versions.channel") }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("strong", { title: check.install?.context ?? void 0, children: installLabel(check.install?.context) })
+            check !== null ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)(import_jsx_runtime37.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-version-grid", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { children: t("versions.cli") }),
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("strong", { children: check.cli.version ?? "—" }),
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { children: t("versions.daemon") }),
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("strong", { children: daemonVersion ?? "—" }),
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { children: t("versions.latest") }),
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("strong", { children: check.latest?.version ?? "—" }),
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { children: t("versions.channel") }),
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("strong", { title: check.install?.context ?? void 0, children: installLabel(check.install?.context) })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-version-actions", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: loading, onClick: () => void load(true), children: loading ? t("versions.checking") : t("versions.check") }),
-                check.updateAvailable ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(
+              /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-version-actions", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: loading, onClick: () => void load(true), children: loading ? t("versions.checking") : t("versions.check") }),
+                check.updateAvailable ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)(
                   "button",
                   {
                     type: "button",
@@ -25082,15 +25200,15 @@ window.__ModuleLoader__.load({
                     children: [
                       t("versions.update"),
                       " ",
-                      /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "arrowRight", size: 14 }),
+                      /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(Icon2, { name: "arrowRight", size: 14 }),
                       " ",
                       check.latest?.version
                     ]
                   }
-                ) : /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-hint", children: t("versions.upToDate") })
+                ) : /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-hint", children: t("versions.upToDate") })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-version-actions", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-version-actions", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
                   "input",
                   {
                     className: "dsh-codex-search",
@@ -25100,7 +25218,7 @@ window.__ModuleLoader__.load({
                     onChange: (event) => setRollbackVersion(event.target.value)
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
                   "button",
                   {
                     type: "button",
@@ -25111,9 +25229,9 @@ window.__ModuleLoader__.load({
                   }
                 )
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-version-daemon", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-section-title", style: { padding: 0 }, children: t("versions.daemonActions") }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-version-daemon", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-section-title", style: { padding: 0 }, children: t("versions.daemonActions") }),
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
                   "button",
                   {
                     type: "button",
@@ -25123,7 +25241,7 @@ window.__ModuleLoader__.load({
                     children: t("versions.restart")
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
                   "button",
                   {
                     type: "button",
@@ -25133,7 +25251,7 @@ window.__ModuleLoader__.load({
                     children: t("versions.daemonUpdate")
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
                   "button",
                   {
                     type: "button",
@@ -25144,11 +25262,11 @@ window.__ModuleLoader__.load({
                   }
                 )
               ] }),
-              pendingDaemon !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-approval", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-approval-meta", children: pendingDaemon === "restart" ? t("versions.confirmRestart") : pendingDaemon === "update" ? t("versions.confirmUpdate") : t("versions.confirmStop") }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-approval-actions", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: () => setPendingDaemon(null), children: t("versions.cancel") }),
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+              pendingDaemon !== null ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-approval", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("div", { className: "dsh-codex-approval-meta", children: pendingDaemon === "restart" ? t("versions.confirmRestart") : pendingDaemon === "update" ? t("versions.confirmUpdate") : t("versions.confirmStop") }),
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-approval-actions", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: () => setPendingDaemon(null), children: t("versions.cancel") }),
+                  /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
                     "button",
                     {
                       type: "button",
@@ -25163,30 +25281,30 @@ window.__ModuleLoader__.load({
                   )
                 ] })
               ] }) : null,
-              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-version-doctor", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-section-title", style: { padding: 0 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-version-doctor", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-section-title", style: { padding: 0 }, children: [
                   t("versions.doctor"),
-                  doctor !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 }, children: doctor.overallStatus === "ok" ? t("versions.doctorOk") : doctor.overallStatus === "warning" ? t("versions.doctorWarn") : t("versions.doctorError") }) : null
+                  doctor !== null ? /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 }, children: doctor.overallStatus === "ok" ? t("versions.doctorOk") : doctor.overallStatus === "warning" ? t("versions.doctorWarn") : t("versions.doctorError") }) : null
                 ] }),
-                problems.slice(0, 8).map((entry) => /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-doctor-row", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: `dsh-codex-dot ${entry.status === "error" ? "error" : "warn"}` }),
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-doctor-id", children: entry.id }),
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-doctor-summary", children: entry.summary })
+                problems.slice(0, 8).map((entry) => /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-doctor-row", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: `dsh-codex-dot ${entry.status === "error" ? "error" : "warn"}` }),
+                  /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-doctor-id", children: entry.id }),
+                  /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-doctor-summary", children: entry.summary })
                 ] }, entry.id)),
-                doctor !== null && problems.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-hint", children: [
+                doctor !== null && problems.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-hint", children: [
                   doctor.checks.length,
                   " checks ok"
                 ] }) : null
               ] }),
-              job !== null ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-job", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-section-title", style: { padding: 0 }, children: [
+              job !== null ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-job", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-section-title", style: { padding: 0 }, children: [
                   t("versions.job"),
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 }, children: job.status === "running" ? t("versions.running") : job.status === "done" ? t("versions.done") : t("versions.failed", { code: job.exitCode ?? "?" }) })
+                  /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-approval-meta", style: { marginLeft: 8 }, children: job.status === "running" ? t("versions.running") : job.status === "done" ? t("versions.done") : t("versions.failed", { code: job.exitCode ?? "?" }) })
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("pre", { className: "dsh-codex-pre dsh-codex-job-log", ref: logRef, children: job.lines.join("\n") })
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("pre", { className: "dsh-codex-pre dsh-codex-job-log", ref: logRef, children: job.lines.join("\n") })
               ] }) : null
             ] }) : null,
-            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "dsh-codex-dialog-actions", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: onClose, children: t("versions.close") }) })
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("div", { className: "dsh-codex-dialog-actions", children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", className: "dsh-codex-button", onClick: onClose, children: t("versions.close") }) })
           ] })
         }
       );
@@ -25199,8 +25317,8 @@ window.__ModuleLoader__.load({
       return cause instanceof Error ? cause.message : String(cause);
     }
 
-    // src/client/page/ConsolePage.tsx
-    var import_jsx_runtime37 = require("react/jsx-runtime");
+    // ../../../tmp/dsh-agent-questions-commit/src/client/page/ConsolePage.tsx
+    var import_jsx_runtime38 = require("react/jsx-runtime");
     var TURN_PAGE = 2;
     var THREAD_PAGE = 5;
     var LAST_THREAD_KEY = "dsh-codex-last-thread";
@@ -25251,13 +25369,13 @@ window.__ModuleLoader__.load({
     }
     function ConsolePage(props) {
       const t = props.t ?? fallbackTranslate;
-      const api = React30.useMemo(() => props.api, []);
+      const api = React31.useMemo(() => props.api, []);
       const onExit = props.onExit ?? (() => {
       });
       useCodexTab();
-      const rootRef = React30.useRef(null);
+      const rootRef = React31.useRef(null);
       const appearance = useAppearance(rootRef);
-      const [navWidth, setNavWidth] = React30.useState(() => {
+      const [navWidth, setNavWidth] = React31.useState(() => {
         try {
           const value = Number(localStorage.getItem("dsh-codex-nav-width"));
           return value >= 260 && value <= 420 ? value : 280;
@@ -25265,8 +25383,8 @@ window.__ModuleLoader__.load({
           return 280;
         }
       });
-      const [navResizing, setNavResizing] = React30.useState(false);
-      const navDrag = React30.useRef(null);
+      const [navResizing, setNavResizing] = React31.useState(false);
+      const navDrag = React31.useRef(null);
       const updateNavWidth = (value) => {
         const width = Math.round(Math.min(420, Math.max(260, value)));
         setNavWidth(width);
@@ -25276,24 +25394,24 @@ window.__ModuleLoader__.load({
         }
       };
       useDialogFocus(rootRef);
-      const [status, setStatus] = React30.useState(null);
-      const [projects, setProjects] = React30.useState([]);
-      const [threads, setThreads] = React30.useState([]);
-      const [nextCursor, setNextCursor] = React30.useState(null);
-      const [selectedCwd, setSelectedCwd] = React30.useState(null);
-      const [selectedId, setSelectedId] = React30.useState(() => readStored(LAST_THREAD_KEY));
-      const [detail, setDetail] = React30.useState(null);
-      const [detailLoading, setDetailLoading] = React30.useState(false);
-      const [detailReload, setDetailReload] = React30.useState(0);
-      const [olderCursor, setOlderCursor] = React30.useState(null);
-      const [loadingOlder, setLoadingOlder] = React30.useState(false);
-      const loadingOlderRef = React30.useRef(false);
-      const [loadingThreads, setLoadingThreads] = React30.useState(false);
-      const [threadsOwner, setThreadsOwner] = React30.useState(null);
-      const [unread, setUnread] = React30.useState(() => /* @__PURE__ */ new Set());
-      const latestCompletedTurn = React30.useRef({});
-      const completedEvents = React30.useRef(/* @__PURE__ */ new Map());
-      const rejectedTurns = React30.useRef(null);
+      const [status, setStatus] = React31.useState(null);
+      const [projects, setProjects] = React31.useState([]);
+      const [threads, setThreads] = React31.useState([]);
+      const [nextCursor, setNextCursor] = React31.useState(null);
+      const [selectedCwd, setSelectedCwd] = React31.useState(null);
+      const [selectedId, setSelectedId] = React31.useState(() => readStored(LAST_THREAD_KEY));
+      const [detail, setDetail] = React31.useState(null);
+      const [detailLoading, setDetailLoading] = React31.useState(false);
+      const [detailReload, setDetailReload] = React31.useState(0);
+      const [olderCursor, setOlderCursor] = React31.useState(null);
+      const [loadingOlder, setLoadingOlder] = React31.useState(false);
+      const loadingOlderRef = React31.useRef(false);
+      const [loadingThreads, setLoadingThreads] = React31.useState(false);
+      const [threadsOwner, setThreadsOwner] = React31.useState(null);
+      const [unread, setUnread] = React31.useState(() => /* @__PURE__ */ new Set());
+      const latestCompletedTurn = React31.useRef({});
+      const completedEvents = React31.useRef(/* @__PURE__ */ new Map());
+      const rejectedTurns = React31.useRef(null);
       if (rejectedTurns.current === null) {
         try {
           const saved = JSON.parse(sessionStorage.getItem("dsh-codex-inactive-turns") ?? "[]");
@@ -25302,7 +25420,7 @@ window.__ModuleLoader__.load({
           rejectedTurns.current = /* @__PURE__ */ new Set();
         }
       }
-      const viewedTurns = React30.useRef(null);
+      const viewedTurns = React31.useRef(null);
       if (viewedTurns.current === null) {
         try {
           const saved = JSON.parse(window.localStorage.getItem(VIEWED_TURNS_KEY) ?? "[]");
@@ -25311,17 +25429,17 @@ window.__ModuleLoader__.load({
           viewedTurns.current = /* @__PURE__ */ new Set();
         }
       }
-      const [error, setError] = React30.useState(null);
-      const [streamState, setStreamState] = React30.useState("connecting");
-      const [followups, setFollowups] = React30.useState({});
-      const updateFollowups = React30.useCallback((snapshot) => {
+      const [error, setError] = React31.useState(null);
+      const [streamState, setStreamState] = React31.useState("connecting");
+      const [followups, setFollowups] = React31.useState({});
+      const updateFollowups = React31.useCallback((snapshot) => {
         setFollowups((previous) => {
           const current = previous[snapshot.threadId];
           if (current?.instanceId === snapshot.instanceId && current.revision > snapshot.revision) return previous;
           return { ...previous, [snapshot.threadId]: snapshot };
         });
       }, []);
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         if (!selectedId || streamState !== "open") return;
         let cancelled = false;
         void api("followups/list", { threadId: selectedId }).then((snapshot) => {
@@ -25333,47 +25451,47 @@ window.__ModuleLoader__.load({
           cancelled = true;
         };
       }, [api, selectedId, streamState, updateFollowups]);
-      const [search, setSearch] = React30.useState("");
-      const [pending2, setPending] = React30.useState([]);
-      const [provider, setProvider] = React30.useState(() => readStored("dsh-codex-provider") === "opencode-go" ? "opencode-go" : "openai");
-      const providerRef = React30.useRef(provider);
+      const [search, setSearch] = React31.useState("");
+      const [pending2, setPending] = React31.useState([]);
+      const [provider, setProvider] = React31.useState(() => readStored("dsh-codex-provider") === "opencode-go" ? "opencode-go" : "openai");
+      const providerRef = React31.useRef(provider);
       providerRef.current = provider;
-      const [models, setModels] = React30.useState([]);
-      const [quota, setQuota] = React30.useState(null);
-      const [sessionPermission, setSessionPermission] = React30.useState(null);
-      const [planMode, setPlanMode] = React30.useState(false);
-      const [quotaLoading, setQuotaLoading] = React30.useState(true);
-      const quotaRef = React30.useRef(null);
+      const [models, setModels] = React31.useState([]);
+      const [quota, setQuota] = React31.useState(null);
+      const [sessionPermission, setSessionPermission] = React31.useState(null);
+      const [planMode, setPlanMode] = React31.useState(false);
+      const [quotaLoading, setQuotaLoading] = React31.useState(true);
+      const quotaRef = React31.useRef(null);
       quotaRef.current = quota;
-      const [pickerOpen, setPickerOpen] = React30.useState(false);
-      const [rightTab, setRightTab] = React30.useState("files");
-      const [rightRequest, setRightRequest] = React30.useState(0);
-      React30.useEffect(() => {
+      const [pickerOpen, setPickerOpen] = React31.useState(false);
+      const [rightTab, setRightTab] = React31.useState("files");
+      const [rightRequest, setRightRequest] = React31.useState(0);
+      React31.useEffect(() => {
         const openFile = () => setRightOpen(true);
         window.addEventListener("dsh-codex-open-file", openFile);
         return () => window.removeEventListener("dsh-codex-open-file", openFile);
       }, []);
-      const [rightOpen, setRightOpen] = React30.useState(() => {
+      const [rightOpen, setRightOpen] = React31.useState(() => {
         try {
           return window.localStorage.getItem("dsh-codex-right-open") === "1";
         } catch {
           return false;
         }
       });
-      const [dirPickerOpen, setDirPickerOpen] = React30.useState(false);
-      const [versionsOpen, setVersionsOpen] = React30.useState(false);
-      const restoredRef = React30.useRef(selectedId !== null);
-      const createThreadRef = React30.useRef(async () => {
+      const [dirPickerOpen, setDirPickerOpen] = React31.useState(false);
+      const [versionsOpen, setVersionsOpen] = React31.useState(false);
+      const restoredRef = React31.useRef(selectedId !== null);
+      const createThreadRef = React31.useRef(async () => {
       });
-      const searchTimer = React30.useRef(null);
-      const listGeneration = React30.useRef(0);
-      const queryRef = React30.useRef({ search: "", cwd: null });
+      const searchTimer = React31.useRef(null);
+      const listGeneration = React31.useRef(0);
+      const queryRef = React31.useRef({ search: "", cwd: null });
       queryRef.current = { search: search.trim(), cwd: selectedCwd };
-      const selectedIdRef = React30.useRef(null);
+      const selectedIdRef = React31.useRef(null);
       selectedIdRef.current = selectedId;
-      const threadsRef = React30.useRef([]);
+      const threadsRef = React31.useRef([]);
       threadsRef.current = threads;
-      const loadThreads = React30.useCallback(
+      const loadThreads = React31.useCallback(
         async (cursor, override = {}) => {
           const searchValue = override.search !== void 0 ? override.search : queryRef.current.search;
           const cwd = override.cwd !== void 0 ? override.cwd : queryRef.current.cwd;
@@ -25405,7 +25523,7 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      const handleSearch = React30.useCallback(
+      const handleSearch = React31.useCallback(
         (value) => {
           setSearch(value);
           if (searchTimer.current !== null) clearTimeout(searchTimer.current);
@@ -25417,10 +25535,10 @@ window.__ModuleLoader__.load({
         },
         [loadThreads]
       );
-      React30.useEffect(() => () => {
+      React31.useEffect(() => () => {
         if (searchTimer.current !== null) clearTimeout(searchTimer.current);
       }, []);
-      const loadQuota = React30.useCallback(async () => {
+      const loadQuota = React31.useCallback(async () => {
         const owner = providerRef.current;
         if (quotaRef.current === null) setQuotaLoading(true);
         try {
@@ -25432,14 +25550,14 @@ window.__ModuleLoader__.load({
           if (providerRef.current === owner) setQuotaLoading(false);
         }
       }, [api]);
-      const refreshPending = React30.useCallback(async () => {
+      const refreshPending = React31.useCallback(async () => {
         try {
           const result = await api("approvals/pending");
           setPending(result.pending ?? []);
         } catch {
         }
       }, [api]);
-      const refresh = React30.useCallback(async () => {
+      const refresh = React31.useCallback(async () => {
         setError(null);
         try {
           const [nextStatus, nextProjects] = await Promise.all([
@@ -25455,7 +25573,7 @@ window.__ModuleLoader__.load({
         await loadThreads(null);
         await loadQuota();
       }, [api, loadThreads, loadQuota, provider]);
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         const consume = () => {
           const request = takePending();
           if (request === null) return;
@@ -25468,7 +25586,7 @@ window.__ModuleLoader__.load({
         consume();
         return subscribePending(consume);
       }, []);
-      const markViewed = React30.useCallback((id) => {
+      const markViewed = React31.useCallback((id) => {
         const turnId = latestCompletedTurn.current[id];
         if (turnId) {
           viewedTurns.current.add(turnId);
@@ -25484,7 +25602,7 @@ window.__ModuleLoader__.load({
           return next;
         });
       }, []);
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         if (selectedId === null) return;
         markViewed(selectedId);
         try {
@@ -25492,7 +25610,7 @@ window.__ModuleLoader__.load({
         } catch {
         }
       }, [selectedId]);
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         void refresh();
         void refreshPending();
         let cancelled = false;
@@ -25507,13 +25625,13 @@ window.__ModuleLoader__.load({
           clearInterval(quotaTimer);
         };
       }, [api, refresh, refreshPending, loadQuota, provider]);
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         const timer = setInterval(() => {
           void loadThreads(null, { limit: Math.max(THREAD_PAGE, threadsRef.current.length), silent: true });
         }, 2e4);
         return () => clearInterval(timer);
       }, [loadThreads]);
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         const close = openEventStream({
           onState: setStreamState,
           onEvent: (event) => {
@@ -25632,7 +25750,7 @@ window.__ModuleLoader__.load({
         });
         return close;
       }, [refresh, refreshPending, loadThreads, loadQuota, markViewed]);
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         if (selectedId === null) {
           setDetail(null);
           return void 0;
@@ -25687,7 +25805,7 @@ window.__ModuleLoader__.load({
           cancelled = true;
         };
       }, [api, selectedId, detailReload]);
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         if (selectedId === null) return void 0;
         let cancelled = false;
         let opened = false;
@@ -25717,20 +25835,20 @@ window.__ModuleLoader__.load({
         };
       }, [api, selectedId]);
       const detailThreadId = detail?.thread.id ?? null;
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         if (detailThreadId === null || detail === null) return;
         setThreads(
           (previous) => previous.some((thread) => thread.id === detailThreadId) ? previous : upsertThread(previous, detail.thread)
         );
       }, [detailThreadId]);
-      const activeTurnId = React30.useMemo(() => {
+      const activeTurnId = React31.useMemo(() => {
         if (detail === null) return null;
         const latest = detail.turns[detail.turns.length - 1];
         if (!latest || latest.status !== "inProgress" || rejectedTurns.current.has(latest.id)) return null;
         if (detail.thread.status?.type === "idle") return null;
         return latest.id;
       }, [detail]);
-      const loadOlder = React30.useCallback(async () => {
+      const loadOlder = React31.useCallback(async () => {
         if (selectedId === null || olderCursor === null || loadingOlderRef.current) return;
         loadingOlderRef.current = true;
         setLoadingOlder(true);
@@ -25756,7 +25874,7 @@ window.__ModuleLoader__.load({
           setLoadingOlder(false);
         }
       }, [api, selectedId, olderCursor]);
-      const send = React30.useCallback(
+      const send = React31.useCallback(
         async (text, options = {}) => {
           if (selectedId === null) return;
           setError(null);
@@ -25810,7 +25928,7 @@ window.__ModuleLoader__.load({
         },
         [api, selectedId, loadThreads, planMode, detail, updateFollowups]
       );
-      const stop = React30.useCallback(async () => {
+      const stop = React31.useCallback(async () => {
         if (selectedId === null || activeTurnId === null) return;
         setError(null);
         try {
@@ -25819,7 +25937,7 @@ window.__ModuleLoader__.load({
           setError(messageOf(cause));
         }
       }, [api, selectedId, activeTurnId]);
-      const respond = React30.useCallback(
+      const respond = React31.useCallback(
         async (requestId, response) => {
           setError(null);
           try {
@@ -25832,7 +25950,7 @@ window.__ModuleLoader__.load({
         },
         [api]
       );
-      const createThread = React30.useCallback(
+      const createThread = React31.useCallback(
         async (request) => {
           const thread = await api("threads/new", { ...request, provider: providerRef.current });
           if (thread !== null && thread !== void 0) {
@@ -25890,24 +26008,24 @@ window.__ModuleLoader__.load({
         }
       };
       const currentCwd = detail?.thread.cwd ?? selectedCwd;
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         try {
           window.localStorage.setItem("dsh-codex-right-open", rightOpen ? "1" : "0");
         } catch {
         }
       }, [rightOpen]);
-      const handleNew = React30.useCallback(() => {
+      const handleNew = React31.useCallback(() => {
         if (currentCwd !== null && currentCwd !== "") {
           void createThread({ cwd: currentCwd }).catch((cause) => setError(messageOf(cause)));
           return;
         }
         setPickerOpen(true);
       }, [currentCwd, createThread]);
-      const openNewProject = React30.useCallback(() => {
+      const openNewProject = React31.useCallback(() => {
         setPickerOpen(false);
         setDirPickerOpen(true);
       }, []);
-      const exportThread = React30.useCallback(async () => {
+      const exportThread = React31.useCallback(async () => {
         if (selectedId === null) return;
         try {
           const result = await api("threads/export", { threadId: selectedId });
@@ -25922,7 +26040,7 @@ window.__ModuleLoader__.load({
           setError(messageOf(cause));
         }
       }, [api, selectedId]);
-      const compactThread = React30.useCallback(async () => {
+      const compactThread = React31.useCallback(async () => {
         if (selectedId === null) return;
         try {
           await api("threads/compact", { threadId: selectedId });
@@ -25930,17 +26048,17 @@ window.__ModuleLoader__.load({
           setError(messageOf(cause));
         }
       }, [api, selectedId]);
-      const pickProject = React30.useCallback(
+      const pickProject = React31.useCallback(
         async (cwd) => {
           await createThread({ cwd });
         },
         [createThread]
       );
-      const visibleThreads = React30.useMemo(
+      const visibleThreads = React31.useMemo(
         () => [...threads].sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
         [threads]
       );
-      const handleProjectToggle = React30.useCallback(
+      const handleProjectToggle = React31.useCallback(
         (cwd) => {
           if (selectedCwd === cwd) {
             setSelectedCwd(null);
@@ -25959,45 +26077,45 @@ window.__ModuleLoader__.load({
         [selectedCwd, loadThreads]
       );
       const detailCwd = detail?.thread.cwd ?? null;
-      React30.useEffect(() => {
+      React31.useEffect(() => {
         if (detailCwd === null || detailCwd === "" || search.trim() !== "") return;
         if (selectedCwd === detailCwd) return;
         setSelectedCwd(detailCwd);
         queryRef.current = { cwd: detailCwd, search: "" };
         void loadThreads(null, { cwd: detailCwd, search: "" });
       }, [detailCwd, search]);
-      const handleThreadRenamed = React30.useCallback((id, name) => {
+      const handleThreadRenamed = React31.useCallback((id, name) => {
         setThreads((previous) => previous.map((thread) => thread.id === id ? { ...thread, name } : thread));
         setDetail(
           (previous) => previous !== null && previous.thread.id === id ? { ...previous, thread: { ...previous.thread, name } } : previous
         );
       }, []);
-      const handleThreadChanged = React30.useCallback(() => {
+      const handleThreadChanged = React31.useCallback(() => {
         void loadThreads(null);
       }, [loadThreads]);
-      const handleThreadDeleted = React30.useCallback((id) => {
+      const handleThreadDeleted = React31.useCallback((id) => {
         setThreads((previous) => previous.filter((thread) => thread.id !== id));
         if (selectedIdRef.current === id) {
           setSelectedId(null);
           setDetail(null);
         }
       }, []);
-      const visiblePending = React30.useMemo(
+      const visiblePending = React31.useMemo(
         () => selectedId === null ? [] : pending2.filter((entry) => entry.params?.threadId === void 0 || entry.params.threadId === selectedId),
         [pending2, selectedId]
       );
       const totalThreads = projects.reduce((sum, project) => sum + project.threadCount, 0);
       const runningCount = projects.reduce((sum, project) => sum + project.activeCount, 0);
-      return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(I18nContext.Provider, { value: t, children: /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { ref: rootRef, onDragOverCapture: (event) => {
+      return /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(I18nContext.Provider, { value: t, children: /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("div", { ref: rootRef, onDragOverCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
       }, onDropCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
-      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-09T10:50:23.348Z", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("h1", { children: detail ? threadTitle(detail.thread) : "Codex 工作台" }),
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-spacer" }),
-          detail ? /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-10T07:55:08.361Z", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("h1", { children: detail ? threadTitle(detail.thread) : "Codex 工作台" }),
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("span", { className: "dsh-codex-spacer" }),
+          detail ? /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
             TransferAction,
             {
               provider: detail.thread.modelProvider ?? provider,
@@ -26005,8 +26123,8 @@ window.__ModuleLoader__.load({
               onTransfer: transferThread
             }
           ) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(IconButton, { icon: appearance.theme === "dark" ? "sun" : "moon", label: appearance.theme === "dark" ? "切换浅色模式" : "切换深色模式", "aria-disabled": appearance.busy, onClick: appearance.toggleTheme }),
-          detail && /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(IconButton, { icon: appearance.theme === "dark" ? "sun" : "moon", label: appearance.theme === "dark" ? "切换浅色模式" : "切换深色模式", "aria-disabled": appearance.busy, onClick: appearance.toggleTheme }),
+          detail && /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
             ThreadActions,
             {
               api,
@@ -26022,10 +26140,10 @@ window.__ModuleLoader__.load({
               onDeleted: () => handleThreadDeleted(detail.thread.id)
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(IconButton, { icon: "panelRight", label: rightOpen ? t("right.hide") : t("right.show"), "aria-expanded": rightOpen, className: rightOpen ? "is-selected" : "", onClick: () => setRightOpen((value) => !value) })
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(IconButton, { icon: "panelRight", label: rightOpen ? t("right.hide") : t("right.show"), "aria-expanded": rightOpen, className: rightOpen ? "is-selected" : "", onClick: () => setRightOpen((value) => !value) })
         ] }),
-        appearance.navOpen && /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", className: "dsh-codex-nav-backdrop", "aria-label": "关闭项目导航", onClick: appearance.closeNav }),
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+        appearance.navOpen && /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("button", { type: "button", className: "dsh-codex-nav-backdrop", "aria-label": "关闭项目导航", onClick: appearance.closeNav }),
+        /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
           "div",
           {
             className: "dsh-codex-nav-resize",
@@ -26067,7 +26185,7 @@ window.__ModuleLoader__.load({
             }
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
           FocusSidebar,
           {
             provider,
@@ -26105,10 +26223,10 @@ window.__ModuleLoader__.load({
             onThreadDeleted: handleThreadDeleted
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("main", { className: "dsh-codex-main", children: [
-          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-error", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("main", { className: "dsh-codex-main", children: [
+          error !== null ? /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("div", { className: "dsh-codex-error", children: [
             error,
-            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
               "button",
               {
                 type: "button",
@@ -26123,7 +26241,7 @@ window.__ModuleLoader__.load({
               }
             )
           ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
             ThreadView,
             {
               provider: detail?.thread.modelProvider ?? provider,
@@ -26158,7 +26276,7 @@ window.__ModuleLoader__.load({
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
           SidebarWorkspace,
           {
             api,
@@ -26170,7 +26288,7 @@ window.__ModuleLoader__.load({
             onClose: () => setRightOpen(false)
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
           ProjectPickerDialog,
           {
             open: pickerOpen,
@@ -26180,7 +26298,7 @@ window.__ModuleLoader__.load({
             onClose: () => setPickerOpen(false)
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
           DirectoryPickerDialog,
           {
             open: dirPickerOpen,
@@ -26189,42 +26307,42 @@ window.__ModuleLoader__.load({
             onClose: () => setDirPickerOpen(false)
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("footer", { className: "dsh-codex-workbench-status", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("span", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("i", { className: "dsh-codex-dot " + (streamState === "open" ? "ok" : "warn") }),
+        /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("footer", { className: "dsh-codex-workbench-status", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("span", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("i", { className: "dsh-codex-dot " + (streamState === "open" ? "ok" : "warn") }),
             t("status.events." + streamState)
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("span", { className: "dsh-codex-status-branch", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(Icon2, { name: "git", size: 13 }),
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("span", { className: "dsh-codex-status-branch", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(Icon2, { name: "git", size: 13 }),
             detail?.thread.gitInfo?.branch || "工作区"
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-spacer" }),
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { children: t("projects.count", { count: totalThreads }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", onClick: () => setVersionsOpen(true), children: "版本与连接" })
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("span", { className: "dsh-codex-spacer" }),
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("span", { children: t("projects.count", { count: totalThreads }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("button", { type: "button", onClick: () => setVersionsOpen(true), children: "版本与连接" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(VersionsDialog, { open: versionsOpen, api, onClose: () => setVersionsOpen(false) })
+        /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(VersionsDialog, { open: versionsOpen, api, onClose: () => setVersionsOpen(false) })
       ] }) });
     }
     function TransferAction({ provider, disabled, onTransfer }) {
-      const [open, setOpen] = React30.useState(false);
-      const [busy, setBusy] = React30.useState(false);
+      const [open, setOpen] = React31.useState(false);
+      const [busy, setBusy] = React31.useState(false);
       const target = provider === "opencode-go" ? "ChatGPT" : "OpenCode Go";
-      return /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-header-transfer", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("button", { type: "button", className: "dsh-codex-button dsh-codex-transfer-trigger", "aria-expanded": open, disabled, onClick: () => setOpen((value) => !value), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("span", { className: "dsh-codex-transfer-label", children: [
+      return /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("div", { className: "dsh-codex-header-transfer", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("button", { type: "button", className: "dsh-codex-button dsh-codex-transfer-trigger", "aria-expanded": open, disabled, onClick: () => setOpen((value) => !value), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("span", { className: "dsh-codex-transfer-label", children: [
             "携带历史转交至 ",
             target
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "dsh-codex-transfer-label-short", children: "转交" })
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("span", { className: "dsh-codex-transfer-label-short", children: "转交" })
         ] }),
-        open ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-transfer-confirm", role: "dialog", "aria-label": `转交至 ${target}`, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("strong", { children: [
+        open ? /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("div", { className: "dsh-codex-transfer-confirm", role: "dialog", "aria-label": `转交至 ${target}`, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("strong", { children: [
             "转交至 ",
             target
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("p", { children: "将复制此会话历史创建新分支，后续消息会携带历史发送给目标提供商。" }),
-          /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "dsh-codex-transfer-actions", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: async () => {
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("p", { children: "将复制此会话历史创建新分支，后续消息会携带历史发送给目标提供商。" }),
+          /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)("div", { className: "dsh-codex-transfer-actions", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("button", { type: "button", className: "dsh-codex-button primary", disabled: busy, onClick: async () => {
               setBusy(true);
               try {
                 await onTransfer();
@@ -26234,7 +26352,7 @@ window.__ModuleLoader__.load({
                 setBusy(false);
               }
             }, children: busy ? "正在创建…" : "创建历史分支" }),
-            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setOpen(false), children: "取消" })
+            /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: busy, onClick: () => setOpen(false), children: "取消" })
           ] })
         ] }) : null
       ] });
@@ -26248,7 +26366,7 @@ window.__ModuleLoader__.load({
       return "ask";
     }
 
-    // src/client/rpc.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/rpc.ts
     var CHANNEL = "/codex-cli";
     function createApi(call) {
       return async (endpoint, payload = {}) => {
@@ -26267,7 +26385,7 @@ window.__ModuleLoader__.load({
       };
     }
 
-    // src/client/workbench-styles.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/workbench-styles.ts
     var WORKBENCH_CSS = `
     /* Approved merged direction: quiet neutrals, a single blue-grey accent. */
     .dsh-codex-root{
@@ -26535,6 +26653,28 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-approval :where(pre,.dsh-codex-approval-meta,.dsh-codex-question-title,.dsh-codex-question-body,.dsh-codex-option){min-width:0;max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
     .dsh-codex-root .dsh-codex-approval pre{margin:0;overflow-x:hidden;line-height:1.7;border:1px solid var(--codex-border)}
     .dsh-codex-root .dsh-codex-question{gap:8px}
+    .dsh-codex-root .dsh-codex-question-form{display:flex;flex-direction:column;gap:12px;min-width:0}
+    .dsh-codex-root fieldset.dsh-codex-question{border:0;padding:0;margin:0;min-width:0}
+    .dsh-codex-root .dsh-codex-question legend{padding:0;margin-bottom:12px;font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+    .dsh-codex-root .dsh-codex-question-tabs{display:flex;gap:6px;flex-wrap:wrap}
+    .dsh-codex-root .dsh-codex-question-tabs button{border:1px solid var(--codex-border);background:transparent;color:var(--codex-muted);padding:4px 8px;border-radius:6px;font:inherit;font-size:12px;cursor:pointer;overflow-wrap:anywhere}
+    .dsh-codex-root .dsh-codex-question-tabs button.selected{background:var(--codex-selected);color:var(--codex-text)}
+    .dsh-codex-root .dsh-codex-question-choices{display:flex;flex-direction:column;gap:6px}
+    .dsh-codex-root .dsh-codex-question-choice{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--codex-border);border-radius:7px;padding:10px 12px;cursor:pointer;min-width:0;line-height:1.5}
+    .dsh-codex-root .dsh-codex-question-choice.selected{background:var(--codex-selected);border-color:var(--codex-accent)}
+    .dsh-codex-root .dsh-codex-question-choice input{flex:none;margin:4px 0 0;accent-color:var(--codex-accent)}
+    .dsh-codex-root .dsh-codex-question-choice span{min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
+    .dsh-codex-root .dsh-codex-question-choice strong{font-weight:500}
+    .dsh-codex-root .dsh-codex-question-choice small{display:block;color:var(--codex-muted);margin-top:3px;font-size:12px}
+    .dsh-codex-root .dsh-codex-question-freeform{display:flex;flex-direction:column;gap:6px;margin-top:8px;font-size:12px;color:var(--codex-muted)}
+    .dsh-codex-root .dsh-codex-question-freeform :is(input,textarea){width:100%;min-width:0;box-sizing:border-box;font:inherit;color:var(--codex-text)}
+    .dsh-codex-root .dsh-codex-question-freeform textarea{resize:vertical;min-height:66px}
+    .dsh-codex-root .dsh-codex-question-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .dsh-codex-root .dsh-codex-question-footer>span{font-size:12px;color:var(--codex-muted)}
+    .dsh-codex-root .dsh-codex-question-error{color:var(--codex-danger);font-size:12px;overflow-wrap:anywhere}
+    .dsh-codex-root .dsh-codex-agent-questions{border:1px solid var(--codex-border);background:var(--codex-panel);border-radius:9px;padding:16px;min-width:0}
+    .dsh-codex-root .dsh-codex-question-status{font-size:13px;overflow-wrap:anywhere}
+    .dsh-codex-root .dsh-codex-question-status small{display:block;color:var(--codex-muted);margin-top:6px}
     .dsh-codex-root .dsh-codex-question-body{font-size:13px;line-height:1.7}
     .dsh-codex-root .dsh-codex-option{min-height:36px;font-size:13px;text-align:left}
     .dsh-codex-root .dsh-codex-option.selected{background:var(--codex-selected);border-color:var(--codex-accent);color:var(--codex-text)}
@@ -26794,7 +26934,7 @@ window.__ModuleLoader__.load({
 
     `;
 
-    // src/client/styles.ts
+    // ../../../tmp/dsh-agent-questions-commit/src/client/styles.ts
     var STYLE_ID = "dsh-codex-cli-style";
     var CSS = `
     .dsh-codex-root,
@@ -28303,7 +28443,7 @@ window.__ModuleLoader__.load({
       return () => style.remove();
     }
 
-    // src/client/index.tsx
+    // ../../../tmp/dsh-agent-questions-commit/src/client/index.tsx
     var inject = ["slots", "connection", "locale", "layout"];
     var PANEL_ID = "codex-cli";
     function apply(ctx) {

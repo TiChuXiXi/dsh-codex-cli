@@ -11,14 +11,16 @@ import type { Api } from '../rpc'
 import type { CodexItem } from '../types'
 import { Markdown } from '../markdown'
 import { formatClock, itemText } from '../utils'
+import { QuestionForm } from './QuestionForm'
 
-export function ItemCard({ item, api, cwd = '' }: { item: CodexItem, api: Api, cwd?:string }) {
+export function ItemCard({ item, api, cwd = '', onAnswer }: { item: CodexItem, api: Api, cwd?:string, onAnswer?: (text: string) => Promise<void> }) {
   const t = useT()
   switch (item.type) {
     case 'userMessage':
       return <Message cwd={cwd} kind="user" label={t('item.user')} text={itemText(item)} time={formatClock(item.startedAtMs)} api={api} attachments={(item.content ?? []).filter(part => typeof part.path === 'string' && (part.type === 'localImage' || part.type === 'local_image' || part.type === 'mention')).map(part => ({path:part.path as string, name:part.name, image:part.type !== 'mention'}))} />
     case 'agentMessage':
       return (
+        <>
         <Message
           api={api}
           cwd={cwd}
@@ -28,6 +30,8 @@ export function ItemCard({ item, api, cwd = '' }: { item: CodexItem, api: Api, c
           muted={item.phase === 'commentary'}
           time={formatClock(item.startedAtMs)}
         />
+        {item.questions?.length ? <AsyncQuestions item={item} onAnswer={onAnswer} /> : null}
+        </>
       )
     case 'reasoning':
       return <Reasoning item={item} />
@@ -58,6 +62,23 @@ export function ItemCard({ item, api, cwd = '' }: { item: CodexItem, api: Api, c
     default:
       return <Disclosure title={t('item.other', { type: item.type })} body={null} />
   }
+}
+
+function AsyncQuestions({ item, onAnswer }: { item: CodexItem, onAnswer?: (text: string) => Promise<void> }) {
+  const t = useT()
+  const [submitted, setSubmitted] = React.useState(false)
+  const questions = (item.questions ?? []).map((question, index) => ({
+    id: String(index), question: question.title,
+    options: question.options?.map(label => ({ label })),
+  }))
+  return <section className="dsh-codex-agent-questions">
+    {submitted || !onAnswer
+      ? <div className="dsh-codex-question-status">{questions.map(question => <div key={question.id}>{question.question}</div>)}<small>{t('question.closed')}</small></div>
+      : <QuestionForm questions={questions} defaultFirst onSubmit={async answers => {
+        await onAnswer(questions.map(question => question.question + '\n' + answers[question.id]).join('\n\n'))
+        setSubmitted(true)
+      }} />}
+  </section>
 }
 
 function Message({

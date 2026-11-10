@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { useT } from '../i18n'
 import type { PendingApproval } from '../types'
+import { QuestionForm } from './QuestionForm'
 
 export interface ApprovalStackProps {
   approvals: PendingApproval[]
@@ -14,7 +15,7 @@ export function ApprovalStack({ approvals, onRespond }: ApprovalStackProps) {
   return (
     <div className="dsh-codex-approvals">
       {approvals.map((approval) => (
-        <ApprovalCard key={String(approval.requestId)} approval={approval} onRespond={onRespond} />
+        <ApprovalCard key={JSON.stringify([approval.params?.threadId, approval.method, approval.requestId])} approval={approval} onRespond={onRespond} />
       ))}
     </div>
   )
@@ -36,13 +37,15 @@ function ApprovalCard({
     setBusy(true)
     try {
       await onRespond(approval.requestId, response)
+    } catch {
+      // ConsolePage reports the error; keep the request available for retry.
     } finally {
       setBusy(false)
     }
   }
 
   if (approval.method === 'item/tool/requestUserInput') {
-    return <InputCard approval={approval} busy={busy} onRespond={respond} />
+    return <InputCard approval={approval} onRespond={response => onRespond(approval.requestId, response)} />
   }
 
   if (approval.method === 'item/commandExecution/requestApproval') {
@@ -132,66 +135,17 @@ function ApprovalCard({
   )
 }
 
-function InputCard({
-  approval,
-  busy,
-  onRespond,
-}: {
+function InputCard({ approval, onRespond }: {
   approval: PendingApproval
-  busy: boolean
   onRespond: (response: any) => Promise<void>
 }) {
   const t = useT()
   const questions = Array.isArray(approval.params?.questions) ? approval.params.questions : []
-  const [values, setValues] = React.useState<Record<string, string>>({})
-
-  const submit = () => {
-    const answers: Record<string, { answers: string[] }> = {}
-    for (const [key, value] of Object.entries(values)) {
-      if (value.trim() !== '') answers[key] = { answers: [value.trim()] }
-    }
-    void onRespond({ answers })
-  }
-
-  return (
-    <Shell title={t('approval.input')} busy={busy}>
-      {questions.map((question: any) => (
-        <div key={question.id} className="dsh-codex-question">
-          <div className="dsh-codex-question-title">{question.header || question.question}</div>
-          {question.header && question.question !== question.header ? (
-            <div className="dsh-codex-question-body">{question.question}</div>
-          ) : null}
-          <div className="dsh-codex-options">
-            {(Array.isArray(question.options) ? question.options : []).map((option: any) => (
-              <button
-                type="button"
-                key={option.label}
-                className={`dsh-codex-option ${values[question.id] === option.label ? 'selected' : ''}`}
-                title={option.description ?? undefined}
-                onClick={() => setValues((previous) => ({ ...previous, [question.id]: option.label }))}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-          {question.isOther || (question.options ?? []).length === 0 ? (
-            <input
-              className="dsh-codex-search"
-              type={question.isSecret ? 'password' : 'text'}
-              value={values[question.id] ?? ''}
-              placeholder={t('approval.other')}
-              onChange={(event) => setValues((previous) => ({ ...previous, [question.id]: event.target.value }))}
-            />
-          ) : null}
-        </div>
-      ))}
-      <Actions>
-        <button type="button" className="dsh-codex-button primary" disabled={busy} onClick={submit}>
-          {t('approval.submit')}
-        </button>
-      </Actions>
-    </Shell>
-  )
+  return <Shell title={t('approval.input')} busy={false}>
+    <QuestionForm questions={questions} onSubmit={values => onRespond({
+      answers: Object.fromEntries(Object.entries(values).map(([id, value]) => [id, { answers: [value] }])),
+    })} />
+  </Shell>
 }
 
 function Shell({ title, busy, children }: { title: string, busy: boolean, children: React.ReactNode }) {

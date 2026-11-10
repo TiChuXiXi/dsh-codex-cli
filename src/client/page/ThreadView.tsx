@@ -290,6 +290,14 @@ export function ThreadView({
   }
   const items = orderedTurns.flatMap((turn) => turn.items ?? [])
   const hasItems = items.length > 0
+  // Async questions are answered as a user message, immediately steering a running turn.
+  // A later user message closes older question forms, including after history reload.
+  const lastUserIndex = items.reduce((last, item, index) => item.type === 'userMessage' ? index : last, -1)
+  const openQuestionIds = new Set(items.slice(lastUserIndex + 1).filter(item => item.type === 'agentMessage' && item.questions?.length).map(item => item.id))
+  const answerQuestion = async (text: string) => {
+    if (activeTurnId !== null) await api('turns/steer', { threadId: thread.id, turnId: activeTurnId, text })
+    else await onSend(text, { model, effort, permission })
+  }
   const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null
   const now = Date.now()
   const runningMs = Math.max(0, Math.floor((now - runningStartedAt(activeTurn, runningSinceRef.current.time, now)) / 1000) * 1000)
@@ -358,7 +366,7 @@ export function ThreadView({
                   entry.kind === 'group' ? (
                     <ToolGroup key={entry.key} items={entry.items} api={api} />
                   ) : (
-                    <ItemCard key={entry.item.id} item={entry.item} api={api} cwd={detail.thread.cwd ?? ''} />
+                    <ItemCard key={thread.id + ':' + entry.item.id} item={entry.item} api={api} cwd={detail.thread.cwd ?? ''} onAnswer={thread.id === selectedId && openQuestionIds.has(entry.item.id) ? answerQuestion : undefined} />
                   ),
                 )}
                 <TurnFooter turn={turn} />

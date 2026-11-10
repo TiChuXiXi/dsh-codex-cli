@@ -29,6 +29,7 @@ export interface CodexItem {
   startedAtMs?: number | null
   completedAtMs?: number | null
   text?: string
+  questions?: Array<{ title: string, options?: string[] | null }> | null
   summary?: string[]
   content?: Array<{ type: string, text?: string, path?: string, url?: string, name?: string }>
   command?: string
