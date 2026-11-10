@@ -1496,8 +1496,8 @@ export const CSS = `
 .dsh-codex-slash::-webkit-scrollbar-track { background: transparent; }
 .dsh-codex-slash::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.22); border-radius: 999px; }
 .dsh-codex-slash-desc { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--dsw-alias-label-secondary, #6b6b6b); }
-.dsh-codex-image-overlay { position: fixed; inset: 0; z-index: 2147483000; display: flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(225,225,225,.94); outline: none; }
-.dsh-codex-image-overlay > img { display: block; max-width: 90vw; max-height: 90vh; object-fit: contain; user-select: none; }
+.dsh-codex-image-overlay { position: fixed; inset: 0; z-index: 2147483000; display: flex; overflow: auto; background: rgba(225,225,225,.94); outline: none; }
+.dsh-codex-image-overlay > img { display: block; flex: none; max-width: none; max-height: none; width: auto; height: auto; margin: auto; user-select: none; }
 .dsh-codex-image-overlay-close { position: absolute; top: 16px; right: 20px; z-index: 1; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(255,255,255,.8); color: #333; font-size: 28px; line-height: 1; cursor: pointer; }
 `
 

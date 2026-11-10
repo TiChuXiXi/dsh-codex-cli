@@ -1,6 +1,7 @@
 /** Codex 管理页：左侧项目/会话，右侧会话详情 + 审批 + 输入区。 */
 
 import * as React from 'react'
+import { ToastHost } from '../components/Toast'
 import type {SkillReference} from '../skills'
 import {Icon,IconButton} from '../components/Icon'
 import {useAppearance} from '../useAppearance'
@@ -879,6 +880,7 @@ export function ConsolePage(props: ConsolePageProps) {
   return (
     <I18nContext.Provider value={t}>
       <div ref={rootRef} onDragOverCapture={event => {if (Array.from(event.dataTransfer.types).includes('Files')) event.preventDefault()}} onDropCapture={event => {if (Array.from(event.dataTransfer.types).includes('Files')) event.preventDefault()}} style={{'--codex-nav-width': navWidth + 'px'} as React.CSSProperties} className={'dsh-codex-root'+(navResizing?' is-nav-resizing':'')+(appearance.collapsed?' is-nav-collapsed':'')+(appearance.navOpen?' is-nav-open':'')+(rightOpen?' has-right':'')} data-codex-theme={appearance.theme} data-client-build={__CODEX_CLIENT_BUILD_ID__}>
+        <ToastHost />
         <header className="dsh-codex-workbench-header">
           <IconButton icon="panelLeft" label="展开或折叠项目栏" aria-expanded={appearance.navOpen||!appearance.collapsed} aria-controls="dsh-codex-project-nav" onClick={appearance.toggleNav}/>
           <h1>{detail?threadTitle(detail.thread):'Codex 工作台'}</h1>

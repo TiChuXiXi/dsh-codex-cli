@@ -2,6 +2,7 @@ import * as React from 'react'
 import {useDialogFocus} from '../components/DialogFocus'
 import {FileContextMenu} from './FileContextMenu'
 import {Icon} from '../components/Icon'
+import {toast} from '../components/Toast'
 import type { Api } from '../rpc'
 import { subscribeWorkspace } from './workspace-events'
 type Workspace = { workspaceId: string; cwd: string }
@@ -27,7 +28,7 @@ export function FilesPane({
   useDialogFocus(root)
   const input=React.useRef<HTMLInputElement>(null),destination=React.useRef('.')
   const [context,setContext]=React.useState<{x:number,y:number,entry:Entry|null,directory:string}|null>(null)
-  const [deleting,setDeleting]=React.useState<Entry|null>(null),[busy,setBusy]=React.useState(false),[notice,setNotice]=React.useState('')
+  const [deleting,setDeleting]=React.useState<Entry|null>(null),[busy,setBusy]=React.useState(false)
   React.useEffect(()=>{
     if(!deleting)return
     const close=(event:KeyboardEvent)=>{if(event.key==='Escape'&&!busy){event.preventDefault();event.stopPropagation();setDeleting(null)}}
@@ -42,17 +43,19 @@ export function FilesPane({
   }
   const [workspace, setWorkspace] = React.useState<Workspace | null>(null)
   const [revision, setRevision] = React.useState(0)
+  const [registrationRevision, setRegistrationRevision] = React.useState(0)
+  const workspaceCwd = React.useRef(cwd)
   const [error, setError] = React.useState('')
   React.useEffect(
     () =>
       subscribeWorkspace((change) => {
-        if (change.workspaceId === '*') setRevision((r) => r + 1)
+        if (change.workspaceId === '*') { setRegistrationRevision(r => r + 1); setRevision(r => r + 1) }
       }),
     [],
   )
   React.useEffect(() => {
     let cancelled = false
-    setWorkspace(null)
+    if (workspaceCwd.current !== cwd) { workspaceCwd.current = cwd; setWorkspace(null) }
     api<Workspace>('workspace/open', { cwd })
       .then((w) => {
         if (!cancelled) {
@@ -66,11 +69,11 @@ export function FilesPane({
     return () => {
       cancelled = true
     }
-  }, [api, cwd, revision])
+  }, [api, cwd, registrationRevision])
   const directoryPath = directory === '.' ? cwd : cwd.replace(/\/$/, '') + '/' + directory
   const upload=async(files:File[])=>{
     if(!workspace||!files.length)return
-    setBusy(true);setError('');setNotice('')
+    setBusy(true);setError('')
     let count=0
     const failures:string[]=[]
     for(const file of files){
@@ -80,15 +83,15 @@ export function FilesPane({
         await api('workspace/upload',{workspaceId:workspace.workspaceId,directory:destination.current,name:file.name,dataBase64:data});count++
       }catch(e){failures.push(file.name+'：'+(e instanceof Error?e.message:String(e)))}
     }
-    setBusy(false);setRevision(r=>r+1);setNotice('已上传 '+count+' 个文件')
+    setBusy(false);setRevision(r=>r+1);if(count)toast('已上传 '+count+' 个文件','success')
     if(failures.length)setError(failures.join('\n'))
   }
   const remove=async()=>{
     if(!workspace||!deleting||busy)return
     setBusy(true);setError('')
     try{
-      const result=await api('workspace/remove',{workspaceId:workspace.workspaceId,path:deleting.path})
-      setNotice('已移至回收目录：'+result.trashPath);setDeleting(null);setRevision(r=>r+1)
+      await api('workspace/remove',{workspaceId:workspace.workspaceId,path:deleting.path})
+      toast('已删除：'+deleting.path,'success');setDeleting(null);setRevision(r=>r+1)
     }catch(e){setError(e instanceof Error?e.message:String(e))}
     finally{setBusy(false)}
   }
@@ -105,7 +108,6 @@ export function FilesPane({
         </button>
       </div>
       <input ref={input} type="file" multiple hidden onChange={e=>{const files=Array.from(e.target.files||[]);e.target.value='';void upload(files)}}/>
-      {notice&&<div role="status" className="dsh-codex-hint">{notice}</div>}
       {error && <div role="alert" className="dsh-codex-right-error">{error}</div>}
       {context&&<FileContextMenu context={context} onClose={()=>setContext(null)} onAction={async action=>{
         const {entry,directory}=context;setContext(null);setError('')
@@ -122,10 +124,10 @@ export function FilesPane({
             link.href='/codex-cli/workspace/download?'+query
             link.download=entry.name
             document.body.appendChild(link);link.click();link.remove()
-            setNotice('已开始下载：'+entry.name)
+            toast('已开始下载：'+entry.name,'success')
           }
-          else if(action==='copy'){await navigator.clipboard.writeText(absolute);setNotice('已复制绝对路径')}
-          else if(action==='relative'){await navigator.clipboard.writeText(path);setNotice('已复制相对路径')}
+          else if(action==='copy'){await navigator.clipboard.writeText(absolute);toast('已复制绝对路径','success')}
+          else if(action==='relative'){await navigator.clipboard.writeText(path);toast('已复制相对路径','success')}
           else if(action==='reference'){
             const detail={cwd,path:absolute,name:entry?.name||cwd.split('/').at(-1),accepted:false}
             window.dispatchEvent(new CustomEvent('dsh-codex-reference',{detail}))
@@ -137,7 +139,7 @@ export function FilesPane({
       {deleting&&<div className="codex-file-modal-backdrop" onContextMenu={e=>e.stopPropagation()} onKeyDown={e=>{if(e.key==='Escape'&&!busy){e.stopPropagation();setDeleting(null)}}}>
         <div className="codex-file-modal" role="dialog" aria-modal="true" aria-label="删除确认">
           <h3>删除{deleting.type==='dir'?'文件夹':'文件'}？</h3><code>{deleting.path}</code>
-          <p>{deleting.type==='dir'?'文件夹及其中的全部内容':'文件'}将移至工作区的 .dsh-trash 回收目录。</p>
+          <p>{deleting.type==='dir'?'文件夹及其中的全部内容':'文件'}将被永久删除，无法恢复。</p>
           {error&&<div role="alert">{error}</div>}
           <footer><button className="dsh-codex-button" disabled={busy} onClick={()=>setDeleting(null)}>取消</button><button className="dsh-codex-button danger" disabled={busy} onClick={()=>void remove()}>{busy?'删除中…':'确认删除'}</button></footer>
         </div>

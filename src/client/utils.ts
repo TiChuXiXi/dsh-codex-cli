@@ -54,11 +54,17 @@ export function formatDateTime(ms: number | null | undefined): string {
 }
 
 /** 时长：1 小时 2 分 / 1 分 29 秒 / 45 秒。 */
-export function formatDuration(ms: number, t: Translate): string {
+export function formatDuration(ms: number, t: Translate, showSeconds = false): string {
   const total = Math.max(0, Math.round(ms / 1000))
   const hours = Math.floor(total / 3600)
   const minutes = Math.floor((total % 3600) / 60)
   const seconds = total % 60
+  if (showSeconds && hours > 0) {
+    return `${t('duration.hours', { count: hours })} ${t('duration.minutes', { count: minutes })} ${t('duration.seconds', { count: seconds })}`
+  }
+  if (showSeconds && minutes > 0) {
+    return `${t('duration.minutes', { count: minutes })} ${t('duration.seconds', { count: seconds })}`
+  }
   if (hours > 0) {
     return minutes > 0
       ? `${t('duration.hours', { count: hours })} ${t('duration.minutes', { count: minutes })}`

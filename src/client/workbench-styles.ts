@@ -178,6 +178,14 @@ export const WORKBENCH_CSS = `
 .dsh-codex-root .dsh-codex-markdown pre,.dsh-codex-root .dsh-codex-raw pre{background:var(--codex-panel);border:1px solid var(--codex-border);border-radius:8px;padding:14px;font-size:13px;line-height:1.75}
 .dsh-codex-root .dsh-codex-markdown code{font-size:.9em}
 .dsh-codex-root .dsh-codex-message.user .dsh-codex-message-text,.dsh-codex-root .dsh-codex-message-user{background:var(--codex-panel);border:1px solid var(--codex-border);border-radius:10px}
+.dsh-codex-root .dsh-codex-toast-host{position:fixed;z-index:2000;top:20px;right:20px;display:flex;flex-direction:column;gap:8px;width:min(360px,calc(100vw - 32px));pointer-events:none}
+.dsh-codex-root .dsh-codex-toast{pointer-events:auto;display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--codex-border);border-radius:10px;background:var(--codex-panel);color:var(--codex-text);box-shadow:0 8px 24px #0003;font-size:13px;line-height:1.5}
+.dsh-codex-root .dsh-codex-toast-symbol{flex:none;width:19px;height:19px;color:var(--codex-accent)}
+.dsh-codex-root .dsh-codex-toast.is-success .dsh-codex-toast-symbol{color:var(--codex-success)}
+.dsh-codex-root .dsh-codex-toast.is-error .dsh-codex-toast-symbol{color:var(--codex-danger)}
+.dsh-codex-root .dsh-codex-toast-message{flex:1;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.dsh-codex-root .dsh-codex-toast button{display:flex;flex:none;align-items:center;justify-content:center;padding:2px;border:0;border-radius:4px;background:transparent;color:var(--codex-muted);cursor:pointer}
+.dsh-codex-root .dsh-codex-toast button:hover{background:var(--codex-soft);color:var(--codex-text)}
 .dsh-codex-root .dsh-codex-running-bar{width:min(800px,calc(100% - 64px));margin:0 auto;padding:4px 0;gap:8px;font-size:13px;line-height:1.6;color:var(--codex-muted)}
 .dsh-codex-root .dsh-codex-running-spinner{display:block;width:16px;height:16px;flex:0 0 16px;border:0;border-radius:0;color:var(--codex-muted);animation:dsh-codex-spin 1s linear infinite}
 @media (prefers-reduced-motion:reduce){.dsh-codex-root .dsh-codex-running-spinner{animation:none}}
@@ -218,6 +226,8 @@ export const WORKBENCH_CSS = `
 .dsh-codex-root .dsh-codex-message-images .dsh-codex-image img{max-width:180px;max-height:140px}
 .dsh-codex-root .dsh-codex-message-images figcaption{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dsh-codex-root .dsh-codex-image-viewer-trigger{display:inline-block;padding:0;border:0;background:transparent;cursor:zoom-in;line-height:0;max-width:100%}
+.dsh-codex-root .dsh-codex-markdown .dsh-codex-image-viewer-trigger img{display:block;max-width:min(100%,480px);max-height:320px;width:auto;height:auto;object-fit:contain;border-radius:6px}
+.dsh-codex-root .dsh-codex-image img{max-width:min(100%,480px);max-height:320px;width:auto;height:auto}
 .dsh-codex-root .dsh-codex-attachment-card .dsh-codex-image-viewer-trigger{width:64px;height:64px;min-width:0;min-height:0;border-radius:4px}
 .dsh-codex-root .dsh-codex-attachment-preview{display:block;width:64px;height:64px;object-fit:cover;border-radius:4px}
 .dsh-codex-root .dsh-codex-attachment-placeholder{width:64px;height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--codex-muted)}

@@ -390,7 +390,7 @@ export function ThreadView({
       {activeTurnId !== null ? (
         <div className="dsh-codex-running-bar">
           <Icon name="loader" size={16} className="dsh-codex-running-spinner" />
-          <span>{t('thread.runningElapsed', { duration: formatDuration(runningMs, t) })}</span>
+          <span>{t('thread.runningElapsed', { duration: formatDuration(runningMs, t, true) })}</span>
         </div>
       ) : null}
 

@@ -2,7 +2,7 @@
 import * as React from 'react'
 import {
  Activity, Archive, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Ban, Brain,
- Check, ChevronDown, ChevronLeft, ChevronRight, Columns2, Command, Copy,
+ Check, CircleCheck, CircleAlert, Info, ChevronDown, ChevronLeft, ChevronRight, Columns2, Command, Copy,
  Download, Ellipsis, ExternalLink, FileCode, FileText, FileImage, FileArchive, FileSpreadsheet, FileAudio, FileVideo, FileType, Folder, FolderOpen,
  FolderPlus, GitBranch, GitFork, Globe, History, ListTree, LoaderCircle,
  Maximize2, Menu, MessageSquare, Minimize2, Moon, PanelLeft, PanelRight,
@@ -13,6 +13,7 @@ import {
 const icons = {
  activity:Activity, archive:Archive, arrowDown:ArrowDown, arrowLeft:ArrowLeft,
  arrowRight:ArrowRight, arrowUp:ArrowUp, ban:Ban, brain:Brain, check:Check,
+ circleCheck:CircleCheck, circleAlert:CircleAlert, info:Info,
  chevronDown:ChevronDown, chevronLeft:ChevronLeft, chevronRight:ChevronRight,
  columns:Columns2, command:Command, copy:Copy, download:Download, more:Ellipsis,
  external:ExternalLink, fileCode:FileCode, file:FileText, fileImage:FileImage, fileArchive:FileArchive, fileSpreadsheet:FileSpreadsheet, fileAudio:FileAudio, fileVideo:FileVideo, fileType:FileType, folder:Folder,

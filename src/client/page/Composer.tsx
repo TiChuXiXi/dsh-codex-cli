@@ -148,9 +148,16 @@ export function Composer({
     const reference=(event:Event)=>{
       const detail=(event as CustomEvent).detail
       if(detail?.cwd !== cwd || !threadId || disabled || typeof detail.path !== 'string')return
+      const area=textareaRef.current
+      if(!area)return
       detail.accepted=true
-      setAttachments(old=>old.some(item=>item.path===detail.path)?old:[...old,{path:detail.path,name:detail.name,kind:'file'}])
-      textareaRef.current?.focus()
+      const value=area.value, start=area.selectionStart, end=area.selectionEnd
+      const path=/\s|["\\]/u.test(detail.path) ? JSON.stringify(detail.path) : detail.path
+      const marker=(start>0&&!/\s/u.test(value[start-1])?' ':'')+'@'+path+' '
+      setText(value.slice(0,start)+marker+value.slice(end))
+      const cursor=start+marker.length
+      setCaret(cursor)
+      requestAnimationFrame(()=>{area.focus();area.setSelectionRange(cursor,cursor)})
     }
     window.addEventListener('dsh-codex-reference',reference)
     return()=>window.removeEventListener('dsh-codex-reference',reference)
@@ -161,6 +168,43 @@ export function Composer({
   const [skillError,setSkillError]=React.useState(''),[skillErrors,setSkillErrors]=React.useState<{path?:string,message:string}[]>([])
   const [skillList,setSkillList]=React.useState(false),[skillSearch,setSkillSearch]=React.useState(''),[skillIndex,setSkillIndex]=React.useState(0)
   const [caret,setCaret]=React.useState(text.length),[skillDismissed,setSkillDismissed]=React.useState(false)
+  const [fileDismissed,setFileDismissed]=React.useState(false)
+  const [composing,setComposing]=React.useState(false)
+  const [fileIndex,setFileIndex]=React.useState(0)
+  const [fileResults,setFileResults]=React.useState<{name:string,path:string,type:'file'|'dir'}[]>([])
+  const [fileState,setFileState]=React.useState({loading:false,error:'',truncated:false,root:''})
+  const fileMatch=/(?:^|\s)@([^\s@"']*)$/.exec(text.slice(0,caret))
+  const fileQuery=fileMatch?.[1] ?? null
+  const fileOpen=!disabled && !composing && fileQuery!==null && !fileDismissed
+  React.useEffect(()=>{
+    if(!fileOpen || !cwd || !threadId)return
+    let cancelled=false
+    setFileState({loading:true,error:'',truncated:false,root:''});setFileResults([]);setFileIndex(0)
+    const timer=setTimeout(async()=>{
+      try{
+        const workspace=await api<{workspaceId:string}>('workspace/open',{cwd})
+        const result=await api<{cwd:string,entries:{name:string,path:string,type:'file'|'dir'}[],truncated:boolean}>('workspace/search',{workspaceId:workspace.workspaceId,query:fileQuery})
+        if(!cancelled){setFileResults(result.entries);setFileState({loading:false,error:'',truncated:result.truncated,root:result.cwd})}
+      }catch(error){if(!cancelled)setFileState({loading:false,error:error instanceof Error?error.message:String(error),truncated:false,root:''})}
+    },150)
+    return()=>{cancelled=true;clearTimeout(timer)}
+  },[fileOpen,fileQuery,cwd,threadId,api])
+  React.useEffect(()=>{
+    if(fileOpen)document.getElementById('codex-file-option-'+fileIndex)?.scrollIntoView({block:'nearest'})
+  },[fileOpen,fileIndex,fileResults])
+  const chooseFile=(item:{path:string})=>{
+    if(fileQuery===null)return
+    const start=caret-fileQuery.length-1
+    let end=caret
+    while(end<text.length&&!/[\s@]/u.test(text[end]))end++
+    const absolute=fileState.root.replace(/\/$/,'')+'/'+item.path
+    const path=/\s|["\\]/u.test(absolute)?JSON.stringify(absolute):absolute
+    const marker='@'+path+' '
+    setText(text.slice(0,start)+marker+text.slice(end));setFileDismissed(true)
+    const cursor=start+marker.length
+    setCaret(cursor)
+    requestAnimationFrame(()=>{textareaRef.current?.focus();textareaRef.current?.setSelectionRange(cursor,cursor)})
+  }
   const skillRange=skillQuery(text,caret)
   const skillOpen=skillList || (!!skillRange&&!skillDismissed)
   const skillResults=filterSkills(catalog||[],skillList?skillSearch:skillRange?.query||'')
@@ -400,6 +444,15 @@ export function Composer({
   return (
     <div className="dsh-codex-composer-wrap">
       {followups && <FollowupList snapshot={followups} api={api} onChange={onFollowups} activeTurnId={activeTurnId} />}
+      {fileOpen&&<div className="dsh-codex-skill-picker dsh-codex-file-picker">
+        <header><strong>{t('filePicker.title')}</strong><span>{t('filePicker.help')}</span><button type="button" aria-label={t('filePicker.close')} onClick={()=>setFileDismissed(true)}><Icon name="close" size={15}/></button></header>
+        {fileState.loading&&<p role="status">{t('filePicker.loading')}</p>}
+        {fileState.error&&<p role="alert">{fileState.error}</p>}
+        <div role="listbox" id="codex-file-options" aria-label={t('filePicker.title')}>{fileResults.map((item,i)=><button type="button" role="option" id={'codex-file-option-'+i} key={item.path} aria-selected={fileIndex===i} onMouseEnter={()=>setFileIndex(i)} onMouseDown={e=>e.preventDefault()} onClick={()=>chooseFile(item)}><span><Icon name={item.type==='dir'?'folder':'file'} size={16}/><strong>{item.name}</strong></span><small>{item.path}</small></button>)}</div>
+        {!fileState.loading&&!fileState.error&&!fileResults.length&&<p>{t('filePicker.empty')}</p>}
+        {fileState.truncated&&<p>{t('filePicker.truncated')}</p>}
+        <footer>{t('filePicker.keys')}</footer>
+      </div>}
       {skillOpen&&<SkillPicker skills={skillResults} query={skillList?skillSearch:skillRange?.query||''} onQuery={skillList?q=>{setSkillSearch(q);setSkillIndex(0)}:undefined} loading={skillLoading} error={skillError} errors={skillErrors} index={skillIndex} onIndex={setSkillIndex} onChoose={chooseSkill} onClose={closeSkills} onRefresh={()=>void loadSkills(true)}/>}
       {slashOpen ? (
         <div className="dsh-codex-slash" role="listbox" ref={slashRef}>
@@ -482,19 +535,26 @@ export function Composer({
             if (!event.clipboardData.getData('text/plain')) event.preventDefault()
             uploadFiles(files)
           }}
-          onClick={event=>{setCaret(event.currentTarget.selectionStart);setSkillDismissed(false)}}
+          onClick={event=>{setCaret(event.currentTarget.selectionStart);setSkillDismissed(false);setFileDismissed(false)}}
+          onCompositionStart={()=>setComposing(true)}
+          onCompositionEnd={event=>{setComposing(false);setCaret(event.currentTarget.selectionStart)}}
           onKeyUp={event=>setCaret(event.currentTarget.selectionStart)}
           onChange={(event) => {
-            setCaret(event.target.selectionStart);setSkillDismissed(false);setSkillIndex(0)
+            setCaret(event.target.selectionStart);setSkillDismissed(false);setSkillIndex(0);setFileDismissed(false)
             setText(event.target.value)
             setSlashIndex(0)
             setSlashDismissed(false)
           }}
-          aria-controls={skillOpen?'codex-skill-options':undefined}
-          aria-expanded={skillOpen}
-          aria-activedescendant={skillOpen?'codex-skill-option-'+skillIndex:undefined}
+          aria-controls={fileOpen?'codex-file-options':skillOpen?'codex-skill-options':undefined}
+          aria-expanded={fileOpen||skillOpen}
+          aria-activedescendant={fileOpen&&fileResults[fileIndex]?'codex-file-option-'+fileIndex:skillOpen?'codex-skill-option-'+skillIndex:undefined}
           onKeyDown={(event) => {
-            if(event.nativeEvent.isComposing)return
+            if(event.nativeEvent.isComposing||composing)return
+            if(fileOpen){
+              if(event.key==='Escape'){event.preventDefault();setFileDismissed(true);return}
+              if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();if(fileResults.length)setFileIndex(i=>(i+(event.key==='ArrowDown'?1:-1)+fileResults.length)%fileResults.length);return}
+              if(event.key==='Enter'||event.key==='Tab'){event.preventDefault();if(fileResults[fileIndex])chooseFile(fileResults[fileIndex]);return}
+            }
             if(skillOpen){
               if(event.key==='Escape'){event.preventDefault();closeSkills();return}
               if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();if(skillResults.length)setSkillIndex(i=>(i+(event.key==='ArrowDown'?1:-1)+skillResults.length)%skillResults.length);return}
