@@ -8,7 +8,7 @@
  */
 
 import { build } from 'esbuild'
-import { writeFile, rename } from 'node:fs/promises'
+import { readFile, writeFile, rename } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -19,6 +19,15 @@ const result = await build({
   bundle: true,
   outdir: resolve(root, '.client-build'),
   loader: { '.module.css': 'local-css' },
+  plugins: [{
+    name: 'scope-terminal-css',
+    setup(build) {
+      build.onLoad({ filter: /[/\\\\]@xterm[/\\\\]xterm[/\\\\]css[/\\\\]xterm\.css$/ }, async ({ path }) => ({
+        contents: '.dsh-codex-root {\n' + await readFile(path, 'utf8') + '\n}',
+        loader: 'css',
+      }))
+    },
+  }],
   write: false,
   format: 'cjs',
   platform: 'browser',

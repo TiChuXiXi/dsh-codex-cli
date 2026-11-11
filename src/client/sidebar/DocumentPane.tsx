@@ -84,11 +84,12 @@ function FileDocumentPane({
   const [image, setImage] = React.useState<string | null>(null)
   const [error, setError] = React.useState('')
   const [loading, setLoading] = React.useState(false)
-  const [mode, setMode] = React.useState<'code' | 'text' | 'preview'>(() => /\.(?:md|markdown)$/i.test(path) ? 'preview' : 'code')
+  const [mode, setMode] = React.useState<'code' | 'text' | 'preview'>(() => /\.(?:md|markdown|html?)$/i.test(path) ? 'preview' : 'code')
   const [copied, setCopied] = React.useState(false)
   const [wrap, setWrap] = React.useState(false)
   const [zoom, setZoom] = React.useState(100)
   const ext = path.split('.').at(-1)?.toLowerCase() || ''
+  const htmlPreview = /^(?:html|htm)$/.test(ext) && mode === 'preview'
   const codeLines = React.useMemo(() => mode === 'code' && page ? highlightCodeLines(page.content, ext) : null, [page, mode, ext])
   React.useEffect(() => {
     let cancelled = false,
@@ -103,7 +104,7 @@ function FileDocumentPane({
           'workspace/open',
           { cwd },
         )
-        if (imageTypes[ext]) {
+        if (imageTypes[ext] || htmlPreview) {
           const parts: Uint8Array[] = []
           let position = 0,
             eof = false
@@ -120,7 +121,7 @@ function FileDocumentPane({
             })
             if (cancelled) return
             if (result.size > 8 * 1024 * 1024)
-              throw new Error('图片超过 8MiB 预览上限')
+              throw new Error('文件超过 8MiB 预览上限')
             const bytes = Uint8Array.from(atob(result.dataBase64), (c) =>
               c.charCodeAt(0),
             )
@@ -129,7 +130,7 @@ function FileDocumentPane({
             eof = result.eof
             if (!bytes.length && !eof) throw new Error('文件读取未取得进展')
           }
-          url = URL.createObjectURL(new Blob(parts, { type: imageTypes[ext] }))
+          url = URL.createObjectURL(new Blob(parts, { type: htmlPreview ? 'text/html;charset=utf-8' : imageTypes[ext] }))
           if (!cancelled) setImage(url)
         } else {
           const result = await api<Page>('workspace/text', {
@@ -151,16 +152,16 @@ function FileDocumentPane({
       cancelled = true
       if (url) URL.revokeObjectURL(url)
     }
-  }, [api, cwd, path, offset, revision, ext])
+  }, [api, cwd, path, offset, revision, htmlPreview, ext])
   return (
     <section className="codex-sidebar-document">
       <header>
         <code title={path}>{path}</code>
         {!imageTypes[ext] && <>
-          <SelectMenu label="显示模式" value={mode} onChange={value => setMode(value as 'code' | 'text' | 'preview')} options={[{value:'code',label:'代码'},{value:'text',label:'纯文本'}, ...((ext === 'md' || ext === 'markdown') ? [{value:'preview',label:'预览'}] : [])]} />
+          <SelectMenu label="显示模式" value={mode} onChange={value => setMode(value as 'code' | 'text' | 'preview')} options={[{value:'code',label:'代码'},{value:'text',label:'纯文本'}, ...((ext === 'md' || ext === 'markdown' || /^(?:html|htm)$/.test(ext)) ? [{value:'preview',label:'预览'}] : [])]} />
           <button type="button" className="document-icon-button" aria-label="自动换行" title="自动换行" aria-pressed={wrap} onClick={() => setWrap(v => !v)}><Icon name="wrap" size={17}/></button>
         </>}
-        {image && (
+        {image && !htmlPreview && (
           <SelectMenu label="图片缩放" value={String(zoom)} onChange={value => setZoom(Number(value))} options={[50,100,150,200].map(z => ({value:String(z),label:z+'%'}))} />
         )}
         <button
@@ -181,7 +182,8 @@ function FileDocumentPane({
             navigator.clipboard.writeText(page.content).then(() => {setCopied(true); setTimeout(() => setCopied(false), 1500)}).catch(() => setError('复制失败，请检查剪贴板权限'))
           }}><Icon name={copied ? 'check' : 'copy'} size={16}/></button>
         </div>}
-        {image && (
+        {image && htmlPreview && <iframe src={image} title="工作区浏览器" sandbox="allow-scripts allow-forms" referrerPolicy="no-referrer" style={{width:'100%',height:'100%',minHeight:480,border:0,background:'#fff'}} />}
+        {image && !htmlPreview && (
           <img
             src={image}
             alt={path}

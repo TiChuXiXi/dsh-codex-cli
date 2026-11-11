@@ -23,6 +23,7 @@ import type {
 import { useCodexTab } from '../hooks'
 import { subscribePending, takePending } from '../store'
 import { applyDetailEvent, messageOf, threadTitle, upsertThread } from '../utils'
+import { activeTurnIdOf } from '../running-time'
 import { FocusSidebar } from './FocusSidebar'
 import { ProjectPickerDialog } from './ProjectPickerDialog'
 import { DirectoryPickerDialog } from './DirectoryPickerDialog'
@@ -137,13 +138,6 @@ export function ConsolePage(props: ConsolePageProps) {
   const [unread, setUnread] = React.useState<Set<string>>(() => new Set())
   const latestCompletedTurn = React.useRef<Record<string, string>>({})
   const completedEvents = React.useRef<Map<string, CodexEvent>>(new Map())
-  const rejectedTurns = React.useRef<Set<string> | null>(null)
-  if (rejectedTurns.current === null) {
-    try {
-      const saved = JSON.parse(sessionStorage.getItem('dsh-codex-inactive-turns') ?? '[]')
-      rejectedTurns.current = new Set(Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : [])
-    } catch { rejectedTurns.current = new Set() }
-  }
   const viewedTurns = React.useRef<Set<string> | null>(null)
   if (viewedTurns.current === null) {
     try {
@@ -173,7 +167,7 @@ export function ConsolePage(props: ConsolePageProps) {
   }, [api, selectedId, streamState, updateFollowups])
   const [search, setSearch] = React.useState('')
   const [pending, setPending] = React.useState<PendingApproval[]>([])
-  const [provider, setProvider] = React.useState(() => readStored('dsh-codex-provider') === 'opencode-go' ? 'opencode-go' : 'openai')
+  const provider = 'openai'
   const providerRef = React.useRef(provider)
   providerRef.current = provider
   const [models, setModels] = React.useState<ModelOption[]>([])
@@ -505,13 +499,6 @@ export function ConsolePage(props: ConsolePageProps) {
       .then((next) => {
         if (cancelled) return
         restoredRef.current = false
-        const owner = next.thread.modelProvider ?? 'openai'
-        if (owner !== providerRef.current) {
-          listGeneration.current++
-          setQuota(null); quotaRef.current = null; setQuotaLoading(true)
-          providerRef.current = owner; setProvider(owner); setThreads([]); setProjects([]); setModels([])
-          try { localStorage.setItem('dsh-codex-provider', owner) } catch {}
-        }
         let reconciled = next
         for (const event of completedEvents.current.values()) {
           reconciled = applyDetailEvent(reconciled, event) ?? reconciled
@@ -586,13 +573,7 @@ export function ConsolePage(props: ConsolePageProps) {
     )
   }, [detailThreadId])
 
-  const activeTurnId = React.useMemo(() => {
-    if (detail === null) return null
-    const latest = detail.turns[detail.turns.length - 1]
-    if (!latest || latest.status !== 'inProgress' || rejectedTurns.current!.has(latest.id)) return null
-    if (detail.thread.status?.type === 'idle') return null
-    return latest.id
-  }, [detail])
+  const activeTurnId = React.useMemo(() => activeTurnIdOf(detail), [detail])
 
   const loadOlder = React.useCallback(async () => {
     if (selectedId === null || olderCursor === null || loadingOlderRef.current) return
@@ -737,23 +718,7 @@ export function ConsolePage(props: ConsolePageProps) {
   )
   createThreadRef.current = createThread
 
-  const changeProvider = (next: string) => {
-    if (next === provider) return
-    listGeneration.current++
-    setSelectedId(null); setDetail(null); setThreads([]); setProjects([]); setModels([]); setNextCursor(null)
-    setQuota(null); quotaRef.current = null; setQuotaLoading(true)
-    setProvider(next); providerRef.current = next
-    try { localStorage.setItem('dsh-codex-provider', next); localStorage.removeItem(LAST_THREAD_KEY) } catch {}
-  }
-  const transferThread = async () => {
-    if (!selectedId || activeTurnId) return
-    const target = (detail?.thread.modelProvider ?? provider) === 'opencode-go' ? 'openai' : 'opencode-go'
-    try {
-      const thread = await api<CodexThread>('threads/fork', {threadId:selectedId,provider:target})
-      changeProvider(target)
-      setSelectedId(thread.id); setSelectedCwd(thread.cwd); setThreads([thread])
-    } catch (cause) { setError(messageOf(cause)); throw cause }
-  }
+
 
   const currentCwd = detail?.thread.cwd ?? selectedCwd
 
@@ -885,11 +850,6 @@ export function ConsolePage(props: ConsolePageProps) {
           <IconButton icon="panelLeft" label="展开或折叠项目栏" aria-expanded={appearance.navOpen||!appearance.collapsed} aria-controls="dsh-codex-project-nav" onClick={appearance.toggleNav}/>
           <h1>{detail?threadTitle(detail.thread):'Codex 工作台'}</h1>
           <span className="dsh-codex-spacer"/>
-          {detail ? <TransferAction
-            provider={detail.thread.modelProvider??provider}
-            disabled={activeTurnId !== null}
-            onTransfer={transferThread}
-          /> : null}
           <IconButton icon={appearance.theme==='dark'?'sun':'moon'} label={appearance.theme==='dark'?'切换浅色模式':'切换深色模式'} aria-disabled={appearance.busy} onClick={appearance.toggleTheme}/>
           {detail&&<ThreadActions api={api} thread={detail.thread}
             onRenamed={name=>handleThreadRenamed(detail.thread.id,name)}
@@ -910,7 +870,6 @@ export function ConsolePage(props: ConsolePageProps) {
         />
         <FocusSidebar
           provider={provider}
-          onProviderChange={changeProvider}
           api={api}
           status={status}
           streamState={streamState}
@@ -1020,26 +979,6 @@ export function ConsolePage(props: ConsolePageProps) {
       </div>
     </I18nContext.Provider>
   )
-}
-
-function TransferAction({provider,disabled,onTransfer}:{provider:string,disabled:boolean,onTransfer:()=>Promise<void>}){
-  const [open,setOpen]=React.useState(false)
-  const [busy,setBusy]=React.useState(false)
-  const target=provider==='opencode-go'?'ChatGPT':'OpenCode Go'
-  return <div className="dsh-codex-header-transfer">
-    <button type="button" className="dsh-codex-button dsh-codex-transfer-trigger" aria-expanded={open} disabled={disabled} onClick={()=>setOpen(value=>!value)}>
-      <span className="dsh-codex-transfer-label">携带历史转交至 {target}</span>
-      <span className="dsh-codex-transfer-label-short">转交</span>
-    </button>
-    {open ? <div className="dsh-codex-transfer-confirm" role="dialog" aria-label={`转交至 ${target}`}>
-      <strong>转交至 {target}</strong>
-      <p>将复制此会话历史创建新分支，后续消息会携带历史发送给目标提供商。</p>
-      <div className="dsh-codex-transfer-actions">
-        <button type="button" className="dsh-codex-button primary" disabled={busy} onClick={async()=>{setBusy(true);try{await onTransfer();setOpen(false)}catch{}finally{setBusy(false)}}}>{busy?'正在创建…':'创建历史分支'}</button>
-        <button type="button" className="dsh-codex-button" disabled={busy} onClick={()=>setOpen(false)}>取消</button>
-      </div>
-    </div>:null}
-  </div>
 }
 
 function permissionFromSettings(settings: { approvalPolicy: string | null, approvalsReviewer: string | null, sandbox: { type: string } | null } | null): PermissionMode | null {

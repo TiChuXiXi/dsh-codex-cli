@@ -10,7 +10,7 @@ import { useT } from '../i18n'
 import type { Api } from '../rpc'
 import type { CodexItem } from '../types'
 import { Markdown } from '../markdown'
-import { formatClock, itemText } from '../utils'
+import { formatClock, isCompacting, itemText } from '../utils'
 import { QuestionForm } from './QuestionForm'
 
 export function ItemCard({ item, api, cwd = '', onAnswer }: { item: CodexItem, api: Api, cwd?:string, onAnswer?: (text: string) => Promise<void> }) {
@@ -52,7 +52,7 @@ export function ItemCard({ item, api, cwd = '', onAnswer }: { item: CodexItem, a
     case 'localSettingChange':
       return <Divider label={typeof item.text === 'string' ? item.text : ''} />
     case 'contextCompaction':
-      return <Divider label={t('item.compaction')} />
+      return <Divider label={t(isCompacting(item) ? 'item.compacting' : 'item.compaction')} />
     case 'enteredReviewMode':
     case 'exitedReviewMode':
       return <Divider label={t('item.review')} />

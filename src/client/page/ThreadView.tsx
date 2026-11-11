@@ -136,7 +136,7 @@ export function ThreadView({
       const stored = threadId === null ? null : JSON.parse(sessionStorage.getItem(`dsh-codex-model-selection-${threadId}`) ?? 'null')
       if (stored && typeof stored.model === 'string' && typeof stored.effort === 'string') pending = stored
     } catch {}
-    setModel(pending?.model ?? detail.thread.model ?? (provider === 'opencode-go' ? 'deepseek-v4.1-flash' : ''))
+    setModel(pending?.model ?? detail.thread.model ?? '')
     setEffort(pending?.effort ?? detail.thread.reasoningEffort ?? '')
   }, [threadId])
 
@@ -362,7 +362,7 @@ export function ThreadView({
           {!hasItems && changes.length === 0 && <div className="dsh-codex-empty">{t('thread.noMessages')}</div>}
           {orderedTurns.map((turn) => (
               <React.Fragment key={turn.id}>
-                {groupActivity(insertChanges(turn).filter((item) => provider !== 'openai' || item.type !== 'reasoning')).map((entry) =>
+                {groupActivity(insertChanges(turn).filter((item) => item.type !== 'reasoning')).map((entry) =>
                   entry.kind === 'group' ? (
                     <ToolGroup key={entry.key} items={entry.items} api={api} />
                   ) : (
@@ -411,7 +411,7 @@ export function ThreadView({
         permission={permission}
         planMode={planMode}
         onModelChange={(value) => {
-          const next = value || (provider === 'opencode-go' ? 'deepseek-v4.1-flash' : '')
+          const next = value || ''
           if (next !== model) recordSetting(`模型已切换为 ${models.find(entry => entry.id === next)?.displayName ?? (next || t('composer.defaultModel'))}（下一轮生效）`)
           const nextEffort = models.find(entry => entry.id === next)?.defaultReasoningEffort ?? ''
           setModel(next)

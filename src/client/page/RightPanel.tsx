@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import {Icon} from '../components/Icon'
+import { TerminalPane as TerminalTab } from '../sidebar/TerminalPane'
 import {GitPane as GitTab} from '../sidebar/GitPane'
 import { useT } from '../i18n'
 import type { Api } from '../rpc'
@@ -167,57 +168,7 @@ export function FilesTab({ api, cwd }: { api: Api, cwd: string }) {
 
 export {GitPane as GitTab} from '../sidebar/GitPane'
 
-export function TerminalTab({ api, cwd }: { api: Api, cwd: string }) {
-  const t = useT()
-  const [command, setCommand] = React.useState('')
-  const [output, setOutput] = React.useState('')
-  const [code, setCode] = React.useState<number | null>(null)
-  const [running, setRunning] = React.useState(false)
-
-  const run = async () => {
-    if (command.trim() === '' || running) return
-    setRunning(true)
-    setOutput('')
-    setCode(null)
-    try {
-      const result = await api<{ code: number, output: string, truncated: boolean }>('exec/run', { cwd, command })
-      setOutput(result.output)
-      setCode(result.code)
-    } catch (cause) {
-      setOutput(cause instanceof Error ? cause.message : String(cause))
-      setCode(-1)
-    } finally {
-      setRunning(false)
-    }
-  }
-
-  return (
-    <div className="dsh-codex-right-body">
-      <div className="dsh-codex-right-bar">
-        <code className="dsh-codex-right-path" title={cwd}>{cwd}</code>
-      </div>
-      <div className="dsh-codex-right-terminal-input">
-        <input
-          className="dsh-codex-search"
-          value={command}
-          aria-label={t('right.command')}
-          placeholder={t('right.command')}
-          onChange={(event) => setCommand(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') void run()
-          }}
-        />
-        <button type="button" className="dsh-codex-button primary" disabled={running} onClick={() => void run()}>
-          {running ? t('right.running') : t('right.run')}
-        </button>
-      </div>
-      <pre className="dsh-codex-right-pre terminal">
-        {output === '' ? (running ? t('right.running') : '输入命令并运行，输出将显示在这里。') : output}
-      </pre>
-      {code !== null ? <div className="dsh-codex-right-meta">{t('right.exitCode', { code })}</div> : null}
-    </div>
-  )
-}
+export { TerminalPane as TerminalTab } from '../sidebar/TerminalPane'
 
 function formatSize(size: number): string {
   if (size < 1024) return `${size} B`

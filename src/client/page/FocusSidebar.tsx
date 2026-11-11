@@ -18,7 +18,6 @@ const PROJECT_DRAG_TYPE = 'application/x-dsh-codex-project'
 
 export interface FocusSidebarProps {
   provider: string
-  onProviderChange: (provider: string) => void
   api: Api
   status: HubStatus | null
   streamState: StreamState
@@ -52,7 +51,6 @@ export interface FocusSidebarProps {
 export function FocusSidebar({
   api,
   provider,
-  onProviderChange,
   status,
   streamState,
   projects,
@@ -343,9 +341,6 @@ export function FocusSidebar({
       </div>
 
       <div className="dsh-codex-focus-footer">
-        <div className="dsh-codex-provider-picker"><span>提供商</span>
-          <SelectMenu label="提供商" value={provider} direction="up" onChange={onProviderChange} options={[{value:'openai',label:'ChatGPT'},{value:'opencode-go',label:'OpenCode Go'}]} />
-        </div>
         <div className="dsh-codex-sidebar-health"><span className={'dsh-codex-dot '+phaseClass}/><span>{t(`status.${phase}`)}</span><IconButton icon="settings" label="版本与连接" onClick={onVersions}/></div>
         <QuotaPopover quota={quota} loading={quotaLoading} now={now} t={t} />
         <button type="button" className="dsh-codex-sidebar-exit" onClick={onExit}><Icon name="arrowLeft" size={16}/>返回 DeepSeek Harness</button>
@@ -365,6 +360,10 @@ function AnimatedSessions({expanded, children}: {expanded: boolean, children: Re
 function FolderPlusGlyph(){return <Icon name="folderPlus" size={17}/>}
 
 function FolderGlyph({open=false}:{open?:boolean}){return <Icon name={open?'folderOpen':'folder'} size={17}/>}
+
+function quotaLevel(remaining: number) {
+  return remaining <= 10 ? 'critical' : remaining <= 30 ? 'low' : 'normal'
+}
 
 function QuotaRing({remaining}: {remaining?: number}) {
   return <svg className="quota-ring" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
@@ -401,7 +400,7 @@ function QuotaPopover({quota, loading, now, t}: {quota: RateLimits | null; loadi
     <button type="button" className="quota-trigger" aria-expanded={open} aria-controls="quota-details" onClick={() => setOpen(value => !value)}>
       {windows.length > 0 && !unlimited ? windows.map((item, index) => {
         const remaining = Math.max(0, Math.min(100, 100 - Math.round(item.usedPercent)))
-        return <span className="quota-chip" key={index}>
+        return <span className={`quota-chip quota-${quotaLevel(remaining)}`} key={index}>
           <QuotaRing remaining={remaining}/>
           <span>{windowLabel(item.windowDurationMins, t)} · {t('quota.remaining', {percent: remaining})}</span>
         </span>
@@ -412,7 +411,7 @@ function QuotaPopover({quota, loading, now, t}: {quota: RateLimits | null; loadi
       {windows.length > 0 && !unlimited ? windows.map((item, index) => {
         const remaining = Math.max(0, Math.min(100, 100 - Math.round(item.usedPercent)))
         const details = quotaSummary({...quota!, primary: item, secondary: null, monthly: null, resetCredits: 0}, t, now)
-        return <div className="quota-detail" key={index}>
+        return <div className={`quota-detail quota-${quotaLevel(remaining)}`} key={index}>
           <div className="quota-detail-heading"><strong>{windowLabel(item.windowDurationMins, t) || t('info.quota')}</strong><span>{t('quota.remaining', {percent: remaining})}</span></div>
           <div className="quota-progress" role="progressbar" aria-label={windowLabel(item.windowDurationMins, t) || t('info.quota')} aria-valuemin={0} aria-valuemax={100} aria-valuenow={remaining}><span style={{width: remaining + '%'}}/></div>
           <div className="quota-reset-box">

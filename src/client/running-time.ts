@@ -1,4 +1,12 @@
-import type {CodexTurn} from './types'
+import type {CodexTurn, ThreadDetail} from './types'
+
+/** SSE replay can append older turns after the latest history page. */
+export function activeTurnIdOf(detail:ThreadDetail|null,now=Date.now()):string|null {
+ if(!detail || detail.thread.status?.type==='idle')return null
+ const latest=detail.turns.reduce<CodexTurn|null>((latest,turn)=>
+  !latest || runningStartedAt(turn,now,now)>=runningStartedAt(latest,now,now)?turn:latest,null)
+ return latest?.status==='inProgress'?latest.id:null
+}
 
 /** Resolve a running turn's oldest reliable start without resetting on remount. */
 export function runningStartedAt(turn:CodexTurn|null,observedAt:number,now:number):number {

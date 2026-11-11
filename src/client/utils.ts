@@ -87,6 +87,12 @@ export function statusKey(status: CodexThread['status']): string {
   return `state.${type}`
 }
 
+/** Live items carry streaming; history carries start/completion timestamps. */
+export function isCompacting(item: CodexItem): boolean {
+  if (item.streaming === false || typeof item.completedAtMs === 'number') return false
+  return item.streaming === true || typeof item.startedAtMs === 'number'
+}
+
 export function isActive(status: CodexThread['status']): boolean {
   return status?.type === 'active'
 }

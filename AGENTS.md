@@ -16,7 +16,7 @@
 | --- | --- |
 | `index.js` | 宿主插件入口：配置、服务装配、路由注册与生命周期 |
 | `lib/config.js` | 默认配置及归一化 |
-| `lib/hub.js`、`lib/provider-hub.js` | Codex 协议封装、会话操作与提供商路由 |
+| `lib/hub.js` | Codex 协议封装与会话操作 |
 | `lib/jsonrpc.js`、`lib/transport/` | JSON-RPC、守护进程及 stdio 传输 |
 | `lib/routes.js`、`lib/events.js` | HTTP RPC、认证栅栏、SSE 事件流 |
 | `lib/workspace.js`、`lib/fs.js`、`lib/git.js` | 工作区文件、命令与 Git 服务 |

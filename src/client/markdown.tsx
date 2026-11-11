@@ -116,9 +116,9 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = []
   let last = 0
   let match: RegExpExecArray | null
-  INLINE.lastIndex = 0
+  const inline = new RegExp(INLINE.source, INLINE.flags)
   let index = 0
-  while ((match = INLINE.exec(text)) !== null) {
+  while ((match = inline.exec(text)) !== null) {
     if (match.index > last) nodes.push(text.slice(last, match.index))
     const token = match[0]
     const key = `${keyPrefix}-${index}`
@@ -128,9 +128,9 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
     } else if (token.startsWith('`')) {
       nodes.push(<code key={key}>{token.slice(1, -1)}</code>)
     } else if (token.startsWith('**')) {
-      nodes.push(<strong key={key}>{token.slice(2, -2)}</strong>)
+      nodes.push(<strong key={key}>{renderInline(token.slice(2, -2), key)}</strong>)
     } else if (token.startsWith('*')) {
-      nodes.push(<em key={key}>{token.slice(1, -1)}</em>)
+      nodes.push(<em key={key}>{renderInline(token.slice(1, -1), key)}</em>)
     } else {
       const linkMatch = /^\[([^\]]+)\]\(\s*(<[^>\n]+>|[^)\s]+)\s*\)$/u.exec(token)
       if (linkMatch === null) {

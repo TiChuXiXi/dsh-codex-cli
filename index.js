@@ -7,12 +7,13 @@
 
 import { FollowupQueue } from './lib/followups.js'
 import { EventBus } from './lib/events.js'
-import { ProviderHub as CodexHub } from './lib/provider-hub.js'
+import { CodexHub } from './lib/hub.js'
 import { createRoutes } from './lib/routes.js'
 import { normalizeConfig } from './lib/config.js'
 import { VersionService } from './lib/versions.js'
 import { createRuntime } from './lib/runtime.js'
 import { WorkspaceService } from './lib/workspace.js'
+import { TerminalService } from './lib/terminal.js'
 import { createGitService } from './lib/git.js'
 
 export const name = 'codex-cli'
@@ -34,6 +35,8 @@ export function apply(ctx, rawConfig) {
   const hub = new CodexHub({ config, logger, bus })
   const followups = new FollowupQueue({ hub, bus })
   const workspace = new WorkspaceService(bus)
+  const terminal = new TerminalService()
+  ctx.effect(() => () => terminal.dispose(), 'codex-cli: terminal services')
   const git = createGitService(rawConfig?.git)
   ctx.effect(() => () => git.dispose(), 'codex-cli: Git services')
   ctx.effect(() => () => workspace.dispose(), 'codex-cli: workspace services')
@@ -60,7 +63,7 @@ export function apply(ctx, rawConfig) {
 
   ctx.effect(
     () => {
-      const handler = createRoutes({ hub, bus, connection, config, logger, versions, runtime, workspace, git, followups })
+      const handler = createRoutes({ hub, bus, connection, config, logger, versions, runtime, workspace, git, followups, terminal })
       const unregister = webServer.register({ kind: 'prefix', path: '/codex-cli', handler })
       return () => { handler.dispose(); unregister() }
     },
