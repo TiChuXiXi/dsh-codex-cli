@@ -2,6 +2,7 @@ import * as React from 'react'
 import type { Api } from '../rpc'
 import type { FollowupEntry, FollowupSnapshot } from '../types'
 import { Icon, IconButton } from '../components/Icon'
+import { ImageViewer } from '../components/ImageViewer'
 import { useT } from '../i18n'
 
 export function FollowupList({ snapshot, api, onChange, activeTurnId }: {
@@ -49,14 +50,32 @@ export function FollowupList({ snapshot, api, onChange, activeTurnId }: {
         : <small>{t('queue.auto')}</small>}
     </header>
     <div className="dsh-codex-followup-list" id={'followups-' + snapshot.threadId} hidden={collapsed}>
-      {snapshot.entries.map(entry => <FollowupRow key={entry.id} entry={entry} busy={busy} activeTurnId={activeTurnId} action={action} />)}
+      {snapshot.entries.map(entry => <FollowupRow key={entry.id} entry={entry} api={api} busy={busy} activeTurnId={activeTurnId} action={action} />)}
     </div>
     {error && <div className="dsh-codex-followup-error" role="alert">{error}</div>}
   </section>
 }
 
-function FollowupRow({ entry, busy, activeTurnId, action }: {
+function FollowupImage({ attachment, api }: { attachment: { name: string, path: string }, api: Api }) {
+  const [preview, setPreview] = React.useState<{ path: string, src: string } | null>(null)
+  React.useEffect(() => {
+    let active = true
+    setPreview(null)
+    api<{ dataUrl: string }>('images/read', { path: attachment.path })
+      .then(result => { if (active) setPreview({ path: attachment.path, src: result.dataUrl }) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [api, attachment.path])
+  return <span className="dsh-codex-followup-image" title={attachment.name}>
+    {preview?.path === attachment.path
+      ? <ImageViewer src={preview.src} alt={attachment.name} onError={() => setPreview(null)} />
+      : <span role="img" aria-label={attachment.name}><Icon name="fileImage" size={20} /></span>}
+  </span>
+}
+
+function FollowupRow({ entry, api, busy, activeTurnId, action }: {
   entry: FollowupEntry
+  api: Api
   busy: boolean
   activeTurnId: string | null
   action: (action: string, id: string, text?: string) => Promise<void>
@@ -80,8 +99,10 @@ function FollowupRow({ entry, busy, activeTurnId, action }: {
     </div> : <>
       <Icon name={sending ? 'loader' : 'message'} size={14} />
       <div className="dsh-codex-followup-text">
+        {entry.params.attachments.length > 0 && <div className="dsh-codex-followup-attachments">{entry.params.attachments.map((item, index) => item.kind === 'image'
+          ? <FollowupImage key={item.path + index} attachment={item} api={api} />
+          : <small key={item.path + index} title={item.name}><Icon name="attachment" size={12} /><span>{item.name}</span></small>)}</div>}
         <span title={entry.params.text}>{entry.params.text || t('queue.attachments')}</span>
-        {entry.params.attachments.length > 0 && <small><Icon name="attachment" size={12} />{entry.params.attachments.map(item => item.name).join('、')}</small>}
         {sending && <small>{t('queue.sending')}</small>}
       </div>
       <div className="dsh-codex-followup-actions">

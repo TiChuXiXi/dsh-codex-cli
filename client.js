@@ -14477,7 +14477,7 @@ window.__ModuleLoader__.load({
       "filePicker.loading": "正在搜索…",
       "filePicker.empty": "没有匹配的文件或文件夹",
       "filePicker.truncated": "结果已截断，请输入更多内容",
-      "filePicker.keys": "↑↓ 选择 · Enter / Tab 插入 · Esc 关闭",
+      "filePicker.keys": "↑↓ 选择 · → 进入文件夹 · ← 返回上级 · Enter / Tab 插入 · Esc 关闭",
       "composer.attachFile": "添加文件",
       "composer.attachFolder": "添加文件夹",
       "composer.noCwd": "先打开一个会话再上传文件",
@@ -14561,6 +14561,7 @@ window.__ModuleLoader__.load({
       "queue.sending": "正在发送…",
       "composer.steerPlaceholder": "插话到正在运行的回合…",
       "composer.send": "发送",
+      "composer.sendFailed": "发送未成功，正文和附件已保留。请检查错误信息后重新发送。",
       "composer.steer": "插话",
       "composer.stop": "停止",
       "composer.sendHint": "Enter 发送，Shift+Enter 换行",
@@ -14695,6 +14696,14 @@ window.__ModuleLoader__.load({
       "group.writes": "修改了 {count} 个文件",
       "group.tools": "调用了 {count} 个工具",
       "group.activity": "工具调用",
+      "group.status.running": "运行中",
+      "group.status.failed": "有失败",
+      "group.count.failed": "{count} 个失败",
+      "group.count.completed": "{count} 个成功",
+      "group.count.running": "{count} 个运行中",
+      "group.count.interrupted": "{count} 个已中断",
+      "group.status.interrupted": "已中断",
+      "group.status.completed": "已完成",
       "group.sepAnd": "并",
       "group.sepList": "、",
       "item.image": "图片",
@@ -14841,7 +14850,7 @@ window.__ModuleLoader__.load({
       "filePicker.loading": "Searching…",
       "filePicker.empty": "No matching files or folders",
       "filePicker.truncated": "Results truncated; refine your search",
-      "filePicker.keys": "↑↓ Select · Enter / Tab Insert · Esc Close",
+      "filePicker.keys": "↑↓ Select · → Open folder · ← Parent folder · Enter / Tab Insert · Esc Close",
       "composer.attachFile": "Attach files",
       "composer.attachFolder": "Attach folder",
       "composer.noCwd": "Open a session before uploading files",
@@ -14925,6 +14934,7 @@ window.__ModuleLoader__.load({
       "queue.sending": "Sending…",
       "composer.steerPlaceholder": "Steer the running turn…",
       "composer.send": "Send",
+      "composer.sendFailed": "Message was not sent. Your text and attachments are preserved. Check the error and send again.",
       "composer.steer": "Steer",
       "composer.stop": "Stop",
       "composer.sendHint": "Enter to send, Shift+Enter for a new line",
@@ -15059,6 +15069,14 @@ window.__ModuleLoader__.load({
       "group.writes": "Changed {count} files",
       "group.tools": "Called {count} tools",
       "group.activity": "Tool calls",
+      "group.status.running": "Running",
+      "group.status.failed": "Failed activity",
+      "group.count.failed": "{count} failed",
+      "group.count.completed": "{count} succeeded",
+      "group.count.running": "{count} running",
+      "group.count.interrupted": "{count} interrupted",
+      "group.status.interrupted": "Interrupted",
+      "group.status.completed": "Completed",
       "group.sepAnd": " and ",
       "group.sepList": ", ",
       "item.image": "Image",
@@ -15098,6 +15116,28 @@ window.__ModuleLoader__.load({
 
     // src/client/page/ConsolePage.tsx
     var React33 = __toESM(require("react"), 1);
+
+    // src/client/permissions.ts
+    function permissionPayload(permission) {
+      const workspaceWrite = (networkAccess) => ({
+        type: "workspaceWrite",
+        writableRoots: [],
+        networkAccess,
+        excludeTmpdirEnvVar: false,
+        excludeSlashTmp: false
+      });
+      if (permission === "full") {
+        return { approvalPolicy: "never", approvalsReviewer: "user", sandboxPolicy: { type: "dangerFullAccess" } };
+      }
+      if (permission === "read") {
+        return { approvalPolicy: "on-request", approvalsReviewer: "user", sandboxPolicy: { type: "readOnly", networkAccess: false } };
+      }
+      return {
+        approvalPolicy: "on-request",
+        approvalsReviewer: permission === "approve" ? "auto_review" : "user",
+        sandboxPolicy: workspaceWrite(permission === "approve")
+      };
+    }
 
     // src/client/components/Toast.tsx
     var React2 = __toESM(require("react"), 1);
@@ -17046,6 +17086,7 @@ window.__ModuleLoader__.load({
         {
           role: "button",
           tabIndex: 0,
+          "aria-current": selected ? "page" : void 0,
           className: `dsh-codex-thread ${selected ? "active" : ""}`,
           title: `${threadTitle(thread)}
     ${thread.cwd ?? ""}`,
@@ -28882,9 +28923,10 @@ window.__ModuleLoader__.load({
         observer.observe(host);
         const root = host.closest(".dsh-codex-root");
         const theme = () => {
-          const dark = root.getAttribute("data-codex-theme") === "dark";
-          term.options.theme = dark ? { background: "#181b22", foreground: "#e3e7ef", cursor: "#e3e7ef", selectionBackground: "#5576a980" } : { background: "#fafafa", foreground: "#202631", cursor: "#202631", selectionBackground: "#89b4ea80" };
-          host.style.background = dark ? "#181b22" : "#fafafa";
+          const style = getComputedStyle(root);
+          const color = (name) => style.getPropertyValue("--codex-" + name).trim();
+          term.options.theme = { background: color("bg"), foreground: color("text"), cursor: color("accent"), selectionBackground: color("selected") };
+          host.style.background = color("bg");
         };
         theme();
         const themeObserver = new MutationObserver(theme);
@@ -28983,7 +29025,7 @@ window.__ModuleLoader__.load({
       return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "codex-terminal", children: [
         /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "dsh-codex-right-bar codex-terminal-toolbar", children: [
           /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("code", { className: "dsh-codex-right-path", title: cwd, children: cwd }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { role: "status", children: status === "exited" ? t("right.exitCode", { code: exitCode ?? "—" }) : t("terminal." + status) }),
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { role: "status", "data-state": status, children: status === "exited" ? t("right.exitCode", { code: exitCode ?? "—" }) : t("terminal." + status) }),
           /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { type: "button", className: "dsh-codex-button", disabled: status !== "ready", onClick: () => {
             send.current("");
             terminal.current?.focus();
@@ -32498,11 +32540,26 @@ window.__ModuleLoader__.load({
           ] }),
           snapshot.paused ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("button", { type: "button", disabled: busy, onClick: () => void action("resume"), children: t("queue.resume") }) : /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("small", { children: t("queue.auto") })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-followup-list", id: "followups-" + snapshot.threadId, hidden: collapsed, children: snapshot.entries.map((entry) => /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(FollowupRow, { entry, busy, activeTurnId, action }, entry.id)) }),
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-followup-list", id: "followups-" + snapshot.threadId, hidden: collapsed, children: snapshot.entries.map((entry) => /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(FollowupRow, { entry, api, busy, activeTurnId, action }, entry.id)) }),
         error && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-followup-error", role: "alert", children: error })
       ] });
     }
-    function FollowupRow({ entry, busy, activeTurnId, action }) {
+    function FollowupImage({ attachment, api }) {
+      const [preview, setPreview] = React25.useState(null);
+      React25.useEffect(() => {
+        let active = true;
+        setPreview(null);
+        api("images/read", { path: attachment.path }).then((result) => {
+          if (active) setPreview({ path: attachment.path, src: result.dataUrl });
+        }).catch(() => {
+        });
+        return () => {
+          active = false;
+        };
+      }, [api, attachment.path]);
+      return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { className: "dsh-codex-followup-image", title: attachment.name, children: preview?.path === attachment.path ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ImageViewer, { src: preview.src, alt: attachment.name, onError: () => setPreview(null) }) : /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { role: "img", "aria-label": attachment.name, children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "fileImage", size: 20 }) }) });
+    }
+    function FollowupRow({ entry, api, busy, activeTurnId, action }) {
       const t = useT();
       const [text, setText] = React25.useState(entry.params.text);
       React25.useEffect(() => {
@@ -32539,11 +32596,11 @@ window.__ModuleLoader__.load({
         ] }) : /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, { children: [
           /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: sending ? "loader" : "message", size: 14 }),
           /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-followup-text", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { title: entry.params.text, children: entry.params.text || t("queue.attachments") }),
-            entry.params.attachments.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("small", { children: [
+            entry.params.attachments.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("div", { className: "dsh-codex-followup-attachments", children: entry.params.attachments.map((item, index) => item.kind === "image" ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(FollowupImage, { attachment: item, api }, item.path + index) : /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("small", { title: item.name, children: [
               /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Icon2, { name: "attachment", size: 12 }),
-              entry.params.attachments.map((item) => item.name).join("、")
-            ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { children: item.name })
+            ] }, item.path + index)) }),
+            /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("span", { title: entry.params.text, children: entry.params.text || t("queue.attachments") }),
             sending && /* @__PURE__ */ (0, import_jsx_runtime32.jsx)("small", { children: t("queue.sending") })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)("div", { className: "dsh-codex-followup-actions", children: [
@@ -32740,6 +32797,7 @@ window.__ModuleLoader__.load({
       const [initialDraft] = React27.useState(() => readDraft(threadId));
       const [text, setText] = React27.useState(initialDraft.text);
       const [busy, setBusy] = React27.useState(false);
+      const [sendError, setSendError] = React27.useState(false);
       const [menu, setMenu] = React27.useState(null);
       const [plusOpen, setPlusOpen] = React27.useState(false);
       const [permissionOpen, setPermissionOpen] = React27.useState(false);
@@ -32789,7 +32847,12 @@ window.__ModuleLoader__.load({
       const [fileState, setFileState] = React27.useState({ loading: false, error: "", truncated: false, root: "" });
       const fileMatch = /(?:^|\s)@([^\s@"']*)$/.exec(text.slice(0, caret));
       const fileQuery = fileMatch?.[1] ?? null;
+      const [fileDirectory, setFileDirectory] = React27.useState(null);
+      const browsingDirectory = fileDirectory?.query === fileQuery ? fileDirectory.path : null;
       const fileOpen = !disabled && !composing && fileQuery !== null && !fileDismissed;
+      React27.useEffect(() => {
+        setFileDirectory(null);
+      }, [fileOpen, threadId, cwd]);
       React27.useEffect(() => {
         if (!fileOpen || !cwd || !threadId) return;
         let cancelled = false;
@@ -32799,7 +32862,11 @@ window.__ModuleLoader__.load({
         const timer = setTimeout(async () => {
           try {
             const workspace = await api("workspace/open", { cwd });
-            const result = await api("workspace/search", { workspaceId: workspace.workspaceId, query: fileQuery });
+            const result = await api(
+              browsingDirectory === null ? "workspace/search" : "workspace/list",
+              browsingDirectory === null ? { workspaceId: workspace.workspaceId, query: fileQuery } : { workspaceId: workspace.workspaceId, path: browsingDirectory }
+            );
+            result.entries = result.entries.filter((item) => item.type === "file" || item.type === "dir");
             if (!cancelled) {
               setFileResults(result.entries);
               setFileState({ loading: false, error: "", truncated: result.truncated, root: result.cwd });
@@ -32812,7 +32879,7 @@ window.__ModuleLoader__.load({
           cancelled = true;
           clearTimeout(timer);
         };
-      }, [fileOpen, fileQuery, cwd, threadId, api]);
+      }, [fileOpen, fileQuery, browsingDirectory, cwd, threadId, api]);
       React27.useEffect(() => {
         if (fileOpen) document.getElementById("codex-file-option-" + fileIndex)?.scrollIntoView({ block: "nearest" });
       }, [fileOpen, fileIndex, fileResults]);
@@ -33050,6 +33117,7 @@ window.__ModuleLoader__.load({
         const value = text.trim();
         if (value === "" && attachments.length === 0 || busy || disabled || pendingUploads.current > 0) return;
         setBusy(true);
+        setSendError(false);
         try {
           await onSend(value, {
             model: model === "" ? void 0 : model,
@@ -33065,6 +33133,7 @@ window.__ModuleLoader__.load({
           setAttachments([]);
           textareaRef.current?.focus();
         } catch {
+          setSendError(true);
         } finally {
           setBusy(false);
         }
@@ -33083,7 +33152,7 @@ window.__ModuleLoader__.load({
         fileOpen && /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-skill-picker dsh-codex-file-picker", children: [
           /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("header", { children: [
             /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("strong", { children: t("filePicker.title") }),
-            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("span", { children: t("filePicker.help") }),
+            /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("span", { title: browsingDirectory ?? void 0, children: browsingDirectory ?? t("filePicker.help") }),
             /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("button", { type: "button", "aria-label": t("filePicker.close"), onClick: () => setFileDismissed(true), children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "close", size: 15 }) })
           ] }),
           fileState.loading && /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("p", { role: "status", children: t("filePicker.loading") }),
@@ -33142,7 +33211,8 @@ window.__ModuleLoader__.load({
             ))
           ] })
         ] }) : null,
-        /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-composer-card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "dsh-codex-composer-card", "aria-busy": busy, children: [
+          sendError && /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-send-error", role: "alert", children: t("composer.sendFailed") }),
           selectedSkills.filter((s15) => hasSkill(text, s15.name)).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "dsh-codex-selected-skills", children: selectedSkills.filter((s15) => hasSkill(text, s15.name)).map((s15) => /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("span", { title: s15.path, children: [
             /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(Icon2, { name: "model", size: 14 }),
             "$",
@@ -33209,6 +33279,7 @@ window.__ModuleLoader__.load({
                 setSkillDismissed(false);
                 setSkillIndex(0);
                 setFileDismissed(false);
+                setFileDirectory(null);
                 setText(event.target.value);
                 setSlashIndex(0);
                 setSlashDismissed(false);
@@ -33224,9 +33295,17 @@ window.__ModuleLoader__.load({
                     setFileDismissed(true);
                     return;
                   }
-                  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                  if (["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight"].includes(event.key)) {
                     event.preventDefault();
-                    if (fileResults.length) setFileIndex((i) => (i + (event.key === "ArrowDown" ? 1 : -1) + fileResults.length) % fileResults.length);
+                    event.stopPropagation();
+                    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                      if (fileResults.length) setFileIndex((i) => (i + (event.key === "ArrowDown" ? 1 : -1) + fileResults.length) % fileResults.length);
+                    } else if (event.key === "ArrowRight") {
+                      const selected = fileResults[fileIndex];
+                      if (selected?.type === "dir" && fileQuery !== null) setFileDirectory({ query: fileQuery, path: selected.path });
+                    } else if (browsingDirectory !== null && browsingDirectory !== "." && fileQuery !== null) {
+                      setFileDirectory({ query: fileQuery, path: browsingDirectory.split("/").slice(0, -1).join("/") || "." });
+                    }
                     return;
                   }
                   if (event.key === "Enter" || event.key === "Tab") {
@@ -33900,6 +33979,22 @@ window.__ModuleLoader__.load({
 
     // src/client/page/ToolGroup.tsx
     var React29 = __toESM(require("react"), 1);
+
+    // src/client/activity-status.ts
+    function itemStatus(item) {
+      const result = item.result;
+      if (item.error || result?.isError || typeof item.exitCode === "number" && item.exitCode !== 0 || ["failed", "error", "declined"].includes(item.status ?? "")) return "failed";
+      if (["inProgress", "running", "pending"].includes(item.status ?? "")) return "running";
+      if (["interrupted", "cancelled", "canceled"].includes(item.status ?? "")) return "interrupted";
+      return item.status === "completed" ? "completed" : null;
+    }
+    function activityCounts(items) {
+      const counts = { failed: 0, completed: 0, running: 0, interrupted: 0, unknown: 0 };
+      for (const item of items) counts[itemStatus(item) ?? "unknown"]++;
+      return counts;
+    }
+
+    // src/client/page/ToolGroup.tsx
     var import_jsx_runtime36 = require("react/jsx-runtime");
     var ACTIVITY_TYPES = /* @__PURE__ */ new Set(["commandExecution", "fileChange", "mcpToolCall", "dynamicToolCall", "webSearch"]);
     function isActivity(item) {
@@ -33942,6 +34037,8 @@ window.__ModuleLoader__.load({
       const t = useT();
       const [open, setOpen] = React29.useState(false);
       const summary = summarize(items, t);
+      const counts = activityCounts(items);
+      const statuses = ["failed", "completed", "running", "interrupted"].filter((status) => counts[status] > 0 || status === "completed" && counts.failed > 0);
       return /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "dsh-codex-tool-group", children: [
         /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(
           "button",
@@ -33952,7 +34049,11 @@ window.__ModuleLoader__.load({
             onClick: () => setOpen(!open),
             children: [
               /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: `dsh-codex-tool-group-chevron ${open ? "open" : ""}`, children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: "chevronDown", size: 16 }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-tool-group-title", children: summary })
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-tool-group-title", children: summary }),
+              statuses.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "dsh-codex-tool-counts", children: statuses.map((status) => /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("span", { className: "dsh-codex-tool-status " + status, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Icon2, { name: status === "failed" ? "circleAlert" : status === "running" ? "activity" : status === "interrupted" ? "ban" : "check", size: 14 }),
+                t("group.count." + status, { count: counts[status] })
+              ] }, status)) })
             ]
           }
         ),
@@ -34056,6 +34157,8 @@ window.__ModuleLoader__.load({
       const [model, setModel] = React30.useState("");
       const [effort, setEffort] = React30.useState("");
       const [permission, setPermission] = React30.useState("ask");
+      const permissionUpdates = React30.useRef({});
+      const [permissionError, setPermissionError] = React30.useState(null);
       const settingEvents = React30.useRef({});
       const [, refreshSettingEvents] = React30.useReducer((value) => value + 1, 0);
       const eventsFor = (id) => {
@@ -34139,12 +34242,21 @@ window.__ModuleLoader__.load({
           if (mode !== permission) recordSetting(`权限已切换为${t("permission." + mode)}（下一轮生效）`);
           setPermission(mode);
           if (threadId === null) return;
+          setPermissionError(null);
+          const update = (permissionUpdates.current[threadId] ?? Promise.resolve()).catch(() => {
+          }).then(
+            () => api("followups/permissions", { threadId, ...permissionPayload(mode) })
+          );
+          permissionUpdates.current[threadId] = update;
+          void update.then(onFollowups).catch((cause) => {
+            if (permissionUpdates.current[threadId] === update) setPermissionError({ threadId, message: cause instanceof Error ? cause.message : String(cause) });
+          });
           try {
             window.localStorage.setItem(`dsh-codex-permission-${threadId}`, mode);
           } catch {
           }
         },
-        [threadId, permission, detail, t]
+        [threadId, permission, detail, t, api, onFollowups]
       );
       const atBottomRef = React30.useRef(true);
       const [showJump, setShowJump] = React30.useState(false);
@@ -34245,7 +34357,10 @@ window.__ModuleLoader__.load({
       const openQuestionIds = new Set(items.slice(lastUserIndex + 1).filter((item) => item.type === "agentMessage" && item.questions?.length).map((item) => item.id));
       const answerQuestion = async (text) => {
         if (activeTurnId !== null) await api("turns/steer", { threadId: thread.id, turnId: activeTurnId, text });
-        else await onSend(text, { model, effort, permission });
+        else {
+          await permissionUpdates.current[thread.id];
+          await onSend(text, { model, effort, permission });
+        }
       };
       const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null;
       const now = Date.now();
@@ -34328,6 +34443,7 @@ window.__ModuleLoader__.load({
           /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(Icon2, { name: "loader", size: 16, className: "dsh-codex-running-spinner" }),
           /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { children: t("thread.runningElapsed", { duration: formatDuration(runningMs, t, true) }) })
         ] }) : null,
+        permissionError?.threadId === threadId && /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("div", { className: "dsh-codex-permission-pending", role: "alert", children: permissionError.message }),
         threadId === selectedId && activeTurnId !== null && permissionFromSession != null && permission !== permissionFromSession && /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("div", { className: "dsh-codex-permission-pending", role: "status", children: "权限更改将在下一轮生效；当前回合和待处理的审批仍使用原权限。" }),
         /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
           Composer,
@@ -34364,6 +34480,7 @@ window.__ModuleLoader__.load({
             onDiff,
             onExport,
             onSend: async (text, options) => {
+              await permissionUpdates.current[thread.id];
               atBottomRef.current = true;
               setShowJump(false);
               const element = messagesRef.current;
@@ -34977,6 +35094,18 @@ window.__ModuleLoader__.load({
       const [models, setModels] = React33.useState([]);
       const [quota, setQuota] = React33.useState(null);
       const [sessionPermission, setSessionPermission] = React33.useState(null);
+      const followupRevision = selectedId ? followups[selectedId]?.revision : void 0;
+      React33.useEffect(() => {
+        if (!selectedId || followupRevision === void 0) return;
+        let cancelled = false;
+        void api("threads/settings", { threadId: selectedId }).then((settings) => {
+          if (!cancelled && settings) setSessionPermission({ threadId: selectedId, mode: permissionFromSettings(settings) });
+        }).catch(() => {
+        });
+        return () => {
+          cancelled = true;
+        };
+      }, [api, selectedId, followupRevision]);
       const [planMode, setPlanMode] = React33.useState(false);
       const [quotaLoading, setQuotaLoading] = React33.useState(true);
       const quotaRef = React33.useRef(null);
@@ -35381,26 +35510,7 @@ window.__ModuleLoader__.load({
             mode: planMode ? "plan" : "default",
             settings: { model, reasoning_effort: effort, developer_instructions: null }
           };
-          const workspaceWrite = (networkAccess) => ({
-            type: "workspaceWrite",
-            writableRoots: [],
-            networkAccess,
-            excludeTmpdirEnvVar: false,
-            excludeSlashTmp: false
-          });
-          const permissionPayload = permission === "full" ? { approvalPolicy: "never", approvalsReviewer: "user", sandboxPolicy: { type: "dangerFullAccess" } } : permission === "read" ? {
-            approvalPolicy: "on-request",
-            approvalsReviewer: "user",
-            sandboxPolicy: { type: "readOnly", networkAccess: false }
-          } : permission === "approve" ? {
-            approvalPolicy: "on-request",
-            approvalsReviewer: "auto_review",
-            sandboxPolicy: workspaceWrite(true)
-          } : {
-            approvalPolicy: "on-request",
-            approvalsReviewer: "user",
-            sandboxPolicy: workspaceWrite(false)
-          };
+          const permissions = permissionPayload(permission);
           try {
             const snapshot = await api("turns/submit", {
               threadId: selectedId,
@@ -35410,10 +35520,9 @@ window.__ModuleLoader__.load({
               attachments: options.attachments,
               skills: options.skills,
               ...collaborationMode === void 0 ? {} : { collaborationMode },
-              ...permissionPayload
+              ...permissions
             });
             updateFollowups(snapshot);
-            if (selectedIdRef.current === selectedId) setSessionPermission({ threadId: selectedId, mode: permission });
             window.setTimeout(() => {
               void loadThreads(null);
             }, 2500);
@@ -35572,7 +35681,7 @@ window.__ModuleLoader__.load({
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
       }, onDropCapture: (event) => {
         if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
-      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-11T08:58:04.715Z", children: [
+      }, style: { "--codex-nav-width": navWidth + "px" }, className: "dsh-codex-root" + (navResizing ? " is-nav-resizing" : "") + (appearance.collapsed ? " is-nav-collapsed" : "") + (appearance.navOpen ? " is-nav-open" : "") + (rightOpen ? " has-right" : ""), "data-codex-theme": appearance.theme, "data-client-build": "2026-11-11T09:34:14.832Z", children: [
         /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(ToastHost, {}),
         /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("header", { className: "dsh-codex-workbench-header", children: [
           /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(IconButton, { icon: "panelLeft", label: "展开或折叠项目栏", "aria-expanded": appearance.navOpen || !appearance.collapsed, "aria-controls": "dsh-codex-project-nav", onClick: appearance.toggleNav }),
@@ -35807,11 +35916,12 @@ window.__ModuleLoader__.load({
 
     // src/client/workbench-styles.ts
     var WORKBENCH_CSS = `
-    /* Approved merged direction: quiet neutrals, a single blue-grey accent. */
+    /* Approved Pro Max / Impeccable refinement: clear states, neutral navigation, no accent sidebars. */
     .dsh-codex-root{
-     --codex-bg:#fcfcfa;--codex-panel:#f4f4f1;--codex-soft:#eceeef;--codex-border:#dfe1e0;
-     --codex-text:#2c323a;--codex-muted:#606b77;--codex-accent:#55637a;--codex-selected:#e8ecf1;
-     --codex-success:#34725a;--codex-danger:#ad3e3e;--codex-warning-bg:#fff8e9;--codex-warning:#805d19;
+     --codex-bg:#ffffff;--codex-panel:#f5f7fb;--codex-soft:#edf1f7;--codex-border:#dde4ee;
+     --codex-text:#172338;--codex-muted:#58677c;--codex-accent:#245be8;--codex-selected:#edf3ff;--codex-nav-selected:#e5ebf3;--codex-on-accent:#ffffff;
+     --codex-success:#087847;--codex-success-indicator:#16b86b;--codex-success-bg:#e8f8ef;
+     --codex-danger:#c82f46;--codex-danger-bg:#fff0f2;--codex-warning-bg:#fff5db;--codex-warning:#956000;--codex-warning-indicator:#d28a09;
      --dsw-alias-bg-base:var(--codex-bg);--dsw-alias-bg-layer-1:var(--codex-panel);--dsw-alias-bg-layer-2:var(--codex-soft);
      --dsw-alias-label-primary:var(--codex-text);--dsw-alias-label-secondary:var(--codex-muted);
      --dsw-alias-label-tertiary:var(--codex-muted);--dsw-alias-label-caption:var(--codex-muted);
@@ -35828,9 +35938,10 @@ window.__ModuleLoader__.load({
      font-size:15px;line-height:1.75;color-scheme:light;view-transition-name:codex-panel;transition:grid-template-columns 220ms ease;
     }
     .dsh-codex-root[data-codex-theme="dark"]{
-     --codex-bg:#222428;--codex-panel:#1c1e22;--codex-soft:#30333a;--codex-border:#3b3f46;
-     --codex-text:#e4e6ea;--codex-muted:#a3aab5;--codex-accent:#b0bdd0;--codex-selected:#333c4a;
-     --codex-success:#94bca4;--codex-danger:#e7a3a3;--codex-warning-bg:#302a20;--codex-warning:#e5c281;
+     --codex-bg:#141b27;--codex-panel:#101620;--codex-soft:#202c3e;--codex-border:#2b3a4e;
+     --codex-text:#edf2fa;--codex-muted:#a5b4c9;--codex-accent:#8eb2ff;--codex-selected:#203354;--codex-nav-selected:#29374b;--codex-on-accent:#141b27;
+     --codex-success:#65e5a4;--codex-success-indicator:#36e191;--codex-success-bg:#16392e;
+     --codex-danger:#ff91a4;--codex-danger-bg:#41232c;--codex-warning-bg:#3b301b;--codex-warning:#ffd16b;--codex-warning-indicator:#ffd16b;
      --dsw-elevation-prominent:0 12px 40px #0006;color-scheme:dark;
     }
     .dsh-codex-root [hidden]{display:none!important}
@@ -35847,7 +35958,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-icon-button.is-selected{background:var(--codex-selected);color:var(--codex-accent)}
     .dsh-codex-root .dsh-codex-button{min-height:36px;gap:8px;padding:6px 12px;font-size:13px;border:1px solid var(--codex-border);border-radius:7px;background:var(--codex-bg);color:var(--codex-text);box-shadow:none}
     .dsh-codex-root .dsh-codex-button:hover{background:var(--codex-soft)}
-    .dsh-codex-root .dsh-codex-button.primary{background:var(--codex-accent);border-color:var(--codex-accent);color:var(--codex-bg)}
+    .dsh-codex-root .dsh-codex-button.primary{background:var(--codex-accent);border-color:var(--codex-accent);color:var(--codex-on-accent)}
     .dsh-codex-root .dsh-codex-button.danger,.dsh-codex-root .danger{color:var(--codex-danger)}
     .dsh-codex-root .dsh-codex-rail{grid-column:1;grid-row:1/3;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;background:var(--codex-panel);border-right:1px solid var(--codex-border)}
     .dsh-codex-root .dsh-codex-rail-brand{height:40px;width:44px;display:grid;place-items:center;border:0;background:transparent;color:var(--codex-text);margin-bottom:8px;cursor:pointer}
@@ -35869,7 +35980,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-focus-status,.dsh-codex-root .dsh-codex-focus-info{display:none}
     .dsh-codex-root .dsh-codex-focus-actions{display:flex;gap:4px;padding:2px 0 12px}
     .dsh-codex-focus-actions>.dsh-codex-button:first-child{flex:1;justify-content:flex-start}
-    .dsh-codex-root .dsh-codex-focus-actions .primary{background:var(--codex-bg);border-color:var(--codex-border);color:var(--codex-text)}
+    .dsh-codex-root .dsh-codex-focus-actions .primary{background:var(--codex-accent);border-color:var(--codex-accent);color:var(--codex-on-accent);justify-content:center;min-height:40px}
     .dsh-codex-focus-actions>.dsh-codex-button:nth-child(2){display:none}
     .dsh-codex-root .dsh-codex-search{height:38px;min-width:0;font-size:13px;padding:8px 10px;border-radius:7px;border:1px solid var(--codex-border);background:var(--codex-bg);color:var(--codex-text);box-shadow:none}
     .dsh-codex-root .dsh-codex-focus-search-row{gap:4px;padding:0 0 12px}
@@ -35900,7 +36011,8 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-sessions-transition.is-expanded{grid-template-rows:1fr;opacity:1}
     .dsh-codex-root .dsh-codex-sessions-transition>div{min-height:0;overflow:hidden}
     .dsh-codex-root .dsh-codex-thread{padding:6px 8px;min-height:38px;border-radius:7px}
-    .dsh-codex-root .dsh-codex-thread.active{background:var(--codex-selected);color:var(--codex-accent)}
+    .dsh-codex-root .dsh-codex-thread.active{background:var(--codex-nav-selected);color:var(--codex-text);box-shadow:none}
+    .dsh-codex-root .dsh-codex-thread.active .dsh-codex-thread-name{font-weight:600}
     .dsh-codex-root .dsh-codex-thread-name{font-size:13px}
     .dsh-codex-root .dsh-codex-thread-trailing{position:relative;display:flex;align-items:center;justify-content:flex-end;flex:none;min-width:28px;margin-left:6px}
     .dsh-codex-root .dsh-codex-thread-time{font-size:11px;white-space:nowrap;color:var(--codex-muted)}
@@ -35917,7 +36029,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-sidebar-quota{position:relative;padding:5px 0;font-size:12px;color:var(--codex-muted)}
     .quota-trigger{display:flex;flex-wrap:wrap;gap:4px 12px;width:100%;padding:5px 4px;border:0;border-radius:8px;background:transparent;color:inherit;text-align:left;cursor:pointer}
     .quota-trigger:hover,.quota-trigger[aria-expanded=true]{background:var(--codex-hover,rgba(128,128,128,.1))}
-    .quota-trigger:focus-visible,.quota-popover-header button:focus-visible{outline:2px solid #668ed2;outline-offset:2px}
+    .quota-trigger:focus-visible,.quota-popover-header button:focus-visible{outline:2px solid var(--codex-accent);outline-offset:2px}
     .quota-chip{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;min-height:25px}
     .quota-ring{display:block;flex:0 0 24px;width:24px;height:24px;overflow:visible}
     .dsh-codex-root .model-name-list{max-height:none;overflow:visible}
@@ -35929,7 +36041,7 @@ window.__ModuleLoader__.load({
     .dsh-effort-heading strong{font-size:13px;font-weight:600;color:var(--codex-text)}
     .dsh-effort-heading button{display:grid;place-items:center;border:0;background:transparent;color:inherit;padding:4px;border-radius:5px;cursor:pointer}
     .dsh-effort-track{position:relative;height:26px;border-radius:20px;background:rgba(128,128,128,.17);margin:0 2px;overflow:hidden}
-    .dsh-effort-fill{position:absolute;inset:0 auto 0 0;width:calc(var(--effort-progress) + var(--effort-offset));border-radius:20px 0 0 20px;background:linear-gradient(90deg, hsl(211 78% 43%), var(--effort-color));pointer-events:none}
+    .dsh-effort-fill{position:absolute;inset:0 auto 0 0;width:calc(var(--effort-progress) + var(--effort-offset));border-radius:20px 0 0 20px;background:var(--codex-accent);pointer-events:none}
     .dsh-effort-dots{position:absolute;z-index:1;inset:0 13px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
     .dsh-effort-dots i{width:4px;height:4px;flex:none;border-radius:50%;background:rgba(95,101,110,.5)}
     .dsh-effort-dots i.is-active{background:rgba(255,255,255,.75)}
@@ -35939,18 +36051,18 @@ window.__ModuleLoader__.load({
     .dsh-effort-track input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:26px;height:26px;border:0;background:transparent;box-shadow:none;opacity:0}
     .dsh-effort-track input::-moz-range-track{height:26px;background:transparent}
     .dsh-effort-track input::-moz-range-thumb{width:26px;height:26px;border:0;background:transparent;box-shadow:none;opacity:0}
-    .dsh-effort-track input:focus-visible{outline:2px solid #758c9a;outline-offset:3px;border-radius:20px}
+    .dsh-effort-track input:focus-visible{outline:2px solid var(--codex-accent);outline-offset:3px;border-radius:20px}
     .dsh-effort-slider{padding:12px 14px 16px;display:flex;flex-direction:column;align-items:center;gap:8px}
-    .dsh-effort-slider>strong{color:#3983ef;font-size:14px}
+    .dsh-effort-slider>strong{color:var(--codex-accent);font-size:14px}
     .dsh-effort-slider>span{font-size:12px;color:var(--codex-muted)}
-    .dsh-effort-slider input{width:100%;height:26px;accent-color:#3983ef;cursor:pointer}
+    .dsh-effort-slider input{width:100%;height:26px;accent-color:var(--codex-accent);cursor:pointer}
     .dsh-effort-ticks{display:flex;width:100%;justify-content:space-between;font-size:10px;color:var(--codex-muted);gap:4px}
     .quota-ring-track{stroke:rgba(128,145,155,.24)}
-    .quota-ring-value{stroke:var(--quota-color,#758c9a)}
-    .quota-ring-icon{fill:var(--quota-color,#758c9a)}
-    .quota-normal{--quota-color:#328665}
-    .quota-low{--quota-color:#b87713}
-    .quota-critical{--quota-color:#d04b4b}
+    .quota-ring-value{stroke:var(--quota-indicator,var(--codex-accent))}
+    .quota-ring-icon{fill:var(--quota-indicator,var(--codex-accent))}
+    .quota-normal{--quota-color:var(--codex-success);--quota-indicator:var(--codex-success-indicator)}
+    .quota-low{--quota-color:var(--codex-warning);--quota-indicator:var(--codex-warning-indicator)}
+    .quota-critical{--quota-color:var(--codex-danger);--quota-indicator:var(--codex-danger)}
     .quota-chip.quota-normal,.quota-chip.quota-low,.quota-chip.quota-critical{color:var(--quota-color)}
     .quota-detail .quota-detail-heading span{color:var(--quota-color,var(--codex-muted))}
     .quota-popover{position:absolute;z-index:60;left:0;bottom:calc(100% + 8px);width:100%;max-height:min(60vh,420px);overflow:auto;box-sizing:border-box;padding:16px;border:1px solid var(--codex-border);border-radius:14px;background:var(--codex-bg);color:var(--codex-text);box-shadow:0 12px 36px rgba(0,0,0,.18)}
@@ -35962,7 +36074,7 @@ window.__ModuleLoader__.load({
     .quota-detail-heading strong{font-weight:600}
     .quota-detail-heading span,.quota-detail-date,.quota-detail-extra{color:var(--codex-muted)}
     .quota-progress{height:5px;margin:10px 0 12px;border-radius:4px;background:rgba(128,128,128,.2);overflow:hidden}
-    .quota-progress span{display:block;height:100%;border-radius:4px;background:var(--quota-color,#758c9a)}
+    .quota-progress span{display:block;height:100%;border-radius:4px;background:var(--quota-indicator,var(--codex-accent))}
     .quota-reset-box{display:flex;align-items:flex-start;gap:9px;padding:10px;border-radius:8px;background:var(--codex-panel);font-size:12px;line-height:1.5}
     .quota-reset-box svg{flex:none;margin-top:1px;color:var(--codex-muted)}
     .quota-detail-reset{font-weight:600;color:var(--codex-text)}
@@ -35998,11 +36110,12 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-toast-message{flex:1;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
     .dsh-codex-root .dsh-codex-toast button{display:flex;flex:none;align-items:center;justify-content:center;padding:2px;border:0;border-radius:4px;background:transparent;color:var(--codex-muted);cursor:pointer}
     .dsh-codex-root .dsh-codex-toast button:hover{background:var(--codex-soft);color:var(--codex-text)}
-    .dsh-codex-root .dsh-codex-running-bar{width:min(800px,calc(100% - 64px));margin:0 auto;padding:4px 0;gap:8px;font-size:13px;line-height:1.6;color:var(--codex-muted)}
-    .dsh-codex-root .dsh-codex-running-spinner{display:block;width:16px;height:16px;flex:0 0 16px;border:0;border-radius:0;color:var(--codex-muted);animation:dsh-codex-spin 1s linear infinite}
+    .dsh-codex-root .dsh-codex-running-bar{width:min(800px,calc(100% - 64px));margin:6px auto;padding:8px 12px;gap:8px;border-radius:8px;background:var(--codex-selected);font-size:13px;line-height:1.6;color:var(--codex-accent)}
+    .dsh-codex-root .dsh-codex-running-spinner{display:block;width:16px;height:16px;flex:0 0 16px;border:0;border-radius:0;color:var(--codex-accent);animation:dsh-codex-spin 1s linear infinite}
     @media (prefers-reduced-motion:reduce){.dsh-codex-root .dsh-codex-running-spinner{animation:none}}
     .dsh-codex-root .dsh-codex-tool-group{margin:16px auto 22px}
-    .dsh-codex-root .dsh-codex-tool-group-head{width:100%;min-height:42px;padding:8px 12px;border:1px solid var(--codex-border);border-radius:8px;background:var(--codex-bg);color:var(--codex-muted);font-size:13px}
+    .dsh-codex-root .dsh-codex-tool-group-head{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--codex-border);border-radius:8px;background:var(--codex-panel);color:var(--codex-text);font-size:13px;flex-wrap:wrap}
+    .dsh-codex-root .dsh-codex-tool-group-head:hover{background:var(--codex-soft)}
     .dsh-codex-root .dsh-codex-tool-group-body{margin:12px 0 0 16px;border-left:1px solid var(--codex-border);padding-left:14px}
     .dsh-codex-root .dsh-codex-tool-head,.dsh-codex-root .dsh-codex-turn-footer{font-size:12px;color:var(--codex-muted)}
     .dsh-codex-root .dsh-codex-composer-wrap{flex-direction:column;align-items:center;padding:10px 26px 16px;background:var(--codex-bg)}
@@ -36025,7 +36138,8 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-permission-trigger,.dsh-codex-root .dsh-codex-model-trigger{min-height:36px;border-radius:7px;font-size:12px;color:var(--codex-muted)}
     .dsh-codex-root .dsh-codex-stop,.dsh-codex-root .dsh-codex-send{box-sizing:border-box;width:40px;height:40px;padding:0;border-radius:8px}
     .dsh-codex-root .dsh-codex-stop{border:1px solid var(--codex-border);background:transparent;color:var(--codex-muted)}
-    .dsh-codex-root .dsh-codex-send{background:var(--codex-text);color:var(--codex-bg)}
+    .dsh-codex-root .dsh-codex-send{background:var(--codex-accent);color:var(--codex-on-accent)}
+    .dsh-codex-root .dsh-codex-send:hover:not(:disabled){background:var(--codex-accent);filter:brightness(1.08)}
     .dsh-codex-root .dsh-codex-send:disabled{opacity:.35}
     .dsh-codex-root .dsh-codex-attachment{font-size:12px;border-radius:6px;background:var(--codex-panel);padding:4px 6px 4px 9px}
     .dsh-codex-root .dsh-codex-attachment .dsh-codex-attachment-remove{display:grid;place-items:center;min-width:26px;min-height:26px}
@@ -36122,8 +36236,13 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-approval pre{font-size:13px;padding:12px;border-radius:6px;background:var(--codex-bg)}
     .dsh-codex-root .dsh-codex-empty,.dsh-codex-root .dsh-codex-loading{font-size:14px;color:var(--codex-muted);line-height:1.85}
     .dsh-codex-root .dsh-codex-empty{max-width:680px;margin:auto}
-    .dsh-codex-root .dsh-codex-dot.ok{background:var(--codex-success)}
-    .dsh-codex-root .dsh-codex-thread .dsh-codex-dot.done{background:#16c95b}
+    .dsh-codex-root .dsh-codex-dot.ok,.dsh-codex-root .dsh-codex-dot.done{background:var(--codex-success-indicator)}
+    .dsh-codex-root .dsh-codex-dot.warn{background:var(--codex-warning-indicator)}
+    .dsh-codex-root .dsh-codex-dot.error{background:var(--codex-danger)}
+    .dsh-codex-root .dsh-codex-sidebar-health .dsh-codex-dot{width:8px;height:8px}
+    .dsh-codex-root .dsh-codex-sidebar-health .dsh-codex-dot.ok,
+    .dsh-codex-root .dsh-codex-workbench-status .dsh-codex-dot.ok{box-shadow:0 0 0 3px color-mix(in srgb,var(--codex-success-indicator) 14%,transparent)}
+    .dsh-codex-root .dsh-codex-sidebar-health{color:var(--codex-text)}
     .dsh-codex-root .dsh-codex-error,.dsh-codex-root .dsh-codex-dialog-error,.dsh-codex-root .dsh-codex-right-error,.dsh-codex-root [role="alert"]{color:var(--codex-danger);font-size:13px;overflow-wrap:anywhere}
     .dsh-codex-root .codex-sidebar{grid-column:4;grid-row:1/4;background:var(--codex-panel)}
     .dsh-codex-root.has-right .dsh-codex-workbench-status{grid-column:1/4}
@@ -36280,9 +36399,9 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-messages>*{width:min(800px,100%);margin-left:auto;margin-right:auto;flex:none}
     .dsh-codex-root .dsh-codex-message{margin-top:0;margin-bottom:0;gap:8px}
     .dsh-codex-root .dsh-codex-message-head{min-height:26px;font-size:12px;gap:9px}
-    .dsh-codex-root .dsh-codex-message-avatar{display:grid;place-items:center;width:26px;height:26px;border:1px solid var(--codex-border);border-radius:7px;background:var(--codex-panel);color:var(--codex-muted)}
+    .dsh-codex-root .dsh-codex-message-avatar{display:grid;place-items:center;width:26px;height:26px;color:var(--codex-text)}
     .dsh-codex-root .dsh-codex-message-head>strong{font-size:13px;font-weight:600;color:var(--codex-text)}
-    .dsh-codex-root .dsh-codex-message.user .dsh-codex-bubble{background:var(--codex-panel);box-shadow:none;border:1px solid var(--codex-border);border-radius:10px;padding:10px 14px;max-width:92%}
+    .dsh-codex-root .dsh-codex-message.user .dsh-codex-bubble{background:var(--codex-selected);box-shadow:none;border:0;border-radius:14px 14px 4px 14px;padding:12px 16px;max-width:92%}
     .dsh-codex-root .dsh-codex-bubble{max-width:100%}
     .dsh-codex-root .dsh-codex-tool-group{margin-top:2px;margin-bottom:2px}
     .dsh-codex-root .dsh-codex-turn-footer{font-size:12px;color:var(--codex-muted)}
@@ -36330,7 +36449,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-skill-picker p{font-size:12px;line-height:1.5;margin:5px 0;white-space:pre-wrap}
     .dsh-codex-root .dsh-codex-skill-picker small{display:block;font-size:10px;color:var(--codex-muted);overflow-wrap:anywhere}
     .dsh-codex-root .dsh-codex-skill-picker footer{padding:5px 8px;font-size:11px;color:var(--codex-muted)}
-    .dsh-codex-root .dsh-codex-skill-picker:not(.dsh-codex-file-picker){box-sizing:border-box;left:50%;right:auto;transform:translateX(-50%);width:min(800px,calc(100% - 52px))}
+    .dsh-codex-root .dsh-codex-skill-picker{box-sizing:border-box;left:50%;right:auto;transform:translateX(-50%);width:min(800px,calc(100% - 52px))}
     .dsh-codex-root .dsh-codex-skill-row{display:flex;align-items:center;border-radius:5px}
     .dsh-codex-root .dsh-codex-skill-row:has([aria-selected=true]){background:var(--codex-selected)}
     .dsh-codex-root .dsh-codex-skill-row [role=option]{display:flex;align-items:center;gap:10px;min-width:0;flex:1;background:transparent}
@@ -36342,7 +36461,7 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-skill-detail{padding:10px 8px}
     .dsh-codex-root .dsh-codex-skill-detail-path{margin:8px 0;color:var(--codex-muted);font-size:12px;overflow-wrap:anywhere}
     .dsh-codex-root .dsh-codex-skill-detail-description{padding:12px;border:1px solid var(--codex-border);border-radius:7px;font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
-    @media(max-width:700px){.dsh-codex-root .dsh-codex-skill-picker:not(.dsh-codex-file-picker){width:min(800px,calc(100% - 24px))}}
+    @media(max-width:767px){.dsh-codex-root .dsh-codex-skill-picker{width:min(800px,calc(100% - 24px))}}
     .dsh-codex-root .dsh-codex-skill-warning{color:var(--codex-warning)}
     .dsh-codex-root .dsh-codex-selected-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
     .dsh-codex-root .dsh-codex-selected-skills>span{display:flex;align-items:center;gap:5px;border:1px solid var(--codex-border);border-radius:5px;padding:3px 6px;font-family:var(--dsh-font-family-code);font-size:11px;background:var(--codex-panel)}
@@ -36355,9 +36474,15 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-followup-list{max-height:min(240px,30vh);overflow:auto}
     .dsh-codex-root .dsh-codex-followup-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:38px;padding:3px 5px;border-radius:6px}
     .dsh-codex-root .dsh-codex-followup-row>svg{flex:none;color:var(--codex-muted)}
-    .dsh-codex-root .dsh-codex-followup-text{flex:1;min-width:0;font-size:13px}
-    .dsh-codex-root .dsh-codex-followup-text>span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;white-space:pre-wrap}
+    .dsh-codex-root .dsh-codex-followup-text{display:flex;align-items:center;gap:8px;flex:1;min-width:0;font-size:13px}
+    .dsh-codex-root .dsh-codex-followup-text>span{display:block;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .dsh-codex-root .dsh-codex-followup-text small{display:flex;align-items:center;gap:4px;overflow-wrap:anywhere}
+    .dsh-codex-root .dsh-codex-followup-attachments{display:flex;flex:none;align-items:center;gap:6px;max-width:45%;overflow-x:auto}
+    .dsh-codex-root .dsh-codex-followup-attachments small{min-width:0;flex-shrink:0;max-width:100%}
+    .dsh-codex-root .dsh-codex-followup-attachments small>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .dsh-codex-root .dsh-codex-followup-image{display:inline-flex;flex:none;width:40px;height:40px;overflow:hidden;border:1px solid var(--codex-border);border-radius:5px;background:var(--codex-panel)}
+    .dsh-codex-root .dsh-codex-followup-image>span,.dsh-codex-root .dsh-codex-followup-image .dsh-codex-image-viewer-trigger{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:0;padding:0;color:var(--codex-muted)}
+    .dsh-codex-root .dsh-codex-followup-image img{display:block;width:100%;height:100%;object-fit:cover}
     .dsh-codex-root .dsh-codex-followup-actions{display:flex;align-items:center;gap:2px;flex:none}
     .dsh-codex-root .dsh-codex-followups button{display:inline-flex;align-items:center;justify-content:center;gap:4px;border:0;background:transparent;color:var(--codex-muted);border-radius:5px;min-height:32px;padding:4px 6px;font-size:12px;cursor:pointer}
     .dsh-codex-root .dsh-codex-followups .dsh-codex-icon-button{height:32px;width:32px;padding:4px}
@@ -36368,6 +36493,25 @@ window.__ModuleLoader__.load({
     .dsh-codex-root .dsh-codex-followup-edit>div{display:flex;justify-content:flex-end;gap:6px}
     .dsh-codex-root .dsh-codex-followup-error{flex-basis:100%;font-size:12px;color:var(--codex-danger);overflow-wrap:anywhere;padding:3px 5px}
     @media(max-width:600px){.dsh-codex-root .dsh-codex-followups{width:100%;margin-inline:0}.dsh-codex-root .dsh-codex-followups header small{display:none}}
+
+    /* Interaction and semantic feedback share the same palette in both themes. */
+    .dsh-codex-root ::selection{background:var(--codex-selected);color:var(--codex-text)}
+    .dsh-codex-root :where(input,textarea){caret-color:var(--codex-accent)}
+    .dsh-codex-root :where(button){transition:background-color 150ms ease,color 150ms ease,border-color 150ms ease}
+    .dsh-codex-root .dsh-codex-thread-time,.dsh-codex-root .quota-chip{font-variant-numeric:tabular-nums}
+    .dsh-codex-root .dsh-codex-tool-counts{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;margin-left:auto}
+    .dsh-codex-root .dsh-codex-tool-status{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:5px;font-size:12px;font-weight:500;white-space:nowrap}
+    .dsh-codex-root .dsh-codex-tool-status.completed{color:var(--codex-success);background:var(--codex-success-bg)}
+    .dsh-codex-root .dsh-codex-tool-status.running{color:var(--codex-accent);background:var(--codex-selected)}
+    .dsh-codex-root .dsh-codex-tool-status.failed{color:var(--codex-danger);background:var(--codex-danger-bg)}
+    .dsh-codex-root .dsh-codex-tool-status.interrupted{color:var(--codex-warning);background:var(--codex-warning-bg)}
+    .dsh-codex-root .dsh-codex-send-error{padding:8px 10px;margin:6px 0;border-radius:6px;background:var(--codex-danger-bg);font-size:13px;color:var(--codex-danger)}
+    .dsh-codex-root .dsh-codex-button.primary:hover:not(:disabled){background:var(--codex-accent);filter:brightness(1.08)}
+    .dsh-codex-root .dsh-codex-stop:hover:not(:disabled){background:var(--codex-danger-bg);color:var(--codex-danger)}
+    .dsh-codex-root .codex-terminal-toolbar [role=status][data-state=ready]{color:var(--codex-success)}
+    .dsh-codex-root .codex-terminal-toolbar [role=status][data-state=connecting]{color:var(--codex-accent)}
+    .dsh-codex-root .codex-terminal-toolbar [role=status][data-state=error]{color:var(--codex-danger)}
+    @media(prefers-reduced-motion:reduce){.dsh-codex-root :where(button){transition:none}}
 
     `;
 
@@ -36666,6 +36810,10 @@ window.__ModuleLoader__.load({
       border-radius: 0;
       background: transparent;
       overflow-wrap: anywhere;
+    }
+    .dsh-codex-root:not(.is-nav-resizing) .dsh-codex-message .dsh-codex-markdown {
+      -webkit-user-select: text;
+      user-select: text;
     }
     .dsh-codex-message.user .dsh-codex-bubble {
       max-width: min(720px, 82%);

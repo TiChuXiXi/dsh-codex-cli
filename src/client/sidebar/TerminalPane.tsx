@@ -90,11 +90,10 @@ export function TerminalPane({ api, cwd }: { api: Api, cwd: string }) {
     observer.observe(host)
     const root = host.closest('.dsh-codex-root')!
     const theme = () => {
-      const dark = root.getAttribute('data-codex-theme') === 'dark'
-      term.options.theme = dark
-        ? { background: '#181b22', foreground: '#e3e7ef', cursor: '#e3e7ef', selectionBackground: '#5576a980' }
-        : { background: '#fafafa', foreground: '#202631', cursor: '#202631', selectionBackground: '#89b4ea80' }
-      host.style.background = dark ? '#181b22' : '#fafafa'
+      const style = getComputedStyle(root)
+      const color = (name: string) => style.getPropertyValue('--codex-' + name).trim()
+      term.options.theme = { background: color('bg'), foreground: color('text'), cursor: color('accent'), selectionBackground: color('selected') }
+      host.style.background = color('bg')
     }
     theme()
     const themeObserver = new MutationObserver(theme)
@@ -179,7 +178,7 @@ export function TerminalPane({ api, cwd }: { api: Api, cwd: string }) {
     <div className="codex-terminal">
       <div className="dsh-codex-right-bar codex-terminal-toolbar">
         <code className="dsh-codex-right-path" title={cwd}>{cwd}</code>
-        <span role="status">{status === 'exited' ? t('right.exitCode', { code: exitCode ?? '—' }) : t('terminal.' + status)}</span>
+        <span role="status" data-state={status}>{status === 'exited' ? t('right.exitCode', { code: exitCode ?? '—' }) : t('terminal.' + status)}</span>
         <button type="button" className="dsh-codex-button" disabled={status !== 'ready'} onClick={() => { send.current('\x03'); terminal.current?.focus() }}>Ctrl+C</button>
         <button type="button" className="dsh-codex-button" onClick={() => setGeneration(value => value + 1)}>{t('terminal.restart')}</button>
       </div>

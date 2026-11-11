@@ -1,6 +1,7 @@
 /** Codex 管理页：左侧项目/会话，右侧会话详情 + 审批 + 输入区。 */
 
 import * as React from 'react'
+import { permissionPayload } from '../permissions'
 import { ToastHost } from '../components/Toast'
 import type {SkillReference} from '../skills'
 import {Icon,IconButton} from '../components/Icon'
@@ -173,6 +174,17 @@ export function ConsolePage(props: ConsolePageProps) {
   const [models, setModels] = React.useState<ModelOption[]>([])
   const [quota, setQuota] = React.useState<RateLimits | null>(null)
   const [sessionPermission, setSessionPermission] = React.useState<{ threadId: string, mode: PermissionMode | null } | null>(null)
+  const followupRevision = selectedId ? followups[selectedId]?.revision : undefined
+  React.useEffect(() => {
+    if (!selectedId || followupRevision === undefined) return
+    let cancelled = false
+    void api<Parameters<typeof permissionFromSettings>[0]>('threads/settings', { threadId: selectedId })
+      .then(settings => {
+        if (!cancelled && settings) setSessionPermission({ threadId: selectedId, mode: permissionFromSettings(settings) })
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [api, selectedId, followupRevision])
   const [planMode, setPlanMode] = React.useState(false)
   const [quotaLoading, setQuotaLoading] = React.useState(true)
   const quotaRef = React.useRef<RateLimits | null>(null)
@@ -616,34 +628,7 @@ export function ConsolePage(props: ConsolePageProps) {
             mode: planMode ? 'plan' : 'default',
             settings: { model, reasoning_effort: effort, developer_instructions: null },
           }
-      // workspaceWrite / readOnly 的 networkAccess 在协议里是 boolean；只有 externalSandbox 用 "restricted"/"enabled"。
-      const workspaceWrite = (networkAccess: boolean) => ({
-        type: 'workspaceWrite',
-        writableRoots: [],
-        networkAccess,
-        excludeTmpdirEnvVar: false,
-        excludeSlashTmp: false,
-      })
-      const permissionPayload =
-        permission === 'full'
-          ? { approvalPolicy: 'never', approvalsReviewer: 'user', sandboxPolicy: { type: 'dangerFullAccess' } }
-          : permission === 'read'
-            ? {
-                approvalPolicy: 'on-request',
-                approvalsReviewer: 'user',
-                sandboxPolicy: { type: 'readOnly', networkAccess: false },
-              }
-            : permission === 'approve'
-              ? {
-                  approvalPolicy: 'on-request',
-                  approvalsReviewer: 'auto_review',
-                  sandboxPolicy: workspaceWrite(true),
-                }
-              : {
-                  approvalPolicy: 'on-request',
-                  approvalsReviewer: 'user',
-                  sandboxPolicy: workspaceWrite(false),
-                }
+      const permissions = permissionPayload(permission)
       try {
         const snapshot = await api<FollowupSnapshot>('turns/submit', {
           threadId: selectedId,
@@ -653,10 +638,9 @@ export function ConsolePage(props: ConsolePageProps) {
           attachments: options.attachments,
           skills:options.skills,
           ...(collaborationMode === undefined ? {} : { collaborationMode }),
-          ...permissionPayload,
+          ...permissions,
         })
         updateFollowups(snapshot)
-        if (selectedIdRef.current === selectedId) setSessionPermission({ threadId: selectedId, mode: permission })
         // 首条消息落盘后线程才会出现在 thread/list：稍后补一次列表。
         window.setTimeout(() => {
           void loadThreads(null)

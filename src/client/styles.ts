@@ -298,6 +298,10 @@ export const CSS = `
   background: transparent;
   overflow-wrap: anywhere;
 }
+.dsh-codex-root:not(.is-nav-resizing) .dsh-codex-message .dsh-codex-markdown {
+  -webkit-user-select: text;
+  user-select: text;
+}
 .dsh-codex-message.user .dsh-codex-bubble {
   max-width: min(720px, 82%);
   padding: 10px 14px;

@@ -6,6 +6,7 @@ import { useT } from '../i18n'
 import type { Api } from '../rpc'
 import type { CodexItem } from '../types'
 import { ItemCard } from './ItemCard'
+import { activityCounts } from '../activity-status'
 
 const ACTIVITY_TYPES = new Set(['commandExecution', 'fileChange', 'mcpToolCall', 'dynamicToolCall', 'webSearch'])
 
@@ -58,6 +59,8 @@ export function ToolGroup({ items, api }: { items: CodexItem[], api: Api }) {
   const t = useT()
   const [open, setOpen] = React.useState(false)
   const summary = summarize(items, t)
+  const counts = activityCounts(items)
+  const statuses = (['failed', 'completed', 'running', 'interrupted'] as const).filter(status => counts[status] > 0 || (status === 'completed' && counts.failed > 0))
   return (
     <div className="dsh-codex-tool-group">
       <button
@@ -70,6 +73,12 @@ export function ToolGroup({ items, api }: { items: CodexItem[], api: Api }) {
           <Icon name="chevronDown" size={16}/>
         </span>
         <span className="dsh-codex-tool-group-title">{summary}</span>
+        {statuses.length > 0 && <span className="dsh-codex-tool-counts">
+          {statuses.map(status => <span key={status} className={'dsh-codex-tool-status ' + status}>
+            <Icon name={status === 'failed' ? 'circleAlert' : status === 'running' ? 'activity' : status === 'interrupted' ? 'ban' : 'check'} size={14}/>
+            {t('group.count.' + status, { count: counts[status] })}
+          </span>)}
+        </span>}
       </button>
       {open ? (
         <div className="dsh-codex-tool-group-body">

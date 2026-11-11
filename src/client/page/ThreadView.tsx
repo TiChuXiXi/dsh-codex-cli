@@ -1,6 +1,7 @@
 /** 会话详情：标题、元信息、消息流、审批与输入区。 */
 
 import * as React from 'react'
+import { permissionPayload } from '../permissions'
 import type { FollowupSnapshot } from '../types'
 import type {SkillReference} from '../skills'
 import {Icon} from '../components/Icon'
@@ -85,6 +86,8 @@ export function ThreadView({
   const [model, setModel] = React.useState('')
   const [effort, setEffort] = React.useState('')
   const [permission, setPermission] = React.useState<PermissionMode>('ask')
+  const permissionUpdates = React.useRef<Record<string, Promise<unknown>>>({})
+  const [permissionError, setPermissionError] = React.useState<{ threadId: string, message: string } | null>(null)
   const settingEvents = React.useRef<Record<string, SettingEvent[]>>({})
   const [, refreshSettingEvents] = React.useReducer((value: number) => value + 1, 0)
   const eventsFor = (id: string): SettingEvent[] => {
@@ -165,13 +168,21 @@ export function ThreadView({
       if (mode !== permission) recordSetting(`权限已切换为${t('permission.' + mode)}（下一轮生效）`)
       setPermission(mode)
       if (threadId === null) return
+      setPermissionError(null)
+      const update = (permissionUpdates.current[threadId] ?? Promise.resolve()).catch(() => {}).then(() =>
+        api<FollowupSnapshot>('followups/permissions', { threadId, ...permissionPayload(mode) }),
+      )
+      permissionUpdates.current[threadId] = update
+      void update.then(onFollowups).catch(cause => {
+        if (permissionUpdates.current[threadId] === update) setPermissionError({ threadId, message: cause instanceof Error ? cause.message : String(cause) })
+      })
       try {
         window.localStorage.setItem(`dsh-codex-permission-${threadId}`, mode)
       } catch {
         // 忽略。
       }
     },
-    [threadId, permission, detail, t],
+    [threadId, permission, detail, t, api, onFollowups],
   )
 
   // 是否贴着底部：决定新内容到来时要不要跟随；用户上滚后停止跟随。
@@ -296,7 +307,7 @@ export function ThreadView({
   const openQuestionIds = new Set(items.slice(lastUserIndex + 1).filter(item => item.type === 'agentMessage' && item.questions?.length).map(item => item.id))
   const answerQuestion = async (text: string) => {
     if (activeTurnId !== null) await api('turns/steer', { threadId: thread.id, turnId: activeTurnId, text })
-    else await onSend(text, { model, effort, permission })
+    else { await permissionUpdates.current[thread.id]; await onSend(text, { model, effort, permission }) }
   }
   const activeTurn = detail.turns.find((turn) => turn.id === activeTurnId) ?? null
   const now = Date.now()
@@ -394,6 +405,7 @@ export function ThreadView({
         </div>
       ) : null}
 
+      {permissionError?.threadId === threadId && <div className="dsh-codex-permission-pending" role="alert">{permissionError.message}</div>}
       {threadId === selectedId && activeTurnId !== null && permissionFromSession != null && permission !== permissionFromSession && (
         <div className="dsh-codex-permission-pending" role="status">权限更改将在下一轮生效；当前回合和待处理的审批仍使用原权限。</div>
       )}
@@ -428,6 +440,7 @@ export function ThreadView({
         onDiff={onDiff}
         onExport={onExport}
         onSend={async (text, options) => {
+          await permissionUpdates.current[thread.id]
           atBottomRef.current = true
           setShowJump(false)
           const element = messagesRef.current

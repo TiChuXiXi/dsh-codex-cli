@@ -40,6 +40,7 @@ export function ThreadRow({
     <div
       role="button"
       tabIndex={0}
+      aria-current={selected ? 'page' : undefined}
       className={`dsh-codex-thread ${selected ? 'active' : ''}`}
       title={`${threadTitle(thread)}\n${thread.cwd ?? ''}`}
       onClick={() => onSelect(thread.id)}

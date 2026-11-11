@@ -127,6 +127,7 @@ export function Composer({
   const [initialDraft] = React.useState(() => readDraft(threadId))
   const [text, setText] = React.useState(initialDraft.text)
   const [busy, setBusy] = React.useState(false)
+  const [sendError, setSendError] = React.useState(false)
   const [menu, setMenu] = React.useState<Menu>(null)
   const [plusOpen, setPlusOpen] = React.useState(false)
   const [permissionOpen, setPermissionOpen] = React.useState(false)
@@ -175,7 +176,10 @@ export function Composer({
   const [fileState,setFileState]=React.useState({loading:false,error:'',truncated:false,root:''})
   const fileMatch=/(?:^|\s)@([^\s@"']*)$/.exec(text.slice(0,caret))
   const fileQuery=fileMatch?.[1] ?? null
+  const [fileDirectory,setFileDirectory]=React.useState<{query:string,path:string}|null>(null)
+  const browsingDirectory=fileDirectory?.query===fileQuery ? fileDirectory.path : null
   const fileOpen=!disabled && !composing && fileQuery!==null && !fileDismissed
+  React.useEffect(()=>{setFileDirectory(null)},[fileOpen,threadId,cwd])
   React.useEffect(()=>{
     if(!fileOpen || !cwd || !threadId)return
     let cancelled=false
@@ -183,12 +187,16 @@ export function Composer({
     const timer=setTimeout(async()=>{
       try{
         const workspace=await api<{workspaceId:string}>('workspace/open',{cwd})
-        const result=await api<{cwd:string,entries:{name:string,path:string,type:'file'|'dir'}[],truncated:boolean}>('workspace/search',{workspaceId:workspace.workspaceId,query:fileQuery})
+        const result=await api<{cwd:string,entries:{name:string,path:string,type:'file'|'dir'}[],truncated:boolean}>(
+          browsingDirectory===null?'workspace/search':'workspace/list',
+          browsingDirectory===null?{workspaceId:workspace.workspaceId,query:fileQuery}:{workspaceId:workspace.workspaceId,path:browsingDirectory},
+        )
+        result.entries=result.entries.filter(item=>item.type==='file'||item.type==='dir')
         if(!cancelled){setFileResults(result.entries);setFileState({loading:false,error:'',truncated:result.truncated,root:result.cwd})}
       }catch(error){if(!cancelled)setFileState({loading:false,error:error instanceof Error?error.message:String(error),truncated:false,root:''})}
     },150)
     return()=>{cancelled=true;clearTimeout(timer)}
-  },[fileOpen,fileQuery,cwd,threadId,api])
+  },[fileOpen,fileQuery,browsingDirectory,cwd,threadId,api])
   React.useEffect(()=>{
     if(fileOpen)document.getElementById('codex-file-option-'+fileIndex)?.scrollIntoView({block:'nearest'})
   },[fileOpen,fileIndex,fileResults])
@@ -412,6 +420,7 @@ export function Composer({
     const value = text.trim()
     if ((value === '' && attachments.length === 0) || busy || disabled || pendingUploads.current > 0) return
     setBusy(true)
+    setSendError(false)
     try {
       await onSend(value, {
         model: model === '' ? undefined : model,
@@ -425,7 +434,8 @@ export function Composer({
       setAttachments([])
       textareaRef.current?.focus()
     } catch {
-      // 失败保留草稿。
+      // Keep the draft and attachments so the user can retry in place.
+      setSendError(true)
     } finally {
       setBusy(false)
     }
@@ -445,7 +455,7 @@ export function Composer({
     <div className="dsh-codex-composer-wrap">
       {followups && <FollowupList snapshot={followups} api={api} onChange={onFollowups} activeTurnId={activeTurnId} />}
       {fileOpen&&<div className="dsh-codex-skill-picker dsh-codex-file-picker">
-        <header><strong>{t('filePicker.title')}</strong><span>{t('filePicker.help')}</span><button type="button" aria-label={t('filePicker.close')} onClick={()=>setFileDismissed(true)}><Icon name="close" size={15}/></button></header>
+        <header><strong>{t('filePicker.title')}</strong><span title={browsingDirectory ?? undefined}>{browsingDirectory ?? t('filePicker.help')}</span><button type="button" aria-label={t('filePicker.close')} onClick={()=>setFileDismissed(true)}><Icon name="close" size={15}/></button></header>
         {fileState.loading&&<p role="status">{t('filePicker.loading')}</p>}
         {fileState.error&&<p role="alert">{fileState.error}</p>}
         <div role="listbox" id="codex-file-options" aria-label={t('filePicker.title')}>{fileResults.map((item,i)=><button type="button" role="option" id={'codex-file-option-'+i} key={item.path} aria-selected={fileIndex===i} onMouseEnter={()=>setFileIndex(i)} onMouseDown={e=>e.preventDefault()} onClick={()=>chooseFile(item)}><span><Icon name={item.type==='dir'?'folder':'file'} size={16}/><strong>{item.name}</strong></span><small>{item.path}</small></button>)}</div>
@@ -493,7 +503,8 @@ export function Composer({
           </div>
         </>
       ) : null}
-      <div className="dsh-codex-composer-card">
+      <div className="dsh-codex-composer-card" aria-busy={busy}>
+      {sendError && <div className="dsh-codex-send-error" role="alert">{t('composer.sendFailed')}</div>}
       {selectedSkills.filter(s=>hasSkill(text,s.name)).length>0&&<div className="dsh-codex-selected-skills">{selectedSkills.filter(s=>hasSkill(text,s.name)).map(s=><span key={s.path} title={s.path}><Icon name="model" size={14}/>${s.name}<button type="button" aria-label={'移除技能 '+s.name} onClick={()=>{setSelectedSkills(old=>old.filter(item=>item.path!==s.path));setText(old=>old.replace('$'+s.name,''));setSkillDismissed(true)}}><Icon name="close" size={12}/></button></span>)}</div>}
         <input ref={fileInputRef} type="file" multiple hidden onChange={(event) => { uploadFiles(event.target.files); event.target.value = '' }} />
         <input ref={folderInputRef} type="file" multiple hidden {...({webkitdirectory: '', directory: ''} as any)} onChange={(event) => { uploadFiles(event.target.files); event.target.value = '' }} />
@@ -540,7 +551,7 @@ export function Composer({
           onCompositionEnd={event=>{setComposing(false);setCaret(event.currentTarget.selectionStart)}}
           onKeyUp={event=>setCaret(event.currentTarget.selectionStart)}
           onChange={(event) => {
-            setCaret(event.target.selectionStart);setSkillDismissed(false);setSkillIndex(0);setFileDismissed(false)
+            setCaret(event.target.selectionStart);setSkillDismissed(false);setSkillIndex(0);setFileDismissed(false);setFileDirectory(null)
             setText(event.target.value)
             setSlashIndex(0)
             setSlashDismissed(false)
@@ -552,7 +563,19 @@ export function Composer({
             if(event.nativeEvent.isComposing||composing)return
             if(fileOpen){
               if(event.key==='Escape'){event.preventDefault();setFileDismissed(true);return}
-              if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();if(fileResults.length)setFileIndex(i=>(i+(event.key==='ArrowDown'?1:-1)+fileResults.length)%fileResults.length);return}
+              if(['ArrowDown','ArrowUp','ArrowLeft','ArrowRight'].includes(event.key)){
+                event.preventDefault()
+                event.stopPropagation()
+                if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+                  if(fileResults.length)setFileIndex(i=>(i+(event.key==='ArrowDown'?1:-1)+fileResults.length)%fileResults.length)
+                }else if(event.key==='ArrowRight'){
+                  const selected=fileResults[fileIndex]
+                  if(selected?.type==='dir'&&fileQuery!==null)setFileDirectory({query:fileQuery,path:selected.path})
+                }else if(browsingDirectory!==null&&browsingDirectory!=='.'&&fileQuery!==null){
+                  setFileDirectory({query:fileQuery,path:browsingDirectory.split('/').slice(0,-1).join('/')||'.'})
+                }
+                return
+              }
               if(event.key==='Enter'||event.key==='Tab'){event.preventDefault();if(fileResults[fileIndex])chooseFile(fileResults[fileIndex]);return}
             }
             if(skillOpen){
